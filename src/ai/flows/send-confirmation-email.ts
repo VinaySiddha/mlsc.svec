@@ -10,6 +10,9 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const ConfirmationEmailInputSchema = z.object({
   name: z.string().describe("The applicant's name."),
@@ -53,12 +56,19 @@ const prompt = ai.definePrompt({
       // In a real application, this would integrate with an actual email service
       // like SendGrid, Resend, or Nodemailer. For this demo, we'll just log it.
       async handler({to, subject, body}) {
-        console.log('--- SENDING EMAIL ---');
-        console.log(`To: ${to}`);
-        console.log(`Subject: ${subject}`);
-        console.log(`Body: ${body}`);
-        console.log('---------------------');
-        // This is where the actual email sending logic would go.
+        try {
+          await resend.emails.send({
+            from: 'MLSC Hiring <onboarding@resend.dev>', // You must use a verified domain in production
+            to: [to],
+            subject: subject,
+            html: `<p>${body.replace(/\n/g, '<br>')}</p>`, // Basic HTML formatting
+          });
+          console.log(`Successfully sent email to ${to}`);
+        } catch (error) {
+          console.error(`Failed to send email to ${to}:`, error);
+          // Optional: handle the error, e.g., retry or log to a monitoring service
+          // For now, we'll just log it and not throw an error to avoid halting the flow.
+        }
       },
     }),
   ],
