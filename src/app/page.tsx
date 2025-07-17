@@ -2,7 +2,8 @@ import { ApplicationForm } from "@/components/application-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, LogIn } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FileSearch, LogIn, Menu } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -13,10 +14,10 @@ export default function Home() {
           <Link href="/" className="flex items-center gap-4">
             <MLSCLogo className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              MLSC Hub
+              MLSC 3.0 Hiring
             </h1>
           </Link>
-          <div className="flex items-center gap-2">
+          <nav className="hidden sm:flex items-center gap-2">
              <Button asChild variant="outline">
               <Link href="/status">
                 <FileSearch />
@@ -29,6 +30,30 @@ export default function Home() {
                 <span>Admin Login</span>
               </Link>
             </Button>
+          </nav>
+          <div className="sm:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Menu />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/status">
+                    <FileSearch className="mr-2" />
+                    <span>Check Status</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/login">
+                    <LogIn className="mr-2" />
+                    <span>Admin Login</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

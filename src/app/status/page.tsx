@@ -13,7 +13,7 @@ export default function StatusPage() {
           <Link href="/" className="flex items-center gap-4">
             <MLSCLogo className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              MLSC Hub
+              MLSC 3.0 Hiring
             </h1>
           </Link>
            <Button asChild variant="outline">
