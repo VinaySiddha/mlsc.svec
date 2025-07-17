@@ -21,34 +21,49 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
 
-const roles = [
-  { id: "events", label: "Events" },
-  { id: "marketing", label: "Marketing" },
-  { id: "external_relations", label: "External Relations" },
-  { id: "tech", label: "Tech" },
+const branches = ["AIML", "CAI", "CSE", "CST", "ECE", "Others"];
+const sections = ["A", "B", "C", "D", "E"];
+const years = ["2nd", "3rd"];
+
+const technicalDomains = [
+  { id: "gen_ai", label: "Generative AI" },
+  { id: "ds_ml", label: "Data Science & Machine Learning" },
+  { id: "azure", label: "Azure Cloud" },
+  { id: "web_app", label: "Web and APP Development" },
+];
+
+const nonTechnicalDomains = [
+  { id: "event_management", label: "Event Management" },
+  { id: "public_relations", label: "Public Relations" },
+  { id: "media_marketing", label: "Media Marketing" },
+  { id: "creativity", label: "Creativity" },
 ];
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
-  phone: z.string().optional(),
-  isNtuStudent: z.enum(["yes", "no"], {
-    required_error: "Please select an option.",
-  }),
-  major: z.string().optional(),
+  phone: z.string().min(1, "Phone number is required."),
+  branch: z.string({ required_error: "Please select your branch." }),
+  section: z.string({ required_error: "Please select your section." }),
   yearOfStudy: z.string({ required_error: "Please select your year of study."}),
-  interestedRoles: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one item.",
+  cgpa: z.string().min(1, "CGPA is required.").refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 10, { message: "Please enter a valid CGPA between 0 and 10."}),
+  backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number."}),
+  joinReason: z.string().min(20, "Please tell us why you want to join.").max(1000),
+  aboutClub: z.string().min(20, "Please tell us what you know about the club.").max(1000),
+  technicalDomains: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one technical domain.",
   }),
-  skills: z.string().optional(),
-  reason: z.string().min(20, "Please tell us why you want to join.").max(1000),
+  nonTechnicalDomains: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one non-technical domain.",
+  }),
+  linkedin: z.string().url("Please enter a valid LinkedIn URL.").optional().or(z.literal('')),
+  anythingElse: z.string().optional(),
   resume: z
     .any()
     .optional()
@@ -60,12 +75,7 @@ const formSchema = z.object({
       (files) => !files || files.length === 0 || ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       ".pdf and .docx files are accepted."
     ),
-})
-.refine(data => data.isNtuStudent === 'no' || !!data.major, {
-    message: "Major is required if you are an NTU student.",
-    path: ["major"],
 });
-
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -80,14 +90,16 @@ export function ApplicationForm() {
       name: "",
       email: "",
       phone: "",
-      major: "",
-      interestedRoles: [],
-      skills: "",
-      reason: "",
+      cgpa: "",
+      backlogs: "",
+      joinReason: "",
+      aboutClub: "",
+      technicalDomains: [],
+      nonTechnicalDomains: [],
+      linkedin: "",
+      anythingElse: "",
     },
   });
-
-  const isNtuStudent = form.watch("isNtuStudent");
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -95,8 +107,8 @@ export function ApplicationForm() {
 
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
-      if (key === 'interestedRoles' && Array.isArray(value)) {
-        value.forEach(role => formData.append('interestedRoles', role));
+      if ((key === 'technicalDomains' || key === 'nonTechnicalDomains') && Array.isArray(value)) {
+        value.forEach(item => formData.append(key, item));
       } else if (key === 'resume' && value?.[0]) {
         formData.append('resume', value[0]);
       } else if (value !== undefined && value !== null && !Array.isArray(value)) {
@@ -161,159 +173,113 @@ export function ApplicationForm() {
                 </FormItem>
               )}
             />
-          </div>
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="(123) 456-7890" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="isNtuStudent"
-            render={({ field }) => (
-              <FormItem className="space-y-3">
-                <FormLabel>Are you an NTU student? *</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="flex flex-col space-y-1"
-                  >
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="yes" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Yes</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="no" />
-                      </FormControl>
-                      <FormLabel className="font-normal">No</FormLabel>
-                    </FormItem>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {isNtuStudent === 'yes' && (
             <FormField
               control={form.control}
-              name="major"
+              name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>If yes, what is your major? *</FormLabel>
+                  <FormLabel>Phone Number *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Computer Science" {...field} />
+                    <Input placeholder="(123) 456-7890" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          )}
-          <FormField
-            control={form.control}
-            name="yearOfStudy"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>What is your year of study? *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormField
+                control={form.control}
+                name="branch"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Branch *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger>
+                        <SelectValue placeholder="Select your branch" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="section"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Section *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger>
+                        <SelectValue placeholder="Select your section" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {sections.map(section => <SelectItem key={section} value={section}>{section}</SelectItem>)}
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="yearOfStudy"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Current Year of Study *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger>
+                        <SelectValue placeholder="Select your year" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+             <FormField
+              control={form.control}
+              name="cgpa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current CGPA *</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your year of study" />
-                    </SelectTrigger>
+                    <Input placeholder="e.g., 8.5" type="number" step="0.01" {...field} />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="year1">Year 1</SelectItem>
-                    <SelectItem value="year2">Year 2</SelectItem>
-                    <SelectItem value="year3">Year 3</SelectItem>
-                    <SelectItem value="year4">Year 4</SelectItem>
-                    <SelectItem value="postgraduate">Postgraduate</SelectItem>
-                    <SelectItem value="na">N/A</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="backlogs"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>No of Active Backlogs *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 0" type="number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
-            name="interestedRoles"
-            render={() => (
-              <FormItem>
-                <div className="mb-4">
-                  <FormLabel className="text-base">What roles are you interested in? *</FormLabel>
-                  <FormDescription>Select all that apply.</FormDescription>
-                </div>
-                {roles.map((item) => (
-                  <FormField
-                    key={item.id}
-                    control={form.control}
-                    name="interestedRoles"
-                    render={({ field }) => {
-                      return (
-                        <FormItem
-                          key={item.id}
-                          className="flex flex-row items-start space-x-3 space-y-0"
-                        >
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(item.id)}
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...(field.value || []), item.id])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value) => value !== item.id
-                                      )
-                                    );
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            {item.label}
-                          </FormLabel>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="skills"
+            name="joinReason"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>What are your technical skills?</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="e.g., Python, PyTorch, React, etc."
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="reason"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Why do you want to join MLSC? *</FormLabel>
+                <FormLabel>Why do you want to join this club? *</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Tell us about your passion for machine learning and what you hope to achieve with the club."
@@ -325,6 +291,153 @@ export function ApplicationForm() {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="aboutClub"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>What do you know about MLSC club? *</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Your knowledge about the club's activities, goals, etc."
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FormField
+              control={form.control}
+              name="technicalDomains"
+              render={() => (
+                <FormItem>
+                  <div className="mb-4">
+                    <FormLabel className="text-base">Which domain are you interested in? (TECHNICAL) *</FormLabel>
+                    <FormDescription>Select all that apply.</FormDescription>
+                  </div>
+                  {technicalDomains.map((item) => (
+                    <FormField
+                      key={item.id}
+                      control={form.control}
+                      name="technicalDomains"
+                      render={({ field }) => {
+                        return (
+                          <FormItem
+                            key={item.id}
+                            className="flex flex-row items-start space-x-3 space-y-0"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(item.id)}
+                                onCheckedChange={(checked) => {
+                                  return checked
+                                    ? field.onChange([...(field.value || []), item.id])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          (value) => value !== item.id
+                                        )
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {item.label}
+                            </FormLabel>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nonTechnicalDomains"
+              render={() => (
+                <FormItem>
+                  <div className="mb-4">
+                    <FormLabel className="text-base">Which domain are you interested in? (NON-TECHNICAL) *</FormLabel>
+                    <FormDescription>Select all that apply.</FormDescription>
+                  </div>
+                  {nonTechnicalDomains.map((item) => (
+                    <FormField
+                      key={item.id}
+                      control={form.control}
+                      name="nonTechnicalDomains"
+                      render={({ field }) => {
+                        return (
+                          <FormItem
+                            key={item.id}
+                            className="flex flex-row items-start space-x-3 space-y-0"
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(item.id)}
+                                onCheckedChange={(checked) => {
+                                  return checked
+                                    ? field.onChange([...(field.value || []), item.id])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          (value) => value !== item.id
+                                        )
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {item.label}
+                            </FormLabel>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+              control={form.control}
+              name="linkedin"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LinkedIn Profile (Link)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          
+          <FormField
+            control={form.control}
+            name="anythingElse"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Anything else you’d like to share?</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Any other information you'd like us to know."
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
            <FormField
               control={form.control}
               name="resume"

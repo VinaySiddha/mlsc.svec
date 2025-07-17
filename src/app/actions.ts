@@ -9,13 +9,18 @@ import {z} from 'zod';
 const applicationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Please enter a valid email address.'),
-  phone: z.string().optional(),
-  isNtuStudent: z.enum(['yes', 'no']),
-  major: z.string().optional(),
-  yearOfStudy: z.string(),
-  interestedRoles: z.array(z.string()).min(1, 'Please select at least one role.'),
-  skills: z.string().optional(),
-  reason: z.string().min(20, 'Please tell us why you want to join.'),
+  phone: z.string().min(1, 'Phone number is required.'),
+  branch: z.string({ required_error: 'Please select your branch.' }),
+  section: z.string({ required_error: 'Please select your section.' }),
+  yearOfStudy: z.string({ required_error: 'Please select your year of study.'}),
+  cgpa: z.string().min(1, 'CGPA is required.'),
+  backlogs: z.string().min(1, 'Number of backlogs is required.'),
+  joinReason: z.string().min(20, 'Please tell us why you want to join.'),
+  aboutClub: z.string().min(20, 'Please tell us what you know about the club.'),
+  technicalDomains: z.array(z.string()).min(1, 'Please select at least one technical domain.'),
+  nonTechnicalDomains: z.array(z.string()).min(1, 'Please select at least one non-technical domain.'),
+  linkedin: z.string().url('Please enter a valid LinkedIn URL.').optional(),
+  anythingElse: z.string().optional(),
   resume: z.instanceof(File).optional(),
 });
 
@@ -24,12 +29,17 @@ export async function submitApplication(formData: FormData) {
     name: formData.get('name'),
     email: formData.get('email'),
     phone: formData.get('phone'),
-    isNtuStudent: formData.get('isNtuStudent'),
-    major: formData.get('major'),
+    branch: formData.get('branch'),
+    section: formData.get('section'),
     yearOfStudy: formData.get('yearOfStudy'),
-    interestedRoles: formData.getAll('interestedRoles'),
-    skills: formData.get('skills'),
-    reason: formData.get('reason'),
+    cgpa: formData.get('cgpa'),
+    backlogs: formData.get('backlogs'),
+    joinReason: formData.get('joinReason'),
+    aboutClub: formData.get('aboutClub'),
+    technicalDomains: formData.getAll('technicalDomains'),
+    nonTechnicalDomains: formData.getAll('nonTechnicalDomains'),
+    linkedin: formData.get('linkedin') || undefined,
+    anythingElse: formData.get('anythingElse') || undefined,
     resume: formData.get('resume'),
   };
 
@@ -56,19 +66,8 @@ export async function submitApplication(formData: FormData) {
       summary = result.summary;
     }
 
-    // In a real application, you would save the application data and resume URL to Firestore here.
-    // For example:
-    // let resumeUrl = null;
-    // if (resume) {
-    //   resumeUrl = await uploadFileToFirebaseStorage(resume);
-    // }
-    // await db.collection('applications').add({
-    //   ...applicationData,
-    //   resumeUrl,
-    //   summary,
-    //   status: 'Applied',
-    //   submittedAt: new Date(),
-    // });
+    // In a real application, you would save the application data here.
+    console.log('Application data:', applicationData);
 
     return {summary};
   } catch (error) {
