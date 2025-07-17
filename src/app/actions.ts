@@ -6,12 +6,26 @@ import {
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
 
-
 import {z} from 'zod';
-import fs from 'fs/promises';
-import path from 'path';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { db } from '@/lib/firebase';
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  getDoc, 
+  doc, 
+  updateDoc, 
+  query, 
+  where, 
+  orderBy,
+  limit,
+  startAfter,
+  getCountFromServer,
+  documentId,
+} from 'firebase/firestore';
+
 
 const applicationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -54,25 +68,6 @@ const loginSchema = z.object({
   username: z.string(),
   password: z.string(),
 });
-
-
-const dbPath = path.join(process.cwd(), 'db.json');
-
-async function readDb() {
-  try {
-    const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return { applications: [], panels: [] };
-    }
-    throw error;
-  }
-}
-
-async function writeDb(data: any) {
-  await fs.writeFile(dbPath, JSON.stringify(data, null, 2));
-}
 
 // Generate a unique, readable reference ID
 function generateReferenceId() {
@@ -125,9 +120,8 @@ export async function submitApplication(formData: FormData) {
       summary = result.summary;
     }
 
-    const db = await readDb();
     const newApplication = {
-      id: referenceId, // Use reference ID as the main ID
+      id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
       ...applicationData,
       resumeSummary: summary,
@@ -146,9 +140,12 @@ export async function submitApplication(formData: FormData) {
       },
       remarks: '',
     };
-    db.applications.push(newApplication);
-    await writeDb(db);
+    
+    const applicationsRef = collection(db, "applications");
+    const docRef = await addDoc(applicationsRef, { ...newApplication });
 
+    // Update the document with its own Firestore ID for easy reference
+    await updateDoc(docRef, { firestoreId: docRef.id });
 
     return {summary, referenceId };
   } catch (error) {
@@ -173,79 +170,98 @@ export async function getApplications(params: {
   sortByRecommended?: string;
   page?: string;
   limit?: string;
+  lastVisibleId?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain, sortByPerformance, sortByRecommended, page = '1', limit = '10' } = params;
-  const db = await readDb();
+  const { panelDomain, search, status, year, branch, domain, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
+  const limitNumber = parseInt(limitStr, 10);
   
-  let applications = db.applications;
-
-  // Panel-based filtering is the first and most important filter
+  let q = query(collection(db, 'applications'));
+  let conditions: any[] = [];
+  
+  // Panel-based filtering
   if (panelDomain) {
-    applications = applications.filter((app: any) => app.technicalDomain === panelDomain);
-  }
-
-  // Server-side search
-  if (search) {
-    const searchTerm = search.toLowerCase();
-    applications = applications.filter((app: any) => 
-      (app.name && app.name.toLowerCase().includes(searchTerm)) ||
-      (app.email && app.email.toLowerCase().includes(searchTerm)) ||
-      (app.id && app.id.toLowerCase().includes(searchTerm)) ||
-      (app.rollNo && app.rollNo.toLowerCase().includes(searchTerm))
-    );
-  }
-
-  // Server-side filters
-  if (status) {
-    applications = applications.filter((app: any) => app.status === status);
-  }
-  if (year) {
-    applications = applications.filter((app: any) => app.yearOfStudy === year);
-  }
-  if (branch) {
-    applications = applications.filter((app: any) => app.branch === branch);
-  }
-  // Admin-only domain filter
-  if (domain && !panelDomain) {
-    applications = applications.filter((app: any) => app.technicalDomain === domain);
+    conditions.push(where('technicalDomain', '==', panelDomain));
   }
   
-  // Sorting logic
+  // Other filters
+  if (status) conditions.push(where('status', '==', status));
+  if (year) conditions.push(where('yearOfStudy', '==', year));
+  if (branch) conditions.push(where('branch', '==', branch));
+  if (domain && !panelDomain) conditions.push(where('technicalDomain', '==', domain));
   if (sortByRecommended === 'true' && !panelDomain) {
-    applications.sort((a: any, b: any) => (b.isRecommended ? 1 : -1) - (a.isRecommended ? 1 : -1) || (b.ratings?.overall || 0) - (a.ratings?.overall || 0));
-  } else if (sortByPerformance === 'true' && !panelDomain) {
-    applications.sort((a: any, b: any) => (b.ratings?.overall || 0) - (a.ratings?.overall || 0));
+    conditions.push(where('isRecommended', '==', true));
+  }
+
+  // Combine all "where" clauses
+  if (conditions.length > 0) {
+    q = query(q, ...conditions);
+  }
+
+  // NOTE: Firestore doesn't support text search on multiple fields out-of-the-box.
+  // The search implementation below is basic and only searches the name field.
+  // For production, a dedicated search service like Algolia or Elasticsearch is recommended.
+  if (search) {
+     const searchTerm = search.toLowerCase();
+     // This is a very limited search. For a real app, you would use a search service.
+     // Here we are creating a pseudo-search by querying for a range.
+     q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
+  }
+
+
+  // Sorting
+  if (sortByPerformance === 'true' && !panelDomain) {
+    q = query(q, orderBy('ratings.overall', 'desc'));
+  } else if (sortByRecommended === 'true' && !panelDomain) {
+    // Already filtered by isRecommended=true, now sort by performance
+    q = query(q, orderBy('ratings.overall', 'desc'));
   } else {
     // Default sort: newest first
-    applications.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+    q = query(q, orderBy('submittedAt', 'desc'));
   }
+  
+  const countQuery = q;
+  const snapshot = await getCountFromServer(countQuery);
+  const totalApplications = snapshot.data().count;
+  const totalPages = Math.ceil(totalApplications / limitNumber);
+
 
   // Pagination
-  const pageNumber = parseInt(page, 10);
-  const limitNumber = parseInt(limit, 10);
-  const totalApplications = applications.length;
-  const totalPages = Math.ceil(totalApplications / limitNumber);
-  const startIndex = (pageNumber - 1) * limitNumber;
-  const paginatedApplications = applications.slice(startIndex, startIndex + limitNumber);
+  if (lastVisibleId) {
+    const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
+    if(lastVisibleDoc.exists()) {
+      q = query(q, startAfter(lastVisibleDoc));
+    }
+  }
 
+  q = query(q, limit(limitNumber));
+
+  const querySnapshot = await getDocs(q);
+  const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
 
   return {
-    applications: paginatedApplications,
+    applications,
     totalApplications,
     totalPages,
-    currentPage: pageNumber,
+    currentPage: parseInt(page, 10),
   };
 }
 
+
 export async function getApplicationById(id: string) {
-  const db = await readDb();
-  const application = db.applications.find((app: any) => app.id === id);
-  return application || null;
+    const q = query(collection(db, 'applications'), where('id', '==', id), limit(1));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        return null;
+    }
+    const docSnap = querySnapshot.docs[0];
+    return { firestoreId: docSnap.id, ...docSnap.data() };
 }
 
 export async function getPanels() {
-  const db = await readDb();
-  return db.panels || [];
+  const panelsCol = collection(db, 'panels');
+  const panelSnapshot = await getDocs(panelsCol);
+  const panelList = panelSnapshot.docs.map(doc => doc.data());
+  return panelList;
 }
 
 export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) {
@@ -256,20 +272,21 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
   }
 
   try {
-    const db = await readDb();
-    const applicationIndex = db.applications.findIndex((app: any) => app.id === parsed.data.id);
-
-    if (applicationIndex === -1) {
+    const { id, ...reviewData } = parsed.data;
+    const application = await getApplicationById(id);
+    if (!application || !application.firestoreId) {
       return { error: 'Application not found.' };
     }
     
-    db.applications[applicationIndex].status = parsed.data.status;
-    db.applications[applicationIndex].isRecommended = parsed.data.isRecommended;
-    db.applications[applicationIndex].suitability = parsed.data.suitability;
-    db.applications[applicationIndex].ratings = parsed.data.ratings;
-    db.applications[applicationIndex].remarks = parsed.data.remarks;
+    const appDocRef = doc(db, 'applications', application.firestoreId);
+    await updateDoc(appDocRef, {
+        status: reviewData.status,
+        isRecommended: reviewData.isRecommended,
+        suitability: reviewData.suitability,
+        ratings: reviewData.ratings,
+        remarks: reviewData.remarks,
+    });
     
-    await writeDb(db);
     return { success: true };
   } catch (error) {
     console.error('Error saving review:', error);
@@ -330,12 +347,14 @@ export async function logoutAction() {
 }
 
 export async function getFilterData() {
-  const db = await readDb();
-  const applications = db.applications || [];
-  const statuses = [...new Set(applications.map(a => a.status))].filter(Boolean);
-  const years = [...new Set(applications.map(a => a.yearOfStudy))].filter(Boolean);
-  const branches = [...new Set(applications.map(a => a.branch))].filter(Boolean);
-  const domains = [...new Set(applications.map(a => a.technicalDomain))].filter(Boolean);
+    const applicationsCol = collection(db, 'applications');
+    const appSnapshot = await getDocs(applicationsCol);
+    const applications = appSnapshot.docs.map(doc => doc.data());
+    
+    const statuses = [...new Set(applications.map(a => a.status))].filter(Boolean);
+    const years = [...new Set(applications.map(a => a.yearOfStudy))].filter(Boolean);
+    const branches = [...new Set(applications.map(a => a.branch))].filter(Boolean);
+    const domains = [...new Set(applications.map(a => a.technicalDomain))].filter(Boolean);
 
-  return { statuses, years, branches, domains };
+    return { statuses, years, branches, domains };
 }
