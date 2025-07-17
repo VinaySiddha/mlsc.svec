@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { format } from 'date-fns';
+import { useRouter } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
@@ -62,34 +63,32 @@ export default async function AdminPage() {
                       <TableHead>Year</TableHead>
                       <TableHead>Technical Domain</TableHead>
                       <TableHead>Non-Technical Domain</TableHead>
-                      <TableHead>Resume Summary</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {applications.length > 0 ? (
                       applications.map((app) => (
                         <TableRow key={app.id}>
-                          <TableCell className="text-muted-foreground whitespace-nowrap">
-                            {format(new Date(app.submittedAt), "MMM d, yyyy")}
+                           <TableCell className="text-muted-foreground whitespace-nowrap">
+                            <Link href={`/admin/application/${app.id}`} className="hover:underline">
+                              {format(new Date(app.submittedAt), "MMM d, yyyy")}
+                            </Link>
                           </TableCell>
-                          <TableCell className="font-medium">{app.name}</TableCell>
+                          <TableCell className="font-medium">
+                            <Link href={`/admin/application/${app.id}`} className="hover:underline">
+                              {app.name}
+                            </Link>
+                          </TableCell>
                           <TableCell>{app.email}</TableCell>
                           <TableCell>{app.branch}</TableCell>
                           <TableCell>{app.yearOfStudy}</TableCell>
                           <TableCell>{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
                           <TableCell>{domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}</TableCell>
-                           <TableCell className="max-w-xs truncate">
-                            {app.resumeSummary ? (
-                              <span title={app.resumeSummary}>{app.resumeSummary}</span>
-                            ) : (
-                              <span className="text-muted-foreground/50">N/A</span>
-                            )}
-                          </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center h-24 text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
                           No applications yet.
                         </TableCell>
                       </TableRow>

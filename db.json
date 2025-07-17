@@ -1,4 +1,23 @@
-
 {
-  "applications": []
+  "applications": [
+    {
+      "id": "2025-07-17T05:18:00.658Z",
+      "submittedAt": "2025-07-17T05:18:00.658Z",
+      "name": "Vinay Siddha",
+      "email": "admin@timewise.com",
+      "phone": "09849372827",
+      "branch": "CAI",
+      "section": "B",
+      "yearOfStudy": "3rd",
+      "cgpa": "9.1",
+      "backlogs": "0",
+      "joinReason": "lknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggb",
+      "aboutClub": "lknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggblknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggb",
+      "technicalDomain": "gen_ai",
+      "nonTechnicalDomain": "event_management",
+      "linkedin": "https://linkein.com",
+      "anythingElse": "lknlk/kknnnmdjdgbdjb;db;gbd;bgdbgdjbgdgbdbgdbgbdbdfbggb",
+      "resumeSummary": "This document is an Aadhaar card for Siddha Vinay Kumar, son of Siddha Sreenivasu, born on 15/09/2005 and identified as male. The Aadhaar number is 4560 4626 4491, with a Virtual ID (VID) of 9119 4799 6615 2648. The address is 1-37-11, Somalanka Vari Street, Near Church, Gollagudem Center, Tadepalligudem, West Godavari, Andhra Pradesh - 534101. The document emphasizes that Aadhaar is a proof of identity, not of citizenship, and encourages users to update their Aadhaar information regularly, keep their mobile number and email ID updated, and use the mAadhaar app for services."
+    }
+  ]
 }

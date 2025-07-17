@@ -26,6 +26,20 @@ const applicationSchema = z.object({
   resume: z.instanceof(File).optional(),
 });
 
+const ratingSchema = z.object({
+  communication: z.number().min(0).max(10),
+  technical: z.number().min(0).max(10),
+  problemSolving: z.number().min(0).max(10),
+  teamFit: z.number().min(0).max(10),
+  overall: z.number().min(0).max(10),
+});
+
+const reviewSchema = z.object({
+  id: z.string(),
+  ratings: ratingSchema,
+  remarks: z.string().optional(),
+});
+
 const dbPath = path.join(process.cwd(), 'db.json');
 
 async function readDb() {
@@ -92,7 +106,14 @@ export async function submitApplication(formData: FormData) {
       submittedAt: new Date().toISOString(),
       ...applicationData,
       resumeSummary: summary,
-      // We don't store the resume file itself in the JSON
+      ratings: {
+        communication: 0,
+        technical: 0,
+        problemSolving: 0,
+        teamFit: 0,
+        overall: 0,
+      },
+      remarks: '',
     };
     db.applications.push(newApplication);
     await writeDb(db);
@@ -114,4 +135,43 @@ export async function getApplications() {
   const db = await readDb();
   // Sort by newest first
   return db.applications.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+}
+
+
+export async function getApplicationById(id: string) {
+  const db = await readDb();
+  const application = db.applications.find((app: any) => app.id === id);
+  return application || null;
+}
+
+export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) {
+  const parsed = reviewSchema.safeParse(data);
+  if (!parsed.success) {
+    console.error('Review validation failed:', parsed.error.flatten().fieldErrors);
+    return { error: 'Invalid review data.' };
+  }
+
+  try {
+    const db = await readDb();
+    const applicationIndex = db.applications.findIndex((app: any) => app.id === parsed.data.id);
+
+    if (applicationIndex === -1) {
+      return { error: 'Application not found.' };
+    }
+
+    db.applications[applicationIndex] = {
+      ...db.applications[applicationIndex],
+      ratings: parsed.data.ratings,
+      remarks: parsed.data.remarks,
+    };
+    
+    await writeDb(db);
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving review:', error);
+    if (error instanceof Error) {
+      return { error: `Failed to save review: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred while saving the review.' };
+  }
 }
