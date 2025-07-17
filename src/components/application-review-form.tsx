@@ -291,7 +291,6 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                               <FormControl>
                                 <StarRating value={field.value} onChange={(v) => field.onChange(parseFloat(v.toFixed(1)))} />
                               </FormControl>
-                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -374,3 +373,5 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
     </div>
   );
 }
+
+    
