@@ -1,4 +1,7 @@
-import { config } from 'dotenv';
+'use server';
+
+import {config} from 'dotenv';
 config();
 
-import '@/ai/flows/summarize-resume.ts';
+import '@/ai/flows/summarize-resume';
+import '@/ai/flows/evaluate-candidate';
