@@ -102,7 +102,7 @@ export async function submitApplication(formData: FormData) {
 
     const db = await readDb();
     const newApplication = {
-      id: new Date().toISOString(),
+      id: Date.now().toString(),
       submittedAt: new Date().toISOString(),
       ...applicationData,
       resumeSummary: summary,
