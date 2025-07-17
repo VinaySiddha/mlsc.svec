@@ -47,13 +47,19 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
   });
 
   const subject = "Your MLSC Application has been Received!";
-  const body = `Hi ${name},\n\nThank you for applying to the MLSC. We have successfully received your application.\n\nYour reference ID is: ${referenceId}\n\nPlease save this ID to check your application status later on our portal.\n\nBest regards,\nThe MLSC Hiring Team`;
+  const htmlBody = `
+    <p>Hi ${name},</p>
+    <p>Thank you for applying to the MLSC. We have successfully received your application.</p>
+    <p>Your reference ID is: <span style="background-color: yellow; font-weight: bold; padding: 2px 4px; border-radius: 3px;">${referenceId}</span></p>
+    <p><span style="background-color: yellow;">Please save this ID to check your application status later on our portal.</span></p>
+    <p>Best regards,<br>The MLSC Hiring Team</p>
+  `;
   
   const mailOptions = {
       from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: subject,
-      html: `<p>${body.replace(/\n/g, '<br>')}</p>`, // HTML body
+      html: htmlBody,
   };
 
   try {
