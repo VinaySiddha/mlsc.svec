@@ -1,16 +1,27 @@
 import { ApplicationForm } from "@/components/application-form";
 import { MLSCLogo } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { User } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
-        <div className="container mx-auto flex items-center gap-4">
-          <MLSCLogo className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            MLSC Hub
-          </h1>
+       <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
+        <div className="container mx-auto flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-4">
+            <MLSCLogo className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              MLSC Hub
+            </h1>
+          </Link>
+          <Button asChild variant="outline" size="icon">
+            <Link href="/admin">
+              <User />
+              <span className="sr-only">Admin Panel</span>
+            </Link>
+          </Button>
         </div>
       </header>
       <main className="flex-1">

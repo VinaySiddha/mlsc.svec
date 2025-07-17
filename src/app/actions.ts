@@ -5,6 +5,8 @@ import {
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
 import {z} from 'zod';
+import fs from 'fs/promises';
+import path from 'path';
 
 const applicationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -23,6 +25,25 @@ const applicationSchema = z.object({
   anythingElse: z.string().optional(),
   resume: z.instanceof(File).optional(),
 });
+
+const dbPath = path.join(process.cwd(), 'db.json');
+
+async function readDb() {
+  try {
+    const data = await fs.readFile(dbPath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // If the file doesn't exist, return a default structure
+    if (error.code === 'ENOENT') {
+      return { applications: [] };
+    }
+    throw error;
+  }
+}
+
+async function writeDb(data: any) {
+  await fs.writeFile(dbPath, JSON.stringify(data, null, 2));
+}
 
 export async function submitApplication(formData: FormData) {
   const rawFormData = {
@@ -53,21 +74,29 @@ export async function submitApplication(formData: FormData) {
   const {resume, ...applicationData} = parsed.data;
 
   let summary: string | null = null;
-  let resumeDataUri: string | null = null;
 
   try {
     if (resume && resume.size > 0) {
       const buffer = await resume.arrayBuffer();
       const base64 = Buffer.from(buffer).toString('base64');
-      resumeDataUri = `data:${resume.type};base64,${base64}`;
+      const resumeDataUri = `data:${resume.type};base64,${base64}`;
 
       const summarizationInput: SummarizeResumeInput = {resumeDataUri};
       const result = await summarizeResume(summarizationInput);
       summary = result.summary;
     }
 
-    // In a real application, you would save the application data here.
-    console.log('Application data:', applicationData);
+    const db = await readDb();
+    const newApplication = {
+      id: new Date().toISOString(),
+      submittedAt: new Date().toISOString(),
+      ...applicationData,
+      resumeSummary: summary,
+      // We don't store the resume file itself in the JSON
+    };
+    db.applications.push(newApplication);
+    await writeDb(db);
+
 
     return {summary};
   } catch (error) {
@@ -79,4 +108,10 @@ export async function submitApplication(formData: FormData) {
     }
     return {error: 'An unexpected error occurred. Please try again.'};
   }
+}
+
+export async function getApplications() {
+  const db = await readDb();
+  // Sort by newest first
+  return db.applications.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
 }
