@@ -48,11 +48,45 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
 
   const subject = "Your MLSC Application has been Received!";
   const htmlBody = `
-    <p>Hi ${name},</p>
-    <p>Thank you for applying to the MLSC. We have successfully received your application.</p>
-    <p>Your reference ID is: <span style="background-color: yellow; font-weight: bold; padding: 2px 4px; border-radius: 3px;">${referenceId}</span></p>
-    <p><span style="background-color: yellow;">Please save this ID to check your application status later on our portal.</span></p>
-    <p>Best regards,<br>The MLSC Hiring Team</p>
+    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+      <div style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;">
+        🚨💥 MLSC HIRING 3.0 IS HERE! 💥🚨
+      </div>
+      <div style="text-align: center; font-size: 18px; margin-bottom: 20px;">
+        <p>🌟 Are you ready to LEVEL UP your skills? 🌟</p>
+        <p>💻✨ Whether you're a coder 👨‍💻, designer 🎨, marketer 📈, or tech geek 🤓 - this is YOUR moment!</p>
+      </div>
+      
+      <p>Hi <strong>${name}</strong>,</p>
+      <p>Thank you for applying to the MLSC! We have successfully received your application and are thrilled to see your interest.</p>
+      
+      <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin-top: 0; color: #0056b3;">Application Details</h3>
+        <p>Your unique reference ID is: <span style="background-color: yellow; font-weight: bold; padding: 2px 6px; border-radius: 4px;">${referenceId}</span></p>
+        <p><span style="background-color: yellow;">Please save this ID to check your application status later on our portal.</span></p>
+      </div>
+
+      <h2 style="color: #0056b3; text-align: center;">🔥 Why Join MLSC? 🔥</h2>
+      <ul style="list-style-type: '✅ '; padding-left: 20px;">
+        <li>Build REAL-WORLD projects 🚀</li>
+        <li>Get hands-on with Microsoft tools ⚙️</li>
+        <li>Network with top talents 🌐</li>
+        <li>Shine at hackathons & events 🏆</li>
+        <li>Boost your resume with global recognition 💼</li>
+      </ul>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <p style="font-size: 18px; font-weight: bold;">📢 This is your CALL TO ACTION – the future won’t wait… why should you? ⏳</p>
+        <p>Keep an eye on your email for updates regarding the next steps.</p>
+      </div>
+      
+      <p>Best regards,<br>The MLSC Hiring Team</p>
+
+      <div style="text-align: center; margin-top: 30px; font-size: 14px; color: #777;">
+        <p>✨ Don’t just scroll. Make your mark! ✨</p>
+        <p>🚀 #MLSC3.0 #HiringNow #DreamBig 🚀</p>
+      </div>
+    </div>
   `;
   
   const mailOptions = {
