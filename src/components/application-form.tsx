@@ -49,6 +49,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
   phone: z.string().min(1, "Phone number is required."),
+  rollNo: z.string().min(1, "Roll number is required."),
   branch: z.string({ required_error: "Please select your branch." }),
   section: z.string({ required_error: "Please select your section." }),
   yearOfStudy: z.string({ required_error: "Please select your year of study."}),
@@ -86,6 +87,7 @@ export function ApplicationForm() {
       name: "",
       email: "",
       phone: "",
+      rollNo: "",
       cgpa: "",
       backlogs: "",
       joinReason: "",
@@ -182,6 +184,19 @@ export function ApplicationForm() {
                   <FormLabel>Phone Number *</FormLabel>
                   <FormControl>
                     <Input placeholder="(123) 456-7890" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="rollNo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Roll No *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 22A91A4201" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

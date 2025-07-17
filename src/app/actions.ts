@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -12,6 +13,7 @@ const applicationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Please enter a valid email address.'),
   phone: z.string().min(1, 'Phone number is required.'),
+  rollNo: z.string().min(1, 'Roll number is required.'),
   branch: z.string({ required_error: 'Please select your branch.' }),
   section: z.string({ required_error: 'Please select your section.' }),
   yearOfStudy: z.string({ required_error: 'Please select your year of study.'}),
@@ -75,6 +77,7 @@ export async function submitApplication(formData: FormData) {
     name: formData.get('name'),
     email: formData.get('email'),
     phone: formData.get('phone'),
+    rollNo: formData.get('rollNo'),
     branch: formData.get('branch'),
     section: formData.get('section'),
     yearOfStudy: formData.get('yearOfStudy'),

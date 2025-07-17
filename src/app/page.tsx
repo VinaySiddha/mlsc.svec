@@ -2,7 +2,7 @@ import { ApplicationForm } from "@/components/application-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User } from "lucide-react";
+import { FileSearch, User } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -16,12 +16,20 @@ export default function Home() {
               MLSC Hub
             </h1>
           </Link>
-          <Button asChild variant="outline" size="icon">
-            <Link href="/admin">
-              <User />
-              <span className="sr-only">Admin Panel</span>
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+             <Button asChild variant="outline">
+              <Link href="/status">
+                <FileSearch className="mr-2 h-4 w-4" />
+                <span>Check Status</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="icon">
+              <Link href="/admin">
+                <User className="h-4 w-4" />
+                <span className="sr-only">Admin Panel</span>
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
       <main className="flex-1">

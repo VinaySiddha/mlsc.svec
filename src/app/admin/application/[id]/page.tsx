@@ -1,4 +1,3 @@
-
 import { getApplicationById } from "@/app/actions";
 import { ApplicationReviewForm } from "@/components/application-review-form";
 import { MLSCLogo } from "@/components/icons";
@@ -92,6 +91,10 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                   <div>
                     <h4 className="font-semibold">Phone</h4>
                     <p className="text-muted-foreground">{application.phone}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">Roll No</h4>
+                    <p className="text-muted-foreground">{application.rollNo}</p>
                   </div>
                   <div>
                     <h4 className="font-semibold">Branch</h4>
