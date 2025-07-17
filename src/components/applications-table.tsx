@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { format } from 'date-fns';
-import { Star } from "lucide-react";
+import { Award, Star } from "lucide-react";
 import { useTransition } from "react";
 import { ApplicationsTableSkeleton } from "./applications-table-skeleton";
 
@@ -61,9 +61,12 @@ export function ApplicationsTable({ applications, domainLabels }: ApplicationsTa
                       </Link>
                   </TableCell>
                   <TableCell className="font-medium">
-                    <Link href={`/admin/application/${app.id}`} className="hover:underline">
-                      {app.name}
-                    </Link>
+                    <div className="flex items-center gap-2">
+                       {app.isRecommended && <Award className="h-4 w-4 text-primary" />}
+                      <Link href={`/admin/application/${app.id}`} className="hover:underline">
+                        {app.name}
+                      </Link>
+                    </div>
                   </TableCell>
                    <TableCell className="text-muted-foreground whitespace-nowrap hidden md:table-cell">
                       {format(new Date(app.submittedAt), "MMM d, yyyy")}

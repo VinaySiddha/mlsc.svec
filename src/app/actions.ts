@@ -35,6 +35,7 @@ const applicationSchema = z.object({
 const reviewSchema = z.object({
   id: z.string(),
   status: z.string(),
+  isRecommended: z.boolean(),
   suitability: z.object({
     technical: z.string().optional(),
     nonTechnical: z.string().optional(),
@@ -131,6 +132,7 @@ export async function submitApplication(formData: FormData) {
       ...applicationData,
       resumeSummary: summary,
       status: 'Received',
+      isRecommended: false,
       suitability: {
         technical: 'undecided',
         nonTechnical: 'undecided',
@@ -168,10 +170,11 @@ export async function getApplications(params: {
   branch?: string;
   domain?: string;
   sortByPerformance?: string;
+  sortByRecommended?: string;
   page?: string;
   limit?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain, sortByPerformance, page = '1', limit = '10' } = params;
+  const { panelDomain, search, status, year, branch, domain, sortByPerformance, sortByRecommended, page = '1', limit = '10' } = params;
   const db = await readDb();
   
   let applications = db.applications;
@@ -207,8 +210,10 @@ export async function getApplications(params: {
     applications = applications.filter((app: any) => app.technicalDomain === domain);
   }
   
-  // Sort by performance if requested
-  if (sortByPerformance === 'true' && !panelDomain) {
+  // Sorting logic
+  if (sortByRecommended === 'true' && !panelDomain) {
+    applications.sort((a: any, b: any) => (b.isRecommended ? 1 : -1) - (a.isRecommended ? 1 : -1) || (b.ratings?.overall || 0) - (a.ratings?.overall || 0));
+  } else if (sortByPerformance === 'true' && !panelDomain) {
     applications.sort((a: any, b: any) => (b.ratings?.overall || 0) - (a.ratings?.overall || 0));
   } else {
     // Default sort: newest first
@@ -259,6 +264,7 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     }
     
     db.applications[applicationIndex].status = parsed.data.status;
+    db.applications[applicationIndex].isRecommended = parsed.data.isRecommended;
     db.applications[applicationIndex].suitability = parsed.data.suitability;
     db.applications[applicationIndex].ratings = parsed.data.ratings;
     db.applications[applicationIndex].remarks = parsed.data.remarks;

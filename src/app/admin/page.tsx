@@ -32,9 +32,20 @@ async function AdminDashboard({
   const branch = typeof searchParams.branch === 'string' ? searchParams.branch : undefined;
   const domain = typeof searchParams.domain === 'string' ? searchParams.domain : undefined;
   const sortByPerformance = typeof searchParams.sortByPerformance === 'string' ? searchParams.sortByPerformance : undefined;
+  const sortByRecommended = typeof searchParams.sortByRecommended === 'string' ? searchParams.sortByRecommended : undefined;
   const page = typeof searchParams.page === 'string' ? searchParams.page : '1';
 
-  const { applications, totalApplications, totalPages, currentPage } = await getApplications({ panelDomain, search, status, year, branch, domain, sortByPerformance, page });
+  const { applications, totalApplications, totalPages, currentPage } = await getApplications({ 
+    panelDomain, 
+    search, 
+    status, 
+    year, 
+    branch, 
+    domain, 
+    sortByPerformance,
+    sortByRecommended,
+    page 
+  });
   const { statuses, years, branches, domains } = await getFilterData();
 
   const domainLabels: Record<string, string> = {
@@ -64,7 +75,7 @@ async function AdminDashboard({
          <AdminFilters
           userRole={userRole}
           filterData={{ statuses, years, branches, domains }}
-          currentFilters={{ status, year, branch, domain, search, sortByPerformance, page }}
+          currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended, page }}
          />
         <ApplicationsTable applications={applications} domainLabels={domainLabels} />
         <PaginationComponent totalPages={totalPages} currentPage={currentPage} />

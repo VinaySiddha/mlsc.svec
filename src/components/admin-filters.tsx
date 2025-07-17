@@ -6,7 +6,7 @@ import { useCallback, useState, useEffect, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { Search, X, TrendingUp } from 'lucide-react';
+import { Search, X, TrendingUp, Award } from 'lucide-react';
 
 interface AdminFiltersProps {
   userRole: string | null;
@@ -23,6 +23,7 @@ interface AdminFiltersProps {
     branch?: string;
     domain?: string;
     sortByPerformance?: string;
+    sortByRecommended?: string;
     page?: string;
   };
 }
@@ -75,10 +76,10 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     });
   };
   
-  const handleSortByPerformance = () => {
-    const isSorting = currentFilters.sortByPerformance === 'true';
+  const handleSortToggle = (sortKey: 'sortByPerformance' | 'sortByRecommended') => {
+    const isSorting = currentFilters[sortKey] === 'true';
     startTransition(() => {
-      router.push(pathname + '?' + createQueryString([{ name: 'sortByPerformance', value: isSorting ? '' : 'true' }]));
+      router.push(pathname + '?' + createQueryString([{ name: sortKey, value: isSorting ? '' : 'true' }]));
     });
   };
 
@@ -161,10 +162,16 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       </div>
       <div className="flex items-center gap-2">
          {userRole === 'admin' && (
-          <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={handleSortByPerformance} disabled={isPending}>
-              <TrendingUp className="mr-2 h-4 w-4" />
-              Sort by Performance
-          </Button>
+          <>
+            <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending}>
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Sort by Performance
+            </Button>
+            <Button variant={currentFilters.sortByRecommended === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByRecommended')} disabled={isPending}>
+                <Award className="mr-2 h-4 w-4" />
+                Sort by Recommended
+            </Button>
+          </>
         )}
         {hasActiveFilters && (
           <Button variant="ghost" onClick={resetFilters} disabled={isPending}>

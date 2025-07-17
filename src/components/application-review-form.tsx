@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,10 +24,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Checkbox } from "./ui/checkbox";
 
 
 const reviewSchema = z.object({
   status: z.string(),
+  isRecommended: z.boolean(),
   suitability: z.object({
     technical: z.string().optional(),
     nonTechnical: z.string().optional(),
@@ -47,6 +50,7 @@ interface ApplicationReviewFormProps {
   application: {
     id: string;
     status: string;
+    isRecommended?: boolean;
     suitability?: {
       technical?: string;
       nonTechnical?: string;
@@ -113,6 +117,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       status: application.status ?? 'Received',
+      isRecommended: application.isRecommended ?? false,
       suitability: {
         technical: application.suitability?.technical ?? 'undecided',
         nonTechnical: application.suitability?.nonTechnical ?? 'undecided',
@@ -188,7 +193,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
           <CardHeader>
               <CardTitle>Application Review</CardTitle>
               <CardDescription>
-                Evaluate the candidate based on the information provided. Use star ratings for a quantitative assessment and remarks for qualitative feedback.
+                Evaluate the candidate and update their status. Use star ratings for a quantitative assessment and remarks for qualitative feedback.
               </CardDescription>
           </CardHeader>
           <CardContent>
@@ -326,6 +331,30 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                           <FormMessage />
                       </FormItem>
                       )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="isRecommended"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>
+                            Recommend for Final Round
+                          </FormLabel>
+                          <FormDescription>
+                           Check this box to flag this candidate for the super admin&apos;s review.
+                          </FormDescription>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
                   />
 
                   <Button type="submit" disabled={isSubmitting} className="w-full">
