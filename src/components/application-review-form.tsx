@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,18 +20,13 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Slider } from "./ui/slider";
-
-const ratingSchema = z.object({
-  communication: z.number().min(0).max(10),
-  technical: z.number().min(0).max(10),
-  problemSolving: z.number().min(0).max(10),
-  teamFit: z.number().min(0).max(10),
-  overall: z.number().min(0).max(10),
-});
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 const reviewSchema = z.object({
-  ratings: ratingSchema,
+  status: z.string(),
+  isTechSuitable: z.string(),
+  isNonTechSuitable: z.string(),
   remarks: z.string().optional(),
 });
 
@@ -41,41 +35,36 @@ type FormValues = z.infer<typeof reviewSchema>;
 interface ApplicationReviewFormProps {
   application: {
     id: string;
-    ratings?: {
-      communication: number;
-      technical: number;
-      problemSolving: number;
-      teamFit: number;
-      overall: number;
+    status: string;
+    technicalDomain: string;
+    nonTechnicalDomain: string;
+    review?: {
+      isTechSuitable: 'yes' | 'no' | 'undecided';
+      isNonTechSuitable: 'yes' | 'no' | 'undecided';
+      remarks: string;
     };
-    remarks?: string;
   };
+  domainLabels: Record<string, string>;
 }
 
-const ratingCategories = [
-  { id: 'communication', label: 'Communication' },
-  { id: 'technical', label: 'Technical Knowledge' },
-  { id: 'problemSolving', label: 'Problem Solving' },
-  { id: 'teamFit', label: 'Team Fit' },
-  { id: 'overall', label: 'Overall Impression' },
-] as const;
+const applicationStatuses = ['Received', 'Under Review', 'Interviewing', 'Accepted', 'Rejected'];
+const suitabilityOptions = [
+    { id: 'yes', label: 'Yes' },
+    { id: 'no', label: 'No' },
+    { id: 'undecided', label: 'Undecided' },
+];
 
-
-export function ApplicationReviewForm({ application }: ApplicationReviewFormProps) {
+export function ApplicationReviewForm({ application, domainLabels }: ApplicationReviewFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
-      ratings: {
-        communication: application.ratings?.communication ?? 5,
-        technical: application.ratings?.technical ?? 5,
-        problemSolving: application.ratings?.problemSolving ?? 5,
-        teamFit: application.ratings?.teamFit ?? 5,
-        overall: application.ratings?.overall ?? 5,
-      },
-      remarks: application.remarks ?? "",
+      status: application.status ?? 'Received',
+      isTechSuitable: application.review?.isTechSuitable ?? 'undecided',
+      isNonTechSuitable: application.review?.isNonTechSuitable ?? 'undecided',
+      remarks: application.review?.remarks ?? "",
     },
   });
 
@@ -85,8 +74,7 @@ export function ApplicationReviewForm({ application }: ApplicationReviewFormProp
     try {
       const payload = {
         id: application.id,
-        ratings: values.ratings,
-        remarks: values.remarks,
+        ...values,
       };
 
       const result = await saveApplicationReview(payload);
@@ -97,8 +85,11 @@ export function ApplicationReviewForm({ application }: ApplicationReviewFormProp
       
       toast({
         title: "Review Saved!",
-        description: "The applicant's ratings and remarks have been updated.",
+        description: "The applicant's review has been updated.",
       });
+
+      // Refresh page to show new status badge
+      window.location.reload();
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
@@ -115,40 +106,89 @@ export function ApplicationReviewForm({ application }: ApplicationReviewFormProp
   return (
     <Card>
         <CardHeader>
-            <CardTitle>Interview Review</CardTitle>
-            <CardDescription>Rate the applicant and leave your remarks.</CardDescription>
+            <CardTitle>Application Review</CardTitle>
+            <CardDescription>Update the applicant's status and suitability.</CardDescription>
         </CardHeader>
         <CardContent>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 
-                {ratingCategories.map(cat => (
-                   <FormField
-                    key={cat.id}
+                 <FormField
                     control={form.control}
-                    name={`ratings.${cat.id}`}
+                    name="status"
                     render={({ field }) => (
-                      <FormItem>
-                        <div className="flex justify-between items-baseline">
-                          <FormLabel>{cat.label}</FormLabel>
-                          <span className="text-sm font-bold text-primary w-8 text-center">
-                            {field.value}
-                          </span>
-                        </div>
-                        <FormControl>
-                          <Slider
-                            min={0}
-                            max={10}
-                            step={1}
-                            value={[field.value]}
-                            onValueChange={(value) => field.onChange(value[0])}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        <FormItem>
+                            <FormLabel>Application Status</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Update status" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {applicationStatuses.map(status => (
+                                        <SelectItem key={status} value={status}>{status}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
                     )}
-                  />
-                ))}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isTechSuitable"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Suitable for {domainLabels[application.technicalDomain] || application.technicalDomain}?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex items-center space-x-4"
+                        >
+                          {suitabilityOptions.map(item => (
+                            <FormItem key={item.id} className="flex items-center space-x-2 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value={item.id} />
+                              </FormControl>
+                              <FormLabel className="font-normal">{item.label}</FormLabel>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                 <FormField
+                  control={form.control}
+                  name="isNonTechSuitable"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Suitable for {domainLabels[application.nonTechnicalDomain] || application.nonTechnicalDomain}?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex items-center space-x-4"
+                        >
+                          {suitabilityOptions.map(item => (
+                            <FormItem key={item.id} className="flex items-center space-x-2 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value={item.id} />
+                              </FormControl>
+                              <FormLabel className="font-normal">{item.label}</FormLabel>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                     control={form.control}

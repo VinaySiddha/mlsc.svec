@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, ThumbsUp } from "lucide-react";
+import { Loader2, ThumbsUp, ClipboardCopy } from "lucide-react";
 
 import { submitApplication } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -77,7 +77,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function ApplicationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<{summary: string | null, referenceId: string | null} | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -99,7 +99,7 @@ export function ApplicationForm() {
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
-    setSummary(null);
+    setSubmissionResult(null);
 
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
@@ -117,10 +117,10 @@ export function ApplicationForm() {
         throw new Error(result.error);
       }
       
-      setSummary(result.summary);
+      setSubmissionResult({ summary: result.summary, referenceId: result.referenceId });
       toast({
         title: "Application Submitted!",
-        description: "We've received your application and will be in touch soon.",
+        description: "We've received your application. Keep your reference ID safe.",
       });
       form.reset();
 
@@ -135,6 +135,13 @@ export function ApplicationForm() {
       setIsSubmitting(false);
     }
   };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      description: "Reference ID copied to clipboard!",
+    });
+  }
 
   return (
     <>
@@ -423,7 +430,7 @@ export function ApplicationForm() {
           </Button>
         </form>
       </Form>
-      {summary !== null && (
+      {submissionResult && (
         <Card className="mt-12 bg-primary/5">
           <CardHeader>
              <CardTitle className="flex items-center gap-2">
@@ -431,15 +438,32 @@ export function ApplicationForm() {
               <span>Application Received!</span>
             </CardTitle>
             <CardDescription>
-              {summary ? "Our AI has generated a summary of your resume. An admin will review your application shortly." : "An admin will review your application shortly."}
+              Your application has been submitted successfully. Please save your reference ID to track your progress.
             </CardDescription>
           </CardHeader>
-          {summary && (
-            <CardContent>
-              <p className="text-sm font-medium text-foreground">AI-Generated Summary:</p>
-              <p className="text-sm text-muted-foreground mt-2 p-4 border rounded-md bg-background">{summary}</p>
-            </CardContent>
-          )}
+          <CardContent className="space-y-4">
+            {submissionResult.referenceId && (
+              <div>
+                <p className="text-sm font-medium text-foreground">Your Reference ID:</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Input 
+                    readOnly 
+                    value={submissionResult.referenceId} 
+                    className="bg-background font-mono text-sm"
+                  />
+                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
+                    <ClipboardCopy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            {submissionResult.summary && (
+              <div>
+                <p className="text-sm font-medium text-foreground">AI-Generated Resume Summary:</p>
+                <p className="text-sm text-muted-foreground mt-2 p-4 border rounded-md bg-background">{submissionResult.summary}</p>
+              </div>
+            )}
+          </CardContent>
         </Card>
       )}
     </>

@@ -23,6 +23,19 @@ const domainLabels: Record<string, string> = {
   creativity: "Creativity",
 };
 
+const getStatusVariant = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'accepted':
+      return 'default';
+    case 'rejected':
+      return 'destructive';
+    case 'under review':
+      return 'secondary';
+    default:
+      return 'outline';
+  }
+}
+
 export default async function ApplicationDetailPage({ params }: { params: { id: string } }) {
   const application = await getApplicationById(params.id);
 
@@ -42,7 +55,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
           </Link>
           <Button asChild variant="outline">
             <Link href="/admin">
-              <ArrowLeft className="mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               <span>Back to Applications</span>
             </Link>
           </Button>
@@ -53,10 +66,20 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
           <div className="md:col-span-2 space-y-8">
             <Card>
               <CardHeader>
-                <CardTitle className="text-3xl">{application.name}</CardTitle>
-                <CardDescription>
-                  Submitted on {format(new Date(application.submittedAt), "MMMM d, yyyy 'at' h:mm a")}
-                </CardDescription>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-3xl">{application.name}</CardTitle>
+                    <CardDescription>
+                      Submitted on {format(new Date(application.submittedAt), "MMMM d, yyyy 'at' h:mm a")}
+                    </CardDescription>
+                  </div>
+                   <Badge variant={getStatusVariant(application.status)} className="text-sm">
+                      {application.status}
+                    </Badge>
+                </div>
+                 <div className="text-sm text-muted-foreground pt-4">
+                  Reference ID: <span className="font-mono text-foreground">{application.id}</span>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -137,7 +160,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             </Card>
           </div>
           <div className="space-y-8">
-            <ApplicationReviewForm application={application} />
+            <ApplicationReviewForm application={application} domainLabels={domainLabels}/>
           </div>
         </div>
       </main>

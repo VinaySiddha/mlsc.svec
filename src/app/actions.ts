@@ -26,19 +26,14 @@ const applicationSchema = z.object({
   resume: z.instanceof(File).optional(),
 });
 
-const ratingSchema = z.object({
-  communication: z.number().min(0).max(10),
-  technical: z.number().min(0).max(10),
-  problemSolving: z.number().min(0).max(10),
-  teamFit: z.number().min(0).max(10),
-  overall: z.number().min(0).max(10),
-});
-
 const reviewSchema = z.object({
   id: z.string(),
-  ratings: ratingSchema,
+  status: z.string(),
+  isTechSuitable: z.string(),
+  isNonTechSuitable: z.string(),
   remarks: z.string().optional(),
 });
+
 
 const dbPath = path.join(process.cwd(), 'db.json');
 
@@ -47,8 +42,7 @@ async function readDb() {
     const data = await fs.readFile(dbPath, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
-    // If the file doesn't exist, return a default structure
-    if (error.code === 'ENOENT') {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       return { applications: [] };
     }
     throw error;
@@ -57,6 +51,14 @@ async function readDb() {
 
 async function writeDb(data: any) {
   await fs.writeFile(dbPath, JSON.stringify(data, null, 2));
+}
+
+// Generate a unique, readable reference ID
+function generateReferenceId() {
+  const prefix = "MLSC";
+  const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 random chars
+  return `${prefix}-${timestamp}-${random}`;
 }
 
 export async function submitApplication(formData: FormData) {
@@ -88,6 +90,7 @@ export async function submitApplication(formData: FormData) {
   const {resume, ...applicationData} = parsed.data;
 
   let summary: string | null = null;
+  const referenceId = generateReferenceId();
 
   try {
     if (resume && resume.size > 0) {
@@ -102,24 +105,22 @@ export async function submitApplication(formData: FormData) {
 
     const db = await readDb();
     const newApplication = {
-      id: Date.now().toString(),
+      id: referenceId, // Use reference ID as the main ID
       submittedAt: new Date().toISOString(),
       ...applicationData,
       resumeSummary: summary,
-      ratings: {
-        communication: 0,
-        technical: 0,
-        problemSolving: 0,
-        teamFit: 0,
-        overall: 0,
-      },
-      remarks: '',
+      status: 'Received',
+      review: {
+        isTechSuitable: 'undecided',
+        isNonTechSuitable: 'undecided',
+        remarks: '',
+      }
     };
     db.applications.push(newApplication);
     await writeDb(db);
 
 
-    return {summary};
+    return {summary, referenceId };
   } catch (error) {
     console.error('Error submitting application:', error);
     if (error instanceof Error) {
@@ -134,7 +135,7 @@ export async function submitApplication(formData: FormData) {
 export async function getApplications() {
   const db = await readDb();
   // Sort by newest first
-  return db.applications.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+  return db.applications.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
 }
 
 
@@ -158,10 +159,11 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     if (applicationIndex === -1) {
       return { error: 'Application not found.' };
     }
-
-    db.applications[applicationIndex] = {
-      ...db.applications[applicationIndex],
-      ratings: parsed.data.ratings,
+    
+    db.applications[applicationIndex].status = parsed.data.status;
+    db.applications[applicationIndex].review = {
+      isTechSuitable: parsed.data.isTechSuitable,
+      isNonTechSuitable: parsed.data.isNonTechSuitable,
       remarks: parsed.data.remarks,
     };
     

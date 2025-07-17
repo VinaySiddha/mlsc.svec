@@ -7,8 +7,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { format } from 'date-fns';
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = 'force-dynamic';
+
+const getStatusVariant = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'accepted':
+      return 'default';
+    case 'rejected':
+      return 'destructive';
+    case 'under review':
+      return 'secondary';
+    default:
+      return 'outline';
+  }
+}
 
 export default async function AdminPage() {
   const applications = await getApplications();
@@ -56,39 +70,41 @@ export default async function AdminPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Submitted</TableHead>
+                      <TableHead>Reference ID</TableHead>
                       <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Branch</TableHead>
-                      <TableHead>Year</TableHead>
+                      <TableHead>Submitted</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Technical Domain</TableHead>
                       <TableHead>Non-Technical Domain</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {applications.length > 0 ? (
-                      applications.map((app) => (
+                      applications.map((app: any) => (
                         <TableRow key={app.id}>
-                           <TableCell className="text-muted-foreground whitespace-nowrap">
-                            <Link href={`/admin/application/${app.id}`} className="hover:underline">
-                              {format(new Date(app.submittedAt), "MMM d, yyyy")}
-                            </Link>
+                          <TableCell className="font-mono text-xs">
+                             <Link href={`/admin/application/${app.id}`} className="hover:underline">
+                                {app.id}
+                              </Link>
                           </TableCell>
                           <TableCell className="font-medium">
                             <Link href={`/admin/application/${app.id}`} className="hover:underline">
                               {app.name}
                             </Link>
                           </TableCell>
-                          <TableCell>{app.email}</TableCell>
-                          <TableCell>{app.branch}</TableCell>
-                          <TableCell>{app.yearOfStudy}</TableCell>
+                           <TableCell className="text-muted-foreground whitespace-nowrap">
+                              {format(new Date(app.submittedAt), "MMM d, yyyy")}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusVariant(app.status)}>{app.status}</Badge>
+                          </TableCell>
                           <TableCell>{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
                           <TableCell>{domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}</TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                        <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                           No applications yet.
                         </TableCell>
                       </TableRow>
