@@ -73,7 +73,7 @@ export default function Home() {
               </div>
               <div className="w-full max-w-2xl mx-auto">
                   <img
-                    src="https://placehold.co/600x400.png"
+                    src="/logo.png"
                     data-ai-hint="team collaboration"
                     width="600"
                     height="400"
