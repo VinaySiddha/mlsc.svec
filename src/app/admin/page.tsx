@@ -1,3 +1,4 @@
+
 import { getApplications } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ async function AdminDashboard({
           currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended }}
          />
         <Suspense fallback={<ApplicationsTableSkeleton />}>
-            <ApplicationsTable applications={applications} domainLabels={domainLabels} />
+            <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
         </Suspense>
         <PaginationComponent 
             totalPages={totalPages} 

@@ -31,9 +31,10 @@ const getStatusVariant = (status?: string) => {
 interface ApplicationsTableProps {
     applications: any[];
     domainLabels: Record<string, string>;
+    userRole: string | null;
 }
 
-export function ApplicationsTable({ applications, domainLabels }: ApplicationsTableProps) {
+export function ApplicationsTable({ applications, domainLabels, userRole }: ApplicationsTableProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const router = useRouter();
@@ -61,6 +62,8 @@ export function ApplicationsTable({ applications, domainLabels }: ApplicationsTa
   if (isPending && applications.length === 0) {
     return <ApplicationsTableSkeleton />;
   }
+
+  const canEditAttendance = userRole === 'admin' || userRole === 'panel';
 
   return (
     <div className="border rounded-md">
@@ -111,7 +114,7 @@ export function ApplicationsTable({ applications, domainLabels }: ApplicationsTa
                           handleAttendanceChange(app.firestoreId, !!checked);
                         }}
                         aria-label={`Mark ${app.name} as attended`}
-                        disabled={isPending}
+                        disabled={isPending || !canEditAttendance}
                       />
                   </TableCell>
                 </TableRow>
