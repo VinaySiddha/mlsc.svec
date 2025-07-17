@@ -4,7 +4,7 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Home } from "lucide-react";
+import { Home, LogOut } from "lucide-react";
 import Link from "next/link";
 import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +42,7 @@ export default async function AdminPage() {
     creativity: "Creativity",
   };
 
-  const title = domain ? `${domainLabels[domain]} Panel` : "MLSC Hub - Admin";
+  const title = domain ? `${domainLabels[domain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
   const description = domain
     ? `Applications for the ${domainLabels[domain]} domain.`
     : `A total of ${applications.length} ${applications.length === 1 ? 'application' : 'applications'} received.`;
@@ -58,12 +58,14 @@ export default async function AdminPage() {
               {title}
             </h1>
           </Link>
-          <Button asChild variant="outline">
-            <Link href="/">
-              <Home className="mr-2" />
-              <span>Home</span>
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/">
+                <Home className="mr-2" />
+                <span>Home</span>
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
