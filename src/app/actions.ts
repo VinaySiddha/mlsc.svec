@@ -162,14 +162,13 @@ export async function submitApplication(formData: FormData) {
     // 3. Process background tasks (summarization and email)
     // Don't await these promise chains in the user-facing response
     (async () => {
-        // Send confirmation email
+        // Send confirmation email directly
         try {
             await sendConfirmationEmail({ 
                 name: newApplication.name, 
                 email: newApplication.email, 
                 referenceId 
             });
-            console.log(`Successfully sent confirmation email for ${referenceId}`);
         } catch (emailError) {
             console.error(`Email sending failed for ${referenceId}:`, emailError);
         }
@@ -219,7 +218,8 @@ function buildFilteredQuery(params: {
   domain?: string;
 }) {
   const { panelDomain, search, status, year, branch, domain } = params;
-  let constraints: QueryConstraint[] = [];
+  let q: Query<DocumentData> = collection(db, 'applications');
+  const constraints: QueryConstraint[] = [];
 
   // Panel admin is locked to their domain
   if (panelDomain) {
@@ -232,14 +232,15 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
 
-  // The 'search' functionality uses a rollNo range query which requires an index
-  // on 'rollNo'. To keep things simple and avoid complex composite indexes,
-  // search will work best when other filters are cleared.
   if (search) {
-     constraints.push(orderBy('rollNo'), where('rollNo', '>=', search), where('rollNo', '<=', search + '\uf8ff'));
+     constraints.push(where('rollNo', '==', search));
   }
 
-  return query(collection(db, 'applications'), ...constraints);
+  if (constraints.length > 0) {
+    q = query(q, ...constraints);
+  }
+
+  return q;
 }
 
 
@@ -262,22 +263,22 @@ export async function getApplications(params: {
   let baseQuery = buildFilteredQuery(params);
   let finalQuery: Query<DocumentData>;
 
-  // Build the final query by adding sorting logic to the base filtered query
-  // NOTE: Combining multiple 'where' clauses with an 'orderBy' on a different field
-  // requires a composite index in Firestore. To avoid this, these special sorts
-  // work best when applied with minimal other filters.
+  const sortConstraints: QueryConstraint[] = [];
+
   if (sortByRecommended === 'true') {
-      finalQuery = query(baseQuery, orderBy('isRecommended', 'desc'), orderBy('ratings.overall', 'desc'));
+    sortConstraints.push(where('isRecommended', '==', true));
+    sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
-      finalQuery = query(baseQuery, orderBy('ratings.overall', 'desc'));
-  } else if (!params.search) { // Don't add default sort if searching
-      finalQuery = query(baseQuery, orderBy('submittedAt', 'desc'));
+    sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else {
-      finalQuery = baseQuery;
+    sortConstraints.push(orderBy('submittedAt', 'desc'));
   }
 
+  finalQuery = query(baseQuery, ...sortConstraints);
+
   // Get total count based on the constructed query
-  const countSnapshot = await getCountFromServer(finalQuery);
+  const countQuery = query(baseQuery, ...sortConstraints.filter(c => c.type !== 'orderBy'));
+  const countSnapshot = await getCountFromServer(countQuery);
   const totalApplications = countSnapshot.data().count;
   const totalPages = Math.ceil(totalApplications / limitNumber);
 

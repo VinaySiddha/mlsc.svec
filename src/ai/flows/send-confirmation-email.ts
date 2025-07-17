@@ -2,14 +2,13 @@
 'use server';
 
 /**
- * @fileOverview A flow for sending a confirmation email to an applicant using Nodemailer and Gmail.
+ * @fileOverview A utility for sending a confirmation email to an applicant using Nodemailer and Gmail.
  *
- * - sendConfirmationEmail - A function that handles sending the email.
+ * - sendConfirmationEmail - A direct function to handle sending the email.
  * - ConfirmationEmailInput - The input type for the sendConfirmationEmail function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import nodemailer from 'nodemailer';
 
 // Log a warning at startup if credentials are not provided.
@@ -24,90 +23,44 @@ const ConfirmationEmailInputSchema = z.object({
 });
 export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
 
-// This flow doesn't need an output schema as it's a "fire-and-forget" operation.
+
+/**
+ * Sends a confirmation email directly using Nodemailer.
+ * @param input - The applicant's details (name, email, referenceId).
+ */
 export async function sendConfirmationEmail(input: ConfirmationEmailInput): Promise<void> {
-  // Only proceed if Nodemailer is configured with credentials.
+  const { name, email, referenceId } = ConfirmationEmailInputSchema.parse(input);
+
+  // Check for credentials at the time of execution.
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.log(`Skipping email to ${input.email} because GMAIL credentials are not configured.`);
+    console.log(`Skipping email to ${email} because GMAIL credentials are not configured in .env.`);
     return;
   }
-  await sendConfirmationEmailFlow(input);
-}
 
-const sendEmailTool = ai.defineTool({
-  name: 'sendEmail',
-  description: 'Sends an email to a recipient using Nodemailer.',
-  inputSchema: z.object({
-    to: z.string().email(),
-    subject: z.string(),
-    body: z.string(),
-  }),
-  outputSchema: z.void(),
-  handler: async ({to, subject, body}) => {
-    // Check for credentials at the time of execution.
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      console.log(`Skipping email to ${to} because GMAIL credentials are not configured in .env.`);
-      return;
-    }
+  // Create a Nodemailer transporter inside the handler to ensure it's only created when needed.
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_APP_PASSWORD, 
+      },
+  });
 
-    // Create a Nodemailer transporter inside the handler to ensure it's only created when needed.
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_APP_PASSWORD, 
-        },
-    });
-    
-    const mailOptions = {
-        from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`, // Sender address
-        to: to, // List of receivers
-        subject: subject, // Subject line
-        html: `<p>${body.replace(/\n/g, '<br>')}</p>`, // HTML body
-    };
-
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log(`Successfully sent email to ${to}`);
-    } catch (error) {
-      console.error(`Failed to send email to ${to} via Nodemailer:`, error);
-      // For now, we'll just log it and not throw an error to avoid halting the flow.
-    }
-  },
-});
-
-const prompt = ai.definePrompt({
-  name: 'sendConfirmationEmailPrompt',
-  input: {schema: ConfirmationEmailInputSchema},
-  // We use a tool to send the email. The prompt's output is just for logging/debugging.
-  output: {schema: z.string()}, 
+  const subject = "Your MLSC Application has been Received!";
+  const body = `Hi ${name},\n\nThank you for applying to the MLSC. We have successfully received your application.\n\nYour reference ID is: ${referenceId}\n\nPlease save this ID to check your application status later on our portal.\n\nBest regards,\nThe MLSC Hiring Team`;
   
-  // Instruct the LLM to use the provided tool to send the email.
-  prompt: `An application was received. Send a confirmation email to the applicant using the provided tool.
-  
-  Applicant Name: {{{name}}}
-  Applicant Email: {{{email}}}
-  Reference ID: {{{referenceId}}}
-  
-  The email subject should be: "Your MLSC Application has been Received!".
-  The email body should be a friendly confirmation message, including their name and reference ID, and instructing them to save the ID to check their status later. Do not add any unsubscribe links or marketing content.
-  `,
+  const mailOptions = {
+      from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: subject,
+      html: `<p>${body.replace(/\n/g, '<br>')}</p>`, // HTML body
+  };
 
-  tools: [sendEmailTool],
-
-  config: {
-    temperature: 0.2, // Low temperature for deterministic, direct instruction following.
-  },
-});
-
-const sendConfirmationEmailFlow = ai.defineFlow(
-  {
-    name: 'sendConfirmationEmailFlow',
-    inputSchema: ConfirmationEmailInputSchema,
-    outputSchema: z.void(),
-  },
-  async (input) => {
-    // The prompt will automatically use the 'sendEmail' tool when it runs.
-    await prompt(input);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Successfully sent email to ${email}`);
+  } catch (error) {
+    console.error(`Failed to send email to ${email} via Nodemailer:`, error);
+    // We'll just log it and not throw an error to avoid halting the parent process.
   }
-);
+}
