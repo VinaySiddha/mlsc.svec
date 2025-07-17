@@ -25,6 +25,8 @@ import {
   startAfter,
   getCountFromServer,
   writeBatch,
+  Query,
+  DocumentData,
 } from 'firebase/firestore';
 import papaparse from 'papaparse';
 
@@ -214,34 +216,30 @@ function buildFilteredQuery(params: {
   year?: string;
   branch?: string;
   domain?: string;
-  sortByRecommended?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain, sortByRecommended } = params;
-  let q = query(collection(db, 'applications'));
+  const { panelDomain, search, status, year, branch, domain } = params;
+  let q: Query<DocumentData> = query(collection(db, 'applications'));
 
-  // Super admin can filter by domain, panel admin is locked to their domain
+  // The 'search' functionality uses a name range query which cannot be combined
+  // with other filters without a composite index. To avoid this, we will apply
+  // other filters first and then perform search on the client-side if needed,
+  // or accept the limitation that search works best standalone.
+  if (search) {
+     q = query(q, orderBy('name'), where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
+     // Cannot combine with other filters easily.
+     return q;
+  }
+
+  // Panel admin is locked to their domain
   if (panelDomain) {
     q = query(q, where('technicalDomain', '==', panelDomain));
   } else if (domain) {
     q = query(q, where('technicalDomain', '==', domain));
   }
   
-  if (sortByRecommended === 'true') {
-    q = query(q, where('isRecommended', '==', true));
-  }
-
-  // General filters for both roles
   if (status) q = query(q, where('status', '==', status));
   if (year) q = query(q, where('yearOfStudy', '==', year));
   if (branch) q = query(q, where('branch', '==', branch));
-
-  // Note: Searching by name (a string field) with other filters requires a composite index.
-  // To avoid this, we'll do a simple equality check if a search term is provided.
-  // For more complex "contains" or "starts with" searches on top of other filters,
-  // a dedicated search service like Algolia or a different data structure would be needed.
-  if (search) {
-     q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
-  }
 
   return q;
 }
@@ -263,41 +261,34 @@ export async function getApplications(params: {
   const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
   const limitNumber = parseInt(limitStr, 10);
   
-  const countFilters = { ...params };
-  delete countFilters.sortByPerformance;
-  delete countFilters.page;
-  delete countFilters.limit;
-  delete countFilters.lastVisibleId;
+  let q: Query<DocumentData>;
 
-  let q = buildFilteredQuery(countFilters);
+  // To avoid complex composite indexes, we will handle special sort cases separately.
+  if (sortByRecommended === 'true') {
+      q = query(collection(db, 'applications'), where('isRecommended', '==', true), orderBy('ratings.overall', 'desc'));
+  } else if (sortByPerformance === 'true') {
+      q = query(collection(db, 'applications'), orderBy('ratings.overall', 'desc'));
+  } else {
+      q = buildFilteredQuery(params);
+      q = query(q, orderBy('submittedAt', 'desc'));
+  }
 
-  const countQuery = q;
-  const snapshot = await getCountFromServer(countQuery);
-  const totalApplications = snapshot.data().count;
+  // Get total count based on the constructed query
+  const countSnapshot = await getCountFromServer(q);
+  const totalApplications = countSnapshot.data().count;
   const totalPages = Math.ceil(totalApplications / limitNumber);
 
-
-  // Re-build query with sorting for the actual data fetch
-  let dataQuery = buildFilteredQuery(params);
-
-  // Sorting logic
-  if (sortByPerformance === 'true' || sortByRecommended === 'true') {
-    dataQuery = query(dataQuery, orderBy('ratings.overall', 'desc'));
-  } else {
-    dataQuery = query(dataQuery, orderBy('submittedAt', 'desc'));
-  }
-  
-  // Pagination
+  // Apply pagination
   if (page && parseInt(page, 10) > 1 && lastVisibleId) {
       const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
       if(lastVisibleDoc.exists()) {
-        dataQuery = query(dataQuery, startAfter(lastVisibleDoc));
+        q = query(q, startAfter(lastVisibleDoc));
       }
   }
 
-  dataQuery = query(dataQuery, limit(limitNumber));
+  q = query(q, limit(limitNumber));
 
-  const querySnapshot = await getDocs(dataQuery);
+  const querySnapshot = await getDocs(q);
   const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
 
   return {
