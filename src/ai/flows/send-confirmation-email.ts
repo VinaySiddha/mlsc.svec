@@ -51,7 +51,7 @@ const sendEmailTool = ai.defineTool({
     body: z.string(),
   }),
   outputSchema: z.void(),
-  async handler({to, subject, body}) {
+  handler: async ({to, subject, body}) => {
     if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
       console.log(`Skipping email to ${to} because GMAIL credentials are not configured in .env.`);
       return;
