@@ -49,7 +49,10 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
   const subject = "Your MLSC Application has been Received!";
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-      <div style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;">
+      <div style="background-color: yellow; color: #333; text-align: center; padding: 8px 0; font-weight: bold;">
+          Please do not forward this e-mail.
+      </div>
+      <div style="text-align: center; font-size: 24px; font-weight: bold; margin: 20px 0;">
         🎉 You've Taken Your First Step! 🎉
       </div>
       
