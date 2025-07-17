@@ -5,6 +5,7 @@ import {
   summarizeResume,
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
+import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -25,6 +26,7 @@ import {
   getCountFromServer,
   writeBatch,
 } from 'firebase/firestore';
+import papaparse from 'papaparse';
 
 
 const applicationSchema = z.object({
@@ -152,35 +154,45 @@ export async function submitApplication(formData: FormData) {
     await updateDoc(docRef, { firestoreId: docRef.id });
 
     // 2. Return success to the user immediately
-    // The AI processing will continue in the background
     const resultForUser = { summary: null, referenceId };
 
-    // 3. Process resume summarization in the background
-    if (resume && resume.size > 0) {
-      // Don't await this promise chain in the user-facing response
-      (async () => {
+    // 3. Process background tasks (summarization and email)
+    // Don't await these promise chains in the user-facing response
+    (async () => {
+        // Send confirmation email
         try {
-          const buffer = await resume.arrayBuffer();
-          const base64 = Buffer.from(buffer).toString('base64');
-          const resumeDataUri = `data:${resume.type};base64,${base64}`;
-
-          const summarizationInput: SummarizeResumeInput = {resumeDataUri};
-          const result = await summarizeResume(summarizationInput);
-          
-          // Update the document with the AI-generated summary
-          if (docRef) {
-            await updateDoc(docRef, { resumeSummary: result.summary });
-            console.log(`Successfully generated summary for ${referenceId}`);
-          }
-        } catch (aiError) {
-           console.error(`AI summarization failed for ${referenceId}:`, aiError);
-           if (docRef) {
-            // Optionally update status to indicate failure
-            await updateDoc(docRef, { resumeSummary: "AI summary failed." });
-          }
+            await sendConfirmationEmail({ 
+                name: newApplication.name, 
+                email: newApplication.email, 
+                referenceId 
+            });
+            console.log(`Successfully sent confirmation email for ${referenceId}`);
+        } catch (emailError) {
+            console.error(`Email sending failed for ${referenceId}:`, emailError);
         }
-      })();
-    }
+
+        // Process resume summarization
+        if (resume && resume.size > 0) {
+            try {
+                const buffer = await resume.arrayBuffer();
+                const base64 = Buffer.from(buffer).toString('base64');
+                const resumeDataUri = `data:${resume.type};base64,${base64}`;
+
+                const summarizationInput: SummarizeResumeInput = {resumeDataUri};
+                const result = await summarizeResume(summarizationInput);
+                
+                if (docRef) {
+                    await updateDoc(docRef, { resumeSummary: result.summary });
+                    console.log(`Successfully generated summary for ${referenceId}`);
+                }
+            } catch (aiError) {
+                console.error(`AI summarization failed for ${referenceId}:`, aiError);
+                if (docRef) {
+                    await updateDoc(docRef, { resumeSummary: "AI summary failed." });
+                }
+            }
+        }
+    })();
 
     return resultForUser;
   } catch (error) {
@@ -206,12 +218,19 @@ function buildFilteredQuery(params: {
   const { panelDomain, search, status, year, branch, domain } = params;
   let q = query(collection(db, 'applications'));
 
-  if (panelDomain) q = query(q, where('technicalDomain', '==', panelDomain));
+  // Super admin can filter by domain, panel admin is locked to their domain
+  if (panelDomain) {
+    q = query(q, where('technicalDomain', '==', panelDomain));
+  } else if (domain) {
+    q = query(q, where('technicalDomain', '==', domain));
+  }
+
+  // General filters for both roles
   if (status) q = query(q, where('status', '==', status));
   if (year) q = query(q, where('yearOfStudy', '==', year));
   if (branch) q = query(q, where('branch', '==', branch));
-  if (domain && !panelDomain) q = query(q, where('technicalDomain', '==', domain));
   if (search) {
+     // A simple prefix search. For more complex search, a dedicated search service like Algolia would be better.
      q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
   }
 
@@ -235,10 +254,12 @@ export async function getApplications(params: {
   const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
   const limitNumber = parseInt(limitStr, 10);
   
-  // This is a simplified version of the filter object for counting
   const countFilters = { ...params };
   delete countFilters.sortByPerformance;
   delete countFilters.sortByRecommended;
+  delete countFilters.page;
+  delete countFilters.limit;
+  delete countFilters.lastVisibleId;
 
   let q = buildFilteredQuery(countFilters);
 
@@ -256,20 +277,16 @@ export async function getApplications(params: {
     dataQuery = query(dataQuery, orderBy('ratings.overall', 'desc'));
   } else if (sortByRecommended === 'true') {
     dataQuery = query(dataQuery, where('isRecommended', '==', true), orderBy('ratings.overall', 'desc'));
-  } else if (params.panelDomain) {
-    // Default sort for panel view
-    dataQuery = query(dataQuery, orderBy('submittedAt', 'desc'));
   } else {
-    // Default sort for admin view
     dataQuery = query(dataQuery, orderBy('submittedAt', 'desc'));
   }
   
   // Pagination
-  if (lastVisibleId) {
-    const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
-    if(lastVisibleDoc.exists()) {
-      dataQuery = query(dataQuery, startAfter(lastVisibleDoc));
-    }
+  if (page && parseInt(page, 10) > 1 && lastVisibleId) {
+      const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
+      if(lastVisibleDoc.exists()) {
+        dataQuery = query(dataQuery, startAfter(lastVisibleDoc));
+      }
   }
 
   dataQuery = query(dataQuery, limit(limitNumber));
@@ -349,8 +366,6 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   const { username, password } = parsed.data;
 
-  // Hardcoded credentials for demo purposes.
-  // In a real app, use environment variables and a secure user management system.
   const SUPER_ADMIN_USERNAME = 'vinaysiddha';
   const SUPER_ADMIN_PASSWORD = 'Vinay@15';
   
@@ -448,4 +463,47 @@ export async function bulkUpdateStatus(filters: {
     }
     return { error: 'An unexpected error occurred during bulk update.' };
   }
+}
+
+export async function exportHiredToCsv() {
+    try {
+        const q = query(collection(db, 'applications'), where('status', '==', 'Hired'));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return { error: 'No hired candidates found to export.' };
+        }
+
+        const hiredData = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            // Flatten nested objects for easier CSV export
+            return {
+                referenceId: data.id,
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                rollNo: data.rollNo,
+                branch: data.branch,
+                section: data.section,
+                yearOfStudy: data.yearOfStudy,
+                cgpa: data.cgpa,
+                backlogs: data.backlogs,
+                technicalDomain: data.technicalDomain,
+                nonTechnicalDomain: data.nonTechnicalDomain,
+                linkedin: data.linkedin,
+                submittedAt: data.submittedAt,
+                overallRating: data.ratings?.overall || 0,
+            };
+        });
+
+        const csv = papaparse.unparse(hiredData);
+        return { success: true, csvData: csv };
+
+    } catch (error) {
+        console.error('Error exporting hired candidates:', error);
+        if (error instanceof Error) {
+            return { error: `Export failed: ${error.message}` };
+        }
+        return { error: 'An unexpected error occurred during export.' };
+    }
 }

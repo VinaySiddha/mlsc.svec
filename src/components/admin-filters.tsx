@@ -6,8 +6,8 @@ import { useCallback, useState, useEffect, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck } from 'lucide-react';
-import { bulkUpdateStatus } from '@/app/actions';
+import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck, FileDown } from 'lucide-react';
+import { bulkUpdateStatus, exportHiredToCsv } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 
@@ -36,6 +36,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [bulkUpdateTargetStatus, setBulkUpdateTargetStatus] = useState('');
   const { toast } = useToast();
 
@@ -51,7 +52,6 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           params.delete(name);
         }
       });
-      // Reset page to 1 on any filter change except for pagination itself
       if (!updates.some(u => u.name === 'page')) {
         params.set('page', '1');
         params.delete('lastVisibleId');
@@ -68,7 +68,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
                 router.push(pathname + '?' + createQueryString([{ name: 'search', value: search }]));
             });
         }
-    }, 500); // Debounce search input
+    }, 500);
 
     return () => {
       clearTimeout(handler);
@@ -100,8 +100,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     }
 
     setIsBulkUpdating(true);
-    // Exclude pagination params from filters passed to the action
-    const { page, ...filtersToPass } = Object.fromEntries(searchParams.entries());
+    const filtersToPass = { ...currentFilters };
 
     try {
         const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
@@ -127,6 +126,37 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     }
   };
 
+  const handleExport = async () => {
+      setIsExporting(true);
+      try {
+          const result = await exportHiredToCsv();
+          if (result.error) {
+              throw new Error(result.error);
+          }
+          if (result.csvData) {
+              const blob = new Blob([result.csvData], { type: 'text/csv;charset=utf-8;' });
+              const link = document.createElement('a');
+              const url = URL.createObjectURL(blob);
+              link.setAttribute('href', url);
+              link.setAttribute('download', `hired_candidates_${new Date().toISOString().split('T')[0]}.csv`);
+              link.style.visibility = 'hidden';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              toast({ title: 'Export Successful', description: 'Hired candidates data has been downloaded.' });
+          }
+      } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          toast({
+              variant: "destructive",
+              title: "Export Failed",
+              description: errorMessage,
+          });
+      } finally {
+          setIsExporting(false);
+      }
+  };
+
   const resetFilters = () => {
     setSearch('');
     startTransition(() => {
@@ -134,8 +164,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     });
   };
   
-  const hasActiveFilters = Object.values(currentFilters).some(val => val && val !== '1') || search || searchParams.toString().length > 0;
-
+  const hasActiveFilters = Object.values(currentFilters).some(val => !!val) || search;
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -228,20 +257,20 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
                         ))}
                     </SelectContent>
                 </Select>
-                 <Button variant="outline" onClick={handleBulkUpdate} disabled={isPending || isBulkUpdating}>
+                 <Button variant="outline" onClick={handleBulkUpdate} disabled={isPending || isBulkUpdating || !bulkUpdateTargetStatus}>
                     {isBulkUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ClipboardCheck className="mr-2 h-4 w-4" />}
                     Bulk Update
                 </Button>
             </div>
+            <Button variant="outline" onClick={handleExport} disabled={isExporting}>
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
+                Export Hired
+            </Button>
           </>
         )}
         {hasActiveFilters && (
           <Button variant="ghost" onClick={resetFilters} disabled={isPending || isBulkUpdating}>
-            {(isPending && searchParams.toString().length > 0) ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <X className="mr-2 h-4 w-4" />
-            )}
+            <X className="mr-2 h-4 w-4" />
             Reset Filters
           </Button>
         )}

@@ -34,7 +34,7 @@ function AdminDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="h-32 w-full bg-muted rounded-md animate-pulse mb-4" />
+                <div className="h-48 w-full bg-muted rounded-md animate-pulse mb-4" />
                 <ApplicationsTableSkeleton />
             </CardContent>
         </>
@@ -85,10 +85,6 @@ async function AdminDashboard({
     ds_ml: "Data Science & ML",
     azure: "Azure Cloud",
     web_app: "Web & App Development",
-    event_management: "Event Management",
-    public_relations: "Public Relations",
-    media_marketing: "Media Marketing",
-    creativity: "Creativity",
   };
   
   const description = panelDomain
