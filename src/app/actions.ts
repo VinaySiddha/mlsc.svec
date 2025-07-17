@@ -105,26 +105,15 @@ export async function submitApplication(formData: FormData) {
   }
 
   const {resume, ...applicationData} = parsed.data;
-
-  let summary: string | null = null;
   const referenceId = generateReferenceId();
+  let docRef;
 
   try {
-    if (resume && resume.size > 0) {
-      const buffer = await resume.arrayBuffer();
-      const base64 = Buffer.from(buffer).toString('base64');
-      const resumeDataUri = `data:${resume.type};base64,${base64}`;
-
-      const summarizationInput: SummarizeResumeInput = {resumeDataUri};
-      const result = await summarizeResume(summarizationInput);
-      summary = result.summary;
-    }
-
     const newApplication = {
       id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
       ...applicationData,
-      resumeSummary: summary,
+      resumeSummary: null, // Initially set summary to null
       status: 'Received',
       isRecommended: false,
       suitability: {
@@ -141,18 +130,48 @@ export async function submitApplication(formData: FormData) {
       remarks: '',
     };
     
+    // 1. Immediately save the application to get a reference ID for the user
     const applicationsRef = collection(db, "applications");
-    const docRef = await addDoc(applicationsRef, { ...newApplication });
-
-    // Update the document with its own Firestore ID for easy reference
+    docRef = await addDoc(applicationsRef, { ...newApplication });
     await updateDoc(docRef, { firestoreId: docRef.id });
 
-    return {summary, referenceId };
+    // 2. Return success to the user immediately
+    // The AI processing will continue in the background
+    const resultForUser = { summary: null, referenceId };
+
+    // 3. Process resume summarization in the background
+    if (resume && resume.size > 0) {
+      // Don't await this promise chain in the user-facing response
+      (async () => {
+        try {
+          const buffer = await resume.arrayBuffer();
+          const base64 = Buffer.from(buffer).toString('base64');
+          const resumeDataUri = `data:${resume.type};base64,${base64}`;
+
+          const summarizationInput: SummarizeResumeInput = {resumeDataUri};
+          const result = await summarizeResume(summarizationInput);
+          
+          // Update the document with the AI-generated summary
+          if (docRef) {
+            await updateDoc(docRef, { resumeSummary: result.summary });
+            console.log(`Successfully generated summary for ${referenceId}`);
+          }
+        } catch (aiError) {
+           console.error(`AI summarization failed for ${referenceId}:`, aiError);
+           if (docRef) {
+            // Optionally update status to indicate failure
+            await updateDoc(docRef, { resumeSummary: "AI summary failed." });
+          }
+        }
+      })();
+    }
+
+    return resultForUser;
   } catch (error) {
     console.error('Error submitting application:', error);
     if (error instanceof Error) {
       return {
-        error: `An error occurred during application processing: ${error.message}`,
+        error: `An error occurred during application submission: ${error.message}`,
       };
     }
     return {error: 'An unexpected error occurred. Please try again.'};
@@ -212,13 +231,8 @@ export async function getApplications(params: {
   if (sortByPerformance === 'true' && !panelDomain) {
     q = query(q, orderBy('ratings.overall', 'desc'));
   } else if (sortByRecommended === 'true' && !panelDomain) {
-    // This requires a composite index on isRecommended (boolean) and ratings.overall (desc)
     q = query(q, orderBy('ratings.overall', 'desc'));
-  } else if (panelDomain) {
-     // Default sort for panel view
-     q = query(q, orderBy('submittedAt', 'desc'));
   } else {
-    // Default sort for admin
     q = query(q, orderBy('submittedAt', 'desc'));
   }
   
