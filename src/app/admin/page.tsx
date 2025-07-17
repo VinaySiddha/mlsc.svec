@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge";
 
 export const dynamic = 'force-dynamic';
 
-const getStatusVariant = (status: string) => {
-  switch (status.toLowerCase()) {
+const getStatusVariant = (status?: string) => {
+  switch (status?.toLowerCase()) {
     case 'accepted':
       return 'default';
     case 'rejected':
@@ -80,28 +80,31 @@ export default async function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {applications.length > 0 ? (
-                      applications.map((app: any) => (
-                        <TableRow key={app.id}>
-                          <TableCell className="font-mono text-xs">
-                             <Link href={`/admin/application/${app.id}`} className="hover:underline">
-                                {app.id}
+                      applications.map((app: any) => {
+                        const status = app.status || 'Received';
+                        return (
+                          <TableRow key={app.id}>
+                            <TableCell className="font-mono text-xs">
+                               <Link href={`/admin/application/${app.id}`} className="hover:underline">
+                                  {app.id}
+                                </Link>
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              <Link href={`/admin/application/${app.id}`} className="hover:underline">
+                                {app.name}
                               </Link>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            <Link href={`/admin/application/${app.id}`} className="hover:underline">
-                              {app.name}
-                            </Link>
-                          </TableCell>
-                           <TableCell className="text-muted-foreground whitespace-nowrap">
-                              {format(new Date(app.submittedAt), "MMM d, yyyy")}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusVariant(app.status)}>{app.status}</Badge>
-                          </TableCell>
-                          <TableCell>{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
-                          <TableCell>{domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}</TableCell>
-                        </TableRow>
-                      ))
+                            </TableCell>
+                             <TableCell className="text-muted-foreground whitespace-nowrap">
+                                {format(new Date(app.submittedAt), "MMM d, yyyy")}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusVariant(status)}>{status}</Badge>
+                            </TableCell>
+                            <TableCell>{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
+                            <TableCell>{domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}</TableCell>
+                          </TableRow>
+                        )
+                      })
                     ) : (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">

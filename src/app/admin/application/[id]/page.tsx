@@ -23,8 +23,8 @@ const domainLabels: Record<string, string> = {
   creativity: "Creativity",
 };
 
-const getStatusVariant = (status: string) => {
-  switch (status.toLowerCase()) {
+const getStatusVariant = (status?: string) => {
+  switch (status?.toLowerCase()) {
     case 'accepted':
       return 'default';
     case 'rejected':
@@ -42,6 +42,8 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
   if (!application) {
     notFound();
   }
+  
+  const status = application.status || 'Received';
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -73,8 +75,8 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                       Submitted on {format(new Date(application.submittedAt), "MMMM d, yyyy 'at' h:mm a")}
                     </CardDescription>
                   </div>
-                   <Badge variant={getStatusVariant(application.status)} className="text-sm">
-                      {application.status}
+                   <Badge variant={getStatusVariant(status)} className="text-sm">
+                      {status}
                     </Badge>
                 </div>
                  <div className="text-sm text-muted-foreground pt-4">
