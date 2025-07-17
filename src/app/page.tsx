@@ -20,13 +20,13 @@ export default function Home() {
              <Button asChild variant="outline">
               <Link href="/status">
                 <FileSearch />
-                <span className="hidden sm:inline">Check Status</span>
+                <span>Check Status</span>
               </Link>
             </Button>
             <Button asChild>
               <Link href="/login">
                 <LogIn />
-                <span className="hidden sm:inline">Admin Login</span>
+                <span>Admin Login</span>
               </Link>
             </Button>
           </div>
