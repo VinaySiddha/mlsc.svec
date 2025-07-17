@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
@@ -23,6 +23,7 @@ interface AdminFiltersProps {
     branch?: string;
     domain?: string;
     sortByPerformance?: string;
+    page?: string;
   };
 }
 
@@ -30,6 +31,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const [search, setSearch] = useState(currentFilters.search || '');
 
@@ -43,6 +45,10 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           params.delete(name);
         }
       });
+      // Reset page to 1 on any filter change except for pagination itself
+      if (!updates.some(u => u.name === 'page')) {
+        params.set('page', '1');
+      }
       return params.toString();
     },
     [searchParams]
@@ -50,30 +56,41 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   
   useEffect(() => {
     const handler = setTimeout(() => {
-        router.push(pathname + '?' + createQueryString([{ name: 'search', value: search }]));
+        if (search !== (currentFilters.search || '')) {
+            startTransition(() => {
+                router.push(pathname + '?' + createQueryString([{ name: 'search', value: search }]));
+            });
+        }
     }, 500); // Debounce search input
 
     return () => {
       clearTimeout(handler);
     };
-  }, [search, pathname, createQueryString, router]);
+  }, [search, pathname, createQueryString, router, currentFilters.search]);
 
   const handleFilterChange = (name: string, value: string) => {
     const updatedValue = value === 'all' ? '' : value;
-    router.push(pathname + '?' + createQueryString([{ name, value: updatedValue }]));
+    startTransition(() => {
+      router.push(pathname + '?' + createQueryString([{ name, value: updatedValue }]));
+    });
   };
   
   const handleSortByPerformance = () => {
     const isSorting = currentFilters.sortByPerformance === 'true';
-    router.push(pathname + '?' + createQueryString([{ name: 'sortByPerformance', value: isSorting ? '' : 'true' }]));
+    startTransition(() => {
+      router.push(pathname + '?' + createQueryString([{ name: 'sortByPerformance', value: isSorting ? '' : 'true' }]));
+    });
   };
 
   const resetFilters = () => {
     setSearch('');
-    router.push(pathname);
+    startTransition(() => {
+      router.push(pathname);
+    });
   };
   
-  const hasActiveFilters = Object.values(currentFilters).some(Boolean) || search;
+  const hasActiveFilters = Object.values(currentFilters).some(val => val && val !== '1') || search;
+
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -84,18 +101,19 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col md:flex-row gap-2 items-center">
-        <div className="relative w-full md:max-w-xs">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:flex xl:flex-row gap-2 items-center">
+        <div className="relative w-full xl:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search name, email, ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
+            disabled={isPending}
           />
         </div>
-        <Select onValueChange={(value) => handleFilterChange('status', value)} value={currentFilters.status || 'all'}>
-          <SelectTrigger className="w-full md:w-[180px]">
+        <Select onValueChange={(value) => handleFilterChange('status', value)} value={currentFilters.status || 'all'} disabled={isPending}>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -105,8 +123,8 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             ))}
           </SelectContent>
         </Select>
-        <Select onValueChange={(value) => handleFilterChange('year', value)} value={currentFilters.year || 'all'}>
-          <SelectTrigger className="w-full md:w-[180px]">
+        <Select onValueChange={(value) => handleFilterChange('year', value)} value={currentFilters.year || 'all'} disabled={isPending}>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>
@@ -116,8 +134,8 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             ))}
           </SelectContent>
         </Select>
-        <Select onValueChange={(value) => handleFilterChange('branch', value)} value={currentFilters.branch || 'all'}>
-          <SelectTrigger className="w-full md:w-[180px]">
+        <Select onValueChange={(value) => handleFilterChange('branch', value)} value={currentFilters.branch || 'all'} disabled={isPending}>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Branch" />
           </SelectTrigger>
           <SelectContent>
@@ -128,8 +146,8 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           </SelectContent>
         </Select>
         {userRole === 'admin' && (
-          <Select onValueChange={(value) => handleFilterChange('domain', value)} value={currentFilters.domain || 'all'}>
-              <SelectTrigger className="w-full md:w-[220px]">
+          <Select onValueChange={(value) => handleFilterChange('domain', value)} value={currentFilters.domain || 'all'} disabled={isPending}>
+              <SelectTrigger className="w-full">
                   <SelectValue placeholder="Technical Domain" />
               </SelectTrigger>
               <SelectContent>
@@ -143,13 +161,13 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       </div>
       <div className="flex items-center gap-2">
          {userRole === 'admin' && (
-          <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={handleSortByPerformance}>
+          <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={handleSortByPerformance} disabled={isPending}>
               <TrendingUp className="mr-2 h-4 w-4" />
               Sort by Performance
           </Button>
         )}
         {hasActiveFilters && (
-          <Button variant="ghost" onClick={resetFilters}>
+          <Button variant="ghost" onClick={resetFilters} disabled={isPending}>
             <X className="mr-2 h-4 w-4" />
             Reset Filters
           </Button>

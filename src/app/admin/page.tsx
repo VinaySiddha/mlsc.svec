@@ -1,18 +1,78 @@
+
 import { getApplications, getFilterData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Search, X } from "lucide-react";
+import { Home } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { LogoutButton } from "@/components/logout-button";
 import { ApplicationsTable } from "@/components/applications-table";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AdminFilters } from "@/components/admin-filters";
+import { PaginationComponent } from "@/components/pagination";
+import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
+
 
 export const dynamic = 'force-dynamic';
+
+async function AdminDashboard({
+  panelDomain,
+  userRole,
+  searchParams
+}: {
+  panelDomain?: string;
+  userRole: string | null;
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
+  const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
+  const year = typeof searchParams.year === 'string' ? searchParams.year : undefined;
+  const branch = typeof searchParams.branch === 'string' ? searchParams.branch : undefined;
+  const domain = typeof searchParams.domain === 'string' ? searchParams.domain : undefined;
+  const sortByPerformance = typeof searchParams.sortByPerformance === 'string' ? searchParams.sortByPerformance : undefined;
+  const page = typeof searchParams.page === 'string' ? searchParams.page : '1';
+
+  const { applications, totalApplications, totalPages, currentPage } = await getApplications({ panelDomain, search, status, year, branch, domain, sortByPerformance, page });
+  const { statuses, years, branches, domains } = await getFilterData();
+
+  const domainLabels: Record<string, string> = {
+    gen_ai: "Generative AI",
+    ds_ml: "Data Science & ML",
+    azure: "Azure Cloud",
+    web_app: "Web & App Development",
+    event_management: "Event Management",
+    public_relations: "Public Relations",
+    media_marketing: "Media Marketing",
+    creativity: "Creativity",
+  };
+  
+  const description = panelDomain
+    ? `Applications for the ${domainLabels[panelDomain]} domain.`
+    : `Showing ${applications.length} of ${totalApplications} matching applications.`;
+
+  return (
+    <>
+      <CardHeader>
+        <CardTitle>Applications</CardTitle>
+        <CardDescription>
+          {description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+         <AdminFilters
+          userRole={userRole}
+          filterData={{ statuses, years, branches, domains }}
+          currentFilters={{ status, year, branch, domain, search, sortByPerformance, page }}
+         />
+        <ApplicationsTable applications={applications} domainLabels={domainLabels} />
+        <PaginationComponent totalPages={totalPages} currentPage={currentPage} />
+      </CardContent>
+    </>
+  );
+}
+
 
 export default async function AdminPage({
   searchParams
@@ -26,35 +86,15 @@ export default async function AdminPage({
   if (!userRole) {
     redirect('/login');
   }
-  
-  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
-  const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
-  const year = typeof searchParams.year === 'string' ? searchParams.year : undefined;
-  const branch = typeof searchParams.branch === 'string' ? searchParams.branch : undefined;
-  const domain = typeof searchParams.domain === 'string' ? searchParams.domain : undefined;
-  const sortByPerformance = typeof searchParams.sortByPerformance === 'string' ? searchParams.sortByPerformance : undefined;
-
-
-  const applications = await getApplications({ panelDomain, search, status, year, branch, domain, sortByPerformance });
-  const { statuses, years, branches, domains } = await getFilterData();
-
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
     ds_ml: "Data Science & ML",
     azure: "Azure Cloud",
     web_app: "Web & App Development",
-    event_management: "Event Management",
-    public_relations: "Public Relations",
-    media_marketing: "Media Marketing",
-    creativity: "Creativity",
   };
 
   const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
-  const description = panelDomain
-    ? `Applications for the ${domainLabels[panelDomain]} domain.`
-    : `A total of ${applications.length} matching ${applications.length === 1 ? 'application' : 'applications'} found.`;
-
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -80,20 +120,20 @@ export default async function AdminPage({
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto">
           <Card>
-            <CardHeader>
-              <CardTitle>Applications</CardTitle>
-              <CardDescription>
-                {description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <AdminFilters
-                userRole={userRole}
-                filterData={{ statuses, years, branches, domains }}
-                currentFilters={{ status, year, branch, domain, search, sortByPerformance }}
-               />
-              <ApplicationsTable applications={applications} domainLabels={domainLabels} />
-            </CardContent>
+             <Suspense fallback={
+                <>
+                  <CardHeader>
+                    <CardTitle>Applications</CardTitle>
+                    <CardDescription>Loading applications...</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-10 w-full bg-muted rounded-md animate-pulse mb-4" />
+                    <ApplicationsTableSkeleton />
+                  </CardContent>
+                </>
+             }>
+              <AdminDashboard panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
+            </Suspense>
           </Card>
         </div>
       </main>

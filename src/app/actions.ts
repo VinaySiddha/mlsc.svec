@@ -168,8 +168,10 @@ export async function getApplications(params: {
   branch?: string;
   domain?: string;
   sortByPerformance?: string;
+  page?: string;
+  limit?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain, sortByPerformance } = params;
+  const { panelDomain, search, status, year, branch, domain, sortByPerformance, page = '1', limit = '10' } = params;
   const db = await readDb();
   
   let applications = db.applications;
@@ -213,7 +215,21 @@ export async function getApplications(params: {
     applications.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
   }
 
-  return applications;
+  // Pagination
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const totalApplications = applications.length;
+  const totalPages = Math.ceil(totalApplications / limitNumber);
+  const startIndex = (pageNumber - 1) * limitNumber;
+  const paginatedApplications = applications.slice(startIndex, startIndex + limitNumber);
+
+
+  return {
+    applications: paginatedApplications,
+    totalApplications,
+    totalPages,
+    currentPage: pageNumber,
+  };
 }
 
 export async function getApplicationById(id: string) {

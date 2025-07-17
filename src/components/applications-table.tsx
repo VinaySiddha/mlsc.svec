@@ -1,9 +1,14 @@
 
+'use client';
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { format } from 'date-fns';
 import { Star } from "lucide-react";
+import { useTransition } from "react";
+import { ApplicationsTableSkeleton } from "./applications-table-skeleton";
+
 
 const getStatusVariant = (status?: string) => {
   switch (status?.toLowerCase()) {
@@ -25,6 +30,12 @@ interface ApplicationsTableProps {
 }
 
 export function ApplicationsTable({ applications, domainLabels }: ApplicationsTableProps) {
+  const [isPending] = useTransition();
+
+  if (isPending) {
+    return <ApplicationsTableSkeleton />;
+  }
+  
   return (
     <div className="border rounded-md">
       <Table>
@@ -32,9 +43,9 @@ export function ApplicationsTable({ applications, domainLabels }: ApplicationsTa
           <TableRow>
             <TableHead>Reference ID</TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Submitted</TableHead>
+            <TableHead className="hidden md:table-cell">Submitted</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Technical Domain</TableHead>
+            <TableHead className="hidden sm:table-cell">Technical Domain</TableHead>
             <TableHead>Performance</TableHead>
           </TableRow>
         </TableHeader>
@@ -54,13 +65,13 @@ export function ApplicationsTable({ applications, domainLabels }: ApplicationsTa
                       {app.name}
                     </Link>
                   </TableCell>
-                   <TableCell className="text-muted-foreground whitespace-nowrap">
+                   <TableCell className="text-muted-foreground whitespace-nowrap hidden md:table-cell">
                       {format(new Date(app.submittedAt), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell>
                     <Badge variant={getStatusVariant(status)}>{status}</Badge>
                   </TableCell>
-                  <TableCell>{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Star className={`h-4 w-4 ${app.ratings?.overall > 0 ? 'text-primary fill-primary' : 'text-muted-foreground'}`}/>
