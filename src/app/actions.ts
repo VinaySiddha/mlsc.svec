@@ -202,9 +202,8 @@ function buildFilteredQuery(params: {
   year?: string;
   branch?: string;
   domain?: string;
-  sortByRecommended?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain, sortByRecommended } = params;
+  const { panelDomain, search, status, year, branch, domain } = params;
   let q = query(collection(db, 'applications'));
 
   if (panelDomain) q = query(q, where('technicalDomain', '==', panelDomain));
@@ -212,7 +211,6 @@ function buildFilteredQuery(params: {
   if (year) q = query(q, where('yearOfStudy', '==', year));
   if (branch) q = query(q, where('branch', '==', branch));
   if (domain && !panelDomain) q = query(q, where('technicalDomain', '==', domain));
-  if (sortByRecommended === 'true') q = query(q, where('isRecommended', '==', true));
   if (search) {
      q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
   }
@@ -237,7 +235,12 @@ export async function getApplications(params: {
   const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
   const limitNumber = parseInt(limitStr, 10);
   
-  let q = buildFilteredQuery(params);
+  // This is a simplified version of the filter object for counting
+  const countFilters = { ...params };
+  delete countFilters.sortByPerformance;
+  delete countFilters.sortByRecommended;
+
+  let q = buildFilteredQuery(countFilters);
 
   const countQuery = q;
   const snapshot = await getCountFromServer(countQuery);
@@ -245,31 +248,33 @@ export async function getApplications(params: {
   const totalPages = Math.ceil(totalApplications / limitNumber);
 
 
+  // Re-build query with sorting for the actual data fetch
+  let dataQuery = buildFilteredQuery(params);
+
   // Sorting logic
   if (sortByPerformance === 'true') {
-    q = query(q, orderBy('ratings.overall', 'desc'));
+    dataQuery = query(dataQuery, orderBy('ratings.overall', 'desc'));
   } else if (sortByRecommended === 'true') {
-    // This sort order is implicitly handled by the filter now, but we keep the orderBy for consistency.
-    q = query(q, orderBy('ratings.overall', 'desc'));
+    dataQuery = query(dataQuery, where('isRecommended', '==', true), orderBy('ratings.overall', 'desc'));
   } else if (params.panelDomain) {
     // Default sort for panel view
-    q = query(q, orderBy('submittedAt', 'desc'));
+    dataQuery = query(dataQuery, orderBy('submittedAt', 'desc'));
   } else {
     // Default sort for admin view
-    q = query(q, orderBy('submittedAt', 'desc'));
+    dataQuery = query(dataQuery, orderBy('submittedAt', 'desc'));
   }
   
   // Pagination
   if (lastVisibleId) {
     const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
     if(lastVisibleDoc.exists()) {
-      q = query(q, startAfter(lastVisibleDoc));
+      dataQuery = query(dataQuery, startAfter(lastVisibleDoc));
     }
   }
 
-  q = query(q, limit(limitNumber));
+  dataQuery = query(dataQuery, limit(limitNumber));
 
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(dataQuery);
   const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
 
   return {
@@ -415,8 +420,11 @@ export async function bulkUpdateStatus(filters: {
   year?: string;
   branch?: string;
   domain?: string;
-  sortByRecommended?: string;
 }, newStatus: string) {
+  if (!newStatus) {
+    return { error: 'No status provided for bulk update.' };
+  }
+  
   try {
     let q = buildFilteredQuery(filters);
     const querySnapshot = await getDocs(q);

@@ -33,7 +33,7 @@ function AdminDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="h-20 w-full bg-muted rounded-md animate-pulse mb-4" />
+                <div className="h-32 w-full bg-muted rounded-md animate-pulse mb-4" />
                 <ApplicationsTableSkeleton />
             </CardContent>
         </>
@@ -106,9 +106,11 @@ async function AdminDashboard({
          <AdminFilters
           userRole={userRole}
           filterData={filterData}
-          currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended, page }}
+          currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended }}
          />
-        <ApplicationsTable applications={applications} domainLabels={domainLabels} />
+        <Suspense fallback={<ApplicationsTableSkeleton />}>
+            <ApplicationsTable applications={applications} domainLabels={domainLabels} />
+        </Suspense>
         <PaginationComponent 
             totalPages={totalPages} 
             currentPage={currentPage} 

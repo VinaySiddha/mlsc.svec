@@ -27,7 +27,6 @@ interface AdminFiltersProps {
     domain?: string;
     sortByPerformance?: string;
     sortByRecommended?: string;
-    page?: string;
   };
 }
 
@@ -37,6 +36,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [bulkUpdateTargetStatus, setBulkUpdateTargetStatus] = useState('');
   const { toast } = useToast();
 
   const [search, setSearch] = useState(currentFilters.search || '');
@@ -90,16 +90,27 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   };
 
   const handleBulkUpdate = async () => {
+    if (!bulkUpdateTargetStatus) {
+        toast({
+            variant: "destructive",
+            title: "No Status Selected",
+            description: "Please select a status to apply to the filtered applications.",
+        });
+        return;
+    }
+
     setIsBulkUpdating(true);
-    const { page, ...filtersToPass } = currentFilters;
+    // Exclude pagination params from filters passed to the action
+    const { page, ...filtersToPass } = Object.fromEntries(searchParams.entries());
+
     try {
-        const result = await bulkUpdateStatus(filtersToPass, 'Interviewing');
+        const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
         if (result.error) {
             throw new Error(result.error);
         }
         toast({
             title: "Bulk Update Successful",
-            description: `${result.updatedCount} applications have been moved to 'Interviewing'.`,
+            description: `${result.updatedCount} applications have been updated to '${bulkUpdateTargetStatus}'.`,
         });
         startTransition(() => {
             router.refresh();
@@ -123,7 +134,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     });
   };
   
-  const hasActiveFilters = Object.values(currentFilters).some(val => val && val !== '1') || search;
+  const hasActiveFilters = Object.values(currentFilters).some(val => val && val !== '1') || search || searchParams.toString().length > 0;
 
 
   const domainLabels: Record<string, string> = {
@@ -132,6 +143,8 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     azure: "Azure Cloud",
     web_app: "Web & App Development",
   };
+  
+  const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing'];
 
   return (
     <div className="flex flex-col gap-4">
@@ -197,22 +210,34 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
          {userRole === 'admin' && (
           <>
             <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
-                {isPending && currentFilters.sortByPerformance !== 'true' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
+                {(isPending && searchParams.get('sortByPerformance') !== 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
                 Sort by Performance
             </Button>
             <Button variant={currentFilters.sortByRecommended === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByRecommended')} disabled={isPending || isBulkUpdating}>
-                {isPending && currentFilters.sortByRecommended !== 'true' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
+                {(isPending && searchParams.get('sortByRecommended') !== 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
                 Sort by Recommended
             </Button>
-             <Button variant="outline" onClick={handleBulkUpdate} disabled={isPending || isBulkUpdating}>
-                {isBulkUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ClipboardCheck className="mr-2 h-4 w-4" />}
-                Set all to Interviewing
-            </Button>
+            <div className="flex items-center gap-2">
+                <Select onValueChange={setBulkUpdateTargetStatus} value={bulkUpdateTargetStatus} disabled={isPending || isBulkUpdating}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {bulkUpdateStatuses.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                 <Button variant="outline" onClick={handleBulkUpdate} disabled={isPending || isBulkUpdating}>
+                    {isBulkUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ClipboardCheck className="mr-2 h-4 w-4" />}
+                    Bulk Update
+                </Button>
+            </div>
           </>
         )}
         {hasActiveFilters && (
           <Button variant="ghost" onClick={resetFilters} disabled={isPending || isBulkUpdating}>
-            {(isPending || isBulkUpdating) ? (
+            {(isPending && searchParams.toString().length > 0) ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <X className="mr-2 h-4 w-4" />
