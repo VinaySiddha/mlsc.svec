@@ -52,13 +52,9 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
       <div style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;">
         🎉 You've Taken Your First Step! 🎉
       </div>
-      <div style="text-align: center; font-size: 18px; margin-bottom: 20px;">
-        <p>🌟 Are you ready to LEVEL UP your skills? 🌟</p>
-        <p>💻✨ Whether you're a coder 👨‍💻, designer 🎨, marketer 📈, or tech geek 🤓 - this is YOUR moment!</p>
-      </div>
       
       <p>Hi <strong>${name}</strong>,</p>
-      <p>Thank you for applying to the MLSC! We have successfully received your application and are thrilled to see your interest.</p>
+      <p>Thank you for applying to the MLSC! We have successfully received your application and are thrilled to see your interest. This is the beginning of an exciting journey, and we're glad to have you with us.</p>
       
       <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0; color: #0056b3;">Application Details</h3>
@@ -66,7 +62,7 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
         <p><span style="background-color: yellow;">Please save this ID to check your application status later on our portal.</span></p>
       </div>
 
-      <h2 style="color: #0056b3; text-align: center;">🔥 Why Join MLSC? 🔥</h2>
+      <h2 style="color: #0056b3; text-align: center;">🔥 What's Next? 🔥</h2>
       <ul style="list-style-type: '✅ '; padding-left: 20px;">
         <li>Build REAL-WORLD projects 🚀</li>
         <li>Get hands-on with Microsoft tools ⚙️</li>
