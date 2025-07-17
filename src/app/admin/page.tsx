@@ -7,7 +7,7 @@ import { Home, Menu } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useTransition } from "react";
 import { LogoutButton } from "@/components/logout-button";
 import { ApplicationsTable } from "@/components/applications-table";
 import { AdminFilters } from "@/components/admin-filters";
@@ -18,7 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export const dynamic = 'force-dynamic';
 
-async function AdminDashboard({
+function AdminDashboardWrapper({
   panelDomain,
   userRole,
   searchParams
@@ -26,6 +26,59 @@ async function AdminDashboard({
   panelDomain?: string;
   userRole: string | null;
   searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+     <Suspense fallback={<AdminDashboardSkeleton panelDomain={panelDomain} />}>
+        <AdminDashboard
+          panelDomain={panelDomain}
+          userRole={userRole}
+          searchParams={searchParams}
+          isPending={isPending}
+          startTransition={startTransition}
+        />
+     </Suspense>
+  )
+}
+
+function AdminDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
+    const domainLabels: Record<string, string> = {
+      gen_ai: "Generative AI",
+      ds_ml: "Data Science & ML",
+      azure: "Azure Cloud",
+      web_app: "Web & App Development",
+    };
+    const description = panelDomain
+      ? `Applications for the ${domainLabels[panelDomain]} domain.`
+      : `Loading applications...`;
+
+    return (
+        <>
+            <CardHeader>
+                <CardTitle>Applications</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="h-10 w-full bg-muted rounded-md animate-pulse mb-4" />
+                <ApplicationsTableSkeleton />
+            </CardContent>
+        </>
+    );
+}
+
+async function AdminDashboard({
+  panelDomain,
+  userRole,
+  searchParams,
+  isPending,
+  startTransition
+}: {
+  panelDomain?: string;
+  userRole: string | null;
+  searchParams: { [key: string]: string | string[] | undefined };
+  isPending: boolean;
+  startTransition: React.TransitionStartFunction;
 }) {
   const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
   const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
@@ -86,16 +139,24 @@ async function AdminDashboard({
           userRole={userRole}
           filterData={filterData}
           currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended, page }}
+          isPending={isPending}
+          startTransition={startTransition}
          />
-        <ApplicationsTable applications={applications} domainLabels={domainLabels} />
-        <PaginationComponent totalPages={totalPages} currentPage={currentPage} applications={applications}/>
+        {isPending ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} domainLabels={domainLabels} />}
+        <PaginationComponent 
+            totalPages={totalPages} 
+            currentPage={currentPage} 
+            applications={applications}
+            isPending={isPending}
+            startTransition={startTransition}
+        />
       </CardContent>
     </>
   );
 }
 
 
-export default async function AdminPage({
+export default function AdminPage({
   searchParams
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -141,20 +202,7 @@ export default async function AdminPage({
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto">
           <Card>
-             <Suspense fallback={
-                <>
-                  <CardHeader>
-                    <CardTitle>Applications</CardTitle>
-                    <CardDescription>Loading applications...</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-10 w-full bg-muted rounded-md animate-pulse mb-4" />
-                    <ApplicationsTableSkeleton />
-                  </CardContent>
-                </>
-             }>
-              <AdminDashboard panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
-            </Suspense>
+              <AdminDashboardWrapper panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
           </Card>
         </div>
       </main>

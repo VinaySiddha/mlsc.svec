@@ -6,7 +6,7 @@ import { useCallback, useState, useEffect, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { Search, X, TrendingUp, Award } from 'lucide-react';
+import { Search, X, TrendingUp, Award, Loader2 } from 'lucide-react';
 
 interface AdminFiltersProps {
   userRole: string | null;
@@ -26,13 +26,14 @@ interface AdminFiltersProps {
     sortByRecommended?: string;
     page?: string;
   };
+  isPending: boolean;
+  startTransition: React.TransitionStartFunction;
 }
 
-export function AdminFilters({ userRole, filterData, currentFilters }: AdminFiltersProps) {
+export function AdminFilters({ userRole, filterData, currentFilters, isPending, startTransition }: AdminFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
 
   const [search, setSearch] = useState(currentFilters.search || '');
 
@@ -49,6 +50,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       // Reset page to 1 on any filter change except for pagination itself
       if (!updates.some(u => u.name === 'page')) {
         params.set('page', '1');
+        params.delete('lastVisibleId');
       }
       return params.toString();
     },
@@ -67,7 +69,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     return () => {
       clearTimeout(handler);
     };
-  }, [search, pathname, createQueryString, router, currentFilters.search]);
+  }, [search, pathname, createQueryString, router, currentFilters.search, startTransition]);
 
   const handleFilterChange = (name: string, value: string) => {
     const updatedValue = value === 'all' ? '' : value;
@@ -175,7 +177,11 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
         )}
         {hasActiveFilters && (
           <Button variant="ghost" onClick={resetFilters} disabled={isPending}>
-            <X className="mr-2 h-4 w-4" />
+            {isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <X className="mr-2 h-4 w-4" />
+            )}
             Reset Filters
           </Button>
         )}
