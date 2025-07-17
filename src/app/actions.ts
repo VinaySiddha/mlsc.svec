@@ -27,6 +27,7 @@ import {
   writeBatch,
   Query,
   DocumentData,
+  QueryConstraint,
 } from 'firebase/firestore';
 import papaparse from 'papaparse';
 
@@ -218,30 +219,30 @@ function buildFilteredQuery(params: {
   domain?: string;
 }) {
   const { panelDomain, search, status, year, branch, domain } = params;
-  let q: Query<DocumentData> = query(collection(db, 'applications'));
+  let constraints: QueryConstraint[] = [];
 
   // The 'search' functionality uses a name range query which cannot be combined
   // with other filters without a composite index. To avoid this, we will apply
   // other filters first and then perform search on the client-side if needed,
   // or accept the limitation that search works best standalone.
   if (search) {
-     q = query(q, orderBy('name'), where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
-     // Cannot combine with other filters easily.
-     return q;
+     constraints.push(orderBy('name'), where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
+     // Cannot combine with other filters easily without composite indexes.
+     return query(collection(db, 'applications'), ...constraints);
   }
 
   // Panel admin is locked to their domain
   if (panelDomain) {
-    q = query(q, where('technicalDomain', '==', panelDomain));
+    constraints.push(where('technicalDomain', '==', panelDomain));
   } else if (domain) {
-    q = query(q, where('technicalDomain', '==', domain));
+    constraints.push(where('technicalDomain', '==', domain));
   }
   
-  if (status) q = query(q, where('status', '==', status));
-  if (year) q = query(q, where('yearOfStudy', '==', year));
-  if (branch) q = query(q, where('branch', '==', branch));
+  if (status) constraints.push(where('status', '==', status));
+  if (year) constraints.push(where('yearOfStudy', '==', year));
+  if (branch) constraints.push(where('branch', '==', branch));
 
-  return q;
+  return query(collection(db, 'applications'), ...constraints);
 }
 
 
@@ -261,34 +262,35 @@ export async function getApplications(params: {
   const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
   const limitNumber = parseInt(limitStr, 10);
   
-  let q: Query<DocumentData>;
+  let baseQuery = buildFilteredQuery(params);
+  let finalQuery: Query<DocumentData>;
 
-  // To avoid complex composite indexes, we will handle special sort cases separately.
+  // Build the final query by adding sorting logic to the base filtered query
   if (sortByRecommended === 'true') {
-      q = query(collection(db, 'applications'), where('isRecommended', '==', true), orderBy('ratings.overall', 'desc'));
+      finalQuery = query(baseQuery, where('isRecommended', '==', true), orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
-      q = query(collection(db, 'applications'), orderBy('ratings.overall', 'desc'));
+      finalQuery = query(baseQuery, orderBy('ratings.overall', 'desc'));
   } else {
-      q = buildFilteredQuery(params);
-      q = query(q, orderBy('submittedAt', 'desc'));
+      finalQuery = query(baseQuery, orderBy('submittedAt', 'desc'));
   }
 
   // Get total count based on the constructed query
-  const countSnapshot = await getCountFromServer(q);
+  const countSnapshot = await getCountFromServer(finalQuery);
   const totalApplications = countSnapshot.data().count;
   const totalPages = Math.ceil(totalApplications / limitNumber);
 
   // Apply pagination
+  let paginatedQuery = finalQuery;
   if (page && parseInt(page, 10) > 1 && lastVisibleId) {
       const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
       if(lastVisibleDoc.exists()) {
-        q = query(q, startAfter(lastVisibleDoc));
+        paginatedQuery = query(paginatedQuery, startAfter(lastVisibleDoc));
       }
   }
 
-  q = query(q, limit(limitNumber));
+  paginatedQuery = query(paginatedQuery, limit(limitNumber));
 
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(paginatedQuery);
   const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
 
   return {
