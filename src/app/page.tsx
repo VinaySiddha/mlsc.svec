@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FileSearch, LogIn, Menu } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -12,7 +13,7 @@ export default function Home() {
        <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-4">
-            <MLSCLogo className="h-8 w-8 text-primary" />
+            <MLSCLogo className="h-10 w-10 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               MLSC 3.0 Hiring
             </h1>
@@ -72,13 +73,13 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full max-w-2xl mx-auto">
-                  <img
+                  <Image
                     src="/logo.png"
-                    data-ai-hint="team collaboration"
+                    data-ai-hint="logo"
                     width="600"
-                    height="400"
-                    alt="Team Collaboration"
-                    className="mx-auto aspect-video overflow-hidden rounded-xl object-contain"
+                    height="600"
+                    alt="MLSC Logo"
+                    className="mx-auto aspect-square overflow-hidden rounded-xl object-contain"
                   />
               </div>
             </div>

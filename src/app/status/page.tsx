@@ -11,7 +11,7 @@ export default function StatusPage() {
        <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
         <div className="container mx-auto flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-4">
-            <MLSCLogo className="h-8 w-8 text-primary" />
+            <MLSCLogo className="h-10 w-10 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               MLSC 3.0 Hiring
             </h1>
