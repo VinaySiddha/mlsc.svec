@@ -23,6 +23,7 @@ import {
   limit,
   startAfter,
   getCountFromServer,
+  writeBatch,
 } from 'firebase/firestore';
 
 
@@ -131,6 +132,7 @@ export async function submitApplication(formData: FormData) {
       resumeSummary: null, // Initially set summary to null
       status: 'Received',
       isRecommended: false,
+      interviewAttended: false, // New field for attendance
       suitability: {
         technical: 'undecided',
         nonTechnical: 'undecided',
@@ -192,6 +194,33 @@ export async function submitApplication(formData: FormData) {
   }
 }
 
+// Helper function to build the base query from filters
+function buildFilteredQuery(params: {
+  panelDomain?: string;
+  search?: string;
+  status?: string;
+  year?: string;
+  branch?: string;
+  domain?: string;
+  sortByRecommended?: string;
+}) {
+  const { panelDomain, search, status, year, branch, domain, sortByRecommended } = params;
+  let q = query(collection(db, 'applications'));
+
+  if (panelDomain) q = query(q, where('technicalDomain', '==', panelDomain));
+  if (status) q = query(q, where('status', '==', status));
+  if (year) q = query(q, where('yearOfStudy', '==', year));
+  if (branch) q = query(q, where('branch', '==', branch));
+  if (domain && !panelDomain) q = query(q, where('technicalDomain', '==', domain));
+  if (sortByRecommended === 'true') q = query(q, where('isRecommended', '==', true));
+  if (search) {
+     q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
+  }
+
+  return q;
+}
+
+
 export async function getApplications(params: {
   panelDomain?: string;
   search?: string;
@@ -205,57 +234,31 @@ export async function getApplications(params: {
   limit?: string;
   lastVisibleId?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
+  const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
   const limitNumber = parseInt(limitStr, 10);
   
-  let q = query(collection(db, 'applications'));
-  let conditions: any[] = [];
-  
-  // Panel-based filtering
-  if (panelDomain) {
-    conditions.push(where('technicalDomain', '==', panelDomain));
-  }
-  
-  // Other filters
-  if (status) conditions.push(where('status', '==', status));
-  if (year) conditions.push(where('yearOfStudy', '==', year));
-  if (branch) conditions.push(where('branch', '==', branch));
-  if (domain && !panelDomain) conditions.push(where('technicalDomain', '==', domain));
-  if (sortByRecommended === 'true' && !panelDomain) {
-    conditions.push(where('isRecommended', '==', true));
-  }
+  let q = buildFilteredQuery(params);
 
-  // Combine all "where" clauses
-  if (conditions.length > 0) {
-    q = query(q, ...conditions);
-  }
-
-  // NOTE: Firestore doesn't support text search on multiple fields out-of-the-box.
-  // The search implementation below is basic and only searches the name field.
-  // For production, a dedicated search service like Algolia or Elasticsearch is recommended.
-  if (search) {
-     const searchTerm = search.toLowerCase();
-     // This is a very limited search. For a real app, you would use a search service.
-     // Here we are creating a pseudo-search by querying for a range.
-     q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
-  }
-
-
-  // Sorting
-  if (sortByPerformance === 'true' && !panelDomain) {
-    q = query(q, orderBy('ratings.overall', 'desc'));
-  } else if (sortByRecommended === 'true' && !panelDomain) {
-    q = query(q, orderBy('ratings.overall', 'desc'));
-  } else {
-    q = query(q, orderBy('submittedAt', 'desc'));
-  }
-  
   const countQuery = q;
   const snapshot = await getCountFromServer(countQuery);
   const totalApplications = snapshot.data().count;
   const totalPages = Math.ceil(totalApplications / limitNumber);
 
 
+  // Sorting logic
+  if (sortByPerformance === 'true') {
+    q = query(q, orderBy('ratings.overall', 'desc'));
+  } else if (sortByRecommended === 'true') {
+    // This sort order is implicitly handled by the filter now, but we keep the orderBy for consistency.
+    q = query(q, orderBy('ratings.overall', 'desc'));
+  } else if (params.panelDomain) {
+    // Default sort for panel view
+    q = query(q, orderBy('submittedAt', 'desc'));
+  } else {
+    // Default sort for admin view
+    q = query(q, orderBy('submittedAt', 'desc'));
+  }
+  
   // Pagination
   if (lastVisibleId) {
     const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
@@ -289,9 +292,6 @@ export async function getApplicationById(id: string) {
 }
 
 export async function getPanels() {
-  // This function is no longer strictly needed if we hardcode panel credentials,
-  // but it's good practice to keep it for future use with a real database.
-  // For now, it will return an empty array.
   try {
     const panelsCol = collection(db, 'panels');
     const panelSnapshot = await getDocs(panelsCol);
@@ -390,4 +390,54 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 export async function logoutAction() {
   cookies().delete('session');
   return { success: true };
+}
+
+export async function updateAttendance(firestoreId: string, attended: boolean) {
+  try {
+    const appDocRef = doc(db, 'applications', firestoreId);
+    await updateDoc(appDocRef, {
+      interviewAttended: attended,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating attendance:', error);
+    if (error instanceof Error) {
+      return { error: `Failed to update attendance: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred.' };
+  }
+}
+
+export async function bulkUpdateStatus(filters: {
+  panelDomain?: string;
+  search?: string;
+  status?: string;
+  year?: string;
+  branch?: string;
+  domain?: string;
+  sortByRecommended?: string;
+}, newStatus: string) {
+  try {
+    let q = buildFilteredQuery(filters);
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return { success: true, updatedCount: 0 };
+    }
+
+    const batch = writeBatch(db);
+    querySnapshot.docs.forEach(documentSnapshot => {
+      batch.update(documentSnapshot.ref, { status: newStatus });
+    });
+    
+    await batch.commit();
+
+    return { success: true, updatedCount: querySnapshot.size };
+  } catch (error) {
+    console.error('Error during bulk update:', error);
+    if (error instanceof Error) {
+      return { error: `Bulk update failed: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred during bulk update.' };
+  }
 }

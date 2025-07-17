@@ -102,7 +102,7 @@ export default function Home() {
       </main>
       <footer className="py-6 px-4 sm:px-6 md:px-8 border-t">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} MLSC Hub. All rights reserved.
+          © {new Date().getFullYear()} MLSC X SVEC. All rights reserved.@VinaySiddha
         </div>
       </footer>
     </div>

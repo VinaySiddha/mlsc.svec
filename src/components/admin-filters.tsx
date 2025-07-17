@@ -6,7 +6,10 @@ import { useCallback, useState, useEffect, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { Search, X, TrendingUp, Award, Loader2 } from 'lucide-react';
+import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck } from 'lucide-react';
+import { bulkUpdateStatus } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface AdminFiltersProps {
   userRole: string | null;
@@ -33,6 +36,8 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const { toast } = useToast();
 
   const [search, setSearch] = useState(currentFilters.search || '');
 
@@ -68,7 +73,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     return () => {
       clearTimeout(handler);
     };
-  }, [search, pathname, createQueryString, router, currentFilters.search, startTransition]);
+  }, [search, pathname, createQueryString, router, currentFilters.search]);
 
   const handleFilterChange = (name: string, value: string) => {
     const updatedValue = value === 'all' ? '' : value;
@@ -82,6 +87,33 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     startTransition(() => {
       router.push(pathname + '?' + createQueryString([{ name: sortKey, value: isSorting ? '' : 'true' }]));
     });
+  };
+
+  const handleBulkUpdate = async () => {
+    setIsBulkUpdating(true);
+    const { page, ...filtersToPass } = currentFilters;
+    try {
+        const result = await bulkUpdateStatus(filtersToPass, 'Interviewing');
+        if (result.error) {
+            throw new Error(result.error);
+        }
+        toast({
+            title: "Bulk Update Successful",
+            description: `${result.updatedCount} applications have been moved to 'Interviewing'.`,
+        });
+        startTransition(() => {
+            router.refresh();
+        });
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        toast({
+            variant: "destructive",
+            title: "Bulk Update Failed",
+            description: errorMessage,
+        });
+    } finally {
+        setIsBulkUpdating(false);
+    }
   };
 
   const resetFilters = () => {
@@ -107,14 +139,14 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
         <div className="relative w-full xl:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search name, email, ID..."
+            placeholder="Search name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
-            disabled={isPending}
+            disabled={isPending || isBulkUpdating}
           />
         </div>
-        <Select onValueChange={(value) => handleFilterChange('status', value)} value={currentFilters.status || 'all'} disabled={isPending}>
+        <Select onValueChange={(value) => handleFilterChange('status', value)} value={currentFilters.status || 'all'} disabled={isPending || isBulkUpdating}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -125,7 +157,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             ))}
           </SelectContent>
         </Select>
-        <Select onValueChange={(value) => handleFilterChange('year', value)} value={currentFilters.year || 'all'} disabled={isPending}>
+        <Select onValueChange={(value) => handleFilterChange('year', value)} value={currentFilters.year || 'all'} disabled={isPending || isBulkUpdating}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Year" />
           </SelectTrigger>
@@ -136,7 +168,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             ))}
           </SelectContent>
         </Select>
-        <Select onValueChange={(value) => handleFilterChange('branch', value)} value={currentFilters.branch || 'all'} disabled={isPending}>
+        <Select onValueChange={(value) => handleFilterChange('branch', value)} value={currentFilters.branch || 'all'} disabled={isPending || isBulkUpdating}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Branch" />
           </SelectTrigger>
@@ -148,7 +180,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           </SelectContent>
         </Select>
         {userRole === 'admin' && (
-          <Select onValueChange={(value) => handleFilterChange('domain', value)} value={currentFilters.domain || 'all'} disabled={isPending}>
+          <Select onValueChange={(value) => handleFilterChange('domain', value)} value={currentFilters.domain || 'all'} disabled={isPending || isBulkUpdating}>
               <SelectTrigger className="w-full">
                   <SelectValue placeholder="Technical Domain" />
               </SelectTrigger>
@@ -161,22 +193,26 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           </Select>
         )}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
          {userRole === 'admin' && (
           <>
-            <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending}>
+            <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
                 {isPending && currentFilters.sortByPerformance !== 'true' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
                 Sort by Performance
             </Button>
-            <Button variant={currentFilters.sortByRecommended === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByRecommended')} disabled={isPending}>
+            <Button variant={currentFilters.sortByRecommended === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByRecommended')} disabled={isPending || isBulkUpdating}>
                 {isPending && currentFilters.sortByRecommended !== 'true' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
                 Sort by Recommended
+            </Button>
+             <Button variant="outline" onClick={handleBulkUpdate} disabled={isPending || isBulkUpdating}>
+                {isBulkUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ClipboardCheck className="mr-2 h-4 w-4" />}
+                Set all to Interviewing
             </Button>
           </>
         )}
         {hasActiveFilters && (
-          <Button variant="ghost" onClick={resetFilters} disabled={isPending}>
-            {isPending ? (
+          <Button variant="ghost" onClick={resetFilters} disabled={isPending || isBulkUpdating}>
+            {(isPending || isBulkUpdating) ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <X className="mr-2 h-4 w-4" />
