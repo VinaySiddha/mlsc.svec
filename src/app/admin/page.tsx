@@ -1,5 +1,5 @@
 
-import { getApplications, getFilterData } from "@/app/actions";
+import { getApplications } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,7 +46,14 @@ async function AdminDashboard({
     sortByRecommended,
     page 
   });
-  const { statuses, years, branches, domains } = await getFilterData();
+  
+  // Hardcoded filter data for performance
+  const filterData = {
+    statuses: ['Received', 'Under Processing', 'Interviewing', 'Hired', 'Rejected'],
+    years: ["2nd", "3rd"],
+    branches: ["AIML", "CAI", "CSE", "CST", "ECE", "Others"],
+    domains: ['gen_ai', 'ds_ml', 'azure', 'web_app']
+  };
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -74,7 +81,7 @@ async function AdminDashboard({
       <CardContent className="space-y-4">
          <AdminFilters
           userRole={userRole}
-          filterData={{ statuses, years, branches, domains }}
+          filterData={filterData}
           currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended, page }}
          />
         <ApplicationsTable applications={applications} domainLabels={domainLabels} />

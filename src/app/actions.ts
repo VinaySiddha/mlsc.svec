@@ -212,8 +212,13 @@ export async function getApplications(params: {
   if (sortByPerformance === 'true' && !panelDomain) {
     q = query(q, orderBy('ratings.overall', 'desc'));
   } else if (sortByRecommended === 'true' && !panelDomain) {
+    // This requires a composite index on isRecommended (boolean) and ratings.overall (desc)
     q = query(q, orderBy('ratings.overall', 'desc'));
+  } else if (panelDomain) {
+     // Default sort for panel view
+     q = query(q, orderBy('submittedAt', 'desc'));
   } else {
+    // Default sort for admin
     q = query(q, orderBy('submittedAt', 'desc'));
   }
   
@@ -357,17 +362,4 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 export async function logoutAction() {
   cookies().delete('session');
   return { success: true };
-}
-
-export async function getFilterData() {
-    const applicationsCol = collection(db, 'applications');
-    const appSnapshot = await getDocs(applicationsCol);
-    const applications = appSnapshot.docs.map(doc => doc.data());
-    
-    const statuses = [...new Set(applications.map(a => a.status))].filter(Boolean);
-    const years = [...new Set(applications.map(a => a.yearOfStudy))].filter(Boolean);
-    const branches = [...new Set(applications.map(a => a.branch))].filter(Boolean);
-    const domains = [...new Set(applications.map(a => a.technicalDomain))].filter(Boolean);
-
-    return { statuses, years, branches, domains };
 }
