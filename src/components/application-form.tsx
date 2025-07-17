@@ -57,9 +57,7 @@ const formSchema = z.object({
   joinReason: z.string().min(20, "Please tell us why you want to join.").max(1000),
   aboutClub: z.string().min(20, "Please tell us what you know about the club.").max(1000),
   technicalDomain: z.string({ required_error: "Please select a technical domain." }),
-  technicalExperience: z.string().min(20, "Please describe your technical experience.").max(1000),
   nonTechnicalDomain: z.string({ required_error: "Please select a non-technical domain." }),
-  nonTechnicalExperience: z.string().min(20, "Please describe your non-technical experience.").max(1000),
   linkedin: z.string().url("Please enter a valid LinkedIn URL.").optional().or(z.literal('')),
   anythingElse: z.string().optional(),
   resume: z
@@ -93,9 +91,7 @@ export function ApplicationForm() {
       joinReason: "",
       aboutClub: "",
       technicalDomain: "",
-      technicalExperience: "",
       nonTechnicalDomain: "",
-      nonTechnicalExperience: "",
       linkedin: "",
       anythingElse: "",
     },
@@ -342,23 +338,6 @@ export function ApplicationForm() {
                 </FormItem>
               )}
             />
-             <FormField
-              control={form.control}
-              name="technicalExperience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Briefly describe any projects or experience you have in your chosen technical domain. *</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., I built a sentiment analysis model for a class project..."
-                      className="resize-y"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
 
           <div className="space-y-8">
@@ -383,23 +362,6 @@ export function ApplicationForm() {
                         </FormItem>
                       ))}
                     </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="nonTechnicalExperience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What skills or experiences make you a good fit for your chosen non-technical domain? *</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., I have experience managing social media for a college fest..."
-                      className="resize-y"
-                      {...field}
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

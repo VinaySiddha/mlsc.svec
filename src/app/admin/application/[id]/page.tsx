@@ -142,18 +142,6 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                     <h4 className="font-semibold">What do you know about MLSC club?</h4>
                     <p className="text-muted-foreground whitespace-pre-wrap">{application.aboutClub}</p>
                   </div>
-                  {application.technicalExperience && (
-                    <div>
-                      <h4 className="font-semibold">Technical Experience</h4>
-                      <p className="text-muted-foreground whitespace-pre-wrap">{application.technicalExperience}</p>
-                    </div>
-                  )}
-                  {application.nonTechnicalExperience && (
-                    <div>
-                      <h4 className="font-semibold">Non-Technical Experience</h4>
-                      <p className="text-muted-foreground whitespace-pre-wrap">{application.nonTechnicalExperience}</p>
-                    </div>
-                  )}
                    {application.anythingElse && (
                     <div>
                       <h4 className="font-semibold">Anything else?</h4>
@@ -174,7 +162,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             </Card>
           </div>
           <div className="space-y-8">
-            <ApplicationReviewForm application={application} domainLabels={domainLabels}/>
+            <ApplicationReviewForm application={application} />
           </div>
         </div>
       </main>

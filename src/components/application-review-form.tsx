@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 
 import { saveApplicationReview } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -21,12 +21,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { cn } from "@/lib/utils";
 
 const reviewSchema = z.object({
   status: z.string(),
-  isTechSuitable: z.string(),
-  isNonTechSuitable: z.string(),
+  ratings: z.object({
+    communication: z.number().min(0).max(5),
+    technical: z.number().min(0).max(5),
+    problemSolving: z.number().min(0).max(5),
+    teamFit: z.number().min(0).max(5),
+    overall: z.number().min(0).max(5),
+  }),
   remarks: z.string().optional(),
 });
 
@@ -36,25 +41,53 @@ interface ApplicationReviewFormProps {
   application: {
     id: string;
     status: string;
-    technicalDomain: string;
-    nonTechnicalDomain: string;
-    review?: {
-      isTechSuitable: 'yes' | 'no' | 'undecided';
-      isNonTechSuitable: 'yes' | 'no' | 'undecided';
-      remarks: string;
+    ratings?: {
+      communication: number;
+      technical: number;
+      problemSolving: number;
+      teamFit: number;
+      overall: number;
     };
+    remarks?: string;
   };
-  domainLabels: Record<string, string>;
 }
 
 const applicationStatuses = ['Received', 'Under Review', 'Interviewing', 'Accepted', 'Rejected'];
-const suitabilityOptions = [
-    { id: 'yes', label: 'Yes' },
-    { id: 'no', label: 'No' },
-    { id: 'undecided', label: 'Undecided' },
+
+const ratingCategories: (keyof FormValues['ratings'])[] = [
+  'communication', 'technical', 'problemSolving', 'teamFit', 'overall'
 ];
 
-export function ApplicationReviewForm({ application, domainLabels }: ApplicationReviewFormProps) {
+const categoryLabels: Record<keyof FormValues['ratings'], string> = {
+  communication: "Communication Skills",
+  technical: "Technical Skills",
+  problemSolving: "Problem-Solving",
+  teamFit: "Team Fit",
+  overall: "Overall Rating",
+};
+
+const StarRating = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => {
+  const [hoverValue, setHoverValue] = useState(0);
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={cn(
+            "h-6 w-6 cursor-pointer transition-colors",
+            (hoverValue || value) >= star ? "text-primary fill-primary" : "text-muted-foreground/50"
+          )}
+          onClick={() => onChange(star)}
+          onMouseEnter={() => setHoverValue(star)}
+          onMouseLeave={() => setHoverValue(0)}
+        />
+      ))}
+    </div>
+  );
+};
+
+
+export function ApplicationReviewForm({ application }: ApplicationReviewFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -62,9 +95,14 @@ export function ApplicationReviewForm({ application, domainLabels }: Application
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       status: application.status ?? 'Received',
-      isTechSuitable: application.review?.isTechSuitable ?? 'undecided',
-      isNonTechSuitable: application.review?.isNonTechSuitable ?? 'undecided',
-      remarks: application.review?.remarks ?? "",
+      ratings: {
+        communication: application.ratings?.communication ?? 0,
+        technical: application.ratings?.technical ?? 0,
+        problemSolving: application.ratings?.problemSolving ?? 0,
+        teamFit: application.ratings?.teamFit ?? 0,
+        overall: application.ratings?.overall ?? 0,
+      },
+      remarks: application.remarks ?? "",
     },
   });
 
@@ -107,7 +145,7 @@ export function ApplicationReviewForm({ application, domainLabels }: Application
     <Card>
         <CardHeader>
             <CardTitle>Application Review</CardTitle>
-            <CardDescription>Update the applicant's status and suitability.</CardDescription>
+            <CardDescription>Update the applicant's status and ratings.</CardDescription>
         </CardHeader>
         <CardContent>
             <Form {...form}>
@@ -136,60 +174,25 @@ export function ApplicationReviewForm({ application, domainLabels }: Application
                     )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="isTechSuitable"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Suitable for {domainLabels[application.technicalDomain] || application.technicalDomain}?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="flex items-center space-x-4"
-                        >
-                          {suitabilityOptions.map(item => (
-                            <FormItem key={item.id} className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value={item.id} />
-                              </FormControl>
-                              <FormLabel className="font-normal">{item.label}</FormLabel>
-                            </FormItem>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                 <FormField
-                  control={form.control}
-                  name="isNonTechSuitable"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Suitable for {domainLabels[application.nonTechnicalDomain] || application.nonTechnicalDomain}?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="flex items-center space-x-4"
-                        >
-                          {suitabilityOptions.map(item => (
-                            <FormItem key={item.id} className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value={item.id} />
-                              </FormControl>
-                              <FormLabel className="font-normal">{item.label}</FormLabel>
-                            </FormItem>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+                <div className="space-y-4">
+                  {ratingCategories.map((category) => (
+                     <Controller
+                        key={category}
+                        name={`ratings.${category}`}
+                        control={form.control}
+                        render={({ field }) => (
+                           <FormItem>
+                            <FormLabel>{categoryLabels[category]}</FormLabel>
+                            <FormControl>
+                               <StarRating value={field.value} onChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                  ))}
+                </div>
+                
                 <FormField
                     control={form.control}
                     name="remarks"
@@ -198,7 +201,7 @@ export function ApplicationReviewForm({ application, domainLabels }: Application
                         <FormLabel>Remarks</FormLabel>
                         <FormControl>
                         <Textarea
-                            placeholder="Add your comments about the interview..."
+                            placeholder="Add your comments about the applicant..."
                             className="resize-y min-h-[100px]"
                             {...field}
                         />

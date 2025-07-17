@@ -20,9 +20,7 @@ const applicationSchema = z.object({
   joinReason: z.string().min(20, 'Please tell us why you want to join.'),
   aboutClub: z.string().min(20, 'Please tell us what you know about the club.'),
   technicalDomain: z.string({ required_error: 'Please select a technical domain.' }),
-  technicalExperience: z.string().min(20, 'Please describe your technical experience.'),
   nonTechnicalDomain: z.string({ required_error: 'Please select a non-technical domain.' }),
-  nonTechnicalExperience: z.string().min(20, 'Please describe your non-technical experience.'),
   linkedin: z.string().url('Please enter a valid LinkedIn URL.').optional(),
   anythingElse: z.string().optional(),
   resume: z.instanceof(File).optional(),
@@ -31,8 +29,13 @@ const applicationSchema = z.object({
 const reviewSchema = z.object({
   id: z.string(),
   status: z.string(),
-  isTechSuitable: z.string(),
-  isNonTechSuitable: z.string(),
+  ratings: z.object({
+    communication: z.number().min(0).max(5),
+    technical: z.number().min(0).max(5),
+    problemSolving: z.number().min(0).max(5),
+    teamFit: z.number().min(0).max(5),
+    overall: z.number().min(0).max(5),
+  }),
   remarks: z.string().optional(),
 });
 
@@ -76,9 +79,7 @@ export async function submitApplication(formData: FormData) {
     joinReason: formData.get('joinReason'),
     aboutClub: formData.get('aboutClub'),
     technicalDomain: formData.get('technicalDomain'),
-    technicalExperience: formData.get('technicalExperience'),
     nonTechnicalDomain: formData.get('nonTechnicalDomain'),
-    nonTechnicalExperience: formData.get('nonTechnicalExperience'),
     linkedin: formData.get('linkedin') || undefined,
     anythingElse: formData.get('anythingElse') || undefined,
     resume: formData.get('resume'),
@@ -114,11 +115,14 @@ export async function submitApplication(formData: FormData) {
       ...applicationData,
       resumeSummary: summary,
       status: 'Received',
-      review: {
-        isTechSuitable: 'undecided',
-        isNonTechSuitable: 'undecided',
-        remarks: '',
-      }
+      ratings: {
+        communication: 0,
+        technical: 0,
+        problemSolving: 0,
+        teamFit: 0,
+        overall: 0,
+      },
+      remarks: '',
     };
     db.applications.push(newApplication);
     await writeDb(db);
@@ -165,11 +169,8 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     }
     
     db.applications[applicationIndex].status = parsed.data.status;
-    db.applications[applicationIndex].review = {
-      isTechSuitable: parsed.data.isTechSuitable,
-      isNonTechSuitable: parsed.data.isNonTechSuitable,
-      remarks: parsed.data.remarks,
-    };
+    db.applications[applicationIndex].ratings = parsed.data.ratings;
+    db.applications[applicationIndex].remarks = parsed.data.remarks;
     
     await writeDb(db);
     return { success: true };
