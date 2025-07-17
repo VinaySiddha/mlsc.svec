@@ -232,11 +232,11 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
 
-  // The 'search' functionality uses a name range query which requires an index
-  // on 'name'. To keep things simple and avoid complex composite indexes,
+  // The 'search' functionality uses a rollNo range query which requires an index
+  // on 'rollNo'. To keep things simple and avoid complex composite indexes,
   // search will work best when other filters are cleared.
   if (search) {
-     constraints.push(orderBy('name'), where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
+     constraints.push(orderBy('rollNo'), where('rollNo', '>=', search), where('rollNo', '<=', search + '\uf8ff'));
   }
 
   return query(collection(db, 'applications'), ...constraints);
