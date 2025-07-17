@@ -9,18 +9,32 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 interface PaginationComponentProps {
   totalPages: number;
   currentPage: number;
+  applications: any[];
 }
 
-export function PaginationComponent({ totalPages, currentPage }: PaginationComponentProps) {
+export function PaginationComponent({ totalPages, currentPage, applications }: PaginationComponentProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages) return;
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    
     const params = new URLSearchParams(searchParams.toString());
-    params.set('page', page.toString());
+    params.set('page', newPage.toString());
+
+    if (newPage > currentPage && applications.length > 0) {
+      const lastVisibleId = applications[applications.length - 1].firestoreId;
+      params.set('lastVisibleId', lastVisibleId);
+    } else {
+      // For going to previous page, we don't need lastVisibleId as Firestore's startAfter isn't used.
+      // We rely on re-querying from the start with correct offsets managed by page number logic if implemented.
+      // Simple page based navigation will refetch from start.
+      // For more complex scenarios, keeping track of previous page cursors would be needed.
+      params.delete('lastVisibleId');
+    }
+    
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`);
     });

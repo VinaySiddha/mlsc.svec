@@ -3,7 +3,7 @@ import { getApplications } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home } from "lucide-react";
+import { Home, Menu } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -13,6 +13,7 @@ import { ApplicationsTable } from "@/components/applications-table";
 import { AdminFilters } from "@/components/admin-filters";
 import { PaginationComponent } from "@/components/pagination";
 import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 
 export const dynamic = 'force-dynamic';
@@ -34,6 +35,7 @@ async function AdminDashboard({
   const sortByPerformance = typeof searchParams.sortByPerformance === 'string' ? searchParams.sortByPerformance : undefined;
   const sortByRecommended = typeof searchParams.sortByRecommended === 'string' ? searchParams.sortByRecommended : undefined;
   const page = typeof searchParams.page === 'string' ? searchParams.page : '1';
+  const lastVisibleId = typeof searchParams.lastVisibleId === 'string' ? searchParams.lastVisibleId : undefined;
 
   const { applications, totalApplications, totalPages, currentPage } = await getApplications({ 
     panelDomain, 
@@ -44,7 +46,8 @@ async function AdminDashboard({
     domain, 
     sortByPerformance,
     sortByRecommended,
-    page 
+    page,
+    lastVisibleId
   });
   
   // Hardcoded filter data for performance
@@ -85,7 +88,7 @@ async function AdminDashboard({
           currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended, page }}
          />
         <ApplicationsTable applications={applications} domainLabels={domainLabels} />
-        <PaginationComponent totalPages={totalPages} currentPage={currentPage} />
+        <PaginationComponent totalPages={totalPages} currentPage={currentPage} applications={applications}/>
       </CardContent>
     </>
   );
