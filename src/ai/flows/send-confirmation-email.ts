@@ -50,7 +50,7 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
       <div style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;">
-        🚨💥 MLSC HIRING 3.0 IS HERE! 💥🚨
+        🎉 You've Taken Your First Step! 🎉
       </div>
       <div style="text-align: center; font-size: 18px; margin-bottom: 20px;">
         <p>🌟 Are you ready to LEVEL UP your skills? 🌟</p>
@@ -76,7 +76,7 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
       </ul>
 
       <div style="text-align: center; margin-top: 30px;">
-        <p style="font-size: 18px; font-weight: bold;">📢 This is your CALL TO ACTION – the future won’t wait… why should you? ⏳</p>
+        <p style="font-size: 18px; font-weight: bold;">📢 The future won’t wait… why should you? ⏳</p>
         <p>Keep an eye on your email for updates regarding the next steps.</p>
       </div>
       
