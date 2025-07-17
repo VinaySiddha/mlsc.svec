@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, ThumbsUp, ClipboardCopy } from "lucide-react";
+import { Loader2, ThumbsUp, ClipboardCopy, AlertTriangle } from "lucide-react";
 
 import { submitApplication } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +24,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Checkbox } from "./ui/checkbox";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
@@ -63,15 +66,18 @@ const formSchema = z.object({
   anythingElse: z.string().optional(),
   resume: z
     .any()
-    .optional()
+    .refine((files) => files?.length == 1, "Resume is required.")
     .refine(
-      (files) => !files || files.length === 0 || files?.[0]?.size <= MAX_FILE_SIZE,
+      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
       `Max file size is 5MB.`
     )
     .refine(
-      (files) => !files || files.length === 0 || ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
+      (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       ".pdf and .docx files are accepted."
     ),
+  terms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions to submit your application.",
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -96,6 +102,7 @@ export function ApplicationForm() {
       nonTechnicalDomain: "",
       linkedin: "",
       anythingElse: "",
+      terms: false,
     },
   });
 
@@ -143,6 +150,56 @@ export function ApplicationForm() {
     toast({
       description: "Reference ID copied to clipboard!",
     });
+  }
+
+  if (submissionResult) {
+    return (
+       <Card className="bg-background">
+          <CardHeader>
+             <CardTitle className="flex items-center gap-2 text-2xl">
+              <ThumbsUp className="h-8 w-8 text-green-500" />
+              <span>Application Received!</span>
+            </CardTitle>
+            <CardDescription>
+              Your application has been submitted successfully.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+             <Alert variant="default" className="border-primary/50 bg-primary/5">
+                <AlertTriangle className="h-4 w-4 text-primary" />
+                <AlertTitle className="text-primary font-bold">Important: Save Your Reference ID</AlertTitle>
+                <AlertDescription>
+                  Please copy and save your Reference ID below. You will need it to check your application status.
+                </AlertDescription>
+             </Alert>
+
+            {submissionResult.referenceId && (
+              <div>
+                <Label htmlFor="referenceId" className="text-sm font-medium text-foreground">Your Unique Reference ID</Label>
+                <div className="flex items-center gap-2 mt-2">
+                  <Input 
+                    id="referenceId"
+                    readOnly 
+                    value={submissionResult.referenceId} 
+                    className="bg-muted font-mono text-base"
+                  />
+                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
+                    <ClipboardCopy className="h-5 w-5" />
+                    <span className="sr-only">Copy Reference ID</span>
+                  </Button>
+                </div>
+              </div>
+            )}
+            {submissionResult.summary && (
+              <div>
+                <p className="text-sm font-medium text-foreground">AI-Generated Resume Summary:</p>
+                <blockquote className="text-sm text-muted-foreground mt-2 p-4 border rounded-md bg-muted/50 italic">{submissionResult.summary}</blockquote>
+              </div>
+            )}
+             <Button onClick={() => window.location.reload()} variant="outline">Submit another application</Button>
+          </CardContent>
+        </Card>
+    )
   }
 
   return (
@@ -421,7 +478,7 @@ export function ApplicationForm() {
               name="resume"
               render={({ field: { onChange, value, ...rest } }) => (
                 <FormItem>
-                  <FormLabel>Resume (optional)</FormLabel>
+                  <FormLabel>Resume *</FormLabel>
                   <FormControl>
                     <Input 
                       type="file" 
@@ -435,6 +492,31 @@ export function ApplicationForm() {
                 </FormItem>
               )}
             />
+
+            <FormField
+            control={form.control}
+            name="terms"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    I agree to the terms and conditions *
+                  </FormLabel>
+                  <FormDescription>
+                    By submitting this application, you agree to our data handling and privacy policies.
+                  </FormDescription>
+                   <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
             {isSubmitting ? (
               <>
@@ -447,42 +529,6 @@ export function ApplicationForm() {
           </Button>
         </form>
       </Form>
-      {submissionResult && (
-        <Card className="mt-12 bg-primary/5">
-          <CardHeader>
-             <CardTitle className="flex items-center gap-2">
-              <ThumbsUp className="text-accent" />
-              <span>Application Received!</span>
-            </CardTitle>
-            <CardDescription>
-              Your application has been submitted successfully. Please save your reference ID to track your progress.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {submissionResult.referenceId && (
-              <div>
-                <p className="text-sm font-medium text-foreground">Your Reference ID:</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Input 
-                    readOnly 
-                    value={submissionResult.referenceId} 
-                    className="bg-background font-mono text-sm"
-                  />
-                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
-                    <ClipboardCopy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-            {submissionResult.summary && (
-              <div>
-                <p className="text-sm font-medium text-foreground">AI-Generated Resume Summary:</p>
-                <p className="text-sm text-muted-foreground mt-2 p-4 border rounded-md bg-background">{submissionResult.summary}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
     </>
   );
 }
