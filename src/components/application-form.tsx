@@ -166,9 +166,9 @@ export function ApplicationForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-             <Alert variant="default" className="border-primary/50 bg-primary/5">
-                <AlertTriangle className="h-4 w-4 text-primary" />
-                <AlertTitle className="text-primary font-bold">Important: Save Your Reference ID</AlertTitle>
+             <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle className="font-bold">Important: Save Your Reference ID</AlertTitle>
                 <AlertDescription>
                   Please copy and save your Reference ID below. You will need it to check your application status.
                 </AlertDescription>

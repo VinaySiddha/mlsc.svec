@@ -149,6 +149,39 @@
         "overall": 0
       },
       "remarks": ""
+    },
+    {
+      "id": "MLSC-305051-D5PH",
+      "submittedAt": "2025-07-17T06:05:09.092Z",
+      "name": "Vinay Siddha",
+      "email": "admin@timewise.com",
+      "phone": "09849372827",
+      "rollNo": "22A81A4340",
+      "branch": "CAI",
+      "section": "A",
+      "yearOfStudy": "2nd",
+      "cgpa": "4.07",
+      "backlogs": "0",
+      "joinReason": "Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.",
+      "aboutClub": "Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.",
+      "technicalDomain": "web_app",
+      "nonTechnicalDomain": "event_management",
+      "linkedin": "https://linkein.com",
+      "anythingElse": "Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.",
+      "resumeSummary": "The document outlines Amazon's Leadership Principles, emphasizing customer obsession, ownership, innovation, high standards, and a bias for action. Leaders are expected to think big, be frugal, earn trust, dive deep, and deliver results. They should also be willing to disagree and commit, hire and develop the best, and continuously learn and be curious.",
+      "status": "Received",
+      "suitability": {
+        "technical": "undecided",
+        "nonTechnical": "undecided"
+      },
+      "ratings": {
+        "communication": 0,
+        "technical": 0,
+        "problemSolving": 0,
+        "teamFit": 0,
+        "overall": 0
+      },
+      "remarks": ""
     }
   ]
 }
