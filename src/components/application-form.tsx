@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
@@ -56,12 +56,8 @@ const formSchema = z.object({
   backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number."}),
   joinReason: z.string().min(20, "Please tell us why you want to join.").max(1000),
   aboutClub: z.string().min(20, "Please tell us what you know about the club.").max(1000),
-  technicalDomains: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one technical domain.",
-  }),
-  nonTechnicalDomains: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one non-technical domain.",
-  }),
+  technicalDomain: z.string({ required_error: "Please select a technical domain." }),
+  nonTechnicalDomain: z.string({ required_error: "Please select a non-technical domain." }),
   linkedin: z.string().url("Please enter a valid LinkedIn URL.").optional().or(z.literal('')),
   anythingElse: z.string().optional(),
   resume: z
@@ -94,8 +90,8 @@ export function ApplicationForm() {
       backlogs: "",
       joinReason: "",
       aboutClub: "",
-      technicalDomains: [],
-      nonTechnicalDomains: [],
+      technicalDomain: "",
+      nonTechnicalDomain: "",
       linkedin: "",
       anythingElse: "",
     },
@@ -107,15 +103,13 @@ export function ApplicationForm() {
 
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
-      if ((key === 'technicalDomains' || key === 'nonTechnicalDomains') && Array.isArray(value)) {
-        value.forEach(item => formData.append(key, item));
-      } else if (key === 'resume' && value?.[0]) {
+      if (key === 'resume' && value?.[0]) {
         formData.append('resume', value[0]);
-      } else if (value !== undefined && value !== null && !Array.isArray(value)) {
-        formData.append(key, value as string);
+      } else if (value !== undefined && value !== null && typeof value === 'string') {
+        formData.append(key, value);
       }
     });
-
+    
     try {
       const result = await submitApplication(formData);
 
@@ -313,46 +307,26 @@ export function ApplicationForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <FormField
               control={form.control}
-              name="technicalDomains"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Which domain are you interested in? (TECHNICAL) *</FormLabel>
-                    <FormDescription>Select all that apply.</FormDescription>
-                  </div>
-                  {technicalDomains.map((item) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name="technicalDomains"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...(field.value || []), item.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {item.label}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
+              name="technicalDomain"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Which domain are you interested in? (TECHNICAL) *</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      {technicalDomains.map(item => (
+                        <FormItem key={item.id} className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value={item.id} />
+                          </FormControl>
+                          <FormLabel className="font-normal">{item.label}</FormLabel>
+                        </FormItem>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -360,46 +334,26 @@ export function ApplicationForm() {
 
             <FormField
               control={form.control}
-              name="nonTechnicalDomains"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Which domain are you interested in? (NON-TECHNICAL) *</FormLabel>
-                    <FormDescription>Select all that apply.</FormDescription>
-                  </div>
-                  {nonTechnicalDomains.map((item) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name="nonTechnicalDomains"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...(field.value || []), item.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {item.label}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
+              name="nonTechnicalDomain"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Which domain are you interested in? (NON-TECHNICAL) *</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      {nonTechnicalDomains.map(item => (
+                        <FormItem key={item.id} className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value={item.id} />
+                          </FormControl>
+                          <FormLabel className="font-normal">{item.label}</FormLabel>
+                        </FormItem>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
