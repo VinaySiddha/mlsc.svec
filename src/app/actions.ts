@@ -221,16 +221,6 @@ function buildFilteredQuery(params: {
   const { panelDomain, search, status, year, branch, domain } = params;
   let constraints: QueryConstraint[] = [];
 
-  // The 'search' functionality uses a name range query which cannot be combined
-  // with other filters without a composite index. To avoid this, we will apply
-  // other filters first and then perform search on the client-side if needed,
-  // or accept the limitation that search works best standalone.
-  if (search) {
-     constraints.push(orderBy('name'), where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
-     // Cannot combine with other filters easily without composite indexes.
-     return query(collection(db, 'applications'), ...constraints);
-  }
-
   // Panel admin is locked to their domain
   if (panelDomain) {
     constraints.push(where('technicalDomain', '==', panelDomain));
@@ -241,6 +231,13 @@ function buildFilteredQuery(params: {
   if (status) constraints.push(where('status', '==', status));
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
+
+  // The 'search' functionality uses a name range query which requires an index
+  // on 'name'. To keep things simple and avoid complex composite indexes,
+  // search will work best when other filters are cleared.
+  if (search) {
+     constraints.push(orderBy('name'), where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
+  }
 
   return query(collection(db, 'applications'), ...constraints);
 }
@@ -266,12 +263,17 @@ export async function getApplications(params: {
   let finalQuery: Query<DocumentData>;
 
   // Build the final query by adding sorting logic to the base filtered query
+  // NOTE: Combining multiple 'where' clauses with an 'orderBy' on a different field
+  // requires a composite index in Firestore. To avoid this, these special sorts
+  // work best when applied with minimal other filters.
   if (sortByRecommended === 'true') {
-      finalQuery = query(baseQuery, where('isRecommended', '==', true), orderBy('ratings.overall', 'desc'));
+      finalQuery = query(baseQuery, orderBy('isRecommended', 'desc'), orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
       finalQuery = query(baseQuery, orderBy('ratings.overall', 'desc'));
-  } else {
+  } else if (!params.search) { // Don't add default sort if searching
       finalQuery = query(baseQuery, orderBy('submittedAt', 'desc'));
+  } else {
+      finalQuery = baseQuery;
   }
 
   // Get total count based on the constructed query
