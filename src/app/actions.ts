@@ -258,10 +258,18 @@ export async function getApplicationById(id: string) {
 }
 
 export async function getPanels() {
-  const panelsCol = collection(db, 'panels');
-  const panelSnapshot = await getDocs(panelsCol);
-  const panelList = panelSnapshot.docs.map(doc => doc.data());
-  return panelList;
+  // This function is no longer strictly needed if we hardcode panel credentials,
+  // but it's good practice to keep it for future use with a real database.
+  // For now, it will return an empty array.
+  try {
+    const panelsCol = collection(db, 'panels');
+    const panelSnapshot = await getDocs(panelsCol);
+    const panelList = panelSnapshot.docs.map(doc => doc.data());
+    return panelList;
+  } catch (error) {
+    console.error("Could not fetch panels, maybe the collection doesn't exist yet.", error);
+    return [];
+  }
 }
 
 export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) {
@@ -305,10 +313,18 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   const { username, password } = parsed.data;
 
-  // Hardcoded admin credentials for demo purposes.
-  // In a real app, use environment variables.
-  const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+  // Hardcoded credentials for demo purposes.
+  // In a real app, use environment variables and a secure user management system.
+  const SUPER_ADMIN_USERNAME = 'vinaysiddha';
+  const SUPER_ADMIN_PASSWORD = 'Vinay@15';
+  
+  const panelCredentials = [
+      { username: 'gen_ai_panel', password: 'panel@genai', domain: 'gen_ai' },
+      { username: 'ds_ml_panel', password: 'panel@ds', domain: 'ds_ml' },
+      { username: 'azure_panel', password: 'panel@azure', domain: 'azure' },
+      { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
+  ];
+
   const JWT_SECRET = process.env.JWT_SECRET;
 
   if (!JWT_SECRET) {
@@ -317,11 +333,10 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   let userPayload: { role: string; domain?: string; username: string };
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+  if (username === SUPER_ADMIN_USERNAME && password === SUPER_ADMIN_PASSWORD) {
     userPayload = { role: 'admin', username };
   } else {
-    const panels = await getPanels();
-    const panel = panels.find(p => p.username === username && p.password === password);
+    const panel = panelCredentials.find(p => p.username === username && p.password === password);
     if (panel) {
       userPayload = { role: 'panel', domain: panel.domain, username };
     } else {
