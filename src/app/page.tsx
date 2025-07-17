@@ -19,14 +19,14 @@ export default function Home() {
           <div className="flex items-center gap-2">
              <Button asChild variant="outline">
               <Link href="/status">
-                <FileSearch className="mr-2 h-4 w-4" />
-                <span>Check Status</span>
+                <FileSearch />
+                <span className="hidden sm:inline">Check Status</span>
               </Link>
             </Button>
             <Button asChild>
               <Link href="/login">
-                <LogIn className="mr-2 h-4 w-4" />
-                <span>Admin Login</span>
+                <LogIn />
+                <span className="hidden sm:inline">Admin Login</span>
               </Link>
             </Button>
           </div>
