@@ -229,9 +229,13 @@ function buildFilteredQuery(params: {
   if (status) q = query(q, where('status', '==', status));
   if (year) q = query(q, where('yearOfStudy', '==', year));
   if (branch) q = query(q, where('branch', '==', branch));
+
+  // Note: Searching by name (a string field) with other filters requires a composite index.
+  // To avoid this, we'll do a simple equality check if a search term is provided.
+  // For more complex "contains" or "starts with" searches on top of other filters,
+  // a dedicated search service like Algolia or a different data structure would be needed.
   if (search) {
-     // A simple prefix search. For more complex search, a dedicated search service like Algolia would be better.
-     q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
+     q = query(q, where('name', '==', search));
   }
 
   return q;
