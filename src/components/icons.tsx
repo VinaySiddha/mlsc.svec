@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import type { SVGProps } from "react";
+import type { HTMLAttributes } from "react";
 
-export function MLSCLogo(props: SVGProps<SVGSVGElement> & { className?: string }) {
+export function MLSCLogo(props: HTMLAttributes<HTMLImageElement>) {
   return (
     <Image
       src="/logo.png"
