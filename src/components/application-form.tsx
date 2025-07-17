@@ -395,7 +395,7 @@ export function ApplicationForm() {
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                     >
                       {technicalDomains.map(item => (
                         <FormItem key={item.id} className="flex items-center space-x-3 space-y-0">
@@ -424,7 +424,7 @@ export function ApplicationForm() {
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                     >
                       {nonTechnicalDomains.map(item => (
                         <FormItem key={item.id} className="flex items-center space-x-3 space-y-0">
