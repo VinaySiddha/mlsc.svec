@@ -2,7 +2,7 @@
 'use server';
 
 /**
- * @fileOverview A flow for sending a confirmation email to an applicant.
+ * @fileOverview A flow for sending a confirmation email to an applicant using Nodemailer and Gmail.
  *
  * - sendConfirmationEmail - A function that handles sending the email.
  * - ConfirmationEmailInput - The input type for the sendConfirmationEmail function.
@@ -10,13 +10,20 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-// Initialize Resend only if the API key is available.
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+// Create a Nodemailer transporter using Gmail SMTP
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD, 
+    },
+});
 
-if (!resend) {
-  console.warn("RESEND_API_KEY is not set. Email sending is disabled. A real email will not be sent.");
+// Check if credentials are provided and log a warning if not.
+if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Email sending is disabled. A real email will not be sent.");
 }
 
 const ConfirmationEmailInputSchema = z.object({
@@ -28,8 +35,8 @@ export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema
 
 // This flow doesn't need an output schema as it's a "fire-and-forget" operation.
 export async function sendConfirmationEmail(input: ConfirmationEmailInput): Promise<void> {
-  // Only proceed if Resend is configured.
-  if (!resend) {
+  // Only proceed if Nodemailer is configured with credentials.
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     return;
   }
   await sendConfirmationEmailFlow(input);
@@ -37,7 +44,7 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
 
 const sendEmailTool = ai.defineTool({
   name: 'sendEmail',
-  description: 'Sends an email to a recipient.',
+  description: 'Sends an email to a recipient using Nodemailer.',
   inputSchema: z.object({
     to: z.string().email(),
     subject: z.string(),
@@ -45,21 +52,23 @@ const sendEmailTool = ai.defineTool({
   }),
   outputSchema: z.void(),
   async handler({to, subject, body}) {
-    if (!resend) {
-      console.log(`Skipping email to ${to} because RESEND_API_KEY is not configured.`);
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      console.log(`Skipping email to ${to} because GMAIL credentials are not configured in .env.`);
       return;
     }
+    
+    const mailOptions = {
+        from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`, // Sender address
+        to: to, // List of receivers
+        subject: subject, // Subject line
+        html: `<p>${body.replace(/\n/g, '<br>')}</p>`, // HTML body
+    };
+
     try {
-      await resend.emails.send({
-        from: 'MLSC Hiring <onboarding@resend.dev>', // You must use a verified domain in production
-        to: [to],
-        subject: subject,
-        html: `<p>${body.replace(/\n/g, '<br>')}</p>`, // Basic HTML formatting
-      });
+      await transporter.sendMail(mailOptions);
       console.log(`Successfully sent email to ${to}`);
     } catch (error) {
-      console.error(`Failed to send email to ${to}:`, error);
-      // Optional: handle the error, e.g., retry or log to a monitoring service
+      console.error(`Failed to send email to ${to} via Nodemailer:`, error);
       // For now, we'll just log it and not throw an error to avoid halting the flow.
     }
   },
