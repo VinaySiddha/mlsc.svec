@@ -182,7 +182,8 @@ export async function getApplications(params: {
     applications = applications.filter((app: any) => 
       app.name.toLowerCase().includes(searchTerm) ||
       app.email.toLowerCase().includes(searchTerm) ||
-      app.id.toLowerCase().includes(searchTerm)
+      app.id.toLowerCase().includes(searchTerm) ||
+      app.rollNo.toLowerCase().includes(searchTerm)
     );
   }
 
