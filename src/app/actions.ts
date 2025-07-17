@@ -27,7 +27,7 @@ const applicationSchema = z.object({
   nonTechnicalDomain: z.string({ required_error: 'Please select a non-technical domain.' }),
   linkedin: z.string().url('Please enter a valid LinkedIn URL.').optional(),
   anythingElse: z.string().optional(),
-  resume: z.instanceof(File).optional(),
+  resume: z.any().optional(),
 });
 
 const reviewSchema = z.object({
@@ -158,12 +158,46 @@ export async function submitApplication(formData: FormData) {
   }
 }
 
-export async function getApplications(domain?: string) {
+export async function getApplications(params: {
+  panelDomain?: string;
+  search?: string;
+  status?: string;
+  year?: string;
+  branch?: string;
+  domain?: string;
+}) {
+  const { panelDomain, search, status, year, branch, domain } = params;
   const db = await readDb();
   
   let applications = db.applications;
 
-  if (domain) {
+  // Panel-based filtering is the first and most important filter
+  if (panelDomain) {
+    applications = applications.filter((app: any) => app.technicalDomain === panelDomain);
+  }
+
+  // Server-side search
+  if (search) {
+    const searchTerm = search.toLowerCase();
+    applications = applications.filter((app: any) => 
+      app.name.toLowerCase().includes(searchTerm) ||
+      app.email.toLowerCase().includes(searchTerm) ||
+      app.id.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // Server-side filters
+  if (status) {
+    applications = applications.filter((app: any) => app.status === status);
+  }
+  if (year) {
+    applications = applications.filter((app: any) => app.yearOfStudy === year);
+  }
+  if (branch) {
+    applications = applications.filter((app: any) => app.branch === branch);
+  }
+  // Admin-only domain filter
+  if (domain && !panelDomain) {
     applications = applications.filter((app: any) => app.technicalDomain === domain);
   }
   
@@ -222,8 +256,10 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   const { username, password } = parsed.data;
 
-  const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  // Hardcoded admin credentials for demo purposes.
+  // In a real app, use environment variables.
+  const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
   const JWT_SECRET = process.env.JWT_SECRET;
 
   if (!JWT_SECRET) {
@@ -259,4 +295,15 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 export async function logoutAction() {
   cookies().delete('session');
   return { success: true };
+}
+
+export async function getFilterData() {
+  const db = await readDb();
+  const applications = db.applications || [];
+  const statuses = [...new Set(applications.map(a => a.status))].filter(Boolean);
+  const years = [...new Set(applications.map(a => a.yearOfStudy))].filter(Boolean);
+  const branches = [...new Set(applications.map(a => a.branch))].filter(Boolean);
+  const domains = [...new Set(applications.map(a => a.technicalDomain))].filter(Boolean);
+
+  return { statuses, years, branches, domains };
 }

@@ -1,42 +1,41 @@
-
-import { getApplications } from "@/app/actions";
+import { getApplications, getFilterData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Home } from "lucide-react";
+import { Home, Search, X } from "lucide-react";
 import Link from "next/link";
-import { format } from 'date-fns';
-import { Badge } from "@/components/ui/badge";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/logout-button";
+import { ApplicationsTable } from "@/components/applications-table";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AdminFilters } from "@/components/admin-filters";
 
 export const dynamic = 'force-dynamic';
 
-const getStatusVariant = (status?: string) => {
-  switch (status?.toLowerCase()) {
-    case 'accepted':
-      return 'default';
-    case 'rejected':
-      return 'destructive';
-    case 'under review':
-      return 'secondary';
-    default:
-      return 'outline';
-  }
-}
-
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   const headersList = headers();
-  const domain = headersList.get('X-Panel-Domain') || undefined;
+  const panelDomain = headersList.get('X-Panel-Domain') || undefined;
   const userRole = headersList.get('X-User-Role');
 
   if (!userRole) {
     redirect('/login');
   }
+  
+  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
+  const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
+  const year = typeof searchParams.year === 'string' ? searchParams.year : undefined;
+  const branch = typeof searchParams.branch === 'string' ? searchParams.branch : undefined;
+  const domain = typeof searchParams.domain === 'string' ? searchParams.domain : undefined;
 
-  const applications = await getApplications(domain);
+  const applications = await getApplications({ panelDomain, search, status, year, branch, domain });
+  const { statuses, years, branches, domains } = await getFilterData();
+
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -49,15 +48,15 @@ export default async function AdminPage() {
     creativity: "Creativity",
   };
 
-  const title = domain ? `${domainLabels[domain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
-  const description = domain
-    ? `Applications for the ${domainLabels[domain]} domain.`
-    : `A total of ${applications.length} ${applications.length === 1 ? 'application' : 'applications'} received.`;
+  const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
+  const description = panelDomain
+    ? `Applications for the ${domainLabels[panelDomain]} domain.`
+    : `A total of ${applications.length} matching ${applications.length === 1 ? 'application' : 'applications'} found.`;
 
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
+      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-20">
         <div className="container mx-auto flex items-center justify-between gap-4">
           <Link href="/admin" className="flex items-center gap-4">
             <MLSCLogo className="h-8 w-8 text-primary" />
@@ -68,7 +67,7 @@ export default async function AdminPage() {
           <div className="flex items-center gap-2">
             <Button asChild variant="outline">
               <Link href="/">
-                <Home className="mr-2" />
+                <Home className="mr-2 h-4 w-4" />
                 <span>Home</span>
               </Link>
             </Button>
@@ -85,56 +84,13 @@ export default async function AdminPage() {
                 {description}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="border rounded-md">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Reference ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Submitted</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Technical Domain</TableHead>
-                      <TableHead>Non-Technical Domain</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {applications.length > 0 ? (
-                      applications.map((app: any) => {
-                        const status = app.status || 'Received';
-                        return (
-                          <TableRow key={app.id}>
-                            <TableCell className="font-mono text-xs">
-                               <Link href={`/admin/application/${app.id}`} className="hover:underline">
-                                  {app.id}
-                                </Link>
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              <Link href={`/admin/application/${app.id}`} className="hover:underline">
-                                {app.name}
-                              </Link>
-                            </TableCell>
-                             <TableCell className="text-muted-foreground whitespace-nowrap">
-                                {format(new Date(app.submittedAt), "MMM d, yyyy")}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={getStatusVariant(status)}>{status}</Badge>
-                            </TableCell>
-                            <TableCell>{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
-                            <TableCell>{domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}</TableCell>
-                          </TableRow>
-                        )
-                      })
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
-                          No applications yet.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+            <CardContent className="space-y-4">
+               <AdminFilters
+                userRole={userRole}
+                filterData={{ statuses, years, branches, domains }}
+                currentFilters={{ status, year, branch, domain, search }}
+               />
+              <ApplicationsTable applications={applications} domainLabels={domainLabels} />
             </CardContent>
           </Card>
         </div>
