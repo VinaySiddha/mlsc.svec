@@ -72,7 +72,7 @@ const ratingCategories: (keyof Omit<FormValues['ratings'], 'overall'>)[] = [
 ];
 
 const categoryLabels: Record<keyof FormValues['ratings'], string> = {
-  communication: "Communication Skills",
+  communication: "Communication",
   technical: "Technical Skills",
   problemSolving: "Problem-Solving",
   teamFit: "Team Fit",
@@ -89,7 +89,7 @@ const StarRating = ({ value, onChange, disabled = false }: { value: number; onCh
         <Star
           key={star}
           className={cn(
-            "h-6 w-6 transition-colors",
+            "h-7 w-7 transition-colors sm:h-6 sm:w-6",
             disabled ? "text-muted-foreground/30" : "cursor-pointer",
             displayValue >= star ? "text-primary fill-primary" : "text-muted-foreground/50",
             !disabled && displayValue >= star && "hover:text-primary/80"
@@ -99,7 +99,7 @@ const StarRating = ({ value, onChange, disabled = false }: { value: number; onCh
           onMouseLeave={() => !disabled && setHoverValue(0)}
         />
       ))}
-      {!disabled && <span className="ml-2 text-sm font-medium text-foreground">{value.toFixed(1)}</span>}
+      {!disabled && <span className="ml-2 text-sm font-medium text-foreground w-8 text-center">{value.toFixed(1)}</span>}
     </div>
   );
 };
@@ -188,7 +188,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
           <CardHeader>
               <CardTitle>Application Review</CardTitle>
               <CardDescription>
-                Provide your evaluation below. Use the star ratings for a quantitative assessment and the remarks for qualitative feedback. The overall rating is an average of the other scores.
+                Evaluate the candidate based on the information provided. Use star ratings for a quantitative assessment and remarks for qualitative feedback.
               </CardDescription>
           </CardHeader>
           <CardContent>
@@ -224,7 +224,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       name="suitability.technical"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel>Is candidate suitable for the opted technical role?</FormLabel>
+                          <FormLabel>Suitable for technical role?</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={field.onChange}
@@ -250,7 +250,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       name="suitability.nonTechnical"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel>Is candidate suitable for the opted non-technical role?</FormLabel>
+                          <FormLabel>Suitable for non-technical role?</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={field.onChange}
@@ -273,7 +273,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                     />
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <FormLabel>Ratings</FormLabel>
                     {ratingCategories.map((category) => (
                       <Controller
@@ -281,8 +281,8 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                           name={`ratings.${category}`}
                           control={form.control}
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="font-normal text-sm">{categoryLabels[category]}</FormLabel>
+                            <FormItem className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                              <FormLabel className="font-normal text-sm mb-2 sm:mb-0">{categoryLabels[category]}</FormLabel>
                               <FormControl>
                                 <StarRating value={field.value} onChange={(v) => field.onChange(parseFloat(v.toFixed(1)))} />
                               </FormControl>
@@ -295,13 +295,15 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                         name="ratings.overall"
                         control={form.control}
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="font-normal text-sm flex items-center">{categoryLabels['overall']} 
-                               <span className="ml-2 text-lg font-bold text-primary">{field.value.toFixed(2)}</span>
-                            </FormLabel>
-                            <FormControl>
-                              <StarRating value={field.value} onChange={() => {}} disabled />
-                            </FormControl>
+                          <FormItem className="pt-2 border-t">
+                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <FormLabel className="font-normal text-sm flex items-center mb-2 sm:mb-0">{categoryLabels['overall']} 
+                                  <span className="ml-2 text-lg font-bold text-primary">{field.value.toFixed(2)}</span>
+                                </FormLabel>
+                                <FormControl>
+                                  <StarRating value={field.value} onChange={() => {}} disabled />
+                                </FormControl>
+                             </div>
                             <FormMessage />
                           </FormItem>
                         )}

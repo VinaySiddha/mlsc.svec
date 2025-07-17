@@ -63,14 +63,14 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
           <Button asChild variant="outline">
             <Link href="/admin">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              <span>Back to Applications</span>
+              <span className="hidden sm:inline">Back to Applications</span>
             </Link>
           </Button>
         </div>
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
-        <div className="container mx-auto grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2 space-y-8">
+        <div className="container mx-auto grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -80,19 +80,19 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                       Submitted on {format(new Date(application.submittedAt), "MMMM d, yyyy 'at' h:mm a")}
                     </CardDescription>
                   </div>
-                   <Badge variant={getStatusVariant(status)} className="text-sm">
+                   <Badge variant={getStatusVariant(status)} className="text-sm shrink-0">
                       {status}
                     </Badge>
                 </div>
                  <div className="text-sm text-muted-foreground pt-4">
-                  Reference ID: <span className="font-mono text-foreground">{application.id}</span>
+                  Reference ID: <span className="font-mono text-foreground break-all">{application.id}</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <h4 className="font-semibold">Email</h4>
-                    <p className="text-muted-foreground">{application.email}</p>
+                    <p className="text-muted-foreground break-all">{application.email}</p>
                   </div>
                   <div>
                     <h4 className="font-semibold">Phone</h4>
@@ -123,7 +123,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                     <p className="text-muted-foreground">{application.backlogs}</p>
                   </div>
                   {application.linkedin && (
-                     <div>
+                     <div className="sm:col-span-2">
                         <h4 className="font-semibold">LinkedIn</h4>
                         <a href={application.linkedin} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
                           {application.linkedin}
