@@ -31,6 +31,7 @@ const getStatusVariant = (status?: string) => {
     case 'rejected':
       return 'destructive';
     case 'under review':
+    case 'interviewing':
       return 'secondary';
     default:
       return 'outline';
@@ -114,4 +115,5 @@ export function StatusCheckForm() {
         </Alert>
       )}
     </>
-  
+  );
+}
