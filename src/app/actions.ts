@@ -109,6 +109,22 @@ export async function submitApplication(formData: FormData) {
   let docRef;
 
   try {
+    const applicationsRef = collection(db, "applications");
+
+    // Check for existing email
+    const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
+    const emailSnapshot = await getDocs(emailQuery);
+    if (!emailSnapshot.empty) {
+      return { error: 'An application with this email address already exists.' };
+    }
+
+    // Check for existing roll number
+    const rollNoQuery = query(applicationsRef, where("rollNo", "==", applicationData.rollNo));
+    const rollNoSnapshot = await getDocs(rollNoQuery);
+    if (!rollNoSnapshot.empty) {
+      return { error: 'An application with this roll number already exists.' };
+    }
+
     const newApplication = {
       id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
@@ -131,7 +147,6 @@ export async function submitApplication(formData: FormData) {
     };
     
     // 1. Immediately save the application to get a reference ID for the user
-    const applicationsRef = collection(db, "applications");
     docRef = await addDoc(applicationsRef, { ...newApplication });
     await updateDoc(docRef, { firestoreId: docRef.id });
 
