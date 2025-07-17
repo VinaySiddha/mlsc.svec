@@ -1,5 +1,7 @@
 
-import { getApplications } from "@/app/actions";
+'use server';
+
+import { getApplications, logoutAction } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +11,8 @@ import Link from "next/link";
 import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { LogoutButton } from "@/components/logout-button";
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +32,11 @@ const getStatusVariant = (status?: string) => {
 export default async function AdminPage() {
   const headersList = headers();
   const domain = headersList.get('X-Panel-Domain') || undefined;
+  const userRole = headersList.get('X-User-Role');
+
+  if (!userRole) {
+    redirect('/login');
+  }
 
   const applications = await getApplications(domain);
 
@@ -65,6 +74,7 @@ export default async function AdminPage() {
                 <span>Home</span>
               </Link>
             </Button>
+            <LogoutButton />
           </div>
         </div>
       </header>

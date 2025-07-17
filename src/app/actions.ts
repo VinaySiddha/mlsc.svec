@@ -8,6 +8,8 @@ import {
 import {z} from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
 
 const applicationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -43,6 +45,11 @@ const reviewSchema = z.object({
     overall: z.number().min(0).max(5),
   }),
   remarks: z.string().optional(),
+});
+
+const loginSchema = z.object({
+  username: z.string(),
+  password: z.string(),
 });
 
 
@@ -204,4 +211,52 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     }
     return { error: 'An unexpected error occurred while saving the review.' };
   }
+}
+
+
+export async function loginAction(values: z.infer<typeof loginSchema>) {
+  const parsed = loginSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: 'Invalid input.' };
+  }
+
+  const { username, password } = parsed.data;
+
+  const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  const JWT_SECRET = process.env.JWT_SECRET;
+
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not set in environment variables.');
+  }
+
+  let userPayload: { role: string; domain?: string; username: string };
+
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    userPayload = { role: 'admin', username };
+  } else {
+    const panels = await getPanels();
+    const panel = panels.find(p => p.username === username && p.password === password);
+    if (panel) {
+      userPayload = { role: 'panel', domain: panel.domain, username };
+    } else {
+      return { error: 'Invalid username or password.' };
+    }
+  }
+
+  const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '1d' });
+
+  cookies().set('session', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24, // 1 day
+    path: '/',
+  });
+
+  return { success: true };
+}
+
+export async function logoutAction() {
+  cookies().delete('session');
+  return { success: true };
 }

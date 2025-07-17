@@ -2,7 +2,7 @@ import { ApplicationForm } from "@/components/application-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, User } from "lucide-react";
+import { FileSearch, LogIn } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -23,10 +23,10 @@ export default function Home() {
                 <span>Check Status</span>
               </Link>
             </Button>
-            <Button asChild variant="outline" size="icon">
-              <Link href="/admin">
-                <User className="h-4 w-4" />
-                <span className="sr-only">Admin Panel</span>
+            <Button asChild>
+              <Link href="/login">
+                <LogIn className="mr-2 h-4 w-4" />
+                <span>Admin Login</span>
               </Link>
             </Button>
           </div>

@@ -1,46 +1,65 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getPanels } from './app/actions';
+import * as jose from 'jose';
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+async function verifyToken(token: string) {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not set in environment variables.');
+  }
+  const secret = new TextEncoder().encode(JWT_SECRET);
+  try {
+    const { payload } = await jose.jwtVerify(token, secret);
+    return payload;
+  } catch (error) {
+    return null;
+  }
+}
 
 export async function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.startsWith('/admin')) {
-    const basicAuth = req.headers.get('authorization');
+  const { pathname } = req.nextUrl;
+  const sessionToken = req.cookies.get('session')?.value;
 
-    if (basicAuth) {
-      const authValue = basicAuth.split(' ')[1];
-      const [user, pwd] = atob(authValue).split(':');
+  if (pathname.startsWith('/admin')) {
+    if (!sessionToken) {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
 
-      // Check for main admin
-      if (user === ADMIN_USERNAME && pwd === ADMIN_PASSWORD) {
-        return NextResponse.next();
-      }
+    const payload = await verifyToken(sessionToken);
 
-      // Check for panel admins
-      const panels = await getPanels();
-      const matchedPanel = panels.find(p => p.username === user && p.password === pwd);
-      
-      if (matchedPanel) {
-        const requestHeaders = new Headers(req.headers);
-        requestHeaders.set('X-Panel-Domain', matchedPanel.domain);
-        return NextResponse.next({
-          request: {
-            headers: requestHeaders,
-          },
-        });
-      }
+    if (!payload) {
+      // Clear invalid cookie and redirect
+      const response = NextResponse.redirect(new URL('/login', req.url));
+      response.cookies.delete('session');
+      return response;
     }
     
-    const url = req.nextUrl;
-    url.pathname = '/api/auth';
-    return NextResponse.rewrite(url);
+    // Add user info to headers to be accessed in Server Components
+    const requestHeaders = new Headers(req.headers);
+    if (payload.role) requestHeaders.set('X-User-Role', payload.role as string);
+    if (payload.username) requestHeaders.set('X-User-Username', payload.username as string);
+    if (payload.domain) requestHeaders.set('X-Panel-Domain', payload.domain as string);
+    
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
+
+  if (pathname === '/login') {
+    if (sessionToken) {
+       const payload = await verifyToken(sessionToken);
+       if (payload) {
+         return NextResponse.redirect(new URL('/admin', req.url));
+       }
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/login'],
 };
