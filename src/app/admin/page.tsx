@@ -8,6 +8,7 @@ import { Home } from "lucide-react";
 import Link from "next/link";
 import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
+import { headers } from "next/headers";
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,10 @@ const getStatusVariant = (status?: string) => {
 }
 
 export default async function AdminPage() {
-  const applications = await getApplications();
+  const headersList = headers();
+  const domain = headersList.get('X-Panel-Domain') || undefined;
+
+  const applications = await getApplications(domain);
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -38,14 +42,20 @@ export default async function AdminPage() {
     creativity: "Creativity",
   };
 
+  const title = domain ? `${domainLabels[domain]} Panel` : "MLSC Hub - Admin";
+  const description = domain
+    ? `Applications for the ${domainLabels[domain]} domain.`
+    : `A total of ${applications.length} ${applications.length === 1 ? 'application' : 'applications'} received.`;
+
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
         <div className="container mx-auto flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-4">
+          <Link href="/admin" className="flex items-center gap-4">
             <MLSCLogo className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              MLSC Hub - Admin
+              {title}
             </h1>
           </Link>
           <Button asChild variant="outline">
@@ -62,7 +72,7 @@ export default async function AdminPage() {
             <CardHeader>
               <CardTitle>Applications</CardTitle>
               <CardDescription>
-                A total of {applications.length} {applications.length === 1 ? 'application' : 'applications'} received.
+                {description}
               </CardDescription>
             </CardHeader>
             <CardContent>

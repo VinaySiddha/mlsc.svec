@@ -1,3 +1,4 @@
+
 {
   "applications": [
     {
@@ -134,7 +135,7 @@
       "technicalDomain": "azure",
       "nonTechnicalDomain": "event_management",
       "linkedin": "https://linkein.com",
-      "anythingElse": "Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.",
+      "anythingElse": "Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.Dolores beatae aspernatur similique provident deleniti quidem quae.",
       "resumeSummary": "Siddha Vinay Kumar was a core team member and Technical Architect of the Microsoft Learn Student Club 2.0 SVEC for the academic year 2024-2025.",
       "status": "Received",
       "suitability": {
@@ -208,13 +209,35 @@
         "nonTechnical": "undecided"
       },
       "ratings": {
-        "communication": 0,
-        "technical": 0,
+        "communication": 4,
+        "technical": 5,
         "problemSolving": 0,
         "teamFit": 0,
-        "overall": 0
+        "overall": 5
       },
-      "remarks": ""
+      "remarks": "goof at speaking"
+    }
+  ],
+  "panels": [
+    {
+      "username": "gen_ai_panel",
+      "password": "password123",
+      "domain": "gen_ai"
+    },
+    {
+      "username": "ds_ml_panel",
+      "password": "password123",
+      "domain": "ds_ml"
+    },
+    {
+      "username": "azure_panel",
+      "password": "password123",
+      "domain": "azure"
+    },
+    {
+      "username": "web_app_panel",
+      "password": "password123",
+      "domain": "web_app"
     }
   ]
 }

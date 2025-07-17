@@ -54,7 +54,7 @@ async function readDb() {
     return JSON.parse(data);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return { applications: [] };
+      return { applications: [], panels: [] };
     }
     throw error;
   }
@@ -151,17 +151,28 @@ export async function submitApplication(formData: FormData) {
   }
 }
 
-export async function getApplications() {
+export async function getApplications(domain?: string) {
   const db = await readDb();
-  // Sort by newest first
-  return db.applications.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
-}
+  
+  let applications = db.applications;
 
+  if (domain) {
+    applications = applications.filter((app: any) => app.technicalDomain === domain);
+  }
+  
+  // Sort by newest first
+  return applications.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+}
 
 export async function getApplicationById(id: string) {
   const db = await readDb();
   const application = db.applications.find((app: any) => app.id === id);
   return application || null;
+}
+
+export async function getPanels() {
+  const db = await readDb();
+  return db.panels || [];
 }
 
 export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) {
