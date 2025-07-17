@@ -159,14 +159,6 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                   )}
                 </div>
 
-                {application.resumeSummary && (
-                  <div className="space-y-2 text-sm">
-                    <h4 className="font-semibold">AI Resume Summary</h4>
-                    <blockquote className="border-l-2 pl-4 italic text-muted-foreground">
-                      {application.resumeSummary}
-                    </blockquote>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>

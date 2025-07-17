@@ -5,9 +5,9 @@ import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Bot, Loader2, Sparkles, Star } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 
-import { saveApplicationReview, evaluateCandidateAction } from "@/app/actions";
+import { saveApplicationReview } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +23,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Label } from "./ui/label";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 
 const reviewSchema = z.object({
@@ -49,7 +47,6 @@ interface ApplicationReviewFormProps {
   application: {
     id: string;
     status: string;
-    resumeSummary: string | null;
     suitability?: {
       technical?: string;
       nonTechnical?: string;
@@ -110,8 +107,6 @@ const StarRating = ({ value, onChange, disabled = false }: { value: number; onCh
 
 export function ApplicationReviewForm({ application, userRole }: ApplicationReviewFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEvaluating, setIsEvaluating] = useState(false);
-  const [transcript, setTranscript] = useState("");
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -148,52 +143,6 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
       }
 
   }, [ratings.communication, ratings.technical, ratings.problemSolving, ratings.teamFit, form]);
-
-
-  const handleEvaluate = async () => {
-    if (!transcript.trim()) {
-      toast({
-        variant: 'destructive',
-        title: 'Transcript is empty',
-        description: 'Please paste the interview transcript before analyzing.',
-      });
-      return;
-    }
-
-    setIsEvaluating(true);
-    try {
-      const result = await evaluateCandidateAction({
-        resumeSummary: application.resumeSummary || 'No resume summary available.',
-        interviewTranscript: transcript,
-      });
-
-      if (result.error || !result.data) {
-        throw new Error(result.error || 'Failed to get evaluation data.');
-      }
-      
-      const { ratings, remarks } = result.data;
-      form.setValue('ratings.communication', ratings.communication);
-      form.setValue('ratings.technical', ratings.technical);
-      form.setValue('ratings.problemSolving', ratings.problemSolving);
-      form.setValue('ratings.teamFit', ratings.teamFit);
-      form.setValue('remarks', remarks);
-      
-      toast({
-        title: 'Evaluation Complete',
-        description: "The AI has analyzed the transcript and populated the form.",
-      });
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-       toast({
-        variant: "destructive",
-        title: "Evaluation Failed",
-        description: errorMessage,
-      });
-    } finally {
-      setIsEvaluating(false);
-    }
-  };
 
 
   const onSubmit = async (values: FormValues) => {
@@ -238,7 +187,9 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
       <Card>
           <CardHeader>
               <CardTitle>Application Review</CardTitle>
-              <CardDescription>Update the applicant's status and ratings.</CardDescription>
+              <CardDescription>
+                Provide your evaluation below. Use the star ratings for a quantitative assessment and the remarks for qualitative feedback. The overall rating is an average of the other scores.
+              </CardDescription>
           </CardHeader>
           <CardContent>
               <Form {...form}>
@@ -388,52 +339,6 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                   </form>
               </Form>
           </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot />
-            AI-Powered Evaluation
-          </CardTitle>
-          <CardDescription>
-            Paste the interview transcript and let AI assist in the evaluation. The AI will populate the ratings and remarks above.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid w-full gap-2">
-              <Label htmlFor="transcript">Interview Transcript</Label>
-              <Textarea 
-                  id="transcript"
-                  placeholder="Paste the full interview transcript here..."
-                  value={transcript}
-                  onChange={(e) => setTranscript(e.target.value)}
-                  className="min-h-[200px] font-mono text-xs"
-              />
-          </div>
-          {application.resumeSummary && (
-             <Alert>
-              <Sparkles className="h-4 w-4" />
-              <AlertTitle>Using Resume Summary</AlertTitle>
-              <AlertDescription className="text-xs italic">
-                The AI will use this resume summary for context: "{application.resumeSummary}"
-              </AlertDescription>
-            </Alert>
-          )}
-          <Button onClick={handleEvaluate} disabled={isEvaluating} className="w-full">
-            {isEvaluating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Analyze Transcript
-                </>
-              )}
-          </Button>
-        </CardContent>
       </Card>
     </div>
   );
