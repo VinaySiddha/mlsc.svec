@@ -214,8 +214,9 @@ function buildFilteredQuery(params: {
   year?: string;
   branch?: string;
   domain?: string;
+  sortByRecommended?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain } = params;
+  const { panelDomain, search, status, year, branch, domain, sortByRecommended } = params;
   let q = query(collection(db, 'applications'));
 
   // Super admin can filter by domain, panel admin is locked to their domain
@@ -223,6 +224,10 @@ function buildFilteredQuery(params: {
     q = query(q, where('technicalDomain', '==', panelDomain));
   } else if (domain) {
     q = query(q, where('technicalDomain', '==', domain));
+  }
+  
+  if (sortByRecommended === 'true') {
+    q = query(q, where('isRecommended', '==', true));
   }
 
   // General filters for both roles
@@ -235,7 +240,7 @@ function buildFilteredQuery(params: {
   // For more complex "contains" or "starts with" searches on top of other filters,
   // a dedicated search service like Algolia or a different data structure would be needed.
   if (search) {
-     q = query(q, where('name', '==', search));
+     q = query(q, where('name', '>=', search), where('name', '<=', search + '\uf8ff'));
   }
 
   return q;
@@ -260,7 +265,6 @@ export async function getApplications(params: {
   
   const countFilters = { ...params };
   delete countFilters.sortByPerformance;
-  delete countFilters.sortByRecommended;
   delete countFilters.page;
   delete countFilters.limit;
   delete countFilters.lastVisibleId;
@@ -277,10 +281,8 @@ export async function getApplications(params: {
   let dataQuery = buildFilteredQuery(params);
 
   // Sorting logic
-  if (sortByPerformance === 'true') {
+  if (sortByPerformance === 'true' || sortByRecommended === 'true') {
     dataQuery = query(dataQuery, orderBy('ratings.overall', 'desc'));
-  } else if (sortByRecommended === 'true') {
-    dataQuery = query(dataQuery, where('isRecommended', '==', true), orderBy('ratings.overall', 'desc'));
   } else {
     dataQuery = query(dataQuery, orderBy('submittedAt', 'desc'));
   }
