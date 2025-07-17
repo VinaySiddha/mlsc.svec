@@ -180,10 +180,10 @@ export async function getApplications(params: {
   if (search) {
     const searchTerm = search.toLowerCase();
     applications = applications.filter((app: any) => 
-      app.name.toLowerCase().includes(searchTerm) ||
-      app.email.toLowerCase().includes(searchTerm) ||
-      app.id.toLowerCase().includes(searchTerm) ||
-      app.rollNo.toLowerCase().includes(searchTerm)
+      (app.name && app.name.toLowerCase().includes(searchTerm)) ||
+      (app.email && app.email.toLowerCase().includes(searchTerm)) ||
+      (app.id && app.id.toLowerCase().includes(searchTerm)) ||
+      (app.rollNo && app.rollNo.toLowerCase().includes(searchTerm))
     );
   }
 
