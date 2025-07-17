@@ -212,10 +212,8 @@ export async function getApplications(params: {
   if (sortByPerformance === 'true' && !panelDomain) {
     q = query(q, orderBy('ratings.overall', 'desc'));
   } else if (sortByRecommended === 'true' && !panelDomain) {
-    // Already filtered by isRecommended=true, now sort by performance
     q = query(q, orderBy('ratings.overall', 'desc'));
   } else {
-    // Default sort: newest first
     q = query(q, orderBy('submittedAt', 'desc'));
   }
   
