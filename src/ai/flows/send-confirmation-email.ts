@@ -12,18 +12,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import nodemailer from 'nodemailer';
 
-// Create a Nodemailer transporter using Gmail SMTP
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD, 
-    },
-});
-
-// Check if credentials are provided and log a warning if not.
+// Log a warning at startup if credentials are not provided.
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Email sending is disabled. A real email will not be sent.");
+    console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Real emails will not be sent.");
 }
 
 const ConfirmationEmailInputSchema = z.object({
@@ -37,6 +28,7 @@ export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema
 export async function sendConfirmationEmail(input: ConfirmationEmailInput): Promise<void> {
   // Only proceed if Nodemailer is configured with credentials.
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.log(`Skipping email to ${input.email} because GMAIL credentials are not configured.`);
     return;
   }
   await sendConfirmationEmailFlow(input);
@@ -52,10 +44,20 @@ const sendEmailTool = ai.defineTool({
   }),
   outputSchema: z.void(),
   handler: async ({to, subject, body}) => {
+    // Check for credentials at the time of execution.
     if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
       console.log(`Skipping email to ${to} because GMAIL credentials are not configured in .env.`);
       return;
     }
+
+    // Create a Nodemailer transporter inside the handler to ensure it's only created when needed.
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD, 
+        },
+    });
     
     const mailOptions = {
         from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`, // Sender address
