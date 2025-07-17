@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
        <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
-        <div className="container mx-auto flex items-center justify-between gap-4">
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-4">
             <MLSCLogo className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
