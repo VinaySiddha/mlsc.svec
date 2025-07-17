@@ -26,14 +26,13 @@ interface AdminFiltersProps {
     sortByRecommended?: string;
     page?: string;
   };
-  isPending: boolean;
-  startTransition: React.TransitionStartFunction;
 }
 
-export function AdminFilters({ userRole, filterData, currentFilters, isPending, startTransition }: AdminFiltersProps) {
+export function AdminFilters({ userRole, filterData, currentFilters }: AdminFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const [search, setSearch] = useState(currentFilters.search || '');
 
@@ -166,11 +165,11 @@ export function AdminFilters({ userRole, filterData, currentFilters, isPending, 
          {userRole === 'admin' && (
           <>
             <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending}>
-                <TrendingUp className="mr-2 h-4 w-4" />
+                {isPending && currentFilters.sortByPerformance !== 'true' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
                 Sort by Performance
             </Button>
             <Button variant={currentFilters.sortByRecommended === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByRecommended')} disabled={isPending}>
-                <Award className="mr-2 h-4 w-4" />
+                {isPending && currentFilters.sortByRecommended !== 'true' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
                 Sort by Recommended
             </Button>
           </>

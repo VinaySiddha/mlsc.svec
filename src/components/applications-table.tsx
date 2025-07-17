@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { format } from 'date-fns';
 import { Award, Star } from "lucide-react";
+import { useTransition } from "react";
+import { ApplicationsTableSkeleton } from "./applications-table-skeleton";
 
 
 const getStatusVariant = (status?: string) => {
@@ -28,6 +30,11 @@ interface ApplicationsTableProps {
 }
 
 export function ApplicationsTable({ applications, domainLabels }: ApplicationsTableProps) {
+  const [isPending] = useTransition();
+
+  if (isPending) {
+    return <ApplicationsTableSkeleton />;
+  }
 
   return (
     <div className="border rounded-md">

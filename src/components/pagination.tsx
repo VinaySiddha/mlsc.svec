@@ -4,19 +4,19 @@
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { Button } from './ui/button';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { useTransition } from 'react';
 
 interface PaginationComponentProps {
   totalPages: number;
   currentPage: number;
   applications: any[];
-  isPending: boolean;
-  startTransition: React.TransitionStartFunction;
 }
 
-export function PaginationComponent({ totalPages, currentPage, applications, isPending, startTransition }: PaginationComponentProps) {
+export function PaginationComponent({ totalPages, currentPage, applications }: PaginationComponentProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -28,6 +28,8 @@ export function PaginationComponent({ totalPages, currentPage, applications, isP
       const lastVisibleId = applications[applications.length - 1].firestoreId;
       params.set('lastVisibleId', lastVisibleId);
     } else {
+      // For going to a previous page, we don't need lastVisibleId
+      // and for the first page, it should be cleared.
       params.delete('lastVisibleId');
     }
     
@@ -62,12 +64,12 @@ export function PaginationComponent({ totalPages, currentPage, applications, isP
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages || isPending}
       >
-        Next
-        {isPending ? (
-          <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+         {isPending ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <ChevronRight className="ml-2 h-4 w-4" />
+          "Next"
         )}
+        <ChevronRight className="ml-2 h-4 w-4" />
       </Button>
     </div>
   );

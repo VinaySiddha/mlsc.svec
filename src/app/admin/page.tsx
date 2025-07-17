@@ -3,44 +3,18 @@ import { getApplications } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Menu } from "lucide-react";
+import { Home } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { Suspense, useTransition } from "react";
+import { Suspense } from "react";
 import { LogoutButton } from "@/components/logout-button";
 import { ApplicationsTable } from "@/components/applications-table";
 import { AdminFilters } from "@/components/admin-filters";
 import { PaginationComponent } from "@/components/pagination";
 import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
 
 export const dynamic = 'force-dynamic';
-
-function AdminDashboardWrapper({
-  panelDomain,
-  userRole,
-  searchParams
-}: {
-  panelDomain?: string;
-  userRole: string | null;
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  const [isPending, startTransition] = useTransition();
-
-  return (
-     <Suspense fallback={<AdminDashboardSkeleton panelDomain={panelDomain} />}>
-        <AdminDashboard
-          panelDomain={panelDomain}
-          userRole={userRole}
-          searchParams={searchParams}
-          isPending={isPending}
-          startTransition={startTransition}
-        />
-     </Suspense>
-  )
-}
 
 function AdminDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
     const domainLabels: Record<string, string> = {
@@ -60,7 +34,7 @@ function AdminDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="h-10 w-full bg-muted rounded-md animate-pulse mb-4" />
+                <div className="h-20 w-full bg-muted rounded-md animate-pulse mb-4" />
                 <ApplicationsTableSkeleton />
             </CardContent>
         </>
@@ -70,15 +44,11 @@ function AdminDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
 async function AdminDashboard({
   panelDomain,
   userRole,
-  searchParams,
-  isPending,
-  startTransition
+  searchParams
 }: {
   panelDomain?: string;
   userRole: string | null;
-  searchParams: { [key: string]: string | string[] | undefined };
-  isPending: boolean;
-  startTransition: React.TransitionStartFunction;
+  searchParams: { [key:string]: string | string[] | undefined };
 }) {
   const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
   const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
@@ -103,7 +73,6 @@ async function AdminDashboard({
     lastVisibleId
   });
   
-  // Hardcoded filter data for performance
   const filterData = {
     statuses: ['Received', 'Under Processing', 'Interviewing', 'Hired', 'Rejected'],
     years: ["2nd", "3rd"],
@@ -139,16 +108,12 @@ async function AdminDashboard({
           userRole={userRole}
           filterData={filterData}
           currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended, page }}
-          isPending={isPending}
-          startTransition={startTransition}
          />
-        {isPending ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} domainLabels={domainLabels} />}
+        <ApplicationsTable applications={applications} domainLabels={domainLabels} />
         <PaginationComponent 
             totalPages={totalPages} 
             currentPage={currentPage} 
             applications={applications}
-            isPending={isPending}
-            startTransition={startTransition}
         />
       </CardContent>
     </>
@@ -202,7 +167,9 @@ export default function AdminPage({
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto">
           <Card>
-              <AdminDashboardWrapper panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
+            <Suspense key={JSON.stringify(searchParams)} fallback={<AdminDashboardSkeleton panelDomain={panelDomain} />}>
+              <AdminDashboard panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
+            </Suspense>
           </Card>
         </div>
       </main>
