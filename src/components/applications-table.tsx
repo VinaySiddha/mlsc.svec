@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { format } from 'date-fns';
+import { Star } from "lucide-react";
 
 const getStatusVariant = (status?: string) => {
   switch (status?.toLowerCase()) {
@@ -34,7 +35,7 @@ export function ApplicationsTable({ applications, domainLabels }: ApplicationsTa
             <TableHead>Submitted</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Technical Domain</TableHead>
-            <TableHead>Non-Technical Domain</TableHead>
+            <TableHead>Performance</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -60,7 +61,12 @@ export function ApplicationsTable({ applications, domainLabels }: ApplicationsTa
                     <Badge variant={getStatusVariant(status)}>{status}</Badge>
                   </TableCell>
                   <TableCell>{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
-                  <TableCell>{domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Star className={`h-4 w-4 ${app.ratings?.overall > 0 ? 'text-primary fill-primary' : 'text-muted-foreground'}`}/>
+                      <span className="text-sm font-medium">{app.ratings?.overall || 'N/A'}</span>
+                    </div>
+                  </TableCell>
                 </TableRow>
               )
             })

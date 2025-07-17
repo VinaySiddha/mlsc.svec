@@ -32,8 +32,10 @@ export default async function AdminPage({
   const year = typeof searchParams.year === 'string' ? searchParams.year : undefined;
   const branch = typeof searchParams.branch === 'string' ? searchParams.branch : undefined;
   const domain = typeof searchParams.domain === 'string' ? searchParams.domain : undefined;
+  const sortByPerformance = typeof searchParams.sortByPerformance === 'string' ? searchParams.sortByPerformance : undefined;
 
-  const applications = await getApplications({ panelDomain, search, status, year, branch, domain });
+
+  const applications = await getApplications({ panelDomain, search, status, year, branch, domain, sortByPerformance });
   const { statuses, years, branches, domains } = await getFilterData();
 
 
@@ -88,7 +90,7 @@ export default async function AdminPage({
                <AdminFilters
                 userRole={userRole}
                 filterData={{ statuses, years, branches, domains }}
-                currentFilters={{ status, year, branch, domain, search }}
+                currentFilters={{ status, year, branch, domain, search, sortByPerformance }}
                />
               <ApplicationsTable applications={applications} domainLabels={domainLabels} />
             </CardContent>

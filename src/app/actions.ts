@@ -5,10 +5,6 @@ import {
   summarizeResume,
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
-import {
-  evaluateCandidate,
-  EvaluateCandidateInput,
-} from '@/ai/flows/evaluate-candidate';
 
 import {z} from 'zod';
 import fs from 'fs/promises';
@@ -170,8 +166,9 @@ export async function getApplications(params: {
   year?: string;
   branch?: string;
   domain?: string;
+  sortByPerformance?: string;
 }) {
-  const { panelDomain, search, status, year, branch, domain } = params;
+  const { panelDomain, search, status, year, branch, domain, sortByPerformance } = params;
   const db = await readDb();
   
   let applications = db.applications;
@@ -207,8 +204,15 @@ export async function getApplications(params: {
     applications = applications.filter((app: any) => app.technicalDomain === domain);
   }
   
-  // Sort by newest first
-  return applications.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+  // Sort by performance if requested
+  if (sortByPerformance === 'true' && !panelDomain) {
+    applications.sort((a: any, b: any) => (b.ratings?.overall || 0) - (a.ratings?.overall || 0));
+  } else {
+    // Default sort: newest first
+    applications.sort((a: any, b: any) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+  }
+
+  return applications;
 }
 
 export async function getApplicationById(id: string) {
@@ -252,20 +256,6 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     return { error: 'An unexpected error occurred while saving the review.' };
   }
 }
-
-export async function getCandidateEvaluation(input: EvaluateCandidateInput) {
-  try {
-    const result = await evaluateCandidate(input);
-    return { success: true, evaluation: result };
-  } catch (error) {
-    console.error('Error evaluating candidate:', error);
-    if (error instanceof Error) {
-      return { error: `Failed to get evaluation: ${error.message}` };
-    }
-    return { error: 'An unexpected error occurred during evaluation.' };
-  }
-}
-
 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
   const parsed = loginSchema.safeParse(values);
