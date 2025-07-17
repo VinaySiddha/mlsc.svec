@@ -6,11 +6,11 @@ import { format } from 'date-fns';
 
 const getStatusVariant = (status?: string) => {
   switch (status?.toLowerCase()) {
-    case 'accepted':
+    case 'hired':
       return 'default';
     case 'rejected':
       return 'destructive';
-    case 'under review':
+    case 'under processing':
     case 'interviewing':
       return 'secondary';
     default:

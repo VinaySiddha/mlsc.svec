@@ -8,6 +8,8 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from 'date-fns';
+import { headers } from "next/headers";
+
 
 export const dynamic = 'force-dynamic';
 
@@ -24,11 +26,12 @@ const domainLabels: Record<string, string> = {
 
 const getStatusVariant = (status?: string) => {
   switch (status?.toLowerCase()) {
-    case 'accepted':
+    case 'hired':
       return 'default';
     case 'rejected':
       return 'destructive';
-    case 'under review':
+    case 'under processing':
+    case 'interviewing':
       return 'secondary';
     default:
       return 'outline';
@@ -37,6 +40,9 @@ const getStatusVariant = (status?: string) => {
 
 export default async function ApplicationDetailPage({ params }: { params: { id: string } }) {
   const application = await getApplicationById(params.id);
+  const headersList = headers();
+  const userRole = headersList.get('X-User-Role') ?? 'panel';
+
 
   if (!application) {
     notFound();
@@ -165,7 +171,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             </Card>
           </div>
           <div className="space-y-8">
-            <ApplicationReviewForm application={application} />
+            <ApplicationReviewForm application={application} userRole={userRole} />
           </div>
         </div>
       </main>

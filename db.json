@@ -1,4 +1,3 @@
-
 {
   "applications": [
     {
@@ -209,7 +208,7 @@
         "nonTechnical": "undecided"
       },
       "ratings": {
-        "communication": 4,
+        "communication": 5,
         "technical": 5,
         "problemSolving": 0,
         "teamFit": 0,

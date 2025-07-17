@@ -5,6 +5,11 @@ import {
   summarizeResume,
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
+import {
+  evaluateCandidate,
+  EvaluateCandidateInput,
+} from '@/ai/flows/evaluate-candidate';
+
 import {z} from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
@@ -245,6 +250,19 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
       return { error: `Failed to save review: ${error.message}` };
     }
     return { error: 'An unexpected error occurred while saving the review.' };
+  }
+}
+
+export async function getCandidateEvaluation(input: EvaluateCandidateInput) {
+  try {
+    const result = await evaluateCandidate(input);
+    return { success: true, evaluation: result };
+  } catch (error) {
+    console.error('Error evaluating candidate:', error);
+    if (error instanceof Error) {
+      return { error: `Failed to get evaluation: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred during evaluation.' };
   }
 }
 
