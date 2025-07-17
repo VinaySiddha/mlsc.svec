@@ -67,7 +67,7 @@ export default function Home() {
                     Join the Future of Tech with MLSC 3.0
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    We are looking for passionate individuals to join our team. Fill out the application below to start your journey with the Machine Learning Student Club.
+                    We are looking for passionate individuals to join our team. Fill out the application below to start your journey with the Microsoft Learn Student Club.
                   </p>
                 </div>
               </div>
@@ -75,8 +75,10 @@ export default function Home() {
                   <img
                     src="https://placehold.co/600x400.png"
                     data-ai-hint="team collaboration"
+                    width="600"
+                    height="400"
                     alt="Team Collaboration"
-                    className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
+                    className="mx-auto aspect-video overflow-hidden rounded-xl object-contain"
                   />
               </div>
             </div>
