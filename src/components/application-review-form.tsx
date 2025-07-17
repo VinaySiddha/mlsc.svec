@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,9 +22,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 const reviewSchema = z.object({
   status: z.string(),
+  suitability: z.object({
+    technical: z.string().optional(),
+    nonTechnical: z.string().optional(),
+  }),
   ratings: z.object({
     communication: z.number().min(0).max(5),
     technical: z.number().min(0).max(5),
@@ -41,6 +46,10 @@ interface ApplicationReviewFormProps {
   application: {
     id: string;
     status: string;
+    suitability?: {
+      technical?: string;
+      nonTechnical?: string;
+    };
     ratings?: {
       communication: number;
       technical: number;
@@ -95,6 +104,10 @@ export function ApplicationReviewForm({ application }: ApplicationReviewFormProp
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       status: application.status ?? 'Received',
+      suitability: {
+        technical: application.suitability?.technical ?? 'undecided',
+        nonTechnical: application.suitability?.nonTechnical ?? 'undecided',
+      },
       ratings: {
         communication: application.ratings?.communication ?? 0,
         technical: application.ratings?.technical ?? 0,
@@ -175,6 +188,62 @@ export function ApplicationReviewForm({ application }: ApplicationReviewFormProp
                 />
 
                 <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="suitability.technical"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Is candidate suitable for the opted technical role?</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex items-center space-x-4"
+                          >
+                            <FormItem className="flex items-center space-x-2 space-y-0">
+                              <FormControl><RadioGroupItem value="yes" /></FormControl>
+                              <FormLabel className="font-normal">Yes</FormLabel>
+                            </FormItem>
+                             <FormItem className="flex items-center space-x-2 space-y-0">
+                              <FormControl><RadioGroupItem value="no" /></FormControl>
+                              <FormLabel className="font-normal">No</FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="suitability.nonTechnical"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Is candidate suitable for the opted non-technical role?</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex items-center space-x-4"
+                          >
+                            <FormItem className="flex items-center space-x-2 space-y-0">
+                              <FormControl><RadioGroupItem value="yes" /></FormControl>
+                              <FormLabel className="font-normal">Yes</FormLabel>
+                            </FormItem>
+                             <FormItem className="flex items-center space-x-2 space-y-0">
+                              <FormControl><RadioGroupItem value="no" /></FormControl>
+                              <FormLabel className="font-normal">No</FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <FormLabel>Ratings</FormLabel>
                   {ratingCategories.map((category) => (
                      <Controller
                         key={category}
@@ -182,7 +251,7 @@ export function ApplicationReviewForm({ application }: ApplicationReviewFormProp
                         control={form.control}
                         render={({ field }) => (
                            <FormItem>
-                            <FormLabel>{categoryLabels[category]}</FormLabel>
+                            <FormLabel className="font-normal text-sm">{categoryLabels[category]}</FormLabel>
                             <FormControl>
                                <StarRating value={field.value} onChange={field.onChange} />
                             </FormControl>

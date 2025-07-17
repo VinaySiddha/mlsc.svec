@@ -29,6 +29,10 @@ const applicationSchema = z.object({
 const reviewSchema = z.object({
   id: z.string(),
   status: z.string(),
+  suitability: z.object({
+    technical: z.string().optional(),
+    nonTechnical: z.string().optional(),
+  }),
   ratings: z.object({
     communication: z.number().min(0).max(5),
     technical: z.number().min(0).max(5),
@@ -115,6 +119,10 @@ export async function submitApplication(formData: FormData) {
       ...applicationData,
       resumeSummary: summary,
       status: 'Received',
+      suitability: {
+        technical: 'undecided',
+        nonTechnical: 'undecided',
+      },
       ratings: {
         communication: 0,
         technical: 0,
@@ -169,6 +177,7 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     }
     
     db.applications[applicationIndex].status = parsed.data.status;
+    db.applications[applicationIndex].suitability = parsed.data.suitability;
     db.applications[applicationIndex].ratings = parsed.data.ratings;
     db.applications[applicationIndex].remarks = parsed.data.remarks;
     
