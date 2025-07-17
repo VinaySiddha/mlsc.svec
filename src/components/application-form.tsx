@@ -191,12 +191,6 @@ export function ApplicationForm() {
                 </div>
               </div>
             )}
-            {submissionResult.summary && (
-              <div>
-                <p className="text-sm font-medium text-foreground">AI-Generated Resume Summary:</p>
-                <blockquote className="text-sm text-muted-foreground mt-2 p-4 border rounded-md bg-muted/50 italic">{submissionResult.summary}</blockquote>
-              </div>
-            )}
              <Button onClick={() => window.location.reload()} variant="outline">Submit another application</Button>
           </CardContent>
         </Card>

@@ -89,6 +89,13 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
+                 {application.resumeSummary && (
+                    <div>
+                      <h4 className="font-semibold text-base mb-2">AI-Generated Resume Summary</h4>
+                      <blockquote className="text-sm text-muted-foreground mt-2 p-4 border rounded-md bg-muted/50 italic">{application.resumeSummary}</blockquote>
+                    </div>
+                  )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <h4 className="font-semibold">Email</h4>
