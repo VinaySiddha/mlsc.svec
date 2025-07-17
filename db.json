@@ -182,6 +182,39 @@
         "overall": 0
       },
       "remarks": ""
+    },
+    {
+      "id": "MLSC-471983-DWAZ",
+      "submittedAt": "2025-07-17T06:07:56.579Z",
+      "name": "Siddha Vinay Kumar",
+      "email": "vinaysiddha19@gmail.com",
+      "phone": "09849372827",
+      "rollNo": "22A81A4359",
+      "branch": "CST",
+      "section": "B",
+      "yearOfStudy": "3rd",
+      "cgpa": "7",
+      "backlogs": "0",
+      "joinReason": "MLSC-305051-D5PHMLSC-305051-D5PHMLSC-305051-D5PH",
+      "aboutClub": "MLSC-305051-D5PHMLSC-305051-D5PHMLSC-305051-D5PHMLSC-305051-D5PHMLSC-305051-D5PH",
+      "technicalDomain": "gen_ai",
+      "nonTechnicalDomain": "media_marketing",
+      "linkedin": "https://www.linkedin.com/in/vinaysiddha",
+      "anythingElse": "MLSC-305051-D5PHMLSC-305051-D5PHMLSC-305051-D5PH",
+      "resumeSummary": "Vinay Kumar Siddha is a final-year B.Tech student in the Department of Artificial Intelligence & Machine Learning at Sri Vasavi Engineering College. He has displayed exceptional technical acumen, leadership qualities, and a strong passion for fostering a collaborative learning environment. Vinay has contributed to technical events, workshops, and peer-learning initiatives. His proficiency in programming, cloud technologies, and developer tools makes him a perfect candidate for the role of Google Developer Groups (GDG) on Campus Organizer.",
+      "status": "Received",
+      "suitability": {
+        "technical": "undecided",
+        "nonTechnical": "undecided"
+      },
+      "ratings": {
+        "communication": 0,
+        "technical": 0,
+        "problemSolving": 0,
+        "teamFit": 0,
+        "overall": 0
+      },
+      "remarks": ""
     }
   ]
 }
