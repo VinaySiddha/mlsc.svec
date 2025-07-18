@@ -1,0 +1,18 @@
+#! nextjs-app-2-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: nextjs-app-2
+    namespace: hiring
+    labels:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nextjs-app-2
+spec:
+    selector:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nextjs-app-2
+    ports:
+        - name: nextjs-app-3000
+          port: 3000
+          targetPort: nextjs-app-3000

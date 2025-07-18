@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hiring-app
+  labels:
+    app: hiring-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hiring-app
+  template:
+    metadata:
+      labels:
+        app: hiring-app
+    spec:
+      containers:
+        - name: hiring-app
+          image: <YOUR_GCR_IMAGE_URL>
+          ports:
+            - containerPort: 3000
+          env:
+            # Uncomment and add your environment variables here
+            # - name: NODE_ENV
+            #   value: "production"
+            # - name: CUSTOM_ENV
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: your-secret
+            #       key: custom_env
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"

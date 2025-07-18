@@ -1,0 +1,32 @@
+#! nextjs-app-3-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: nextjs-app-3
+    namespace: hiring
+    labels:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nextjs-app-3
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: hiring
+            com.docker.compose.service: nextjs-app-3
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: hiring
+                com.docker.compose.service: nextjs-app-3
+                com.docker.compose.network.default: "true"
+        spec:
+            containers:
+                - name: nextjs-app-3
+                  image: hiring-nextjs-app-3
+                  imagePullPolicy: IfNotPresent
+                  ports:
+                    - name: nextjs-app-3000
+                      containerPort: 3000

@@ -1,0 +1,18 @@
+#! nginx-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: nginx
+    namespace: hiring
+    labels:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nginx
+spec:
+    selector:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nginx
+    ports:
+        - name: nginx-80
+          port: 80
+          targetPort: nginx-80
