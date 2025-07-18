@@ -163,92 +163,86 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const handleDownloadPdf = async () => {
     setIsDownloadingPdf(true);
     try {
-      const params: any = { ...currentFilters, fetchAll: true, attendedOnly: true };
-      // Remove undefined keys to prevent issues with the server action
-      Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+        const params: any = { ...currentFilters, fetchAll: true, attendedOnly: true };
+        // Remove undefined keys to prevent issues with the server action
+        Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
-      const result = await getApplications(params);
-      
-      if (!result || !result.applications) {
-        throw new Error("Failed to fetch applications for PDF generation.");
-      }
-      
-      const { applications } = result;
+        const result = await getApplications(params);
+        if (!result || !result.applications) {
+            throw new Error("Failed to fetch applications for PDF generation.");
+        }
+        const { applications } = result;
 
-      if (applications.length === 0) {
+        if (applications.length === 0) {
+            toast({
+                variant: "destructive",
+                title: "No Attended Candidates",
+                description: "There are no attended candidates matching the current filters.",
+            });
+            return;
+        }
+
+        const groupedByYear = applications.reduce((acc, app) => {
+            const year = app.yearOfStudy || "Unknown Year";
+            if (!acc[year]) acc[year] = {};
+            const branch = app.branch || "Unknown Branch";
+            if (!acc[year][branch]) acc[year][branch] = [];
+            acc[year][branch].push(app);
+            return acc;
+        }, {} as Record<string, Record<string, any[]>>);
+        
+        const doc = new jsPDF();
+        let finalY = 15;
+
+        doc.setFontSize(18);
+        doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, finalY, { align: "center" });
+        finalY += 10;
+        
+        const tableColumn = ["Roll No", "Name"];
+
+        for (const year in groupedByYear) {
+            for (const branch in groupedByYear[year]) {
+                const groupApps = groupedByYear[year][branch];
+                const tableRows = groupApps.map(app => [app.rollNo, app.name]);
+                
+                const heading = `${year} Year - ${branch}`;
+                if (finalY + 20 > doc.internal.pageSize.getHeight()) {
+                  doc.addPage();
+                  finalY = 15;
+                }
+                
+                doc.setFontSize(14);
+                doc.text(heading, 14, finalY);
+                finalY += 5;
+
+                (doc as any).autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: finalY,
+                    headStyles: { fillColor: [41, 128, 185] },
+                });
+                
+                finalY = (doc as any).autoTable.previous.finalY + 10;
+            }
+        }
+
+        doc.save(`attendance_${new Date().toISOString().split("T")[0]}.pdf`);
         toast({
-          variant: "destructive",
-          title: "No Attended Candidates",
-          description: "There are no attended candidates matching the current filters.",
+            title: "PDF Generated",
+            description: "Your attendance sheet has been downloaded.",
         });
-        setIsDownloadingPdf(false);
-        return;
-      }
-
-      const groupedByYear = applications.reduce((acc, app) => {
-        const year = app.yearOfStudy || "Unknown Year";
-        if (!acc[year]) {
-          acc[year] = {};
-        }
-        const branch = app.branch || "Unknown Branch";
-        if (!acc[year][branch]) {
-          acc[year][branch] = [];
-        }
-        acc[year][branch].push(app);
-        return acc;
-      }, {} as Record<string, Record<string, any[]>>);
-      
-      const doc = new jsPDF();
-      let finalY = 15;
-
-      doc.setFontSize(18);
-      doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, finalY, { align: "center" });
-      finalY += 10;
-
-      const tableColumn = ["Roll No", "Name"];
-
-      for (const year in groupedByYear) {
-        for (const branch in groupedByYear[year]) {
-          const groupApps = groupedByYear[year][branch];
-          const tableRows = groupApps.map(app => [app.rollNo, app.name]);
-          
-          const heading = `${year} Year - ${branch}`;
-          
-          doc.setFontSize(14);
-          doc.text(heading, 14, finalY);
-
-          (doc as any).autoTable({
-            head: [tableColumn],
-            body: tableRows,
-            startY: finalY + 5,
-            headStyles: { fillColor: [41, 128, 185] },
-            didDrawPage: (data: any) => {
-              finalY = data.cursor.y;
-            },
-          });
-          
-          finalY = (doc as any).autoTable.previous.finalY + 10;
-        }
-      }
-
-      doc.save(`attendance_${new Date().toISOString().split("T")[0]}.pdf`);
-      toast({
-        title: "PDF Generated",
-        description: "Your attendance sheet has been downloaded.",
-      });
     } catch (error) {
-      console.error("PDF generation error:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      toast({
-        variant: "destructive",
-        title: "PDF Generation Failed",
-        description: errorMessage,
-      });
+        console.error("PDF generation error:", error);
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        toast({
+            variant: "destructive",
+            title: "PDF Generation Failed",
+            description: errorMessage,
+        });
     } finally {
-      setIsDownloadingPdf(false);
+        setIsDownloadingPdf(false);
     }
-  };
+};
 
 
   const resetFilters = () => {
@@ -267,7 +261,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     web_app: "Web & App Development",
   };
   
-  const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing'];
+  const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
 
   return (
     <div className="flex flex-col gap-4">
@@ -376,5 +370,3 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     </div>
   );
 }
-
-    

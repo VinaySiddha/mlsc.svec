@@ -67,7 +67,7 @@ interface ApplicationReviewFormProps {
   userRole: string;
 }
 
-const adminStatuses = ['Received', 'Under Processing', 'Interviewing', 'Hired', 'Rejected'];
+const adminStatuses = ['Received', 'Under Processing', 'Interviewing', 'Recommended', 'Hired', 'Rejected'];
 const panelStatuses = ['Received', 'Under Processing', 'Interviewing'];
 
 
@@ -206,7 +206,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       render={({ field }) => (
                           <FormItem>
                               <FormLabel>Application Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={userRole === 'panel' && (field.value === 'Hired' || field.value === 'Rejected')}>
+                              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={userRole === 'panel' && (field.value === 'Hired' || field.value === 'Rejected' || field.value === 'Recommended')}>
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Update status" />
@@ -350,7 +350,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                           <FormDescription>
                            Check this box to flag this candidate for the super admin&apos;s review.
                           </FormDescription>
-                          <FormMessage />
+                           <FormMessage />
                         </div>
                       </FormItem>
                     )}
@@ -373,5 +373,3 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
     </div>
   );
 }
-
-    

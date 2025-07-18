@@ -368,6 +368,11 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
       return { error: 'Application not found.' };
     }
     
+    // Automated status update logic
+    if (reviewData.isRecommended && reviewData.ratings.overall >= 4.0) {
+      reviewData.status = 'Recommended';
+    }
+
     const appDocRef = doc(db, 'applications', application.firestoreId);
     await updateDoc(appDocRef, {
         status: reviewData.status,
@@ -536,4 +541,63 @@ export async function exportHiredToCsv() {
         }
         return { error: 'An unexpected error occurred during export.' };
     }
+}
+
+
+export async function getAnalyticsData() {
+  try {
+    const applicationsRef = collection(db, 'applications');
+
+    // 1. Get total applications count
+    const totalSnapshot = await getCountFromServer(applicationsRef);
+    const totalApplications = totalSnapshot.data().count;
+
+    // 2. Get attended interviews count
+    const attendedQuery = query(applicationsRef, where('interviewAttended', '==', true));
+    const attendedSnapshot = await getCountFromServer(attendedQuery);
+    const attendedCount = attendedSnapshot.data().count;
+    
+    // 3. Get all applications to aggregate domain and status counts
+    const allApplicationsSnapshot = await getDocs(applicationsRef);
+    const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
+
+    // 4. Calculate domain counts
+    const domainCounts: { [key: string]: number } = {};
+    const domainLabels: Record<string, string> = {
+      gen_ai: "Generative AI",
+      ds_ml: "Data Science & ML",
+      azure: "Azure Cloud",
+      web_app: "Web & App Development",
+    };
+    applications.forEach(app => {
+      const domainKey = app.technicalDomain;
+      const domainName = domainLabels[domainKey] || domainKey;
+      if (domainName) {
+        domainCounts[domainName] = (domainCounts[domainName] || 0) + 1;
+      }
+    });
+    const domainData = Object.entries(domainCounts).map(([name, count]) => ({ name, count }));
+    
+    // 5. Calculate status counts
+    const statusCounts: { [key: string]: number } = {};
+    applications.forEach(app => {
+      const status = app.status || 'Received';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+    const statusData = Object.entries(statusCounts).map(([name, count]) => ({ name, count }));
+
+    return {
+      totalApplications,
+      attendedCount,
+      domainData,
+      statusData,
+    };
+    
+  } catch (error) {
+    console.error("Error fetching analytics data:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to fetch analytics: ${error.message}` };
+    }
+    return { error: 'An unexpected server error occurred.' };
+  }
 }

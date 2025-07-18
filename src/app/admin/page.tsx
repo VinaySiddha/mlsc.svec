@@ -1,5 +1,6 @@
 
-import { getApplications } from "@/app/actions";
+
+import { getApplications, getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import { ApplicationsTable } from "@/components/applications-table";
 import { AdminFilters } from "@/components/admin-filters";
 import { PaginationComponent } from "@/components/pagination";
 import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
+import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
 
 export const dynamic = 'force-dynamic';
 
@@ -74,7 +76,7 @@ async function AdminDashboard({
   });
   
   const filterData = {
-    statuses: ['Received', 'Under Processing', 'Interviewing', 'Hired', 'Rejected'],
+    statuses: ['Received', 'Under Processing', 'Interviewing', 'Recommended', 'Hired', 'Rejected'],
     years: ["2nd", "3rd"],
     branches: ["AIML", "CAI", "CSE", "CST", "ECE", "Others"],
     domains: ['gen_ai', 'ds_ml', 'azure', 'web_app']
@@ -119,7 +121,7 @@ async function AdminDashboard({
 }
 
 
-export default function AdminPage({
+export default async function AdminPage({
   searchParams
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -131,6 +133,8 @@ export default function AdminPage({
   if (!userRole) {
     redirect('/login');
   }
+
+  const analyticsData = userRole === 'admin' ? await getAnalyticsData() : null;
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -163,7 +167,11 @@ export default function AdminPage({
         </div>
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
-        <div className="container mx-auto">
+        <div className="container mx-auto space-y-8">
+          {userRole === 'admin' && analyticsData && !analyticsData.error && (
+            <AdminDashboardAnalytics data={analyticsData} />
+          )}
+
           <Card>
             <Suspense key={JSON.stringify(searchParams)} fallback={<AdminDashboardSkeleton panelDomain={panelDomain} />}>
               <AdminDashboard panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
