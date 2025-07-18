@@ -65,6 +65,11 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
         <p><span style="background-color: yellow;">Please save this ID to check your application status later on our portal.</span></p>
       </div>
 
+      <div style="text-align: center; margin: 30px 0;">
+        <p style="font-size: 16px; font-weight: bold;">Join our WhatsApp group for important updates!</p>
+        <a href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank" style="display: inline-block; background-color: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 10px;">Join WhatsApp Group</a>
+      </div>
+
       <h2 style="color: #0056b3; text-align: center;">🔥 What's Next? 🔥</h2>
       <ul style="list-style-type: '✅ '; padding-left: 20px;">
         <li>Build REAL-WORLD projects 🚀</li>
