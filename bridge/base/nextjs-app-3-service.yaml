@@ -1,0 +1,21 @@
+#! nextjs-app-3-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: nextjs-app-3-published
+    namespace: hiring
+    labels:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nextjs-app-3
+spec:
+    selector:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nextjs-app-3
+    ports:
+        - name: nextjs-app-3003
+          port: 3003
+          protocol: TCP
+          targetPort: nextjs-app-3000
+
+# check if there is at least one published port

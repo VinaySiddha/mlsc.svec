@@ -1,0 +1,9 @@
+#! nginx-C:\Users\vinay\Downloads\hiring\hiring\nginx.conf-persistentVolumeClaim.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: nginx-c--users-vinay-downloads-hiring-hiring-nginx-conf
+    namespace: hiring
+spec:
+    storageClassName: "hostpath" # see docker/desktop-storage-provisioner

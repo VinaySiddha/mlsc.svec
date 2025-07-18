@@ -1,0 +1,20 @@
+#! kustomization.yaml
+# Generated code, do not edit
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+    - 0-hiring-namespace.yaml
+    - default-network-policy.yaml
+    - nextjs-app-1-deployment.yaml
+    - nextjs-app-1-expose.yaml
+    - nextjs-app-1-service.yaml
+    - nextjs-app-2-deployment.yaml
+    - nextjs-app-2-expose.yaml
+    - nextjs-app-2-service.yaml
+    - nextjs-app-3-deployment.yaml
+    - nextjs-app-3-expose.yaml
+    - nextjs-app-3-service.yaml
+    - nginx-C:\Users\vinay\Downloads\hiring\hiring\nginx.conf-persistentVolumeClaim.yaml
+    - nginx-deployment.yaml
+    - nginx-expose.yaml
+    - nginx-service.yaml

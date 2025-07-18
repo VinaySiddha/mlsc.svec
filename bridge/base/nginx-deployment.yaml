@@ -1,0 +1,39 @@
+#! nginx-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: nginx
+    namespace: hiring
+    labels:
+        com.docker.compose.project: hiring
+        com.docker.compose.service: nginx
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: hiring
+            com.docker.compose.service: nginx
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: hiring
+                com.docker.compose.service: nginx
+                com.docker.compose.network.default: "true"
+        spec:
+            containers:
+                - name: nginx
+                  image: nginx:alpine
+                  imagePullPolicy: IfNotPresent
+                  ports:
+                    - name: nginx-80
+                      containerPort: 80
+                  volumeMounts:
+                    - name: etc-nginx-nginx-conf
+                      mountPath: /etc/nginx/nginx.conf
+            volumes:
+                - name: etc-nginx-nginx-conf
+                  hostPath:
+                    path: C:\Users\vinay\Downloads\hiring\hiring\nginx.conf
