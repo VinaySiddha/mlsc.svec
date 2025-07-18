@@ -163,18 +163,23 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const handleDownloadPdf = async () => {
     setIsDownloadingPdf(true);
     try {
-      const { applications } = await getApplications({
-        ...currentFilters,
-        fetchAll: true,
-        attendedOnly: true,
-      });
+      const params: any = { ...currentFilters, fetchAll: true, attendedOnly: true };
+      // Remove undefined keys to prevent issues with the server action
+      Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
-      if (!applications || applications.length === 0) {
+      const result = await getApplications(params);
+      
+      if (!result || !result.applications) {
+        throw new Error("Failed to fetch applications for PDF generation.");
+      }
+      
+      const { applications } = result;
+
+      if (applications.length === 0) {
         toast({
           variant: "destructive",
           title: "No Attended Candidates",
-          description:
-            "There are no attended candidates matching the current filters.",
+          description: "There are no attended candidates matching the current filters.",
         });
         setIsDownloadingPdf(false);
         return;
@@ -218,7 +223,6 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             startY: finalY + 5,
             headStyles: { fillColor: [41, 128, 185] },
             didDrawPage: (data: any) => {
-              // Reset finalY for new pages
               finalY = data.cursor.y;
             },
           });
@@ -372,3 +376,5 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     </div>
   );
 }
+
+    
