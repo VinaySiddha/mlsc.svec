@@ -66,7 +66,7 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
       <!-- Reference ID -->
       <div style="background-color: #f1f5f9; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; margin: 20px 0;">
         <p style="margin: 0; font-size: 16px; font-weight: 500;"><strong>Reference ID:</strong> 
-          <span style="background-color: #facc15; padding: 2px 6px; border-radius: 4px;">${referenceId}</span>
+          <span style="background-color: #facc15; color: #1f2937; padding: 4px 8px; border-radius: 4px; font-weight: 600;">${referenceId}</span>
         </p>
         <p style="font-size: 14px; color: #555; margin-top: 8px;"><em>Please save this ID for future reference.</em></p>
       </div>
