@@ -88,7 +88,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const handleSortToggle = (sortKey: 'sortByPerformance' | 'sortByRecommended') => {
     const isSorting = currentFilters[sortKey] === 'true';
     startTransition(() => {
-      router.push(pathname + '?' + createQueryString([{ name, value: isSorting ? '' : 'true' }]));
+      router.push(pathname + '?' + createQueryString([{ name: sortKey, value: isSorting ? '' : 'true' }]));
     });
   };
 
@@ -194,12 +194,11 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       }, {} as Record<string, Record<string, any[]>>);
       
       const doc = new jsPDF();
-      const autoTable = (doc as any).autoTable;
-      let finalY = 0; // Keep track of where the last table ended
+      let finalY = 15;
 
       doc.setFontSize(18);
-      doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, 15, { align: "center" });
-      finalY = 20;
+      doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, finalY, { align: "center" });
+      finalY += 10;
 
       const tableColumn = ["Roll No", "Name"];
 
@@ -211,16 +210,20 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           const heading = `${year} Year - ${branch}`;
           
           doc.setFontSize(14);
-          doc.text(heading, 14, finalY + 10);
+          doc.text(heading, 14, finalY);
 
-          autoTable({
+          (doc as any).autoTable({
             head: [tableColumn],
             body: tableRows,
-            startY: finalY + 15,
+            startY: finalY + 5,
             headStyles: { fillColor: [41, 128, 185] },
+            didDrawPage: (data: any) => {
+              // Reset finalY for new pages
+              finalY = data.cursor.y;
+            },
           });
           
-          finalY = autoTable.previous.finalY;
+          finalY = (doc as any).autoTable.previous.finalY + 10;
         }
       }
 
@@ -326,11 +329,11 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
          {userRole === 'admin' && (
           <>
             <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
-                {(isPending && searchParams.get('sortByPerformance') !== 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
+                {(isPending && searchParams.get('sortByPerformance') === 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
                 Sort by Performance
             </Button>
             <Button variant={currentFilters.sortByRecommended === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByRecommended')} disabled={isPending || isBulkUpdating}>
-                {(isPending && searchParams.get('sortByRecommended') !== 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
+                {(isPending && searchParams.get('sortByRecommended') === 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
                 Sort by Recommended
             </Button>
             <div className="flex items-center gap-2">
