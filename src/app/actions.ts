@@ -90,27 +90,11 @@ function generateReferenceId() {
   return `${prefix}-${timestamp}-${random}`;
 }
 
-export async function submitApplication(formData: FormData) {
-  const rawFormData = {
-    name: formData.get('name'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    rollNo: formData.get('rollNo'),
-    branch: formData.get('branch'),
-    section: formData.get('section'),
-    yearOfStudy: formData.get('yearOfStudy'),
-    cgpa: formData.get('cgpa'),
-    backlogs: formData.get('backlogs'),
-    joinReason: formData.get('joinReason'),
-    aboutClub: formData.get('aboutClub'),
-    technicalDomain: formData.get('technicalDomain'),
-    nonTechnicalDomain: formData.get('nonTechnicalDomain'),
-    linkedin: formData.get('linkedin') || undefined,
-    anythingElse: formData.get('anythingElse') || undefined,
-    resume: formData.get('resume'),
-  };
+export async function submitApplication(values: any) {
+  const file = values.resume;
+  delete values.resume;
 
-  const parsed = applicationSchema.safeParse(rawFormData);
+  const parsed = applicationSchema.safeParse(values);
 
   if (!parsed.success) {
     console.error('Form validation failed:', parsed.error.flatten().fieldErrors);
@@ -142,6 +126,8 @@ export async function submitApplication(formData: FormData) {
       id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
       ...applicationData,
+      linkedin: applicationData.linkedin || '',
+      anythingElse: applicationData.anythingElse || '',
       resumeSummary: null, // Initially set summary to null
       status: 'Received',
       isRecommended: false,
@@ -183,11 +169,11 @@ export async function submitApplication(formData: FormData) {
         }
 
         // Process resume summarization
-        if (resume && resume.size > 0) {
+        if (file && file.size > 0) {
             try {
-                const buffer = await resume.arrayBuffer();
+                const buffer = await file.arrayBuffer();
                 const base64 = Buffer.from(buffer).toString('base64');
-                const resumeDataUri = `data:${resume.type};base64,${base64}`;
+                const resumeDataUri = `data:${file.type};base64,${base64}`;
 
                 const summarizationInput: SummarizeResumeInput = {resumeDataUri};
                 const result = await summarizeResume(summarizationInput);
