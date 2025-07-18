@@ -53,19 +53,19 @@ const nonTechnicalDomains = [
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
-  phone: z.string().min(1, "Phone number is required."),
+  phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
   rollNo: z.string().min(1, "Roll number is required."),
   branch: z.string({ required_error: "Please select your branch." }),
   section: z.string({ required_error: "Please select your section." }),
   yearOfStudy: z.string({ required_error: "Please select your year of study."}),
   cgpa: z.string().min(1, "CGPA is required.").refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 10, { message: "Please enter a valid CGPA between 0 and 10."}),
   backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number."}),
-  joinReason: z.string().min(20, "Please tell us why you want to join.").max(1000),
-  aboutClub: z.string().min(20, "Please tell us what you know about the club.").max(1000),
+  joinReason: z.string().min(20, "Response must be at least 20 characters long.").max(1000, "Response cannot exceed 1000 characters."),
+  aboutClub: z.string().min(20, "Response must be at least 20 characters long.").max(1000, "Response cannot exceed 1000 characters."),
   technicalDomain: z.string({ required_error: "Please select a technical domain." }),
   nonTechnicalDomain: z.string({ required_error: "Please select a non-technical domain." }),
   linkedin: z.string().url("Please enter a valid LinkedIn URL.").optional().or(z.literal('')),
-  anythingElse: z.string().optional(),
+  anythingElse: z.string().max(1000, "Response cannot exceed 1000 characters.").optional(),
   resume: z
     .any()
     .refine((files) => files?.length == 1, "Resume is required.")
@@ -245,7 +245,7 @@ export function ApplicationForm() {
                 <FormItem>
                   <FormLabel>Phone Number *</FormLabel>
                   <FormControl>
-                    <Input placeholder="(123) 456-7890" {...field} />
+                    <Input placeholder="10-digit number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -360,7 +360,7 @@ export function ApplicationForm() {
                 <FormLabel>Why do you want to join this club? *</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Tell us about your passion for machine learning and what you hope to achieve with the club."
+                    placeholder="Tell us about your passion for technology and what you hope to achieve with the club. (Min 20 chars)"
                     className="resize-none"
                     {...field}
                   />
@@ -378,7 +378,7 @@ export function ApplicationForm() {
                 <FormLabel>What do you know about MLSC club? *</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Your knowledge about the club's activities, goals, etc."
+                    placeholder="Share your knowledge about the club's activities, goals, etc. (Min 20 chars)"
                     className="resize-none"
                     {...field}
                   />
