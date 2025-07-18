@@ -46,7 +46,7 @@ const applicationSchema = z.object({
   aboutClub: z.string().min(20, 'Please tell us what you know about the club.'),
   technicalDomain: z.string({ required_error: 'Please select a technical domain.' }),
   nonTechnicalDomain: z.string({ required_error: 'Please select a non-technical domain.' }),
-  linkedin: z.string().url('Please enter a valid LinkedIn URL.').optional(),
+  linkedin: z.string().url('Please enter a valid LinkedIn URL.').optional().or(z.literal('')),
   anythingElse: z.string().optional(),
   resume: z.any().optional(),
 });
@@ -90,8 +90,10 @@ function generateReferenceId() {
   return `${prefix}-${timestamp}-${random}`;
 }
 
-export async function submitApplication(values: any) {
-  const file = values.resume;
+export async function submitApplication(formData: FormData) {
+  const file = formData.get('resume') as File;
+  
+  const values = Object.fromEntries(formData.entries());
   delete values.resume;
 
   const parsed = applicationSchema.safeParse(values);
@@ -101,7 +103,7 @@ export async function submitApplication(values: any) {
     return {error: 'Invalid form data. Please check your inputs.'};
   }
 
-  const {resume, ...applicationData} = parsed.data;
+  const { ...applicationData } = parsed.data;
   const referenceId = generateReferenceId();
   let docRef;
 

@@ -112,13 +112,17 @@ export function ApplicationForm() {
     setIsSubmitting(true);
     setSubmissionResult(null);
 
-    const dataToSubmit = {
-      ...values,
-      resume: values.resume[0], // pass only the file object
-    };
+    const formData = new FormData();
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === 'resume') {
+        formData.append(key, value[0]);
+      } else if (value !== undefined && value !== null) {
+        formData.append(key, value as string);
+      }
+    });
     
     try {
-      const result = await submitApplication(dataToSubmit);
+      const result = await submitApplication(formData);
 
       if (result.error) {
         throw new Error(result.error);
