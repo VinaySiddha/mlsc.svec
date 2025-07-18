@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 const inter = Inter({ subsets: ['latin'], variable: '--font-body' })
 
 export const metadata: Metadata = {
-  title: 'MLSC 3.0 Hiring Program',
+  title: 'MLSC Hub',
   description: 'A hiring portal for the Machine Learning Student Club.',
   icons: {
     icon: '/logo.png',
