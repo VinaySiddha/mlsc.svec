@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Checkbox } from "./ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import Link from "next/link";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
@@ -191,6 +192,15 @@ export function ApplicationForm() {
                 </div>
               </div>
             )}
+             <div className="text-center space-y-4">
+                <p className="text-sm font-medium">📢 Stay Updated! Join our WhatsApp group for important announcements.</p>
+                <Button asChild className="bg-green-600 hover:bg-green-700">
+                  <Link href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank">
+                    Join WhatsApp Group
+                  </Link>
+                </Button>
+              </div>
+
              <Button onClick={() => window.location.reload()} variant="outline">Submit another application</Button>
           </CardContent>
         </Card>
