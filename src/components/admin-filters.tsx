@@ -88,7 +88,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const handleSortToggle = (sortKey: 'sortByPerformance' | 'sortByRecommended') => {
     const isSorting = currentFilters[sortKey] === 'true';
     startTransition(() => {
-      router.push(pathname + '?' + createQueryString([{ name: sortKey, value: isSorting ? '' : 'true' }]));
+      router.push(pathname + '?' + createQueryString([{ name, value: isSorting ? '' : 'true' }]));
     });
   };
 
@@ -195,18 +195,18 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       
       const doc = new jsPDF();
       const autoTable = (doc as any).autoTable;
-      let finalY = 0;
+      let finalY = 0; // Keep track of where the last table ended
 
       doc.setFontSize(18);
       doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, 15, { align: "center" });
       finalY = 20;
 
-      const tableColumn = ["Roll No", "Name", "Signature"];
+      const tableColumn = ["Roll No", "Name"];
 
       for (const year in groupedByYear) {
         for (const branch in groupedByYear[year]) {
           const groupApps = groupedByYear[year][branch];
-          const tableRows = groupApps.map(app => [app.rollNo, app.name, '']);
+          const tableRows = groupApps.map(app => [app.rollNo, app.name]);
           
           const heading = `${year} Year - ${branch}`;
           
@@ -218,14 +218,9 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             body: tableRows,
             startY: finalY + 15,
             headStyles: { fillColor: [41, 128, 185] },
-            didDrawPage: (data: any) => {
-                // Add header to new pages
-                doc.setFontSize(18);
-                doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
-            }
           });
           
-          finalY = (autoTable as any).previous.finalY;
+          finalY = autoTable.previous.finalY;
         }
       }
 
@@ -235,6 +230,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
         description: "Your attendance sheet has been downloaded.",
       });
     } catch (error) {
+      console.error("PDF generation error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "An unknown error occurred";
       toast({
