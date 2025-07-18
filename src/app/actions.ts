@@ -5,7 +5,7 @@ import {
   summarizeResume,
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
-import { sendConfirmationEmail, ConfirmationEmailInput } from '@/ai/flows/send-confirmation-email';
+import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -73,6 +73,14 @@ const loginSchema = z.object({
   username: z.string(),
   password: z.string(),
 });
+
+const ConfirmationEmailInputSchema = z.object({
+  name: z.string().describe("The applicant's name."),
+  email: z.string().email().describe("The applicant's email address."),
+  referenceId: z.string().describe('The unique reference ID for the application.'),
+});
+export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
+
 
 // Generate a unique, readable reference ID
 function generateReferenceId() {
