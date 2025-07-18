@@ -176,10 +176,10 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           description:
             "There are no attended candidates matching the current filters.",
         });
+        setIsDownloadingPdf(false);
         return;
       }
 
-      // Group applications by year, then by branch
       const groupedByYear = applications.reduce((acc, app) => {
         const year = app.yearOfStudy || "Unknown Year";
         if (!acc[year]) {
@@ -191,21 +191,16 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
         }
         acc[year][branch].push(app);
         return acc;
-      }, {});
+      }, {} as Record<string, Record<string, any[]>>);
       
       const doc = new jsPDF();
-      let isFirstPage = true;
-      let yPos = 15;
+      const autoTable = (doc as any).autoTable;
+      let finalY = 0;
 
       doc.setFontSize(18);
-      doc.text(
-        "MLSC Hiring Team - Attendance Sheet",
-        doc.internal.pageSize.getWidth() / 2,
-        yPos,
-        { align: "center" }
-      );
-      yPos += 10;
-      
+      doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, 15, { align: "center" });
+      finalY = 20;
+
       const tableColumn = ["Roll No", "Name", "Signature"];
 
       for (const year in groupedByYear) {
@@ -215,37 +210,22 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           
           const heading = `${year} Year - ${branch}`;
           
-          const autoTable = (doc as any).autoTable;
-          
-          // Check if there is enough space for the table, otherwise add a new page
-          const tableHeight = (tableRows.length + 1) * 10 + 15; // Approximate height
-          if (yPos + tableHeight > doc.internal.pageSize.getHeight() - 10) {
-            doc.addPage();
-            yPos = 15;
-          }
-          
+          doc.setFontSize(14);
+          doc.text(heading, 14, finalY + 10);
+
           autoTable({
             head: [tableColumn],
             body: tableRows,
-            startY: yPos + 7,
+            startY: finalY + 15,
+            headStyles: { fillColor: [41, 128, 185] },
             didDrawPage: (data: any) => {
-               // Only add header on the first page draw if it's the very first page
-               if(isFirstPage) {
-                   doc.setFontSize(18);
-                   doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, 15, { align: "center" });
-                   isFirstPage = false; // Prevent header from being redrawn on subsequent pages for the same table
-               }
-            },
-            headStyles: { fillColor: [41, 128, 185] }, // Example color
+                // Add header to new pages
+                doc.setFontSize(18);
+                doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
+            }
           });
           
-          const finalY = (autoTable as any).previous.finalY;
-
-          // Add the heading just above the table
-          doc.setFontSize(14);
-          doc.text(heading, 14, yPos);
-          
-          yPos = finalY + 15; // Position for the next table
+          finalY = (autoTable as any).previous.finalY;
         }
       }
 
