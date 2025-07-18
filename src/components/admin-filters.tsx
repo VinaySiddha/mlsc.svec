@@ -6,9 +6,11 @@ import { useCallback, useState, useEffect, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck, FileDown } from 'lucide-react';
-import { bulkUpdateStatus, exportHiredToCsv } from '@/app/actions';
+import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck, FileDown, FileText } from 'lucide-react';
+import { bulkUpdateStatus, exportHiredToCsv, getApplications } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 
 interface AdminFiltersProps {
@@ -37,6 +39,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const [isPending, startTransition] = useTransition();
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [bulkUpdateTargetStatus, setBulkUpdateTargetStatus] = useState('');
   const { toast } = useToast();
 
@@ -157,6 +160,64 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       }
   };
 
+    const handleDownloadPdf = async () => {
+        setIsDownloadingPdf(true);
+        try {
+            const { applications } = await getApplications({ ...currentFilters, fetchAll: true });
+
+            if (applications.length === 0) {
+                toast({
+                    variant: 'destructive',
+                    title: 'No Applications Found',
+                    description: 'There are no applications matching the current filters to generate a PDF.',
+                });
+                return;
+            }
+
+            const doc = new jsPDF();
+            
+            // Build title from filters
+            const titleParts = ['Attendance Sheet'];
+            if(currentFilters.year) titleParts.push(`${currentFilters.year} Year`);
+            if(currentFilters.branch) titleParts.push(currentFilters.branch);
+            if(currentFilters.domain) titleParts.push(domainLabels[currentFilters.domain] || currentFilters.domain);
+            
+            doc.text(titleParts.join(' - '), 14, 15);
+
+            const tableColumn = ["Roll No", "Name", "Signature"];
+            const tableRows: (string[])[] = [];
+
+            applications.forEach(app => {
+                const appData = [
+                    app.rollNo,
+                    app.name,
+                    '' // Empty column for signature
+                ];
+                tableRows.push(appData);
+            });
+
+            (doc as any).autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 20,
+            });
+            
+            doc.save(`attendance_${new Date().toISOString().split('T')[0]}.pdf`);
+            toast({ title: 'PDF Generated', description: 'Your attendance sheet has been downloaded.' });
+
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            toast({
+                variant: 'destructive',
+                title: 'PDF Generation Failed',
+                description: errorMessage,
+            });
+        } finally {
+            setIsDownloadingPdf(false);
+        }
+    };
+
+
   const resetFilters = () => {
     setSearch('');
     startTransition(() => {
@@ -265,6 +326,10 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             <Button variant="outline" onClick={handleExport} disabled={isExporting}>
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                 Export Hired
+            </Button>
+             <Button variant="outline" onClick={handleDownloadPdf} disabled={isDownloadingPdf}>
+                {isDownloadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
+                Download Attendance PDF
             </Button>
           </>
         )}

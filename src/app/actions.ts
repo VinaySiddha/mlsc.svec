@@ -5,7 +5,7 @@ import {
   summarizeResume,
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
-import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
+import { sendConfirmationEmail, ConfirmationEmailInput } from '@/ai/flows/send-confirmation-email';
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -164,11 +164,12 @@ export async function submitApplication(formData: FormData) {
     (async () => {
         // Send confirmation email directly
         try {
-            await sendConfirmationEmail({ 
+            const emailInput: ConfirmationEmailInput = { 
                 name: newApplication.name, 
                 email: newApplication.email, 
                 referenceId 
-            });
+            };
+            await sendConfirmationEmail(emailInput);
         } catch (emailError) {
             console.error(`Email sending failed for ${referenceId}:`, emailError);
         }
@@ -256,8 +257,10 @@ export async function getApplications(params: {
   page?: string;
   limit?: string;
   lastVisibleId?: string;
+  // Add a flag to fetch all results
+  fetchAll?: boolean;
 }) {
-  const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId } = params;
+  const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
   
   let baseQuery = buildFilteredQuery(params);
@@ -275,6 +278,19 @@ export async function getApplications(params: {
   }
 
   finalQuery = query(baseQuery, ...sortConstraints);
+
+  // If fetchAll is true, bypass pagination and get all documents
+  if (fetchAll) {
+    const querySnapshot = await getDocs(finalQuery);
+    const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
+    return {
+      applications,
+      totalApplications: applications.length,
+      totalPages: 1,
+      currentPage: 1,
+    };
+  }
+
 
   // Get total count based on the constructed query
   const countQuery = query(baseQuery, ...sortConstraints.filter(c => c.type !== 'orderBy'));
