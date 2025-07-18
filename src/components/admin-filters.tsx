@@ -160,69 +160,112 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       }
   };
 
-    const handleDownloadPdf = async () => {
-        setIsDownloadingPdf(true);
-        try {
-            // Fetch only attended candidates based on current filters
-            const { applications } = await getApplications({ ...currentFilters, fetchAll: true, attendedOnly: true });
+  const handleDownloadPdf = async () => {
+    setIsDownloadingPdf(true);
+    try {
+      const { applications } = await getApplications({
+        ...currentFilters,
+        fetchAll: true,
+        attendedOnly: true,
+      });
 
-            if (applications.length === 0) {
-                toast({
-                    variant: 'destructive',
-                    title: 'No Attended Candidates',
-                    description: 'There are no attended candidates matching the current filters to generate a PDF for.',
-                });
-                setIsDownloadingPdf(false);
-                return;
-            }
+      if (!applications || applications.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "No Attended Candidates",
+          description:
+            "There are no attended candidates matching the current filters.",
+        });
+        return;
+      }
 
-            const doc = new jsPDF();
-            
-            // Add main header
-            doc.setFontSize(18);
-            doc.text('MLSC Hiring Team', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
-
-            // Build subtitle from filters
-            const titleParts: string[] = [];
-            if(currentFilters.year) titleParts.push(`${currentFilters.year} Year`);
-            if(currentFilters.branch) titleParts.push(currentFilters.branch);
-            if(currentFilters.domain) titleParts.push(domainLabels[currentFilters.domain] || currentFilters.domain);
-            
-            doc.setFontSize(12);
-            doc.text(`Attendance Sheet: ${titleParts.join(' - ')}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
-
-            const tableColumn = ["Roll No", "Name", "Signature"];
-            const tableRows: (string[])[] = [];
-
-            applications.forEach(app => {
-                const appData = [
-                    app.rollNo,
-                    app.name,
-                    '' // Empty column for signature
-                ];
-                tableRows.push(appData);
-            });
-
-            (doc as any).autoTable({
-                head: [tableColumn],
-                body: tableRows,
-                startY: 30,
-            });
-            
-            doc.save(`attendance_${new Date().toISOString().split('T')[0]}.pdf`);
-            toast({ title: 'PDF Generated', description: 'Your attendance sheet has been downloaded.' });
-
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            toast({
-                variant: 'destructive',
-                title: 'PDF Generation Failed',
-                description: errorMessage,
-            });
-        } finally {
-            setIsDownloadingPdf(false);
+      // Group applications by year, then by branch
+      const groupedByYear = applications.reduce((acc, app) => {
+        const year = app.yearOfStudy || "Unknown Year";
+        if (!acc[year]) {
+          acc[year] = {};
         }
-    };
+        const branch = app.branch || "Unknown Branch";
+        if (!acc[year][branch]) {
+          acc[year][branch] = [];
+        }
+        acc[year][branch].push(app);
+        return acc;
+      }, {});
+      
+      const doc = new jsPDF();
+      let isFirstPage = true;
+      let yPos = 15;
+
+      doc.setFontSize(18);
+      doc.text(
+        "MLSC Hiring Team - Attendance Sheet",
+        doc.internal.pageSize.getWidth() / 2,
+        yPos,
+        { align: "center" }
+      );
+      yPos += 10;
+      
+      const tableColumn = ["Roll No", "Name", "Signature"];
+
+      for (const year in groupedByYear) {
+        for (const branch in groupedByYear[year]) {
+          const groupApps = groupedByYear[year][branch];
+          const tableRows = groupApps.map(app => [app.rollNo, app.name, '']);
+          
+          const heading = `${year} Year - ${branch}`;
+          
+          const autoTable = (doc as any).autoTable;
+          
+          // Check if there is enough space for the table, otherwise add a new page
+          const tableHeight = (tableRows.length + 1) * 10 + 15; // Approximate height
+          if (yPos + tableHeight > doc.internal.pageSize.getHeight() - 10) {
+            doc.addPage();
+            yPos = 15;
+          }
+          
+          autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: yPos + 7,
+            didDrawPage: (data: any) => {
+               // Only add header on the first page draw if it's the very first page
+               if(isFirstPage) {
+                   doc.setFontSize(18);
+                   doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, 15, { align: "center" });
+                   isFirstPage = false; // Prevent header from being redrawn on subsequent pages for the same table
+               }
+            },
+            headStyles: { fillColor: [41, 128, 185] }, // Example color
+          });
+          
+          const finalY = (autoTable as any).previous.finalY;
+
+          // Add the heading just above the table
+          doc.setFontSize(14);
+          doc.text(heading, 14, yPos);
+          
+          yPos = finalY + 15; // Position for the next table
+        }
+      }
+
+      doc.save(`attendance_${new Date().toISOString().split("T")[0]}.pdf`);
+      toast({
+        title: "PDF Generated",
+        description: "Your attendance sheet has been downloaded.",
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+      toast({
+        variant: "destructive",
+        title: "PDF Generation Failed",
+        description: errorMessage,
+      });
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
 
 
   const resetFilters = () => {
