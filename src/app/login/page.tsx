@@ -69,7 +69,7 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center gap-4">
             <MLSCLogo className="h-10 w-10 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              MLSC 3.0 Hiring
+              MLSC 3.0 Hiring Program
             </h1>
           </Link>
         </div>
