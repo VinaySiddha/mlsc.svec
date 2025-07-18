@@ -217,8 +217,9 @@ function buildFilteredQuery(params: {
   year?: string;
   branch?: string;
   domain?: string;
+  attendedOnly?: boolean;
 }) {
-  const { panelDomain, search, status, year, branch, domain } = params;
+  const { panelDomain, search, status, year, branch, domain, attendedOnly } = params;
   let q: Query<DocumentData> = collection(db, 'applications');
   const constraints: QueryConstraint[] = [];
 
@@ -232,6 +233,7 @@ function buildFilteredQuery(params: {
   if (status) constraints.push(where('status', '==', status));
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
+  if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
 
   if (search) {
      constraints.push(where('rollNo', '==', search));
@@ -257,8 +259,9 @@ export async function getApplications(params: {
   page?: string;
   limit?: string;
   lastVisibleId?: string;
-  // Add a flag to fetch all results
+  // Add flags for fetching all results or only attended
   fetchAll?: boolean;
+  attendedOnly?: boolean;
 }) {
   const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
@@ -453,6 +456,7 @@ export async function bulkUpdateStatus(filters: {
   year?: string;
   branch?: string;
   domain?: string;
+  attendedOnly?: boolean;
 }, newStatus: string) {
   if (!newStatus) {
     return { error: 'No status provided for bulk update.' };

@@ -103,7 +103,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     }
 
     setIsBulkUpdating(true);
-    const filtersToPass = { ...currentFilters };
+    const filtersToPass = { ...currentFilters, attendedOnly: false };
 
     try {
         const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
@@ -163,26 +163,33 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     const handleDownloadPdf = async () => {
         setIsDownloadingPdf(true);
         try {
-            const { applications } = await getApplications({ ...currentFilters, fetchAll: true });
+            // Fetch only attended candidates based on current filters
+            const { applications } = await getApplications({ ...currentFilters, fetchAll: true, attendedOnly: true });
 
             if (applications.length === 0) {
                 toast({
                     variant: 'destructive',
-                    title: 'No Applications Found',
-                    description: 'There are no applications matching the current filters to generate a PDF.',
+                    title: 'No Attended Candidates',
+                    description: 'There are no attended candidates matching the current filters to generate a PDF for.',
                 });
+                setIsDownloadingPdf(false);
                 return;
             }
 
             const doc = new jsPDF();
             
-            // Build title from filters
-            const titleParts = ['Attendance Sheet'];
+            // Add main header
+            doc.setFontSize(18);
+            doc.text('MLSC Hiring Team', doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
+
+            // Build subtitle from filters
+            const titleParts: string[] = [];
             if(currentFilters.year) titleParts.push(`${currentFilters.year} Year`);
             if(currentFilters.branch) titleParts.push(currentFilters.branch);
             if(currentFilters.domain) titleParts.push(domainLabels[currentFilters.domain] || currentFilters.domain);
             
-            doc.text(titleParts.join(' - '), 14, 15);
+            doc.setFontSize(12);
+            doc.text(`Attendance Sheet: ${titleParts.join(' - ')}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
 
             const tableColumn = ["Roll No", "Name", "Signature"];
             const tableRows: (string[])[] = [];
@@ -199,7 +206,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             (doc as any).autoTable({
                 head: [tableColumn],
                 body: tableRows,
-                startY: 20,
+                startY: 30,
             });
             
             doc.save(`attendance_${new Date().toISOString().split('T')[0]}.pdf`);
