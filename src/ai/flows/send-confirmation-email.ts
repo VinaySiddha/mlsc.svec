@@ -48,50 +48,66 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
 
   const subject = "Your MLSC Application has been Received!";
   const htmlBody = `
-    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-      <div style="background-color: yellow; color: #333; text-align: center; padding: 8px 0; font-weight: bold;">
-          Please do not forward this e-mail.
-      </div>
-      <div style="text-align: center; font-size: 24px; font-weight: bold; margin: 20px 0;">
-        🎉 You've Taken Your First Step! 🎉
+  <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
+    
+    <!-- Google Fonts Link -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Header Bar -->
+    <div style="background-color: #0056b3; height: 6px;"></div>
+    
+    <!-- Content -->
+    <div style="padding: 20px;">
+      <h2 style="color: #222; font-size: 20px; font-weight: 600;">Hi ${name},</h2>
+      <p style="font-size: 16px; font-weight: 400;">
+        Thank you for applying for the <strong>MLSC 3.0 Hiring Program</strong>. We have successfully received your application and assigned you a unique reference ID for tracking purposes.
+      </p>
+      
+      <!-- Reference ID -->
+      <div style="background-color: #f1f5f9; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; margin: 20px 0;">
+        <p style="margin: 0; font-size: 16px; font-weight: 500;"><strong>Reference ID:</strong> 
+          <span style="background-color: #facc15; padding: 2px 6px; border-radius: 4px;">${referenceId}</span>
+        </p>
+        <p style="font-size: 14px; color: #555; margin-top: 8px;"><em>Please save this ID for future reference.</em></p>
       </div>
       
-      <p>Hi <strong>${name}</strong>,</p>
-      <p>Thank you for applying to the MLSC! We have successfully received your application and are thrilled to see your interest. This is the beginning of an exciting journey, and we're glad to have you with us.</p>
-      
-      <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #0056b3;">Application Details</h3>
-        <p>Your unique reference ID is: <span style="background-color: yellow; font-weight: bold; padding: 2px 6px; border-radius: 4px;">${referenceId}</span></p>
-        <p><span style="background-color: yellow;">Please save this ID to check your application status later on our portal.</span></p>
-      </div>
+      <!-- Next Steps -->
+      <p style="font-size: 16px; font-weight: 400;">
+        Our team is currently reviewing applications. If you are shortlisted, you will receive further communication with instructions for the next stage.
+      </p>
 
+      <!-- WhatsApp Group -->
       <div style="text-align: center; margin: 30px 0;">
-        <p style="font-size: 16px; font-weight: bold;">Join our WhatsApp group for important updates!</p>
-        <a href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank" style="display: inline-block; background-color: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 10px;">Join WhatsApp Group</a>
+        <p style="font-size: 16px; font-weight: 500;">📢 Stay Updated!</p>
+        <p style="font-size: 15px; font-weight: 400;">Join our WhatsApp group to receive important announcements and updates directly.</p>
+        <a href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank" style="display: inline-block; background-color: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Join WhatsApp Group</a>
       </div>
 
-      <h2 style="color: #0056b3; text-align: center;">🔥 What's Next? 🔥</h2>
-      <ul style="list-style-type: '✅ '; padding-left: 20px;">
-        <li>Build REAL-WORLD projects 🚀</li>
-        <li>Get hands-on with Microsoft tools ⚙️</li>
-        <li>Network with top talents 🌐</li>
-        <li>Shine at hackathons & events 🏆</li>
-        <li>Boost your resume with global recognition 💼</li>
-      </ul>
-
-      <div style="text-align: center; margin-top: 30px;">
-        <p style="font-size: 18px; font-weight: bold;">📢 The future won’t wait… why should you? ⏳</p>
-        <p>Keep an eye on your email for updates regarding the next steps.</p>
-      </div>
-      
-      <p>Best regards,<br>The MLSC Hiring Team</p>
-
-      <div style="text-align: center; margin-top: 30px; font-size: 14px; color: #777;">
-        <p>✨ Don’t just scroll. Make your mark! ✨</p>
-        <p>🚀 #MLSC3.0 #HiringNow #DreamBig 🚀</p>
-      </div>
+      <p style="font-size: 16px; font-weight: 400;">We appreciate your interest in becoming part of MLSC.</p>
+      <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>MLSC Hiring Team</strong></p>
     </div>
-  `;
+    
+    <!-- Disclaimer Section -->
+    <div style="background-color: #f1f5f9; padding: 15px; font-size: 12px; color: #555;">
+      <p style="margin: 0 0 5px 0; font-weight: 500;">📌 Disclaimer:</p>
+      <ul style="padding-left: 20px; margin: 0;">
+        <li>This email is intended for the recipient only. Do not share or forward without permission.</li>
+        <li>Your data is protected in compliance with our privacy policies.</li>
+        <li>Be sure to follow updates in whatsapp group for any changes or announcements.</li>
+        <li>Please save your Reference ID for tracking application status.</li>
+        <li>All communications will be sent via the registered email address.</li>
+        <li>Ensure to check your spam/junk folder for any missed communications.</li>
+        <li>Do not reply to this email as this inbox is not monitored.</li>
+        <li>For any queries, contact us at <a href="tel:+919849372827" style="color: #0056b3; text-decoration: none;">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <!-- Footer Bar -->
+    <div style="background-color: #0056b3; text-align: center; padding: 12px; font-size: 12px; color: #ffffff;">
+      🚀 #MLSC3.0 #DreamBig #FutureReady
+    </div>
+  </div>
+`;
   
   const mailOptions = {
       from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`,
