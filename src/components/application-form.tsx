@@ -360,7 +360,7 @@ export function ApplicationForm() {
                 <FormLabel>Why do you want to join this club? *</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Tell us about your passion for technology and what you hope to achieve with the club. (Min 20 chars)"
+                    placeholder="Tell us about your passion for technology and what you hope to achieve with the club. (20-1000 characters)"
                     className="resize-none"
                     {...field}
                   />
@@ -378,7 +378,7 @@ export function ApplicationForm() {
                 <FormLabel>What do you know about MLSC club? *</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Share your knowledge about the club's activities, goals, etc. (Min 20 chars)"
+                    placeholder="Share your knowledge about the club's activities, goals, etc. (20-1000 characters)"
                     className="resize-none"
                     {...field}
                   />
@@ -468,7 +468,7 @@ export function ApplicationForm() {
                 <FormLabel>Anything else you’d like to share?</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Any other information you'd like us to know."
+                    placeholder="Any other information you'd like us to know. (Max 1000 characters)"
                     className="resize-none"
                     {...field}
                   />
