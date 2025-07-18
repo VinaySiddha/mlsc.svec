@@ -242,10 +242,7 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
-
-  if (search) {
-     constraints.push(where('rollNo', '==', search));
-  }
+  if (search) constraints.push(where('rollNo', '==', search));
 
   if (constraints.length > 0) {
     q = query(q, ...constraints);
@@ -557,40 +554,53 @@ export async function getAnalyticsData() {
     const attendedSnapshot = await getCountFromServer(attendedQuery);
     const attendedCount = attendedSnapshot.data().count;
     
-    // 3. Get all applications to aggregate domain and status counts
+    // 3. Get all applications to aggregate various counts
     const allApplicationsSnapshot = await getDocs(applicationsRef);
     const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
 
-    // 4. Calculate domain counts
+    // 4. Calculate domain, status, branch, and year counts
     const domainCounts: { [key: string]: number } = {};
+    const statusCounts: { [key: string]: number } = {};
+    const branchCounts: { [key: string]: number } = {};
+    const yearCounts: { [key: string]: number } = {};
+
     const domainLabels: Record<string, string> = {
       gen_ai: "Generative AI",
       ds_ml: "Data Science & ML",
       azure: "Azure Cloud",
       web_app: "Web & App Development",
     };
+
     applications.forEach(app => {
+      // Domain
       const domainKey = app.technicalDomain;
       const domainName = domainLabels[domainKey] || domainKey;
       if (domainName) {
         domainCounts[domainName] = (domainCounts[domainName] || 0) + 1;
       }
-    });
-    const domainData = Object.entries(domainCounts).map(([name, count]) => ({ name, count }));
-    
-    // 5. Calculate status counts
-    const statusCounts: { [key: string]: number } = {};
-    applications.forEach(app => {
+      // Status
       const status = app.status || 'Received';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
+      // Branch
+      const branch = app.branch || 'Unknown';
+      branchCounts[branch] = (branchCounts[branch] || 0) + 1;
+      // Year
+      const year = app.yearOfStudy || 'Unknown';
+      yearCounts[year] = (yearCounts[year] || 0) + 1;
     });
+
+    const domainData = Object.entries(domainCounts).map(([name, count]) => ({ name, count }));
     const statusData = Object.entries(statusCounts).map(([name, count]) => ({ name, count }));
+    const branchData = Object.entries(branchCounts).map(([name, count]) => ({ name, count }));
+    const yearData = Object.entries(yearCounts).map(([name, count]) => ({ name, count }));
 
     return {
       totalApplications,
       attendedCount,
       domainData,
       statusData,
+      branchData,
+      yearData,
     };
     
   } catch (error) {

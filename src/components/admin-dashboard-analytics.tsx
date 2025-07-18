@@ -1,7 +1,7 @@
 
 'use client';
 
-import { BarChart, Users, CheckCircle, PieChart as PieChartIcon, Target } from 'lucide-react';
+import { BarChart, Users, CheckCircle, PieChart as PieChartIcon, Target, Building, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   BarChart as RechartsBarChart,
@@ -18,16 +18,17 @@ import {
   Sector,
 } from 'recharts';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 interface AnalyticsData {
   totalApplications: number;
   attendedCount: number;
   domainData: { name: string; count: number }[];
   statusData: { name: string; count: number }[];
+  branchData: { name: string; count: number }[];
+  yearData: { name: string; count: number }[];
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
 const renderActiveShape = (props: any) => {
   const RADIAN = Math.PI / 180;
@@ -44,7 +45,7 @@ const renderActiveShape = (props: any) => {
 
   return (
     <g>
-      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill} className="font-bold">
+      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill} className="font-bold text-sm">
         {payload.name}
       </text>
       <Sector
@@ -67,8 +68,8 @@ const renderActiveShape = (props: any) => {
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" className="dark:fill-gray-300">{`Count ${value}`}</text>
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="hsl(var(--foreground))" className="text-xs">{`Count ${value}`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="hsl(var(--muted-foreground))" className="text-xs">
         {`(Rate ${(percent * 100).toFixed(2)}%)`}
       </text>
     </g>
@@ -77,14 +78,17 @@ const renderActiveShape = (props: any) => {
 
 
 export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [statusIndex, setStatusIndex] = useState(0);
+  const [branchIndex, setBranchIndex] = useState(0);
+  const [yearIndex, setYearIndex] = useState(0);
 
-  const onPieEnter = (_: any, index: number) => {
-    setActiveIndex(index);
+  const onPieEnter = (index: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
+    setter(index);
   };
 
   return (
     <div className="space-y-4">
+      {/* Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -120,6 +124,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
         </Card>
       </div>
 
+      {/* Bar Chart and Status Pie Chart */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader>
@@ -132,8 +137,8 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             <ResponsiveContainer width="100%" height={350}>
               <RechartsBarChart data={data.domainData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
-                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
@@ -159,24 +164,101 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             <ResponsiveContainer width="100%" height={350}>
               <RechartsPieChart>
                  <Pie
-                    activeIndex={activeIndex}
+                    activeIndex={statusIndex}
                     activeShape={renderActiveShape}
                     data={data.statusData}
                     cx="50%"
                     cy="50%"
                     innerRadius={80}
                     outerRadius={110}
-                    fill="#8884d8"
+                    fill="hsl(var(--primary))"
                     dataKey="count"
-                    onMouseEnter={onPieEnter}
+                    onMouseEnter={(_, index) => onPieEnter(index, setStatusIndex)}
                  >
                     {data.statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                  </Pie>
                  <Legend
                     iconType="circle"
-                    formatter={(value, entry) => (
+                    formatter={(value) => (
+                        <span className="text-foreground/80">{value}</span>
+                    )}
+                 />
+              </RechartsPieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+       {/* New Pie Charts for Branch and Year */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building className="h-5 w-5" />
+              <span>Applications by Department</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <RechartsPieChart>
+                 <Pie
+                    activeIndex={branchIndex}
+                    activeShape={renderActiveShape}
+                    data={data.branchData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={110}
+                    fill="hsl(var(--chart-2))"
+                    dataKey="count"
+                    onMouseEnter={(_, index) => onPieEnter(index, setBranchIndex)}
+                 >
+                    {data.branchData.map((entry, index) => (
+                      <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                 </Pie>
+                 <Legend
+                    iconType="circle"
+                    formatter={(value) => (
+                        <span className="text-foreground/80">{value}</span>
+                    )}
+                 />
+              </RechartsPieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              <span>Applications by Year</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <RechartsPieChart>
+                 <Pie
+                    activeIndex={yearIndex}
+                    activeShape={renderActiveShape}
+                    data={data.yearData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={110}
+                    fill="hsl(var(--chart-4))"
+                    dataKey="count"
+                    onMouseEnter={(_, index) => onPieEnter(index, setYearIndex)}
+                 >
+                    {data.yearData.map((entry, index) => (
+                      <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                 </Pie>
+                 <Legend
+                    iconType="circle"
+                    formatter={(value) => (
                         <span className="text-foreground/80">{value}</span>
                     )}
                  />
