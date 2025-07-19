@@ -80,6 +80,7 @@ export default function Home() {
                     height="400"
                     alt="MLSC Logo"
                     className="mx-auto aspect-square overflow-hidden rounded-xl object-contain"
+                    priority
                   />
               </div>
             </div>
