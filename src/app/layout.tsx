@@ -4,7 +4,10 @@ import { Inter } from 'next/font/google'
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-body' })
+const inter = Inter({ 
+  subsets: ['latin'], 
+  variable: '--font-body' 
+})
 
 export const metadata: Metadata = {
   title: 'MLSC 3.0 Hiring Program',
@@ -22,7 +25,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head />
       <body className={cn('font-body antialiased', inter.variable)}>
         <main>{children}</main>
         <Toaster />
