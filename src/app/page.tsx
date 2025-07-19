@@ -1,4 +1,3 @@
-
 import { ApplicationForm } from "@/components/application-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -68,9 +67,9 @@ export default function Home() {
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                     Join the Future of Tech with MLSC 3.0
                   </h1>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                  <h2 className="max-w-[600px] text-muted-foreground md:text-xl">
                     We are looking for passionate individuals to join our team. Fill out the application below to start your journey with the Microsoft Learn Student Club.
-                  </p>
+                  </h2>
                 </div>
               </div>
               <div className="w-full max-w-2xl mx-auto">
@@ -79,7 +78,7 @@ export default function Home() {
                     data-ai-hint="logo"
                     width="400"
                     height="400"
-                    alt="MLSC Logo"
+                    alt="Microsoft Learn Student Club (MLSC) SVEC Logo"
                     className="mx-auto aspect-square overflow-hidden rounded-xl object-contain"
                     priority
                   />

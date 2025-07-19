@@ -9,9 +9,32 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from 'date-fns';
 import { headers } from "next/headers";
-
+import type { Metadata, ResolvingMetadata } from 'next'
 
 export const dynamic = 'force-dynamic';
+
+type Props = {
+  params: { id: string }
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const application = await getApplicationById(params.id);
+  const previousTitle = (await parent).title?.absolute || 'Application';
+
+  if (!application) {
+    return {
+      title: `Application Not Found | ${previousTitle}`
+    }
+  }
+ 
+  return {
+    title: `Reviewing Application for ${application.name} (${application.id})`,
+    description: `Review and process the application submitted by ${application.name}.`,
+  }
+}
 
 const domainLabels: Record<string, string> = {
   gen_ai: "Generative AI",
