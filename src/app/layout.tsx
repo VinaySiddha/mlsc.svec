@@ -3,6 +3,7 @@ import './globals.css';
 import { Inter } from 'next/font/google'
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
+import Script from 'next/script';
 
 const inter = Inter({ 
   subsets: ['latin'], 
@@ -29,6 +30,16 @@ export default function RootLayout({
         <main>{children}</main>
         <Toaster />
       </body>
+      <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>
+      <Script id="google-analytics">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+        
+          gtag('config', 'G-E51L2CC5ZZ');
+        `}
+      </Script>
     </html>
   );
 }
