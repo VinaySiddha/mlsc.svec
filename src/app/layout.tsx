@@ -29,17 +29,23 @@ export default function RootLayout({
       <body className={cn('font-body antialiased', inter.variable)}>
         <main>{children}</main>
         <Toaster />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>
+        <Script id="google-analytics">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', 'G-E51L2CC5ZZ');
+          `}
+        </Script>
       </body>
-      <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>
-      <Script id="google-analytics">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-        
-          gtag('config', 'G-E51L2CC5ZZ');
-        `}
-      </Script>
     </html>
   );
 }
