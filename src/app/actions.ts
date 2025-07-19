@@ -421,6 +421,8 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     secure: process.env.NODE_ENV === 'production',
     maxAge: 60 * 60 * 24, // 1 day
     path: '/',
+    sameSite: 'strict',
+    priority: 'high',
   });
 
   return { success: true };

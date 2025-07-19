@@ -17,6 +17,7 @@ import { ApplicationsTableSkeleton } from "@/components/applications-table-skele
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 function AdminDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
     const domainLabels: Record<string, string> = {
