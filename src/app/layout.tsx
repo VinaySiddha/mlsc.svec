@@ -11,9 +11,9 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'MLSC 3.0 Hiring Program | Apply for Tech & Non-Tech Roles',
+  title: 'Microsoft Learn Student Club | SVEC',
   description: 'Apply for the MLSC 3.0 Hiring Program at SVEC. Join the Microsoft Learn Student Club and start your journey in tech. We are looking for passionate students for various technical and non-technical roles.',
-  keywords: ['MLSC 3.0', 'MLSC 3.0 Hiring Program','MLSC Hiring', 'Microsoft Learn Student Club', 'student club hiring', 'tech roles', 'non-tech roles', 'SVEC', 'student jobs'],
+  keywords: ['MLSC 3.0','MLSC SVEC','mlsc svec', 'MLSC 3.0 Hiring Program','MLSC Hiring', 'Microsoft Learn Student Club', 'student club hiring', 'tech roles', 'non-tech roles', 'SVEC', 'student jobs'],
   openGraph: {
     title: 'MLSC 3.0 Hiring Program | Apply Now!',
     description: 'Join the Microsoft Learn Student Club at SVEC. We are looking for passionate students for technical and non-technical roles.',

@@ -28,6 +28,7 @@ import {
   Query,
   DocumentData,
   QueryConstraint,
+  runTransaction,
 } from 'firebase/firestore';
 import papaparse from 'papaparse';
 
@@ -348,29 +349,35 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
 
   try {
     const { id, ...reviewData } = parsed.data;
-    const application = await getApplicationById(id);
-    if (!application || !application.firestoreId) {
-      return { error: 'Application not found.' };
-    }
     
-    // Automated status update logic
-    if (reviewData.isRecommended && reviewData.ratings.overall >= 4.0) {
-      reviewData.status = 'Recommended';
-    }
+    await runTransaction(db, async (transaction) => {
+      const applicationQueryResult = await getDocs(query(collection(db, 'applications'), where('id', '==', id), limit(1)));
+      if (applicationQueryResult.empty) {
+        throw new Error('Application not found.');
+      }
+      const appDocRef = applicationQueryResult.docs[0].ref;
 
-    const appDocRef = doc(db, 'applications', application.firestoreId);
-    await updateDoc(appDocRef, {
+      // Automated status update logic
+      if (reviewData.isRecommended && reviewData.ratings.overall >= 4.0) {
+        reviewData.status = 'Recommended';
+      }
+
+      transaction.update(appDocRef, {
         status: reviewData.status,
         isRecommended: reviewData.isRecommended,
         suitability: reviewData.suitability,
         ratings: reviewData.ratings,
         remarks: reviewData.remarks,
+      });
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error saving review:', error);
     if (error instanceof Error) {
+      if (error.message.includes('contention')) {
+        return { error: 'This application was updated by someone else. Please refresh and try again.' };
+      }
       return { error: `Failed to save review: ${error.message}` };
     }
     return { error: 'An unexpected error occurred while saving the review.' };
