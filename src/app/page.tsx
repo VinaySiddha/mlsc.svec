@@ -76,8 +76,8 @@ export default function Home() {
                   <Image
                     src="/logo.png"
                     data-ai-hint="logo"
-                    width="600"
-                    height="600"
+                    width="400"
+                    height="400"
                     alt="MLSC Logo"
                     className="mx-auto aspect-square overflow-hidden rounded-xl object-contain"
                   />
