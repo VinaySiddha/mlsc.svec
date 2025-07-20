@@ -30,16 +30,28 @@ const calculateTimeLeft = (deadline: string): TimeLeft | null => {
 };
 
 export function CountdownTimer({ deadline }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(calculateTimeLeft(deadline));
+  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    setIsClient(true);
+    
+    // Set initial time left
+    setTimeLeft(calculateTimeLeft(deadline));
+
+    // Update time left every second
+    const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(deadline));
     }, 1000);
 
-    return () => clearTimeout(timer);
-  });
+    return () => clearInterval(timer);
+  }, [deadline]);
 
+  // Don't render the timer on the server or during the initial client render
+  if (!isClient) {
+    return null;
+  }
+  
   if (!timeLeft) {
     return (
        <Card className="mt-4 bg-destructive/10 border-destructive/30">
@@ -63,19 +75,19 @@ export function CountdownTimer({ deadline }: CountdownTimerProps) {
                 </div>
                 <div className="flex items-baseline gap-2 font-mono text-foreground">
                     <div>
-                        <span className="text-2xl font-bold">{timeLeft.days}</span>
+                        <span className="text-2xl font-bold">{String(timeLeft.days).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">d</span>
                     </div>
                     <div>
-                        <span className="text-2xl font-bold">{timeLeft.hours}</span>
+                        <span className="text-2xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">h</span>
                     </div>
                     <div>
-                        <span className="text-2xl font-bold">{timeLeft.minutes}</span>
+                        <span className="text-2xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">m</span>
                     </div>
                     <div>
-                        <span className="text-2xl font-bold">{timeLeft.seconds}</span>
+                        <span className="text-2xl font-bold">{String(timeLeft.seconds).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">s</span>
                     </div>
                 </div>
