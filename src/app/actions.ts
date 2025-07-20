@@ -29,6 +29,7 @@ import {
   DocumentData,
   QueryConstraint,
   runTransaction,
+  setDoc,
 } from 'firebase/firestore';
 import papaparse from 'papaparse';
 
@@ -110,6 +111,7 @@ export async function submitApplication(formData: FormData) {
 
   try {
     const applicationsRef = collection(db, "applications");
+    const rollNo_lowercase = applicationData.rollNo.toLowerCase();
 
     // Check for existing email
     const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
@@ -119,7 +121,7 @@ export async function submitApplication(formData: FormData) {
     }
 
     // Check for existing roll number
-    const rollNoQuery = query(applicationsRef, where("rollNo", "==", applicationData.rollNo));
+    const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNo_lowercase));
     const rollNoSnapshot = await getDocs(rollNoQuery);
     if (!rollNoSnapshot.empty) {
       return { error: 'An application with this roll number already exists.' };
@@ -129,6 +131,7 @@ export async function submitApplication(formData: FormData) {
       id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
       ...applicationData,
+      rollNo_lowercase,
       linkedin: applicationData.linkedin || '',
       anythingElse: applicationData.anythingElse || '',
       resumeSummary: null, // Initially set summary to null
@@ -231,7 +234,12 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
-  if (search) constraints.push(where('rollNo', '==', search));
+  if (search) {
+    const searchTermLower = search.toLowerCase();
+    constraints.push(where('rollNo_lowercase', '>=', searchTermLower));
+    constraints.push(where('rollNo_lowercase', '<=', searchTermLower + '\uf8ff'));
+  }
+
 
   if (constraints.length > 0) {
     q = query(q, ...constraints);
@@ -257,7 +265,7 @@ export async function getApplications(params: {
   fetchAll?: boolean;
   attendedOnly?: boolean;
 }) {
-  const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
+  const { search, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
   
   let baseQuery = buildFilteredQuery(params);
@@ -270,9 +278,12 @@ export async function getApplications(params: {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
+  } else if (search) {
+    sortConstraints.push(orderBy('rollNo_lowercase'));
   } else {
     sortConstraints.push(orderBy('submittedAt', 'desc'));
   }
+
 
   finalQuery = query(baseQuery, ...sortConstraints);
 
@@ -358,7 +369,7 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
       const appDocRef = applicationQueryResult.docs[0].ref;
 
       // Automated status update logic
-      if (reviewData.isRecommended && reviewData.ratings.overall >= 4.0) {
+      if (reviewData.isRecommended) {
         reviewData.status = 'Recommended';
       }
 
@@ -606,5 +617,34 @@ export async function getAnalyticsData() {
       return { error: `Failed to fetch analytics: ${error.message}` };
     }
     return { error: 'An unexpected server error occurred.' };
+  }
+}
+
+export async function setDeadline(deadline: Date) {
+  try {
+    const settingsRef = doc(db, 'settings', 'deadline');
+    await setDoc(settingsRef, { deadlineTimestamp: deadline.toISOString() });
+    return { success: true };
+  } catch (error) {
+    console.error('Error setting deadline:', error);
+    if (error instanceof Error) {
+      return { error: `Failed to set deadline: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred.' };
+  }
+}
+
+export async function getDeadline() {
+  try {
+    const settingsRef = doc(db, 'settings', 'deadline');
+    const docSnap = await getDoc(settingsRef);
+
+    if (docSnap.exists()) {
+      return { deadlineTimestamp: docSnap.data().deadlineTimestamp };
+    }
+    return { deadlineTimestamp: null };
+  } catch (error) {
+    console.error('Error fetching deadline:', error);
+    return { deadlineTimestamp: null, error: 'Failed to fetch deadline.' };
   }
 }

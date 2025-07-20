@@ -15,6 +15,7 @@ import { AdminFilters } from "@/components/admin-filters";
 import { PaginationComponent } from "@/components/pagination";
 import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
+import { DeadlineSetter } from "@/components/deadline-setter";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -169,8 +170,13 @@ export default async function AdminPage({
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto space-y-8">
-          {userRole === 'admin' && analyticsData && !analyticsData.error && (
-            <AdminDashboardAnalytics data={analyticsData} />
+          {userRole === 'admin' && (
+            <>
+              {analyticsData && !analyticsData.error && (
+                <AdminDashboardAnalytics data={analyticsData} />
+              )}
+              <DeadlineSetter />
+            </>
           )}
 
           <Card>

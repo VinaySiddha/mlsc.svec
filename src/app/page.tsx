@@ -1,13 +1,18 @@
+import { getDeadline } from "@/app/actions";
 import { ApplicationForm } from "@/components/application-form";
+import { CountdownTimer } from "@/components/countdown-timer";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileSearch, LogIn, Menu } from "lucide-react";
+import { FileSearch, LogIn, Menu, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function Home() {
+export default async function Home() {
+  const { deadlineTimestamp } = await getDeadline();
+  const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
+
   return (
     <div className="flex flex-col min-h-screen">
        <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
@@ -71,6 +76,7 @@ export default function Home() {
                     We are looking for passionate individuals to join our team. Fill out the application below to start your journey with the Microsoft Learn Student Club.
                   </h2>
                 </div>
+                 {deadlineTimestamp && <CountdownTimer deadline={deadlineTimestamp} />}
               </div>
               <div className="w-full max-w-2xl mx-auto flex justify-center">
                   <Image
@@ -79,7 +85,7 @@ export default function Home() {
                     width={400}
                     height={400}
                     alt="Microsoft Learn Student Club (MLSC) SVEC Logo - Join our team for the 3.0 hiring program"
-                    className="rounded-xl"
+                    className="rounded-xl object-contain"
                     priority
                   />
               </div>
@@ -92,11 +98,23 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="text-3xl">Application Form</CardTitle>
                 <CardDescription>
-                  Complete the form to apply for a role at MLSC.
+                  {isClosed
+                    ? "Submissions are now closed. Thank you for your interest."
+                    : "Complete the form to apply for a role at MLSC."}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ApplicationForm />
+                {isClosed ? (
+                   <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
+                      <Clock className="h-16 w-16 text-primary mb-4" />
+                      <h3 className="text-xl font-semibold">Registrations are closed</h3>
+                      <p className="text-muted-foreground mt-2">
+                        We are no longer accepting applications. Follow us for future announcements.
+                      </p>
+                    </div>
+                ) : (
+                   <ApplicationForm />
+                )}
               </CardContent>
             </Card>
           </div>
