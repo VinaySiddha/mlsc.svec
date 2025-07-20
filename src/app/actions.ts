@@ -623,6 +623,8 @@ export async function getAnalyticsData() {
     const statusCounts: { [key: string]: number } = {};
     const branchCounts: { [key: string]: number } = {};
     const yearCounts: { [key: string]: number } = {};
+    let hiredCount = 0;
+    let rejectedCount = 0;
 
     const techDomainLabels: Record<string, string> = {
       gen_ai: "Generative AI",
@@ -639,6 +641,12 @@ export async function getAnalyticsData() {
     };
 
     applications.forEach(app => {
+      // Status
+      const status = app.status || 'Received';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+      if (status === 'Hired') hiredCount++;
+      if (status === 'Rejected') rejectedCount++;
+
       // Technical Domain
       const techDomainKey = app.technicalDomain;
       const techDomainName = techDomainLabels[techDomainKey] || techDomainKey;
@@ -653,9 +661,6 @@ export async function getAnalyticsData() {
           nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
       }
 
-      // Status
-      const status = app.status || 'Received';
-      statusCounts[status] = (statusCounts[status] || 0) + 1;
       // Branch
       const branch = app.branch || 'Unknown';
       branchCounts[branch] = (branchCounts[branch] || 0) + 1;
@@ -673,6 +678,8 @@ export async function getAnalyticsData() {
     return {
       totalApplications,
       attendedCount,
+      hiredCount,
+      rejectedCount,
       techDomainData,
       nonTechDomainData,
       statusData,
