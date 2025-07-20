@@ -97,8 +97,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
 
     setIsBulkUpdating(true);
     const filtersToPass = { ...currentFilters, attendedOnly: false };
-    delete filtersToPass.status; // Ensure we update ALL filtered items, not just those of a specific status
-
+    
     try {
         const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
         if (result.error) {
