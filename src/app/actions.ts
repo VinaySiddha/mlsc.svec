@@ -129,6 +129,7 @@ export async function submitApplication(formData: FormData) {
       id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
       ...applicationData,
+      rollNo_lowercase: applicationData.rollNo.toLowerCase(), // Add lowercase version for searching
       linkedin: applicationData.linkedin || '',
       anythingElse: applicationData.anythingElse || '',
       resumeSummary: null, // Initially set summary to null
@@ -231,7 +232,9 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
-  if (search) constraints.push(where('rollNo', '==', search));
+  if (search) {
+    constraints.push(where('rollNo_lowercase', '==', search.toLowerCase()));
+  }
 
   if (constraints.length > 0) {
     q = query(q, ...constraints);

@@ -63,21 +63,14 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     },
     [searchParams]
   );
+
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    startTransition(() => {
+        router.push(pathname + '?' + createQueryString([{ name: 'search', value: search }]));
+    });
+  };
   
-  useEffect(() => {
-    const handler = setTimeout(() => {
-        if (search !== (currentFilters.search || '')) {
-            startTransition(() => {
-                router.push(pathname + '?' + createQueryString([{ name: 'search', value: search }]));
-            });
-        }
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [search, pathname, createQueryString, router, currentFilters.search]);
-
   const handleFilterChange = (name: string, value: string) => {
     const updatedValue = value === 'all' ? '' : value;
     startTransition(() => {
@@ -266,16 +259,16 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:flex xl:flex-row gap-2 items-center">
-        <div className="relative w-full xl:max-w-xs">
+        <form onSubmit={handleSearchSubmit} className="relative w-full xl:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search roll no..."
+            placeholder="Search roll no & press Enter..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
             disabled={isPending || isBulkUpdating}
           />
-        </div>
+        </form>
         <Select onValueChange={(value) => handleFilterChange('status', value)} value={currentFilters.status || 'all'} disabled={isPending || isBulkUpdating}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Status" />
