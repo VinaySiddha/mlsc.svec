@@ -84,7 +84,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             </h1>
           </Link>
           <Button asChild variant="outline">
-            <Link href="/admin">
+            <Link href="/admin/applications">
               <ArrowLeft className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Back to Applications</span>
             </Link>
