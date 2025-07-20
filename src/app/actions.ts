@@ -264,7 +264,7 @@ export async function getApplications(params: {
   fetchAll?: boolean;
   attendedOnly?: boolean;
 }) {
-  const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
+  const { search, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
   
   let baseQuery = buildFilteredQuery(params);
@@ -277,7 +277,7 @@ export async function getApplications(params: {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
-  } else if (!params.search) { // Cannot have orderBy and inequality on different fields
+  } else if (!search) { // Cannot have orderBy and inequality on different fields
     sortConstraints.push(orderBy('submittedAt', 'desc'));
   }
 
