@@ -116,7 +116,7 @@ function getEmailContent(status: string, name: string, referenceId: string): { s
                 This is an update regarding your application for the <strong>MLSC 3.0 Hiring Program</strong>.
             </p>
 
-            <div style="background-color: #f1f5f9; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; margin: 20px 0;">
+            <div style="background-color: #f1f5f9; border-left: 4px solid #0056b3; padding: 15px; margin: 25px 0;">
                 <p style="margin: 0; font-size: 16px; font-weight: 500;"><strong>New Status:</strong> 
                     <span style="background-color: #facc15; color: #1f2937; padding: 4px 8px; border-radius: 4px; font-weight: 600;">${status}</span>
                 </p>
@@ -129,8 +129,6 @@ function getEmailContent(status: string, name: string, referenceId: string): { s
                 </p>
                 <p style="font-size: 14px; color: #555; margin-top: 8px;"><em>Please save this ID for future reference.</em></p>
             </div>
-
-            
 
             <p style="font-size: 16px; font-weight: 400;">We appreciate your time and interest in MLSC.</p>
             <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>MLSC Hiring Team</strong></p>
@@ -146,7 +144,7 @@ function getEmailContent(status: string, name: string, referenceId: string): { s
                 <li>All communications will be sent via the registered email address.</li>
                 <li>Check your spam/junk folder for missed communications.</li>
                 <li>Do not reply to this email as this inbox is not monitored.</li>
-                <li>For queries, contact us at <a href="tel:+919849372827" style="color: #0056b3; text-decoration: none;">Contact Us</a></li>
+                <li>For any queries, contact us at <a href="tel:+919849372827" style="color: #0056b3; text-decoration: none;">Contact Us</a></li>
             </ul>
         </div>
 
