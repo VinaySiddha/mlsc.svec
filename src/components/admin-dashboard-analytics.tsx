@@ -79,16 +79,18 @@ const renderActiveShape = (props: any) => {
 
 
 export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
+  const [activeIndex, setActiveIndex] = useState(0);
   const [statusIndex, setStatusIndex] = useState(0);
   const [branchIndex, setBranchIndex] = useState(0);
   const [yearIndex, setYearIndex] = useState(0);
+  const [nonTechIndex, setNonTechIndex] = useState(0);
 
   const onPieEnter = (index: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
     setter(index);
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -125,9 +127,9 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
         </Card>
       </div>
       
-      {/* Domain Bar Charts */}
-      <div className="grid gap-4 md:grid-cols-2">
-         <Card>
+      {/* Domain Charts */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart className="h-5 w-5" />
@@ -139,7 +141,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
               <RechartsBarChart data={data.techDomainData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
                 <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} width={120} />
+                <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} width={150} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
@@ -153,45 +155,53 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-         <Card>
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
-              <span>Applications by Non-Technical Domain</span>
+              <span>Non-Technical Domain Distribution</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="pl-2">
+          <CardContent>
             <ResponsiveContainer width="100%" height={350}>
-              <RechartsBarChart data={data.nonTechDomainData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} width={120} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))',
-                    color: 'hsl(var(--card-foreground))'
-                  }}
-                  cursor={{ fill: 'hsl(var(--muted))' }}
-                />
-                <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
-              </RechartsBarChart>
+                <RechartsPieChart>
+                    <Pie
+                        activeIndex={nonTechIndex}
+                        activeShape={renderActiveShape}
+                        data={data.nonTechDomainData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={80}
+                        outerRadius={110}
+                        fill="hsl(var(--chart-2))"
+                        dataKey="count"
+                        onMouseEnter={(_, index) => onPieEnter(index, setNonTechIndex)}
+                    >
+                        {data.nonTechDomainData.map((entry, index) => (
+                        <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </Pie>
+                    <Legend
+                        iconType="circle"
+                        formatter={(value) => <span className="text-foreground/80">{value}</span>}
+                    />
+                </RechartsPieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      {/* Pie Charts */}
-      <div className="grid gap-4 lg:grid-cols-7">
-        <Card className="lg:col-span-3">
+      {/* Demographic Pie Charts */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <PieChartIcon className="h-5 w-5" />
-              <span>Application Status Distribution</span>
+              <span>Application Status</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={300}>
               <RechartsPieChart>
                  <Pie
                     activeIndex={statusIndex}
@@ -199,9 +209,9 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     data={data.statusData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={80}
-                    outerRadius={110}
-                    fill="hsl(var(--primary))"
+                    innerRadius={60}
+                    outerRadius={90}
+                    fill="hsl(var(--chart-3))"
                     dataKey="count"
                     onMouseEnter={(_, index) => onPieEnter(index, setStatusIndex)}
                  >
@@ -209,18 +219,23 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                       <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                  </Pie>
+                 <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    borderColor: 'hsl(var(--border))',
+                    color: 'hsl(var(--card-foreground))'
+                  }}
+                 />
                  <Legend
                     iconType="circle"
-                    formatter={(value) => (
-                        <span className="text-foreground/80">{value}</span>
-                    )}
+                    formatter={(value) => <span className="text-foreground/80">{value}</span>}
                  />
               </RechartsPieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="h-5 w-5" />
@@ -228,7 +243,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={300}>
               <RechartsPieChart>
                  <Pie
                     activeIndex={branchIndex}
@@ -237,8 +252,8 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
-                    outerRadius={80}
-                    fill="hsl(var(--chart-3))"
+                    outerRadius={90}
+                    fill="hsl(var(--chart-4))"
                     dataKey="count"
                     onMouseEnter={(_, index) => onPieEnter(index, setBranchIndex)}
                  >
@@ -246,7 +261,15 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                       <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                  </Pie>
-                 <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle"
+                 <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    borderColor: 'hsl(var(--border))',
+                    color: 'hsl(var(--card-foreground))'
+                  }}
+                 />
+                 <Legend
+                    iconType="circle"
                     formatter={(value) => <span className="text-foreground/80">{value}</span>}
                  />
               </RechartsPieChart>
@@ -254,7 +277,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
@@ -262,7 +285,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={300}>
               <RechartsPieChart>
                  <Pie
                     activeIndex={yearIndex}
@@ -271,7 +294,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
-                    outerRadius={80}
+                    outerRadius={90}
                     fill="hsl(var(--chart-5))"
                     dataKey="count"
                     onMouseEnter={(_, index) => onPieEnter(index, setYearIndex)}
@@ -280,7 +303,15 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                       <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                  </Pie>
-                 <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle"
+                 <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    borderColor: 'hsl(var(--border))',
+                    color: 'hsl(var(--card-foreground))'
+                  }}
+                 />
+                 <Legend
+                    iconType="circle"
                     formatter={(value) => <span className="text-foreground/80">{value}</span>}
                  />
               </RechartsPieChart>
@@ -291,3 +322,5 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
     </div>
   );
 }
+
+    
