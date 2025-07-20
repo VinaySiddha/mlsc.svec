@@ -245,8 +245,8 @@ function buildFilteredQuery(params: {
   if (search) {
       const searchTermLower = search.toLowerCase();
       const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
-      constraints.push(where(searchField, '>=', searchTermLower));
-      constraints.push(where(searchField, '<=', searchTermLower + '\uf8ff'));
+      // Use exact match for searching
+      constraints.push(where(searchField, '==', searchTermLower));
   }
 
 
@@ -289,9 +289,9 @@ export async function getApplications(params: {
   } else if (sortByPerformance === 'true') {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (search) {
-    // When searching, we must sort by the same field we use a range filter on.
-    const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
-    sortConstraints.push(orderBy(searchField));
+    // When searching with exact match '==', we don't need a specific orderBy for the search to work.
+    // We can use the default sort order.
+    sortConstraints.push(orderBy('submittedAt', 'desc'));
   } else {
     // Default sort order
     sortConstraints.push(orderBy('submittedAt', 'desc'));
