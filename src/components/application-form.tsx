@@ -62,8 +62,8 @@ const formSchema = z.object({
   backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number."}),
   joinReason: z.string().min(20, "Response must be at least 20 characters long.").max(1000, "Response cannot exceed 1000 characters."),
   aboutClub: z.string().min(20, "Response must be at least 20 characters long.").max(1000, "Response cannot exceed 1000 characters."),
-  technicalDomain: z.string({ required_error: "Please select a technical domain." }),
-  nonTechnicalDomain: z.string({ required_error: "Please select a non-technical domain." }),
+  technicalDomain: z.string({ required_error: "Please select a technical domain." }).min(1, "Please select a technical domain."),
+  nonTechnicalDomain: z.string({ required_error: "Please select a non-technical domain." }).min(1, "Please select a non-technical domain."),
   linkedin: z.string().url("Please enter a valid LinkedIn URL.").optional().or(z.literal('')),
   anythingElse: z.string().max(1000, "Response cannot exceed 1000 characters.").optional(),
   resume: z

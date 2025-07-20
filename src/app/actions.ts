@@ -48,8 +48,8 @@ const applicationSchema = z.object({
   backlogs: z.string().min(1, 'Number of backlogs is required.'),
   joinReason: z.string().min(20, 'Please tell us why you want to join.'),
   aboutClub: z.string().min(20, 'Please tell us what you know about the club.'),
-  technicalDomain: z.string({ required_error: 'Please select a technical domain.' }),
-  nonTechnicalDomain: z.string({ required_error: 'Please select a non-technical domain.' }),
+  technicalDomain: z.string({ required_error: 'Please select a technical domain.' }).min(1, 'Please select a technical domain.'),
+  nonTechnicalDomain: z.string({ required_error: 'Please select a non-technical domain.' }).min(1, 'Please select a non-technical domain.'),
   linkedin: z.string().url('Please enter a valid LinkedIn URL.').optional().or(z.literal('')),
   anythingElse: z.string().optional(),
   resume: z.any().optional(),
@@ -505,6 +505,7 @@ export async function bulkUpdateStatus(filters: {
         name: data.name,
         email: data.email,
         status: newStatus,
+        referenceId: data.id,
       });
     });
     
