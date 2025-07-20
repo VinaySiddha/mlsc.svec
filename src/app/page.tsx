@@ -72,14 +72,14 @@ export default function Home() {
                   </h2>
                 </div>
               </div>
-              <div className="w-full max-w-2xl mx-auto">
+              <div className="w-full max-w-2xl mx-auto flex justify-center">
                   <Image
                     src="/logo.png"
                     data-ai-hint="logo"
-                    width="400"
-                    height="400"
-                    alt="Microsoft Learn Student Club (MLSC) SVEC Logo"
-                    className="mx-auto aspect-square overflow-hidden rounded-xl object-contain"
+                    width={400}
+                    height={400}
+                    alt="Microsoft Learn Student Club (MLSC) SVEC Logo - Join our team for the 3.0 hiring program"
+                    className="rounded-xl"
                     priority
                   />
               </div>
