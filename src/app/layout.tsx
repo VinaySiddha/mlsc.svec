@@ -11,7 +11,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'MLSC 3.0 Hiring Program | Microsoft Learn Student Club SVEC',
+  title: 'MLSC 3.0 Hiring Program X SVEC',
   description: 'Apply for MLSC 3.0 at SVEC and kickstart your journey in tech. Join Microsoft Learn Student Club for technical and non-technical roles.',
   keywords: [
     'MLSC 3.0',

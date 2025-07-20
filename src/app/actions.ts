@@ -129,8 +129,6 @@ export async function submitApplication(formData: FormData) {
       id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
       ...applicationData,
-      name_lowercase: applicationData.name.toLowerCase(),
-      rollNo_lowercase: applicationData.rollNo.toLowerCase(), // Add lowercase version for searching
       linkedin: applicationData.linkedin || '',
       anythingElse: applicationData.anythingElse || '',
       resumeSummary: null, // Initially set summary to null
@@ -233,12 +231,7 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
-  
-  if (search) {
-    const searchTerm = search.toLowerCase();
-    constraints.push(where('rollNo_lowercase', '>=', searchTerm));
-    constraints.push(where('rollNo_lowercase', '<=', searchTerm + '\uf8ff'));
-  }
+  if (search) constraints.push(where('rollNo', '==', search));
 
   if (constraints.length > 0) {
     q = query(q, ...constraints);
@@ -264,7 +257,7 @@ export async function getApplications(params: {
   fetchAll?: boolean;
   attendedOnly?: boolean;
 }) {
-  const { search, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
+  const { sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
   
   let baseQuery = buildFilteredQuery(params);
@@ -277,10 +270,9 @@ export async function getApplications(params: {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
-  } else if (!search) { // Cannot have orderBy and inequality on different fields
+  } else {
     sortConstraints.push(orderBy('submittedAt', 'desc'));
   }
-
 
   finalQuery = query(baseQuery, ...sortConstraints);
 
@@ -298,7 +290,7 @@ export async function getApplications(params: {
 
 
   // Get total count based on the constructed query
-  const countQuery = query(baseQuery);
+  const countQuery = query(baseQuery, ...sortConstraints.filter(c => c.type !== 'orderBy'));
   const countSnapshot = await getCountFromServer(countQuery);
   const totalApplications = countSnapshot.data().count;
   const totalPages = Math.ceil(totalApplications / limitNumber);
@@ -365,20 +357,18 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
       }
       const appDocRef = applicationQueryResult.docs[0].ref;
 
-      const dataToUpdate: any = {
+      // Automated status update logic
+      if (reviewData.isRecommended && reviewData.ratings.overall >= 4.0) {
+        reviewData.status = 'Recommended';
+      }
+
+      transaction.update(appDocRef, {
         status: reviewData.status,
         isRecommended: reviewData.isRecommended,
         suitability: reviewData.suitability,
         ratings: reviewData.ratings,
         remarks: reviewData.remarks,
-      };
-
-      // Automated status update logic
-      if (reviewData.isRecommended) {
-        dataToUpdate.status = 'Recommended';
-      }
-
-      transaction.update(appDocRef, dataToUpdate);
+      });
     });
 
     return { success: true };
