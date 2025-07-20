@@ -363,5 +363,3 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     </div>
   );
 }
-
-    
