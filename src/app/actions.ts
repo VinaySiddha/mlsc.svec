@@ -597,26 +597,42 @@ export async function getAnalyticsData() {
     const allApplicationsSnapshot = await getDocs(applicationsRef);
     const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
 
-    // 4. Calculate domain, status, branch, and year counts
-    const domainCounts: { [key: string]: number } = {};
+    // 4. Calculate various counts
+    const techDomainCounts: { [key: string]: number } = {};
+    const nonTechDomainCounts: { [key: string]: number } = {};
     const statusCounts: { [key: string]: number } = {};
     const branchCounts: { [key: string]: number } = {};
     const yearCounts: { [key: string]: number } = {};
 
-    const domainLabels: Record<string, string> = {
+    const techDomainLabels: Record<string, string> = {
       gen_ai: "Generative AI",
       ds_ml: "Data Science & ML",
       azure: "Azure Cloud",
       web_app: "Web & App Development",
     };
+    
+    const nonTechDomainLabels: Record<string, string> = {
+        event_management: "Event Management",
+        public_relations: "Public Relations",
+        media_marketing: "Media Marketing",
+        creativity: "Creativity",
+    };
 
     applications.forEach(app => {
-      // Domain
-      const domainKey = app.technicalDomain;
-      const domainName = domainLabels[domainKey] || domainKey;
-      if (domainName) {
-        domainCounts[domainName] = (domainCounts[domainName] || 0) + 1;
+      // Technical Domain
+      const techDomainKey = app.technicalDomain;
+      const techDomainName = techDomainLabels[techDomainKey] || techDomainKey;
+      if (techDomainName) {
+        techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
       }
+      
+      // Non-Technical Domain
+      const nonTechDomainKey = app.nonTechnicalDomain;
+      const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
+      if (nonTechDomainName) {
+          nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
+      }
+
       // Status
       const status = app.status || 'Received';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
@@ -628,7 +644,8 @@ export async function getAnalyticsData() {
       yearCounts[year] = (yearCounts[year] || 0) + 1;
     });
 
-    const domainData = Object.entries(domainCounts).map(([name, count]) => ({ name, count }));
+    const techDomainData = Object.entries(techDomainCounts).map(([name, count]) => ({ name, count }));
+    const nonTechDomainData = Object.entries(nonTechDomainCounts).map(([name, count]) => ({ name, count }));
     const statusData = Object.entries(statusCounts).map(([name, count]) => ({ name, count }));
     const branchData = Object.entries(branchCounts).map(([name, count]) => ({ name, count }));
     const yearData = Object.entries(yearCounts).map(([name, count]) => ({ name, count }));
@@ -636,7 +653,8 @@ export async function getAnalyticsData() {
     return {
       totalApplications,
       attendedCount,
-      domainData,
+      techDomainData,
+      nonTechDomainData,
       statusData,
       branchData,
       yearData,
