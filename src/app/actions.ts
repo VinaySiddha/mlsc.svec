@@ -6,6 +6,8 @@ import {
   SummarizeResumeInput,
 } from '@/ai/flows/summarize-resume';
 import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
+import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
+
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -112,6 +114,7 @@ export async function submitApplication(formData: FormData) {
   try {
     const applicationsRef = collection(db, "applications");
     const rollNo_lowercase = applicationData.rollNo.toLowerCase();
+    const name_lowercase = applicationData.name.toLowerCase();
 
     // Check for existing email
     const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
@@ -132,6 +135,7 @@ export async function submitApplication(formData: FormData) {
       submittedAt: new Date().toISOString(),
       ...applicationData,
       rollNo_lowercase,
+      name_lowercase,
       linkedin: applicationData.linkedin || '',
       anythingElse: applicationData.anythingElse || '',
       resumeSummary: null, // Initially set summary to null
@@ -235,9 +239,10 @@ function buildFilteredQuery(params: {
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
   if (search) {
-    const searchTermLower = search.toLowerCase();
-    constraints.push(where('rollNo_lowercase', '>=', searchTermLower));
-    constraints.push(where('rollNo_lowercase', '<=', searchTermLower + '\uf8ff'));
+      const searchTermLower = search.toLowerCase();
+      // This is a "prefix" search, matching anything that starts with the search term.
+      constraints.push(where('rollNo_lowercase', '>=', searchTermLower));
+      constraints.push(where('rollNo_lowercase', '<=', searchTermLower + '\uf8ff'));
   }
 
 
@@ -279,8 +284,10 @@ export async function getApplications(params: {
   } else if (sortByPerformance === 'true') {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (search) {
+    // When searching, we must sort by the same field we use a range filter on.
     sortConstraints.push(orderBy('rollNo_lowercase'));
   } else {
+    // Default sort order
     sortConstraints.push(orderBy('submittedAt', 'desc'));
   }
 
@@ -485,17 +492,40 @@ export async function bulkUpdateStatus(filters: {
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      return { success: true, updatedCount: 0 };
+      return { success: true, updatedCount: 0, sentEmailCount: 0 };
     }
 
     const batch = writeBatch(db);
+    const applicantsToEmail: StatusUpdateEmailInput[] = [];
+
     querySnapshot.docs.forEach(documentSnapshot => {
+      const data = documentSnapshot.data();
       batch.update(documentSnapshot.ref, { status: newStatus });
+      applicantsToEmail.push({
+        name: data.name,
+        email: data.email,
+        status: newStatus,
+      });
     });
     
     await batch.commit();
 
-    return { success: true, updatedCount: querySnapshot.size };
+    // After successfully committing the batch, send emails in the background.
+    // Do not await this so the UI returns immediately.
+    (async () => {
+      let sentCount = 0;
+      for (const applicant of applicantsToEmail) {
+        try {
+          await sendStatusUpdateEmail(applicant);
+          sentCount++;
+        } catch (emailError) {
+          console.error(`Failed to send status update email to ${applicant.email}:`, emailError);
+        }
+      }
+      console.log(`Successfully sent ${sentCount} out of ${applicantsToEmail.length} status update emails.`);
+    })();
+
+    return { success: true, updatedCount: querySnapshot.size, sentEmailCount: applicantsToEmail.length };
   } catch (error) {
     console.error('Error during bulk update:', error);
     if (error instanceof Error) {

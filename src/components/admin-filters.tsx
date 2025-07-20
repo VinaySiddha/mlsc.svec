@@ -97,6 +97,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
 
     setIsBulkUpdating(true);
     const filtersToPass = { ...currentFilters, attendedOnly: false };
+    delete filtersToPass.status; // Ensure we update ALL filtered items, not just those of a specific status
 
     try {
         const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
@@ -105,7 +106,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
         }
         toast({
             title: "Bulk Update Successful",
-            description: `${result.updatedCount} applications have been updated to '${bulkUpdateTargetStatus}'.`,
+            description: `${result.updatedCount} applications have been updated to '${bulkUpdateTargetStatus}'. Emails will be sent in the background.`,
         });
         startTransition(() => {
             router.refresh();
