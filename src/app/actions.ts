@@ -129,6 +129,7 @@ export async function submitApplication(formData: FormData) {
       id: referenceId, // Use reference ID as a field
       submittedAt: new Date().toISOString(),
       ...applicationData,
+      name_lowercase: applicationData.name.toLowerCase(),
       rollNo_lowercase: applicationData.rollNo.toLowerCase(), // Add lowercase version for searching
       linkedin: applicationData.linkedin || '',
       anythingElse: applicationData.anythingElse || '',
@@ -232,8 +233,17 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
+  
   if (search) {
-    constraints.push(where('rollNo_lowercase', '==', search.toLowerCase()));
+    const searchTerm = search.toLowerCase();
+    // Check if search term is likely a roll number (contains digits)
+    if (/\d/.test(searchTerm)) {
+      constraints.push(where('rollNo_lowercase', '>=', searchTerm));
+      constraints.push(where('rollNo_lowercase', '<=', searchTerm + '\uf8ff'));
+    } else { // Otherwise search by name
+      constraints.push(where('name_lowercase', '>=', searchTerm));
+      constraints.push(where('name_lowercase', '<=', searchTerm + '\uf8ff'));
+    }
   }
 
   if (constraints.length > 0) {
@@ -273,9 +283,10 @@ export async function getApplications(params: {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
-  } else {
+  } else if (!params.search) { // Cannot have orderBy and inequality on different fields
     sortConstraints.push(orderBy('submittedAt', 'desc'));
   }
+
 
   finalQuery = query(baseQuery, ...sortConstraints);
 
@@ -293,7 +304,7 @@ export async function getApplications(params: {
 
 
   // Get total count based on the constructed query
-  const countQuery = query(baseQuery, ...sortConstraints.filter(c => c.type !== 'orderBy'));
+  const countQuery = query(baseQuery);
   const countSnapshot = await getCountFromServer(countQuery);
   const totalApplications = countSnapshot.data().count;
   const totalPages = Math.ceil(totalApplications / limitNumber);
@@ -611,5 +622,3 @@ export async function getAnalyticsData() {
     return { error: 'An unexpected server error occurred.' };
   }
 }
-
-    

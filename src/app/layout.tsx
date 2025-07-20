@@ -11,20 +11,32 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Microsoft Learn Student Club | SVEC',
-  description: 'Apply for the MLSC 3.0 Hiring Program at SVEC. Join the Microsoft Learn Student Club and start your journey in tech. We are looking for passionate students for various technical and non-technical roles.',
-  keywords: ['MLSC 3.0','MLSC SVEC','mlsc svec', 'MLSC 3.0 Hiring Program','MLSC Hiring', 'Microsoft Learn Student Club', 'student club hiring', 'tech roles', 'non-tech roles', 'SVEC', 'student jobs'],
+  title: 'MLSC 3.0 Hiring Program | Microsoft Learn Student Club SVEC',
+  description: 'Apply for MLSC 3.0 at SVEC and kickstart your journey in tech. Join Microsoft Learn Student Club for technical and non-technical roles.',
+  keywords: [
+    'MLSC 3.0',
+    'MLSC SVEC',
+    'MLSC 3.0 Hiring Program',
+    'Microsoft Learn Student Club',
+    'MLSC Hiring 2025',
+    'student club hiring',
+    'tech roles SVEC',
+    'non-tech roles SVEC',
+    'SVEC student opportunities',
+    'Sri Vasavi Engineering College',
+   
+  ],
   openGraph: {
-    title: 'MLSC 3.0 Hiring Program | Apply Now!',
-    description: 'Join the Microsoft Learn Student Club at SVEC. We are looking for passionate students for technical and non-technical roles.',
+    title: 'MLSC 3.0 Hiring Program X SVEC',
+    description: 'We are hiring passionate students for technical and non-technical roles at MLSC SVEC. Apply now!',
     url: 'https://mlscsvec.in',
-    siteName: 'MLSC 3.0 Hiring Program',
+    siteName: 'MLSC SVEC',
     images: [
       {
         url: 'https://mlscsvec.in/logo.png',
-        width: 800,
-        height: 600,
-        alt: 'MLSC Logo',
+        width: 1200,
+        height: 630,
+        alt: 'MLSC SVEC Logo',
       },
     ],
     locale: 'en_US',
@@ -32,6 +44,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
 };
 
@@ -43,6 +57,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
+        <meta property="og:site_name" content="MLSC SVEC" />
         <meta name="google-adsense-account" content="ca-pub-3162461325924366"></meta>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" crossOrigin="anonymous"></script>
         </head>
