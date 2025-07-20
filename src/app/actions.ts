@@ -371,18 +371,20 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
       }
       const appDocRef = applicationQueryResult.docs[0].ref;
 
-      // Automated status update logic
-      if (reviewData.isRecommended && reviewData.ratings.overall >= 4.0) {
-        reviewData.status = 'Recommended';
-      }
-
-      transaction.update(appDocRef, {
+      const dataToUpdate: any = {
         status: reviewData.status,
         isRecommended: reviewData.isRecommended,
         suitability: reviewData.suitability,
         ratings: reviewData.ratings,
         remarks: reviewData.remarks,
-      });
+      };
+
+      // Automated status update logic
+      if (reviewData.isRecommended) {
+        dataToUpdate.status = 'Recommended';
+      }
+
+      transaction.update(appDocRef, dataToUpdate);
     });
 
     return { success: true };

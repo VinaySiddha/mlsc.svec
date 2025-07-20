@@ -134,6 +134,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
   });
 
   const ratings = form.watch('ratings');
+  const isRecommended = form.watch('isRecommended');
 
   useEffect(() => {
       const { communication, technical, problemSolving, teamFit } = ratings;
@@ -206,7 +207,12 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       render={({ field }) => (
                           <FormItem>
                               <FormLabel>Application Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={userRole === 'panel' && (field.value === 'Hired' || field.value === 'Rejected' || field.value === 'Recommended')}>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value} 
+                                // Disable status changes if recommended, as it's now a special status
+                                disabled={isRecommended || (userRole === 'panel' && (field.value === 'Hired' || field.value === 'Rejected' || field.value === 'Recommended'))}
+                              >
                                   <FormControl>
                                       <SelectTrigger>
                                           <SelectValue placeholder="Update status" />
@@ -218,6 +224,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                                       ))}
                                   </SelectContent>
                               </Select>
+                              {isRecommended && <FormDescription>Status is locked to 'Recommended'. Uncheck recommendation to change.</FormDescription>}
                               <FormMessage />
                           </FormItem>
                       )}
@@ -344,7 +351,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>
+                          <FormLabel className={cn("cursor-pointer", field.value && "font-bold")}>
                             Recommend for Final Round
                           </FormLabel>
                           <FormDescription>
