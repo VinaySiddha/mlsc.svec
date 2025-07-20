@@ -50,6 +50,7 @@ async function ApplicationsDashboard({
   searchParams: { [key:string]: string | string[] | undefined };
 }) {
   const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
+  const searchBy = typeof searchParams.searchBy === 'string' ? searchParams.searchBy : 'rollNo';
   const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
   const year = typeof searchParams.year === 'string' ? searchParams.year : undefined;
   const branch = typeof searchParams.branch === 'string' ? searchParams.branch : undefined;
@@ -62,6 +63,7 @@ async function ApplicationsDashboard({
   const { applications, totalApplications, totalPages, currentPage } = await getApplications({ 
     panelDomain, 
     search, 
+    searchBy,
     status, 
     year, 
     branch, 
@@ -102,7 +104,7 @@ async function ApplicationsDashboard({
          <AdminFilters
           userRole={userRole}
           filterData={filterData}
-          currentFilters={{ status, year, branch, domain, search, sortByPerformance, sortByRecommended }}
+          currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended }}
          />
         <Suspense fallback={<ApplicationsTableSkeleton />}>
             <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
@@ -163,3 +165,5 @@ export default async function ApplicationsPage({
     </div>
   );
 }
+
+    

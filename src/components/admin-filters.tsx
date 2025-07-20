@@ -23,6 +23,7 @@ interface AdminFiltersProps {
   };
   currentFilters: {
     search?: string;
+    searchBy?: string;
     status?: string;
     year?: string;
     branch?: string;
@@ -44,6 +45,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const { toast } = useToast();
 
   const [search, setSearch] = useState(currentFilters.search || '');
+  const [searchBy, setSearchBy] = useState(currentFilters.searchBy || 'rollNo');
 
   const createQueryString = useCallback(
     (updates: { name: string; value: string }[]) => {
@@ -55,19 +57,24 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
           params.delete(name);
         }
       });
+      // Reset pagination on any filter change
       if (!updates.some(u => u.name === 'page')) {
-        params.set('page', '1');
+        params.delete('page');
         params.delete('lastVisibleId');
       }
       return params.toString();
     },
     [searchParams]
   );
-
+  
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(() => {
-        router.push(pathname + '?' + createQueryString([{ name: 'search', value: search }]));
+        const newQuery = createQueryString([
+            { name: 'search', value: search },
+            { name: 'searchBy', value: searchBy }
+        ]);
+        router.push(pathname + '?' + newQuery);
     });
   };
   
@@ -241,6 +248,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
 
   const resetFilters = () => {
     setSearch('');
+    setSearchBy('rollNo');
     startTransition(() => {
       router.push(pathname);
     });
@@ -260,15 +268,29 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:flex xl:flex-row gap-2 items-center">
-        <form onSubmit={handleSearchSubmit} className="relative w-full xl:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by roll number..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-            disabled={isPending || isBulkUpdating}
-          />
+        <form onSubmit={handleSearchSubmit} className="flex gap-2 w-full xl:max-w-md">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={`Search by ${searchBy === 'name' ? 'name' : 'roll no'}...`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+              disabled={isPending || isBulkUpdating}
+            />
+          </div>
+           {userRole === 'admin' && (
+              <Select value={searchBy} onValueChange={setSearchBy} disabled={isPending || isBulkUpdating}>
+                <SelectTrigger className="w-[140px] shrink-0">
+                  <SelectValue placeholder="Search by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rollNo">Roll Number</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+            <Button type="submit" variant="outline" disabled={isPending || isBulkUpdating}>Search</Button>
         </form>
         <Select onValueChange={(value) => handleFilterChange('status', value)} value={currentFilters.status || 'all'} disabled={isPending || isBulkUpdating}>
           <SelectTrigger className="w-full">
@@ -364,3 +386,5 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     </div>
   );
 }
+
+    

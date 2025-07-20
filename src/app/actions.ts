@@ -217,13 +217,14 @@ export async function submitApplication(formData: FormData) {
 function buildFilteredQuery(params: {
   panelDomain?: string;
   search?: string;
+  searchBy?: string;
   status?: string;
   year?: string;
   branch?: string;
   domain?: string;
   attendedOnly?: boolean;
 }) {
-  const { panelDomain, search, status, year, branch, domain, attendedOnly } = params;
+  const { panelDomain, search, searchBy, status, year, branch, domain, attendedOnly } = params;
   let q: Query<DocumentData> = collection(db, 'applications');
   const constraints: QueryConstraint[] = [];
 
@@ -234,15 +235,18 @@ function buildFilteredQuery(params: {
     constraints.push(where('technicalDomain', '==', domain));
   }
   
-  if (status) constraints.push(where('status', '==', status));
+  if (status && status !== 'all') {
+    constraints.push(where('status', '==', status));
+  }
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
+  
   if (search) {
       const searchTermLower = search.toLowerCase();
-      // This is a "prefix" search, matching anything that starts with the search term.
-      constraints.push(where('rollNo_lowercase', '>=', searchTermLower));
-      constraints.push(where('rollNo_lowercase', '<=', searchTermLower + '\uf8ff'));
+      const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
+      constraints.push(where(searchField, '>=', searchTermLower));
+      constraints.push(where(searchField, '<=', searchTermLower + '\uf8ff'));
   }
 
 
@@ -257,6 +261,7 @@ function buildFilteredQuery(params: {
 export async function getApplications(params: {
   panelDomain?: string;
   search?: string;
+  searchBy?: string;
   status?: string;
   year?: string;
   branch?: string;
@@ -270,7 +275,7 @@ export async function getApplications(params: {
   fetchAll?: boolean;
   attendedOnly?: boolean;
 }) {
-  const { search, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
+  const { search, searchBy, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
   
   let baseQuery = buildFilteredQuery(params);
@@ -285,7 +290,8 @@ export async function getApplications(params: {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (search) {
     // When searching, we must sort by the same field we use a range filter on.
-    sortConstraints.push(orderBy('rollNo_lowercase'));
+    const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
+    sortConstraints.push(orderBy(searchField));
   } else {
     // Default sort order
     sortConstraints.push(orderBy('submittedAt', 'desc'));
@@ -497,6 +503,7 @@ export async function updateAttendance(firestoreId: string, attended: boolean) {
 export async function bulkUpdateStatus(filters: {
   panelDomain?: string;
   search?: string;
+  searchBy?: string;
   status?: string;
   year?: string;
   branch?: string;
@@ -732,3 +739,5 @@ export async function getDeadline() {
     return { deadlineTimestamp: null, error: 'Failed to fetch deadline.' };
   }
 }
+
+    
