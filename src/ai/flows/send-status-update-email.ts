@@ -2,13 +2,12 @@
 'use server';
 
 /**
- * @fileOverview An AI-powered flow for generating and sending status update emails to applicants.
+ * @fileOverview A utility for sending status update emails to applicants.
  *
- * - sendStatusUpdateEmail - A function that handles generating and sending the email.
+ * - sendStatusUpdateEmail - A function that handles sending the email.
  * - StatusUpdateEmailInput - The input type for the function.
  */
 
-import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 
@@ -23,34 +22,41 @@ const StatusUpdateEmailInputSchema = z.object({
 });
 export type StatusUpdateEmailInput = z.infer<typeof StatusUpdateEmailInputSchema>;
 
-const EmailContentSchema = z.object({
-  subject: z.string().describe('The subject line of the email.'),
-  message: z.string().describe('The core message of the email in plain text. This will be embedded in a larger HTML template. Keep it concise and professional.'),
-});
 
-
-const emailGenerationPrompt = ai.definePrompt({
-    name: 'generateStatusEmailPrompt',
-    input: { schema: StatusUpdateEmailInputSchema },
-    output: { schema: EmailContentSchema },
-    prompt: `You are a hiring manager for the "MLSC 3.0 Hiring Program". Your task is to compose a professional and clear email content for an applicant named {{{name}}} about an update to their application status.
-
-The new status is: **{{{status}}}**
-
-Based on the status, generate an appropriate subject line and a concise message body.
-
-- If the status is **"Hired"**, the tone should be celebratory and welcoming. Mention they have been selected and provide next steps, like joining an onboarding group.
-- If the status is **"Interviewing"**, inform them they have been shortlisted for an interview. Mention they will receive a separate email with scheduling information.
-- If the status is **"Under Processing"**, let them know their application has passed initial screening and is now under review by domain leads.
-- If the status is **"Rejected"**, the tone should be empathetic and respectful. Thank them for their interest and effort, and encourage them to apply for future opportunities.
-- If the status is **"Recommended"**, congratulate them on passing the interview and let them know their application has been forwarded for final review.
-- For all messages, maintain a professional tone and wish them the best.
-
-Generate the response in the requested JSON format. The 'message' should be plain text/simple markdown, not full HTML.`,
-    config: {
-        temperature: 0.5,
-    },
-});
+function getEmailContent(status: string, name: string): { subject: string; message: string } {
+  switch (status) {
+    case 'Hired':
+      return {
+        subject: `Congratulations! You're Hired for MLSC 3.0!`,
+        message: `We are thrilled to offer you a position with the MLSC 3.0 program! Your skills and passion stood out to us, and we can't wait for you to join the team. You will receive another email soon with onboarding details. Welcome aboard!`
+      };
+    case 'Interviewing':
+      return {
+        subject: `You're Invited for an Interview with MLSC 3.0`,
+        message: `Your application has impressed us, and we would like to invite you for an interview to discuss your skills and experience further. You will receive a separate communication shortly with details on how to schedule your interview slot. Congratulations on making it to the next round!`
+      };
+    case 'Under Processing':
+        return {
+            subject: `Update on Your MLSC 3.0 Application`,
+            message: `Your application has successfully passed our initial screening and is now under review by our domain leads. We appreciate your patience and will get back to you with the next steps as soon as possible.`
+        };
+    case 'Recommended':
+        return {
+            subject: `Great News Regarding Your MLSC 3.0 Interview`,
+            message: `Congratulations on successfully clearing the interview round! Your performance was impressive, and your application has been recommended for the final review. We will notify you with the final decision soon.`
+        };
+    case 'Rejected':
+      return {
+        subject: `Update on Your MLSC 3.0 Application`,
+        message: `Thank you for your interest in the MLSC 3.0 Hiring Program and for the time you invested in your application. While your profile is impressive, we have decided not to move forward at this time. We encourage you to apply for future openings and wish you the best in your endeavors.`
+      };
+    default:
+      return {
+        subject: `Update on Your MLSC 3.0 Application`,
+        message: `This is just to let you know that your application status has been updated to "${status}". Please stay tuned for more information.`
+      };
+  }
+}
 
 
 export async function sendStatusUpdateEmail(input: StatusUpdateEmailInput): Promise<void> {
@@ -62,14 +68,8 @@ export async function sendStatusUpdateEmail(input: StatusUpdateEmailInput): Prom
   }
   
   try {
-    // 1. Generate the email content using the AI prompt
-    const { output } = await emailGenerationPrompt(input);
-    if (!output) {
-      throw new Error('AI failed to generate email content.');
-    }
-    const { subject, message } = output;
+    const { subject, message } = getEmailContent(status, name);
 
-    // 2. Embed the AI-generated message into the stylish HTML template
     const htmlBody = `
       <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
         
@@ -109,7 +109,6 @@ export async function sendStatusUpdateEmail(input: StatusUpdateEmailInput): Prom
       </div>
     `;
 
-    // 3. Send the generated email using Nodemailer
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -130,6 +129,5 @@ export async function sendStatusUpdateEmail(input: StatusUpdateEmailInput): Prom
 
   } catch (error) {
     console.error(`Failed to send status update email to ${email}:`, error);
-    // Log the error but don't re-throw, so one failed email doesn't stop the whole bulk process.
   }
 }
