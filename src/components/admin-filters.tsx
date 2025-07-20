@@ -172,6 +172,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
                 title: "No Attended Candidates",
                 description: "There are no attended candidates matching the current filters.",
             });
+            setIsDownloadingPdf(false);
             return;
         }
 

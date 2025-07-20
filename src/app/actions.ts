@@ -520,13 +520,15 @@ export async function bulkUpdateStatus(filters: {
 
     querySnapshot.docs.forEach(documentSnapshot => {
       const data = documentSnapshot.data();
-      batch.update(documentSnapshot.ref, { status: newStatus });
-      applicantsToEmail.push({
-        name: data.name,
-        email: data.email,
-        status: newStatus,
-        referenceId: data.id,
-      });
+      if (data.status !== newStatus) {
+        batch.update(documentSnapshot.ref, { status: newStatus });
+        applicantsToEmail.push({
+          name: data.name,
+          email: data.email,
+          status: newStatus,
+          referenceId: data.id,
+        });
+      }
     });
     
     await batch.commit();
