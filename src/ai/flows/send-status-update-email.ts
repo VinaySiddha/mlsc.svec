@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -16,14 +17,55 @@ const StatusUpdateEmailInputSchema = z.object({
 export type StatusUpdateEmailInput = z.infer<typeof StatusUpdateEmailInputSchema>;
 
 function getEmailContent(status: string, name: string, referenceId: string): { subject: string; message: string } {
+    if (status === 'Hired') {
+        const subject = `🎉 Congratulations, ${name}! You're Hired for MLSC 3.0!`;
+        const message = `
+        <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #d4edda; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+            
+            <div style="background: linear-gradient(135deg, #0056b3 0%, #007bff 100%); height: 8px;"></div>
+            
+            <div style="padding: 30px 25px;">
+                <h1 style="color: #222; font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 10px;">Welcome to the Team!</h1>
+                <p style="text-align: center; font-size: 18px; color: #555; margin-bottom: 25px;">Hi ${name}, you've been selected!</p>
+                
+                <p style="font-size: 16px; font-weight: 400;">
+                    We are absolutely thrilled to officially offer you a position in the <strong>MLSC 3.0 program</strong>! Your skills, passion, and performance during the interviews truly stood out to our entire team.
+                </p>
+
+                <div style="background-color: #f1f8ff; border-left: 4px solid #007bff; padding: 15px; margin: 25px 0;">
+                    <p style="margin: 0; font-size: 16px;">This is a testament to your hard work and potential. We are confident that you will be a valuable asset to our community.</p>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 600; color: #333; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 30px;">What's Next?</h3>
+                <p style="font-size: 16px;">
+                    Please keep an eye on your inbox. You will receive another email within the next 48 hours containing important onboarding details, including your official role and orientation schedule.
+                </p>
+
+                <div style="background-color: #f1f5f9; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; margin: 20px 0; text-align: center;">
+                    <p style="margin: 0; font-size: 16px; font-weight: 500;"><strong>Reference ID:</strong> 
+                        <span style="background-color: #facc15; color: #1f2937; padding: 4px 8px; border-radius: 4px; font-weight: 600;">${referenceId}</span>
+                    </p>
+                </div>
+                
+                <p style="font-size: 16px; font-weight: 400;">We can't wait for you to join us and start building the future of tech together.</p>
+                <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>The MLSC Hiring Team</strong></p>
+            </div>
+            
+            <div style="background-color: #0056b3; text-align: center; padding: 12px; font-size: 12px; color: #ffffff;">
+                🚀 #MLSC3.0 #DreamBig #FutureReady
+            </div>
+        </div>
+        `;
+        return { subject, message };
+    }
+
+    // Default templates for other statuses
     let subject = '';
     let statusMessage = '';
 
     switch (status) {
-        case 'Hired':
-            subject = `🎉 Congratulations! You're Hired for MLSC 3.0!`;
-            statusMessage = `We are thrilled to offer you a position in the <strong>MLSC 3.0 program</strong>! Your skills and passion stood out, and we can't wait for you to join the team. You will receive another email soon with onboarding details. Welcome aboard!`;
-            break;
         case 'Interviewing':
             subject = `You're Invited for an Interview with MLSC 3.0`;
             statusMessage = `Your application impressed us! We’d like to invite you for an interview to discuss your skills and experience further. Details for scheduling your interview slot will be sent soon.`;
