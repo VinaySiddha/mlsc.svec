@@ -236,17 +236,8 @@ function buildFilteredQuery(params: {
   
   if (search) {
     const searchTerm = search.toLowerCase();
-    const searchIsNumeric = /^\d/.test(search);
-
-    if (searchIsNumeric) {
-      // Search by roll number prefix
-      constraints.push(where('rollNo_lowercase', '>=', searchTerm));
-      constraints.push(where('rollNo_lowercase', '<=', searchTerm + '\uf8ff'));
-    } else {
-      // Search by name prefix
-      constraints.push(where('name_lowercase', '>=', searchTerm));
-      constraints.push(where('name_lowercase', '<=', searchTerm + '\uf8ff'));
-    }
+    constraints.push(where('rollNo_lowercase', '>=', searchTerm));
+    constraints.push(where('rollNo_lowercase', '<=', searchTerm + '\uf8ff'));
   }
 
   if (constraints.length > 0) {
