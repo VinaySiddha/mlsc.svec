@@ -63,13 +63,16 @@ export function DeadlineSetter() {
   };
 
   const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Set Application Deadline</CardTitle>
         <CardDescription>
-          Choose a date and time to automatically close application submissions. The time is based on the server's timezone.
+          Choose a date and time to automatically close application submissions. You can update this at any time. The time is based on the server's timezone.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -95,7 +98,7 @@ export function DeadlineSetter() {
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date()} initialFocus />
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < today} initialFocus />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -129,7 +132,7 @@ export function DeadlineSetter() {
             </div>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Set Deadline
+              Set or Update Deadline
             </Button>
           </form>
         </Form>
