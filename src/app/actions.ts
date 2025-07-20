@@ -367,13 +367,20 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
 
   try {
     const { id, ...reviewData } = parsed.data;
+    let originalStatus = '';
+    let applicantInfo: { name: string; email: string; } | null = null;
     
     await runTransaction(db, async (transaction) => {
       const applicationQueryResult = await getDocs(query(collection(db, 'applications'), where('id', '==', id), limit(1)));
       if (applicationQueryResult.empty) {
         throw new Error('Application not found.');
       }
+      
       const appDocRef = applicationQueryResult.docs[0].ref;
+      const appData = applicationQueryResult.docs[0].data();
+      
+      originalStatus = appData.status;
+      applicantInfo = { name: appData.name, email: appData.email };
 
       // Automated status update logic
       if (reviewData.isRecommended) {
@@ -388,6 +395,19 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
         remarks: reviewData.remarks,
       });
     });
+
+    // Send email only if the status has changed
+    if (applicantInfo && reviewData.status !== originalStatus) {
+      // Do not await this, let it run in the background
+      sendStatusUpdateEmail({
+        name: applicantInfo.name,
+        email: applicantInfo.email,
+        status: reviewData.status,
+        referenceId: id,
+      }).catch(emailError => {
+        console.error(`Failed to send status update email for ${id} after manual review:`, emailError);
+      });
+    }
 
     return { success: true };
   } catch (error) {
