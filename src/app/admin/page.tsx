@@ -1,8 +1,9 @@
+
 import { getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Users, BarChart2 } from "lucide-react";
+import { Home, Users, BarChart2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -20,6 +21,8 @@ export default async function AdminPage() {
   if (!userRole) {
     redirect('/login');
   }
+
+  const analyticsData = userRole === 'panel' ? await getAnalyticsData(panelDomain) : null;
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -93,6 +96,29 @@ export default async function AdminPage() {
           {userRole === 'admin' && (
             <DeadlineSetter />
           )}
+
+          {userRole === 'panel' && analyticsData && !('error' in analyticsData) && (
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight mb-4">Domain Analytics</h2>
+              <AdminDashboardAnalytics data={analyticsData} />
+            </div>
+          )}
+          {userRole === 'panel' && analyticsData && 'error' in analyticsData && (
+             <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-destructive" />
+                    Analytics Error
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-destructive">
+                  {analyticsData.error || "Could not load analytics data for your panel."}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
         </div>
       </main>
     </div>

@@ -602,21 +602,27 @@ export async function exportHiredToCsv() {
 }
 
 
-export async function getAnalyticsData() {
+export async function getAnalyticsData(panelDomain?: string) {
   try {
+    const constraints: QueryConstraint[] = [];
+    if (panelDomain) {
+      constraints.push(where('technicalDomain', '==', panelDomain));
+    }
+    
     const applicationsRef = collection(db, 'applications');
+    const baseQuery = query(applicationsRef, ...constraints);
 
-    // 1. Get total applications count
-    const totalSnapshot = await getCountFromServer(applicationsRef);
+    // 1. Get total applications count for the scope
+    const totalSnapshot = await getCountFromServer(baseQuery);
     const totalApplications = totalSnapshot.data().count;
 
-    // 2. Get attended interviews count
-    const attendedQuery = query(applicationsRef, where('interviewAttended', '==', true));
+    // 2. Get attended interviews count for the scope
+    const attendedQuery = query(baseQuery, where('interviewAttended', '==', true));
     const attendedSnapshot = await getCountFromServer(attendedQuery);
     const attendedCount = attendedSnapshot.data().count;
     
-    // 3. Get all applications to aggregate various counts
-    const allApplicationsSnapshot = await getDocs(applicationsRef);
+    // 3. Get all applications within the scope to aggregate various counts
+    const allApplicationsSnapshot = await getDocs(baseQuery);
     const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
 
     // 4. Calculate various counts
