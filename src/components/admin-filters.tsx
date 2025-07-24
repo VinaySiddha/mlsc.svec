@@ -186,6 +186,11 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
             fetchAll: true, 
             attendedOnly 
         };
+        // For 'registered' PDF, if no domain is specified by admin, fetch all
+        if (!attendedOnly && userRole === 'admin' && !domain) {
+          delete params.domain;
+        }
+
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
         const result = await getApplications(params);
@@ -213,6 +218,8 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
         let title = `MLSC Hiring - ${docTitle}`;
         if (domain) {
           title = `${docTitle} - ${domainLabels[domain] || domain} Domain`;
+        } else if(userRole === 'admin') {
+          title = `${docTitle} - All Domains`
         }
 
         doc.setFontSize(18);
@@ -220,12 +227,12 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
         finalY += 10;
         
         const tableColumn = attendedOnly
-          ? ["Roll No", "Name"]
-          : ["Roll No", "Name", "Year", "Branch"];
+          ? ["S.No", "Roll No", "Name"]
+          : ["S.No", "Roll No", "Name", "Year", "Branch"];
         
-        const tableRows = applications.map(app => attendedOnly
-            ? [app.rollNo, app.name]
-            : [app.rollNo, app.name, app.yearOfStudy, app.branch]
+        const tableRows = applications.map((app, index) => attendedOnly
+            ? [index + 1, app.rollNo, app.name]
+            : [index + 1, app.rollNo, app.name, app.yearOfStudy, app.branch]
         );
 
         (doc as any).autoTable({
@@ -272,7 +279,8 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
   
   const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
 
-  const showDomainSpecificButtons = userRole === 'panel' || (userRole === 'admin' && !!currentFilters.domain);
+  const showPdfButtonsForAdmin = userRole === 'admin';
+  const showPdfButtonsForPanel = userRole === 'panel';
 
   return (
     <div className="flex flex-col gap-4">
@@ -381,7 +389,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
             </Button>
           </>
         )}
-        {showDomainSpecificButtons && (
+        {(showPdfButtonsForAdmin || showPdfButtonsForPanel) && (
           <>
              <Button variant="outline" onClick={() => handleDownloadPdf(true)} disabled={isDownloadingPdf}>
                 {isDownloadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
@@ -403,3 +411,5 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     </div>
   );
 }
+
+    
