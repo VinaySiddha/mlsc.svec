@@ -91,6 +91,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                         {app.name}
                       </Link>
                     </div>
+                     <div className="font-mono text-xs text-muted-foreground">{app.rollNo}</div>
                      <div className="font-mono text-xs text-muted-foreground">{app.id}</div>
                   </TableCell>
                    <TableCell className="text-muted-foreground whitespace-nowrap hidden md:table-cell">
