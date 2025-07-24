@@ -160,11 +160,17 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
       }
   };
 
+  const domainLabels: Record<string, string> = {
+    gen_ai: "Generative AI",
+    ds_ml: "Data Science & ML",
+    azure: "Azure Cloud",
+    web_app: "Web & App Development",
+  };
+
   const handleDownloadPdf = async () => {
     setIsDownloadingPdf(true);
     try {
         const params: any = { ...currentFilters, fetchAll: true, attendedOnly: true };
-        // Remove undefined keys to prevent issues with the server action
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
         const result = await getApplications(params);
@@ -183,51 +189,34 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             return;
         }
 
-        const groupedByYear = applications.reduce((acc, app) => {
-            const year = app.yearOfStudy || "Unknown Year";
-            if (!acc[year]) acc[year] = {};
-            const branch = app.branch || "Unknown Branch";
-            if (!acc[year][branch]) acc[year][branch] = [];
-            acc[year][branch].push(app);
-            return acc;
-        }, {} as Record<string, Record<string, any[]>>);
-        
         const doc = new jsPDF();
         let finalY = 15;
 
+        let title = "MLSC Hiring - Attendance Sheet";
+        if (currentFilters.domain) {
+          title = `Attendance Sheet - ${domainLabels[currentFilters.domain] || currentFilters.domain} Domain`;
+        }
+
         doc.setFontSize(18);
-        doc.text("MLSC Hiring Team - Attendance Sheet", doc.internal.pageSize.getWidth() / 2, finalY, { align: "center" });
+        doc.text(title, doc.internal.pageSize.getWidth() / 2, finalY, { align: "center" });
         finalY += 10;
         
         const tableColumn = ["Roll No", "Name"];
+        const tableRows = applications.map(app => [app.rollNo, app.name]);
 
-        for (const year in groupedByYear) {
-            for (const branch in groupedByYear[year]) {
-                const groupApps = groupedByYear[year][branch];
-                const tableRows = groupApps.map(app => [app.rollNo, app.name]);
-                
-                const heading = `${year} Year - ${branch}`;
-                if (finalY + 20 > doc.internal.pageSize.getHeight()) {
-                  doc.addPage();
-                  finalY = 15;
-                }
-                
-                doc.setFontSize(14);
-                doc.text(heading, 14, finalY);
-                finalY += 5;
+        (doc as any).autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: finalY,
+            headStyles: { fillColor: [41, 128, 185] },
+        });
+        
+        const pdfFileName = currentFilters.domain
+            ? `attendance_${currentFilters.domain}_${new Date().toISOString().split("T")[0]}.pdf`
+            : `attendance_all_${new Date().toISOString().split("T")[0]}.pdf`;
 
-                (doc as any).autoTable({
-                    head: [tableColumn],
-                    body: tableRows,
-                    startY: finalY,
-                    headStyles: { fillColor: [41, 128, 185] },
-                });
-                
-                finalY = (doc as any).autoTable.previous.finalY + 10;
-            }
-        }
+        doc.save(pdfFileName);
 
-        doc.save(`attendance_${new Date().toISOString().split("T")[0]}.pdf`);
         toast({
             title: "PDF Generated",
             description: "Your attendance sheet has been downloaded.",
@@ -256,12 +245,6 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   
   const hasActiveFilters = Object.values(currentFilters).some(val => !!val) || search;
 
-  const domainLabels: Record<string, string> = {
-    gen_ai: "Generative AI",
-    ds_ml: "Data Science & ML",
-    azure: "Azure Cloud",
-    web_app: "Web & App Development",
-  };
   
   const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
 
