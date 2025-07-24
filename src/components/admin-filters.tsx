@@ -6,7 +6,7 @@ import { useCallback, useState, useEffect, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck, FileDown, FileText } from 'lucide-react';
+import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck, FileDown, FileText, Users } from 'lucide-react';
 import { bulkUpdateStatus, exportHiredToCsv, getApplications } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -15,6 +15,7 @@ import 'jspdf-autotable';
 
 interface AdminFiltersProps {
   userRole: string | null;
+  panelDomain?: string;
   filterData: {
     statuses: string[];
     years: string[];
@@ -33,7 +34,7 @@ interface AdminFiltersProps {
   };
 }
 
-export function AdminFilters({ userRole, filterData, currentFilters }: AdminFiltersProps) {
+export function AdminFilters({ userRole, panelDomain, filterData, currentFilters }: AdminFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,6 +42,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isDownloadingRegisteredPdf, setIsDownloadingRegisteredPdf] = useState(false);
   const [bulkUpdateTargetStatus, setBulkUpdateTargetStatus] = useState('');
   const { toast } = useToast();
 
@@ -103,7 +105,7 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     }
 
     setIsBulkUpdating(true);
-    const filtersToPass = { ...currentFilters, attendedOnly: false };
+    const filtersToPass = { ...currentFilters, attendedOnly: false, panelDomain };
     
     try {
         const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
@@ -166,11 +168,24 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     azure: "Azure Cloud",
     web_app: "Web & App Development",
   };
+  
+  const getDomainForPdf = () => {
+    return panelDomain || currentFilters.domain;
+  };
 
-  const handleDownloadPdf = async () => {
-    setIsDownloadingPdf(true);
+  const handleDownloadPdf = async (attendedOnly: boolean) => {
+    const setLoading = attendedOnly ? setIsDownloadingPdf : setIsDownloadingRegisteredPdf;
+    setLoading(true);
+    
+    const domain = getDomainForPdf();
+
     try {
-        const params: any = { ...currentFilters, fetchAll: true, attendedOnly: true };
+        const params: any = { 
+            panelDomain: panelDomain,
+            domain: currentFilters.domain,
+            fetchAll: true, 
+            attendedOnly 
+        };
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
         const result = await getApplications(params);
@@ -182,27 +197,36 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
         if (applications.length === 0) {
             toast({
                 variant: "destructive",
-                title: "No Attended Candidates",
-                description: "There are no attended candidates matching the current filters.",
+                title: "No Candidates Found",
+                description: `There are no ${attendedOnly ? 'attended' : 'registered'} candidates matching the current filters.`,
             });
-            setIsDownloadingPdf(false);
+            setLoading(false);
             return;
         }
 
         const doc = new jsPDF();
         let finalY = 15;
+        
+        const fileType = attendedOnly ? 'Attendance' : 'Registered_Students';
+        const docTitle = attendedOnly ? 'Attendance Sheet' : 'Registered Students';
 
-        let title = "MLSC Hiring - Attendance Sheet";
-        if (currentFilters.domain) {
-          title = `Attendance Sheet - ${domainLabels[currentFilters.domain] || currentFilters.domain} Domain`;
+        let title = `MLSC Hiring - ${docTitle}`;
+        if (domain) {
+          title = `${docTitle} - ${domainLabels[domain] || domain} Domain`;
         }
 
         doc.setFontSize(18);
         doc.text(title, doc.internal.pageSize.getWidth() / 2, finalY, { align: "center" });
         finalY += 10;
         
-        const tableColumn = ["Roll No", "Name"];
-        const tableRows = applications.map(app => [app.rollNo, app.name]);
+        const tableColumn = attendedOnly
+          ? ["Roll No", "Name"]
+          : ["Roll No", "Name", "Year", "Branch"];
+        
+        const tableRows = applications.map(app => attendedOnly
+            ? [app.rollNo, app.name]
+            : [app.rollNo, app.name, app.yearOfStudy, app.branch]
+        );
 
         (doc as any).autoTable({
             head: [tableColumn],
@@ -211,15 +235,15 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             headStyles: { fillColor: [41, 128, 185] },
         });
         
-        const pdfFileName = currentFilters.domain
-            ? `attendance_${currentFilters.domain}_${new Date().toISOString().split("T")[0]}.pdf`
-            : `attendance_all_${new Date().toISOString().split("T")[0]}.pdf`;
+        const pdfFileName = domain
+            ? `${fileType}_${domain}_${new Date().toISOString().split("T")[0]}.pdf`
+            : `${fileType}_all_${new Date().toISOString().split("T")[0]}.pdf`;
 
         doc.save(pdfFileName);
 
         toast({
             title: "PDF Generated",
-            description: "Your attendance sheet has been downloaded.",
+            description: `Your ${fileType.toLowerCase().replace('_', ' ')} list has been downloaded.`,
         });
     } catch (error) {
         console.error("PDF generation error:", error);
@@ -230,9 +254,9 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
             description: errorMessage,
         });
     } finally {
-        setIsDownloadingPdf(false);
+        setLoading(false);
     }
-};
+  };
 
 
   const resetFilters = () => {
@@ -247,6 +271,8 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
 
   
   const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
+
+  const showDomainSpecificButtons = userRole === 'panel' || (userRole === 'admin' && !!currentFilters.domain);
 
   return (
     <div className="flex flex-col gap-4">
@@ -353,9 +379,17 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                 Export Hired
             </Button>
-             <Button variant="outline" onClick={handleDownloadPdf} disabled={isDownloadingPdf}>
+          </>
+        )}
+        {showDomainSpecificButtons && (
+          <>
+             <Button variant="outline" onClick={() => handleDownloadPdf(true)} disabled={isDownloadingPdf}>
                 {isDownloadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
                 Download Attendance PDF
+            </Button>
+             <Button variant="outline" onClick={() => handleDownloadPdf(false)} disabled={isDownloadingRegisteredPdf}>
+                {isDownloadingRegisteredPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
+                Download Registered PDF
             </Button>
           </>
         )}
@@ -369,5 +403,3 @@ export function AdminFilters({ userRole, filterData, currentFilters }: AdminFilt
     </div>
   );
 }
-
-    

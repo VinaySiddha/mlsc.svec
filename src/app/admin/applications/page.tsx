@@ -103,6 +103,7 @@ async function ApplicationsDashboard({
       <CardContent className="space-y-4">
          <AdminFilters
           userRole={userRole}
+          panelDomain={panelDomain}
           filterData={filterData}
           currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended }}
          />
