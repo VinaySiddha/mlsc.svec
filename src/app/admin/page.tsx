@@ -3,7 +3,7 @@ import { getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Users, BarChart2, AlertCircle } from "lucide-react";
+import { Home, Users, BarChart2, AlertCircle, PencilRuler } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -56,7 +56,7 @@ export default async function AdminPage() {
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto space-y-8">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -74,22 +74,40 @@ export default async function AdminPage() {
               </CardContent>
             </Card>
             {userRole === 'admin' && (
-              <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart2 className="h-6 w-6 text-primary" />
-                    Hiring Analytics
-                  </CardTitle>
-                  <CardDescription>
-                    Visualize application data, trends, and statistics.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button asChild>
-                    <Link href="/admin/analytics">View Analytics</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <>
+                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart2 className="h-6 w-6 text-primary" />
+                      Hiring Analytics
+                    </CardTitle>
+                    <CardDescription>
+                      Visualize application data, trends, and statistics.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild>
+                      <Link href="/admin/analytics">View Analytics</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <PencilRuler className="h-6 w-6 text-primary" />
+                      Internal Registration
+                    </CardTitle>
+                    <CardDescription>
+                      Manually register a candidate on their behalf.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild>
+                      <Link href="/admin/internal-registration">Register Candidate</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
             )}
           </div>
 

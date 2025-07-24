@@ -55,6 +55,13 @@ const applicationSchema = z.object({
   resume: z.any().optional(),
 });
 
+const internalApplicationSchema = applicationSchema.omit({
+  joinReason: true,
+  aboutClub: true,
+  anythingElse: true,
+  resume: true,
+});
+
 const reviewSchema = z.object({
   id: z.string(),
   status: z.string(),
@@ -210,6 +217,80 @@ export async function submitApplication(formData: FormData) {
       };
     }
     return {error: 'An unexpected error occurred. Please try again.'};
+  }
+}
+
+export async function internalRegister(values: z.infer<typeof internalApplicationSchema>) {
+  const parsed = internalApplicationSchema.safeParse(values);
+
+  if (!parsed.success) {
+    console.error('Internal form validation failed:', parsed.error.flatten().fieldErrors);
+    return { error: 'Invalid form data. Please check your inputs.' };
+  }
+
+  const applicationData = parsed.data;
+  const referenceId = generateReferenceId();
+
+  try {
+    const applicationsRef = collection(db, "applications");
+    const rollNo_lowercase = applicationData.rollNo.toLowerCase();
+    const name_lowercase = applicationData.name.toLowerCase();
+
+    // Check for existing email
+    const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
+    const emailSnapshot = await getDocs(emailQuery);
+    if (!emailSnapshot.empty) {
+      return { error: 'An application with this email address already exists.' };
+    }
+
+    // Check for existing roll number
+    const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNo_lowercase));
+    const rollNoSnapshot = await getDocs(rollNoQuery);
+    if (!rollNoSnapshot.empty) {
+      return { error: 'An application with this roll number already exists.' };
+    }
+
+    const newApplication = {
+      id: referenceId,
+      submittedAt: new Date().toISOString(),
+      ...applicationData,
+      rollNo_lowercase,
+      name_lowercase,
+      linkedin: applicationData.linkedin || '',
+      resumeSummary: 'Manually registered by admin.',
+      status: 'Received',
+      isRecommended: false,
+      interviewAttended: false,
+      suitability: {
+        technical: 'undecided',
+        nonTechnical: 'undecided',
+      },
+      ratings: {
+        communication: 0,
+        technical: 0,
+        problemSolving: 0,
+        teamFit: 0,
+        overall: 0,
+      },
+      remarks: 'Manually registered by admin.',
+      // Fields not in the internal form
+      joinReason: '',
+      aboutClub: '',
+      anythingElse: '',
+    };
+    
+    const docRef = await addDoc(applicationsRef, { ...newApplication });
+    await updateDoc(docRef, { firestoreId: docRef.id });
+
+    return { referenceId };
+  } catch (error) {
+    console.error('Error during internal registration:', error);
+    if (error instanceof Error) {
+      return {
+        error: `An error occurred during registration: ${error.message}`,
+      };
+    }
+    return { error: 'An unexpected error occurred. Please try again.' };
   }
 }
 
