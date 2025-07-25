@@ -44,7 +44,7 @@ export default function AboutPage() {
                           <span className="sr-only">Open menu</span>
                       </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="bg-background/90 border-r-border/50 text-foreground">
+                  <SheetContent side="left" className="glass-card">
                       <div className="p-4">
                           <nav className="flex flex-col gap-4">
                               {navLinks.map(link => (
@@ -81,7 +81,7 @@ export default function AboutPage() {
       <main className="flex-1">
         <section id="about" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                <div className="glass-card p-8 md:p-12 flex flex-col items-center justify-center space-y-4 text-center">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">About <span className="text-primary">MLSC SVEC</span></h2>
                     <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                         The Microsoft Learn Student Club (MLSC) at Sri Vasavi Engineering College is a dynamic community dedicated to fostering a culture of continuous learning and innovation. We empower students with technical skills, leadership qualities, and a collaborative spirit to tackle real-world challenges. Through workshops, hackathons, and projects, we bridge the gap between academic knowledge and industry demands.

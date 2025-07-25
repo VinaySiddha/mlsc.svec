@@ -94,7 +94,7 @@ export default function EventsPage() {
                           <span className="sr-only">Open menu</span>
                       </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="bg-background/90 border-r-border/50 text-foreground">
+                  <SheetContent side="left" className="glass-card">
                       <div className="p-4">
                           <nav className="flex flex-col gap-4">
                               {navLinks.map(link => (
@@ -132,7 +132,7 @@ export default function EventsPage() {
         <section id="events" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="space-y-12">
-                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                    <div className="glass-card p-8 md:p-12 flex flex-col items-center justify-center space-y-4 text-center">
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-primary">Events</span></h2>
                         <p className="max-w-[900px] text-muted-foreground md:text-xl">
                             We host a variety of events to help our members learn, grow, and connect.
@@ -197,7 +197,7 @@ export default function EventsPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center text-muted-foreground">
+                        <div className="text-center text-muted-foreground glass-card p-8">
                             <p>No upcoming events at the moment. Check back soon!</p>
                         </div>
                     )}

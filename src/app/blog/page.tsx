@@ -45,7 +45,7 @@ export default function BlogPage() {
                           <span className="sr-only">Open menu</span>
                       </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="bg-background/90 border-r-border/50 text-foreground">
+                  <SheetContent side="left" className="glass-card">
                       <div className="p-4">
                           <nav className="flex flex-col gap-4">
                               {navLinks.map(link => (
@@ -82,7 +82,7 @@ export default function BlogPage() {
       <main className="flex-1">
         <section id="blogs" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
-                 <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+                 <div className="glass-card p-8 md:p-12 flex flex-col items-center justify-center space-y-4 text-center mb-12">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-primary">Blogs</span></h2>
                     <p className="max-w-[900px] text-muted-foreground md:text-xl">
                         Read our latest articles and updates.

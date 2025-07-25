@@ -50,7 +50,7 @@ export default async function ApplyPage() {
                           <span className="sr-only">Open menu</span>
                       </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="bg-background/90 border-r-border/50 text-foreground">
+                  <SheetContent side="left" className="glass-card">
                       <div className="p-4">
                           <nav className="flex flex-col gap-4">
                               {navLinks.map(link => (

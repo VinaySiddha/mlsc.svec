@@ -89,7 +89,7 @@ export default function Home() {
                             <span className="sr-only">Open menu</span>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="bg-background/90 border-r-border/50 text-foreground">
+                    <SheetContent side="left" className="glass-card">
                         <div className="p-4">
                             <nav className="flex flex-col gap-4">
                                 {navLinks.map(link => (
@@ -194,7 +194,7 @@ export default function Home() {
                         <Image src="/team1.jpg" alt="MLSC Team" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
                     </div>
                 </div>
-                <div className="about-content text-center md:text-left">
+                <div className="about-content text-center md:text-left glass-card p-8">
                     <h2 className="heading text-4xl font-bold mb-4">About <span className="text-primary">Us</span></h2>
                     <p className="text-lg text-muted-foreground mb-8">
                         Microsoft Learn Student Club is paramount in creating one of the most influential events. Our peer-to-peer learning strategy has made our response rate phenomenal and has helped the participants by a substantial improvement in their vocational skills, problem-solving skills, and advancements in the technical domain.

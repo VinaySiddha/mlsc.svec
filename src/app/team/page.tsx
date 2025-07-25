@@ -66,7 +66,7 @@ const renderMembers = (members: TeamMember[]) => {
     return (
          <div className={containerClasses}>
             {sortMembers(members).map((member: any) => (
-            <div key={member.id} className="flex flex-col items-center text-center group">
+            <div key={member.id} className="glass-card p-4 flex flex-col items-center text-center group">
                 <Image 
                     src={member.image} 
                     alt={`Photo of ${member.name}`}
@@ -94,7 +94,7 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
   return (
       <section className="w-full bg-background/50 py-16">
           <div className="container mx-auto px-4 md:px-6 space-y-12">
-              <div className="w-full text-center">
+              <div className="w-full text-center glass-card p-8">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
               </div>
               {teams.map(category => {
@@ -163,7 +163,7 @@ export default async function TeamPage() {
                           <span className="sr-only">Open menu</span>
                       </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="bg-background/90 border-r-border/50 text-foreground">
+                  <SheetContent side="left" className="glass-card">
                       <div className="p-4">
                           <nav className="flex flex-col gap-4">
                               {navLinks.map(link => (
@@ -198,7 +198,7 @@ export default async function TeamPage() {
       </header>
 
       <main className="flex-1">
-        <section className="w-full py-20 md:py-28 text-center">
+        <section className="w-full py-20 md:py-28 text-center glass-card m-4 md:m-8">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">Meet Our <span className="text-primary">Team</span></h1>
             <p className="max-w-[900px] mx-auto mt-4 text-muted-foreground md:text-xl">The leaders and members driving the MLSC community forward.</p>
         </section>
