@@ -107,15 +107,15 @@ export default async function TeamPage() {
                         <div className="flex flex-col items-center justify-center space-y-4 text-center">
                             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{category.name}</h2>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 justify-center">
+                        <div className="flex flex-wrap justify-center items-start gap-8">
                             {category.members.map((member: any) => (
-                              <div key={member.id} className="flex flex-col items-center text-center group">
+                              <div key={member.id} className="flex flex-col items-center text-center group w-48">
                                   <Image 
                                     src={member.image} 
                                     alt={`Photo of ${member.name}`}
                                     width={160} 
                                     height={160} 
-                                    className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300"
+                                    className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300 w-40 h-40"
                                     data-ai-hint="person portrait"
                                   />
                                   <h4 className="font-semibold text-lg">{member.name}</h4>
