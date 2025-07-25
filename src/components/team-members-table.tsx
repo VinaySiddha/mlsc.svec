@@ -62,7 +62,8 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
-            <TableHead>Category</TableHead>
+            <TableHead>Sub-Domain</TableHead>
+            <TableHead>Main Category</TableHead>
             <TableHead>LinkedIn</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -76,6 +77,7 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
                         <span>{member.name}</span>
                   </TableCell>
                   <TableCell>{member.role}</TableCell>
+                  <TableCell>{member.subDomain}</TableCell>
                   <TableCell>{member.categoryName}</TableCell>
                   <TableCell>
                       <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
@@ -119,7 +121,7 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                 No team members found.
               </TableCell>
             </TableRow>

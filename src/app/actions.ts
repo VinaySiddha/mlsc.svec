@@ -115,9 +115,9 @@ const registrationSchema = z.object({
 });
 
 const teamCategorySchema = z.object({
-    name: z.string().min(2, "Category name is required."),
+    name: z.string({ required_error: "Please select a main category."}),
+    subDomain: z.string().min(2, "Sub-domain name is required."),
     order: z.number().min(0, "Order must be a positive number."),
-    type: z.enum(["Core", "Technical", "Non-Technical"], { required_error: "Please select a category type."}),
 });
 
 const teamMemberSchema = z.object({
@@ -1124,7 +1124,7 @@ export async function updateTeamCategory(id: string, values: z.infer<typeof team
     const parsed = teamCategorySchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data." };
     try {
-        await updateDoc(doc(db, 'teamCategories', id), parsed.data);
+        await updateDoc(doc(db, 'teamCategories', id), parsed.data as any);
         return { success: true };
     } catch (e) {
         return { error: "Failed to update category." };
@@ -1159,9 +1159,10 @@ export async function getTeamMembers() {
         const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
         const teamCategoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), orderBy('order')));
-        const teamCategories = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const teamCategoriesData = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        const membersByCategory = teamCategories.map(category => ({
+        // This function needs to return a more structured format for the page
+        const membersByCategory = teamCategoriesData.map(category => ({
             ...category,
             members: teamMembers.filter(member => member.categoryId === category.id)
         }));
@@ -1179,13 +1180,13 @@ export async function getAllTeamMembersWithCategory() {
         const members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
         const categoriesSnapshot = await getDocs(collection(db, "teamCategories"));
-        const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, type: doc.data().type }));
-        const categoryMap = new Map(categories.map(c => [c.id, {name: c.name, type: c.type}]));
+        const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, subDomain: doc.data().subDomain }));
+        const categoryMap = new Map(categories.map(c => [c.id, {name: c.name, subDomain: c.subDomain}]));
 
         const membersWithCategoryName = members.map(member => ({
             ...member,
             categoryName: categoryMap.get(member.categoryId)?.name || 'Uncategorized',
-            categoryType: categoryMap.get(member.categoryId)?.type || 'Uncategorized'
+            subDomain: categoryMap.get(member.categoryId)?.subDomain || 'N/A',
         }));
         
         return { members: membersWithCategoryName };

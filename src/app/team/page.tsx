@@ -21,15 +21,19 @@ interface TeamMember {
 
 interface TeamCategory {
   id: string;
-  name: string;
+  name: string; // This is now 'Core Team', 'Technical Team', etc.
+  subDomain: string;
   order: number;
-  type: 'Core' | 'Technical' | 'Non-Technical';
   members: TeamMember[];
 }
 
 
 export default function TeamPage() {
-  const [categories, setCategories] = useState<TeamCategory[]>([]);
+  const [teamData, setTeamData] = useState<{
+      coreTeam: TeamCategory[],
+      technicalTeam: TeamCategory[],
+      nonTechnicalTeam: TeamCategory[],
+  }>({ coreTeam: [], technicalTeam: [], nonTechnicalTeam: [] });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +44,12 @@ export default function TeamPage() {
         if (result.error) {
           setError(result.error);
         } else if (result.membersByCategory) {
-          setCategories(result.membersByCategory as TeamCategory[]);
+          const categories = result.membersByCategory as TeamCategory[];
+          setTeamData({
+              coreTeam: categories.filter(c => c.name === 'Core Team'),
+              technicalTeam: categories.filter(c => c.name === 'Technical Team'),
+              nonTechnicalTeam: categories.filter(c => c.name === 'Non-Technical Team'),
+          });
         }
       } catch (e) {
         setError("An unexpected error occurred.");
@@ -91,16 +100,11 @@ export default function TeamPage() {
     });
   };
 
-  const coreTeams = categories.filter(c => c.type === 'Core').map(c => ({...c, members: sortMembers(c.members)}));
-  const technicalTeams = categories.filter(c => c.type === 'Technical').map(c => ({...c, members: sortMembers(c.members)}));
-  const nonTechnicalTeams = categories.filter(c => c.type === 'Non-Technical').map(c => ({...c, members: sortMembers(c.members)}));
-
-
   const renderMembers = (members: TeamMember[]) => {
       if (members.length === 0) return null;
       return (
            <div className="flex flex-wrap justify-center items-start gap-8">
-              {members.map((member: any) => (
+              {sortMembers(members).map((member: any) => (
               <div key={member.id} className="flex flex-col items-center text-center group w-full max-w-[200px] sm:max-w-[220px]">
                   <Image 
                       src={member.image} 
@@ -137,7 +141,7 @@ export default function TeamPage() {
                     return (
                         <div key={category.id} className="w-full">
                             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-                                <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.name}</h3>
+                                <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.subDomain}</h3>
                             </div>
                             {renderMembers(category.members)}
                         </div>
@@ -227,9 +231,9 @@ export default function TeamPage() {
         </section>
         
         <div className="space-y-16">
-            {renderTeamSection(coreTeams, "Core Team")}
-            {renderTeamSection(technicalTeams, "Technical Teams")}
-            {renderTeamSection(nonTechnicalTeams, "Non-Technical Teams")}
+            {renderTeamSection(teamData.coreTeam, "Core Team")}
+            {renderTeamSection(teamData.technicalTeam, "Technical Teams")}
+            {renderTeamSection(teamData.nonTechnicalTeam, "Non-Technical Teams")}
         </div>
         
       </main>

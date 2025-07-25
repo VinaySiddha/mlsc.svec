@@ -58,9 +58,9 @@ export function TeamCategoriesTable({ categories }: TeamCategoriesTableProps) {
 
     const getTypeVariant = (type: string) => {
         switch (type) {
-            case 'Core': return 'default';
-            case 'Technical': return 'secondary';
-            case 'Non-Technical': return 'outline';
+            case 'Core Team': return 'default';
+            case 'Technical Team': return 'secondary';
+            case 'Non-Technical Team': return 'outline';
             default: return 'secondary';
         }
     }
@@ -70,8 +70,8 @@ export function TeamCategoriesTable({ categories }: TeamCategoriesTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Type</TableHead>
+            <TableHead>Sub-Domain Name</TableHead>
+            <TableHead>Main Category</TableHead>
             <TableHead>Order</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -81,10 +81,10 @@ export function TeamCategoriesTable({ categories }: TeamCategoriesTableProps) {
             categories.map((category: any) => (
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">
-                        {category.name}
+                        {category.subDomain}
                   </TableCell>
                   <TableCell>
-                      <Badge variant={getTypeVariant(category.type)}>{category.type || 'N/A'}</Badge>
+                      <Badge variant={getTypeVariant(category.name)}>{category.name || 'N/A'}</Badge>
                   </TableCell>
                   <TableCell>{category.order}</TableCell>
                   <TableCell>

@@ -13,12 +13,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+
 
 const teamCategorySchema = z.object({
-  name: z.string().min(2, "Category name is required."),
+  name: z.string({ required_error: "Please select a main category."}),
+  subDomain: z.string().min(2, "Sub-domain name is required."),
   order: z.coerce.number().min(0, "Order must be a positive number."),
-  type: z.enum(["Core", "Technical", "Non-Technical"], { required_error: "Please select a category type."}),
 });
 
 type FormValues = z.infer<typeof teamCategorySchema>;
@@ -27,7 +28,7 @@ interface TeamCategoryFormProps {
     category?: FormValues & { id: string };
 }
 
-const categoryTypes = ["Core", "Technical", "Non-Technical"];
+const mainCategories = ["Core Team", "Technical Team", "Non-Technical Team"];
 
 export function TeamCategoryForm({ category }: TeamCategoryFormProps) {
     const router = useRouter();
@@ -38,8 +39,8 @@ export function TeamCategoryForm({ category }: TeamCategoryFormProps) {
         resolver: zodResolver(teamCategorySchema),
         defaultValues: {
             name: category?.name || "",
+            subDomain: category?.subDomain || "",
             order: category?.order || 0,
-            type: category?.type || undefined,
         },
     });
 
@@ -59,7 +60,7 @@ export function TeamCategoryForm({ category }: TeamCategoryFormProps) {
 
             toast({
                 title: category ? "Category Updated!" : "Category Created!",
-                description: `The category "${values.name}" has been saved successfully.`,
+                description: `The category "${values.subDomain}" has been saved successfully.`,
             });
             router.push('/admin/team/categories');
             router.refresh();
@@ -79,15 +80,40 @@ export function TeamCategoryForm({ category }: TeamCategoryFormProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField
+
+                 <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Main Category</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                            <SelectTrigger>
+                            <SelectValue placeholder="Select the main category" />
+                            </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            {mainCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="subDomain"
+                    render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Category Name</FormLabel>
+                            <FormLabel>Sub-Domain Name</FormLabel>
                             <FormControl>
-                                <Input placeholder="e.g., Core Team" {...field} />
+                                <Input placeholder="e.g., Generative AI or Lead Advisors" {...field} />
                             </FormControl>
+                             <FormDescription>
+                                This is the specific name of the team or wing.
+                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -103,43 +129,12 @@ export function TeamCategoryForm({ category }: TeamCategoryFormProps) {
                                 <Input type="number" {...field} />
                             </FormControl>
                              <FormDescription>
-                                Lower numbers appear first within each group (Core, Technical, etc.).
+                                Lower numbers appear first within each main category.
                             </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-
-                <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                    <FormItem className="space-y-3">
-                    <FormLabel>Category Type *</FormLabel>
-                     <FormDescription>
-                        This controls where the category appears on the team page.
-                    </FormDescription>
-                    <FormControl>
-                        <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                        >
-                        {categoryTypes.map(type => (
-                             <FormItem key={type} className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                    <RadioGroupItem value={type} />
-                                </FormControl>
-                                <FormLabel className="font-normal">{type}</FormLabel>
-                            </FormItem>
-                        ))}
-                        </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-
 
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (
