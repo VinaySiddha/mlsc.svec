@@ -8,9 +8,7 @@ import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon } from "luc
 import Link from "next/link";
 import Image from "next/image";
 
-export default async function Home() {
-  const { deadlineTimestamp } = await getDeadline();
-
+export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -86,33 +84,15 @@ export default async function Home() {
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40">
+        <section className="w-full py-24 md:py-40 lg:py-56">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
-              <div className="flex flex-col justify-center space-y-6">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-foreground">
-                  Build the Future of Tech with MLSC 3.0
-                </h1>
-                <p className="max-w-[600px] text-lg text-muted-foreground">
-                  We are a community of innovators, thinkers, and creators at SVEC. Join us to learn, build, and grow your skills in technology and beyond.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                   <Button asChild size="lg" className="shadow-lg hover:shadow-primary/50 transition-shadow">
-                    <Link href="/apply">Join The Community</Link>
-                  </Button>
-                </div>
-              </div>
-              <div className="w-full flex justify-center">
-                <Image
-                  src="/logo.png"
-                  data-ai-hint="logo"
-                  width={400}
-                  height={400}
-                  alt="Microsoft Learn Student Club (MLSC) SVEC Logo"
-                  className="rounded-full object-contain shadow-2xl hover:scale-105 transition-transform duration-300"
-                  priority
-                />
-              </div>
+            <div className="flex flex-col items-center space-y-6 text-center">
+              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl text-foreground">
+                Build the Future of Tech with MLSC 3.0
+              </h1>
+              <p className="max-w-[700px] text-lg text-muted-foreground md:text-xl">
+                We are a community of innovators, thinkers, and creators at SVEC. Join us to learn, build, and grow your skills in technology and beyond.
+              </p>
             </div>
           </div>
         </section>
