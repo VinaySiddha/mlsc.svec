@@ -126,15 +126,23 @@ export default function Home() {
         
         {/* Ambassador Section */}
         <section className="py-12 md:py-16 bg-background">
-            <div className="container mx-auto px-4 text-center">
-                <h2 className="text-3xl font-bold mb-2">Meet Our <span className="text-primary">Ambassador!</span></h2>
-                <div className="glass-card max-w-sm mx-auto p-6 flex flex-col items-center">
-                    <Image src="https://placehold.co/400x400.png" alt="Chandu Image" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
-                    <h3 className="text-2xl font-bold">Chandu Neelam</h3>
-                    <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
-                    <p className="text-sm text-muted-foreground">Our pioneering MLSA leader, stands out with exceptional leadership and technical prowess.</p>
-                </div>
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-8">Meet Our <span className="text-primary">Ambassadors!</span></h2>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="glass-card p-6 flex flex-col items-center">
+                <Image src="https://placehold.co/400x400.png" alt="Chandu Neelam" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
+                <h3 className="text-2xl font-bold">Chandu Neelam</h3>
+                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
+                <p className="text-sm text-muted-foreground">Our pioneering MLSA leader, with exceptional leadership and technical prowess.</p>
+              </div>
+              <div className="glass-card p-6 flex flex-col items-center">
+                <Image src="https://placehold.co/400x400.png" alt="Vinay Siddha" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
+                <h3 className="text-2xl font-bold">Vinay Siddha</h3>
+                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
+                <p className="text-sm text-muted-foreground">A passionate advocate for technology and community building.</p>
+              </div>
             </div>
+          </div>
         </section>
 
         {/* About Us Section */}
