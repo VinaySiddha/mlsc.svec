@@ -196,7 +196,7 @@ export default function Home() {
                     <p className="text-lg text-gray-300 mb-8">
                         Microsoft Learn Student Club is paramount in creating one of the most influential events. Our peer-to-peer learning strategy has made our response rate phenomenal and has helped the participants by a substantial improvement in their vocational skills, problem-solving skills, and advancements in the technical domain.
                     </p>
-                    <Button asChild size="lg">
+                    <Button asChild size="lg" variant="glass">
                        <Link href="/team">Our Team</Link>
                     </Button>
                 </div>
@@ -228,7 +228,7 @@ export default function Home() {
                     </div>
                 </div>
                 <div className="text-center mt-12">
-                     <Button asChild size="lg">
+                     <Button asChild size="lg" variant="glass">
                        <Link href="/events">More Events</Link>
                     </Button>
                 </div>
