@@ -117,6 +117,7 @@ const registrationSchema = z.object({
 const teamCategorySchema = z.object({
     name: z.string().min(2, "Category name is required."),
     order: z.number().min(0, "Order must be a positive number."),
+    type: z.enum(["Core", "Technical", "Non-Technical"], { required_error: "Please select a category type."}),
 });
 
 const teamMemberSchema = z.object({
@@ -1178,12 +1179,13 @@ export async function getAllTeamMembersWithCategory() {
         const members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
         const categoriesSnapshot = await getDocs(collection(db, "teamCategories"));
-        const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
-        const categoryMap = new Map(categories.map(c => [c.id, c.name]));
+        const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, type: doc.data().type }));
+        const categoryMap = new Map(categories.map(c => [c.id, {name: c.name, type: c.type}]));
 
         const membersWithCategoryName = members.map(member => ({
             ...member,
-            categoryName: categoryMap.get(member.categoryId) || 'Uncategorized'
+            categoryName: categoryMap.get(member.categoryId)?.name || 'Uncategorized',
+            categoryType: categoryMap.get(member.categoryId)?.type || 'Uncategorized'
         }));
         
         return { members: membersWithCategoryName };

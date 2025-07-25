@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { deleteTeamCategory } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { Badge } from "./ui/badge";
 
 
 interface TeamCategoriesTableProps {
@@ -55,12 +56,22 @@ export function TeamCategoriesTable({ categories }: TeamCategoriesTableProps) {
         }
     }
 
+    const getTypeVariant = (type: string) => {
+        switch (type) {
+            case 'Core': return 'default';
+            case 'Technical': return 'secondary';
+            case 'Non-Technical': return 'outline';
+            default: return 'secondary';
+        }
+    }
+
   return (
     <div className="border rounded-md">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>Order</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -71,6 +82,9 @@ export function TeamCategoriesTable({ categories }: TeamCategoriesTableProps) {
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">
                         {category.name}
+                  </TableCell>
+                  <TableCell>
+                      <Badge variant={getTypeVariant(category.type)}>{category.type || 'N/A'}</Badge>
                   </TableCell>
                   <TableCell>{category.order}</TableCell>
                   <TableCell>
@@ -110,7 +124,7 @@ export function TeamCategoriesTable({ categories }: TeamCategoriesTableProps) {
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
+              <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
                 No categories found.
               </TableCell>
             </TableRow>

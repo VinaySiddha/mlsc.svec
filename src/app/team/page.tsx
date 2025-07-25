@@ -23,12 +23,12 @@ interface TeamCategory {
   id: string;
   name: string;
   order: number;
+  type: 'Core' | 'Technical' | 'Non-Technical';
   members: TeamMember[];
 }
 
 
 export default function TeamPage() {
-  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [categories, setCategories] = useState<TeamCategory[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,9 +40,7 @@ export default function TeamPage() {
         if (result.error) {
           setError(result.error);
         } else if (result.membersByCategory) {
-            const allMembersData = result.membersByCategory.flatMap(category => category.members);
-            setAllMembers(allMembersData);
-            setCategories(result.membersByCategory);
+          setCategories(result.membersByCategory as TeamCategory[]);
         }
       } catch (e) {
         setError("An unexpected error occurred.");
@@ -73,7 +71,7 @@ export default function TeamPage() {
     );
   }
 
-  const coreRoleOrder: { [key: string]: number } = {
+  const roleOrder: { [key: string]: number } = {
     'Lead': 1,
     'Lead Advisor': 2,
     'Faculty Advisor': 3,
@@ -81,31 +79,21 @@ export default function TeamPage() {
     'Outreach Affairs Lead': 5,
     'Secretary': 6,
   };
-  
-  const coreTeamRoles = Object.keys(coreRoleOrder);
-  const coreTeamMembers = allMembers
-    .filter(member => coreTeamRoles.includes(member.role))
-    .sort((a, b) => (coreRoleOrder[a.role] || 99) - (coreRoleOrder[b.role] || 99));
 
+  const sortMembers = (members: TeamMember[]) => {
+    return [...members].sort((a, b) => {
+        const aOrder = roleOrder[a.role] || 99;
+        const bOrder = roleOrder[b.role] || 99;
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+        }
+        return a.name.localeCompare(b.name);
+    });
+  };
 
-  const technicalCategoryNames = [
-    "Generative AI",
-    "Data Science & Machine Learning",
-    "Azure Cloud",
-    "Web and APP Development",
-    "Data Science and Machine Learning",
-    "Microsoft 365 and PowerPlatform"
-  ];
-  
-  const technicalTeams = categories
-      .filter(category => technicalCategoryNames.includes(category.name))
-      .map(category => ({ ...category, members: [...category.members].sort((a,b) => a.name.localeCompare(b.name)) }))
-      .sort((a, b) => a.order - b.order);
-
-  const nonTechnicalTeams = categories
-      .filter(category => !technicalCategoryNames.includes(category.name))
-      .map(category => ({ ...category, members: [...category.members].sort((a,b) => a.name.localeCompare(b.name)) }))
-      .sort((a, b) => a.order - b.order);
+  const coreTeams = categories.filter(c => c.type === 'Core').map(c => ({...c, members: sortMembers(c.members)}));
+  const technicalTeams = categories.filter(c => c.type === 'Technical').map(c => ({...c, members: sortMembers(c.members)}));
+  const nonTechnicalTeams = categories.filter(c => c.type === 'Non-Technical').map(c => ({...c, members: sortMembers(c.members)}));
 
 
   const renderMembers = (members: TeamMember[]) => {
@@ -133,23 +121,31 @@ export default function TeamPage() {
       )
   }
 
-  const renderTeamSection = (teams: TeamCategory[]) => {
+  const renderTeamSection = (teams: TeamCategory[], title: string) => {
     if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
         return null;
     }
     
-    return teams.map(category => {
-       if (category.members.length === 0) return null;
-
-        return (
-            <div key={category.id} className="w-full">
-                <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-                    <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.name}</h3>
+    return (
+        <section className="w-full bg-card/10 py-16">
+            <div className="container mx-auto px-4 md:px-6 space-y-12">
+                <div className="w-full text-center">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
                 </div>
-                {renderMembers(category.members)}
+                {teams.map(category => {
+                    if (category.members.length === 0) return null;
+                    return (
+                        <div key={category.id} className="w-full">
+                            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                                <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.name}</h3>
+                            </div>
+                            {renderMembers(category.members)}
+                        </div>
+                    )
+                })}
             </div>
-        )
-    });
+        </section>
+    );
   };
   
   return (
@@ -231,38 +227,9 @@ export default function TeamPage() {
         </section>
         
         <div className="space-y-16">
-            {coreTeamMembers.length > 0 && (
-            <section className="w-full bg-card/10 py-16">
-                <div className="container mx-auto px-4 md:px-6 space-y-12">
-                    <div className="w-full text-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Core Team</h2>
-                    </div>
-                    {renderMembers(coreTeamMembers)}
-                </div>
-            </section>
-            )}
-            
-            {technicalTeams.length > 0 && (
-            <section className="w-full bg-card/10 py-16">
-                <div className="container mx-auto px-4 md:px-6 space-y-12">
-                    <div className="w-full text-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Technical Teams</h2>
-                    </div>
-                    {renderTeamSection(technicalTeams)}
-                </div>
-            </section>
-            )}
-
-            {nonTechnicalTeams.length > 0 && (
-            <section className="w-full bg-card/10 py-16">
-                <div className="container mx-auto px-4 md:px-6 space-y-12">
-                    <div className="w-full text-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Non-Technical Teams</h2>
-                    </div>
-                    {renderTeamSection(nonTechnicalTeams)}
-                </div>
-            </section>
-            )}
+            {renderTeamSection(coreTeams, "Core Team")}
+            {renderTeamSection(technicalTeams, "Technical Teams")}
+            {renderTeamSection(nonTechnicalTeams, "Non-Technical Teams")}
         </div>
         
       </main>
