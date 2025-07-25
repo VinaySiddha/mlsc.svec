@@ -1,19 +1,34 @@
 
-import { getDeadline } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { CountdownTimer } from "@/components/countdown-timer";
 
-export const dynamic = 'force-dynamic';
+const events = [
+  {
+    title: "Innovate AI Hackathon",
+    description: "A 24-hour hackathon focused on developing innovative AI-powered solutions to real-world problems. Participants collaborated in teams to build and present their projects.",
+    image: "https://placehold.co/600x400.png",
+    aiHint: "hackathon team"
+  },
+  {
+    title: "Azure Cloud Workshop",
+    description: "An interactive workshop where members learned the fundamentals of cloud computing with Microsoft Azure. It covered virtual machines, storage, and serverless functions.",
+    image: "https://placehold.co/600x400.png",
+    aiHint: "cloud workshop"
+  },
+  {
+    title: "Data Science Bootcamp",
+    description: "A week-long intensive bootcamp on data science and machine learning. Topics included data analysis, visualization, and building predictive models with Python.",
+    image: "https://placehold.co/600x400.png",
+    aiHint: "data science"
+  },
+];
 
-export default async function Home() {
-  const { deadlineTimestamp } = await getDeadline();
-
+export default function EventsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -85,47 +100,43 @@ export default async function Home() {
           </div>
         </div>
       </header>
-      
-      {/* Main Content */}
+
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
-              <div className="flex flex-col justify-center space-y-6">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-foreground">
-                  Build the Future of Tech with MLSC 3.0
-                </h1>
-                <p className="max-w-[600px] text-lg text-muted-foreground">
-                  We are a community of innovators, thinkers, and creators at SVEC. Join us to learn, build, and grow your skills in technology and beyond.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                   <Button asChild size="lg" className="shadow-lg hover:shadow-primary/50 transition-shadow">
-                    <Link href="/apply">Apply Now</Link>
-                  </Button>
-                   <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-accent/50 transition-shadow">
-                    <Link href="/status">Check Status</Link>
-                  </Button>
+        <section id="events" className="w-full py-20 md:py-28">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="space-y-12">
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our Past Events</h2>
+                        <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                            We host a variety of events to help our members learn, grow, and connect.
+                        </p>
+                    </div>
+                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                        {events.map((event) => (
+                          <Card key={event.title} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2">
+                              <CardHeader>
+                                  <Image 
+                                    src={event.image} 
+                                    alt={event.title} 
+                                    width={600} 
+                                    height={400} 
+                                    className="rounded-t-lg object-cover" 
+                                    data-ai-hint={event.aiHint}
+                                  />
+                                  <CardTitle className="pt-4">{event.title}</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                  <p className="text-muted-foreground">{event.description}</p>
+                              </CardContent>
+                          </Card>
+                        ))}
+                    </div>
                 </div>
-                {deadlineTimestamp && <CountdownTimer deadline={deadlineTimestamp} />}
-              </div>
-              <div className="w-full flex justify-center">
-                <Image
-                  src="/logo.png"
-                  data-ai-hint="logo"
-                  width={400}
-                  height={400}
-                  alt="Microsoft Learn Student Club (MLSC) SVEC Logo"
-                  className="rounded-full object-contain shadow-2xl hover:scale-105 transition-transform duration-300"
-                  priority
-                />
-              </div>
             </div>
-          </div>
         </section>
       </main>
 
-      {/* Footer */}
+       {/* Footer */}
       <footer className="bg-card/50 border-t backdrop-blur-sm">
           <div className="container mx-auto py-12 px-4 md:px-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

@@ -1,19 +1,19 @@
 
-import { getDeadline } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { CountdownTimer } from "@/components/countdown-timer";
 
-export const dynamic = 'force-dynamic';
+const teamMembers = [
+    { name: "Vinay Siddha", role: "Club Lead", image: "https://placehold.co/400x400.png", aiHint: "male portrait" },
+    { name: "Varshini", role: "Co-Lead", image: "https://placehold.co/400x400.png", aiHint: "female portrait" },
+    { name: "Pavan", role: "Web Lead", image: "https://placehold.co/400x400.png", aiHint: "male portrait" },
+    { name: "Ganesh", role: "AI Lead", image: "https://placehold.co/400x400.png", aiHint: "male portrait" },
+];
 
-export default async function Home() {
-  const { deadlineTimestamp } = await getDeadline();
-
+export default function TeamPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -85,43 +85,35 @@ export default async function Home() {
           </div>
         </div>
       </header>
-      
-      {/* Main Content */}
+
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
-              <div className="flex flex-col justify-center space-y-6">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-foreground">
-                  Build the Future of Tech with MLSC 3.0
-                </h1>
-                <p className="max-w-[600px] text-lg text-muted-foreground">
-                  We are a community of innovators, thinkers, and creators at SVEC. Join us to learn, build, and grow your skills in technology and beyond.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                   <Button asChild size="lg" className="shadow-lg hover:shadow-primary/50 transition-shadow">
-                    <Link href="/apply">Apply Now</Link>
-                  </Button>
-                   <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-accent/50 transition-shadow">
-                    <Link href="/status">Check Status</Link>
-                  </Button>
+        <section id="team" className="w-full py-20 md:py-28 bg-card/50">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="space-y-12">
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Meet the Team</h2>
+                        <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                            The leaders driving the MLSC community forward.
+                        </p>
+                    </div>
+                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 justify-center">
+                        {teamMembers.map((member) => (
+                          <div key={member.name} className="flex flex-col items-center text-center group">
+                              <Image 
+                                src={member.image} 
+                                alt={`Photo of ${member.name}`}
+                                width={160} 
+                                height={160} 
+                                className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300"
+                                data-ai-hint={member.aiHint}
+                              />
+                              <h4 className="font-semibold text-lg">{member.name}</h4>
+                              <p className="text-primary">{member.role}</p>
+                          </div>
+                        ))}
+                    </div>
                 </div>
-                {deadlineTimestamp && <CountdownTimer deadline={deadlineTimestamp} />}
-              </div>
-              <div className="w-full flex justify-center">
-                <Image
-                  src="/logo.png"
-                  data-ai-hint="logo"
-                  width={400}
-                  height={400}
-                  alt="Microsoft Learn Student Club (MLSC) SVEC Logo"
-                  className="rounded-full object-contain shadow-2xl hover:scale-105 transition-transform duration-300"
-                  priority
-                />
-              </div>
             </div>
-          </div>
         </section>
       </main>
 

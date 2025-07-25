@@ -1,20 +1,12 @@
 
-import { getDeadline } from "@/app/actions";
-import { ApplicationForm } from "@/components/application-form";
-import { CountdownTimer } from "@/components/countdown-timer";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
-export const dynamic = 'force-dynamic';
-
-export default async function ApplyPage() {
-  const { deadlineTimestamp } = await getDeadline();
-  const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
-
+export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -51,7 +43,7 @@ export default async function ApplyPage() {
                         <nav className="flex flex-col gap-4">
                             <SheetClose asChild>
                                 <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Home className="h-5 w-5" /> Home
+                                    <HomeIcon className="h-5 w-5" /> Home
                                 </Link>
                             </SheetClose>
                              <SheetClose asChild>
@@ -86,44 +78,49 @@ export default async function ApplyPage() {
           </div>
         </div>
       </header>
-      
-      {/* Main Content */}
-      <main className="flex-1 py-12 md:py-20">
-        {/* Application Form Section */}
-        <section id="apply" className="w-full">
-          <div className="container mx-auto px-4 md:px-6">
-            <Card className="max-w-3xl mx-auto shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-3xl">Application Form</CardTitle>
-                <CardDescription>
-                  {isClosed
-                    ? "Submissions are now closed. Thank you for your interest."
-                    : "Complete the form to apply for a role at MLSC."}
-                </CardDescription>
-                {deadlineTimestamp && !isClosed && <CountdownTimer deadline={deadlineTimestamp} />}
-              </CardHeader>
-              <CardContent>
-                {isClosed ? (
-                   <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
-                      <Clock className="h-16 w-16 text-primary mb-4" />
-                      <h3 className="text-xl font-semibold">Registrations are closed</h3>
-                      <p className="text-muted-foreground mt-2">
-                        We are no longer accepting applications. Follow us for future announcements.
-                      </p>
-                    </div>
-                ) : (
-                   <ApplicationForm />
-                )}
-              </CardContent>
-            </Card>
-          </div>
+
+      <main className="flex-1">
+        <section id="about" className="w-full py-20 md:py-28 bg-card/50">
+            <div className="container mx-auto px-4 md:px-6">
+                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">About MLSC SVEC</h2>
+                    <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                        The Microsoft Learn Student Club (MLSC) at Sri Vasavi Engineering College is a dynamic community dedicated to fostering a culture of continuous learning and innovation. We empower students with technical skills, leadership qualities, and a collaborative spirit to tackle real-world challenges. Through workshops, hackathons, and projects, we bridge the gap between academic knowledge and industry demands.
+                    </p>
+                </div>
+            </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-card/50 border-t backdrop-blur-sm">
-          <div className="container mx-auto py-8 px-4 md:px-6 text-center text-sm text-muted-foreground">
-              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
+       {/* Footer */}
+       <footer className="bg-card/50 border-t backdrop-blur-sm">
+          <div className="container mx-auto py-12 px-4 md:px-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                          <MLSCLogo className="h-8 w-8" />
+                          <h3 className="text-xl font-bold">MLSC SVEC</h3>
+                      </div>
+                      <p className="text-muted-foreground">Fostering innovation and learning in the tech community at Sri Vasavi Engineering College.</p>
+                  </div>
+                  <div className="space-y-4">
+                      <h4 className="font-semibold text-lg">Quick Links</h4>
+                      <ul className="space-y-2">
+                          <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
+                          <li><Link href="/events" className="text-muted-foreground hover:text-primary">Events</Link></li>
+                          <li><Link href="/team" className="text-muted-foreground hover:text-primary">Team</Link></li>
+                          <li><Link href="/apply" className="text-muted-foreground hover:text-primary">Apply</Link></li>
+                      </ul>
+                  </div>
+                  <div className="space-y-4">
+                      <h4 className="font-semibold text-lg">Contact Us</h4>
+                      <p className="text-muted-foreground">Tadepalligudem, Andhra Pradesh, 534101</p>
+                      <p className="text-muted-foreground">Email: mlscsvec@gmail.com</p>
+                  </div>
+              </div>
+              <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
+                  <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
+              </div>
           </div>
       </footer>
     </div>

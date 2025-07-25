@@ -1,3 +1,4 @@
+
 import { MLSCLogo } from "@/components/icons";
 import { StatusCheckForm } from "@/components/status-check-form";
 import { Button } from "@/components/ui/button";
@@ -19,9 +20,9 @@ export default function StatusPage() {
           </Link>
           <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-             <Link href="/#about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
-             <Link href="/#events" className="text-muted-foreground hover:text-foreground transition-colors">Events</Link>
-             <Link href="/#team" className="text-muted-foreground hover:text-foreground transition-colors">Team</Link>
+             <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
+             <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">Events</Link>
+             <Link href="/team" className="text-muted-foreground hover:text-foreground transition-colors">Team</Link>
              <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">Login</Link>
              <Button asChild>
               <Link href="/apply">
@@ -46,17 +47,17 @@ export default function StatusPage() {
                                 </Link>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/#about" className="flex items-center gap-2 text-lg font-semibold">
+                                <Link href="/about" className="flex items-center gap-2 text-lg font-semibold">
                                     <Users className="h-5 w-5" /> About
                                 </Link>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/#events" className="flex items-center gap-2 text-lg font-semibold">
+                                <Link href="/events" className="flex items-center gap-2 text-lg font-semibold">
                                     <Calendar className="h-5 w-5" /> Events
                                 </Link>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/#team" className="flex items-center gap-2 text-lg font-semibold">
+                                <Link href="/team" className="flex items-center gap-2 text-lg font-semibold">
                                     <Group className="h-5 w-5" /> Team
                                 </Link>
                             </SheetClose>
