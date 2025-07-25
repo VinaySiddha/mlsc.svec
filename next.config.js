@@ -6,7 +6,18 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: {},
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
+  },
 };
 
 module.exports = config;
