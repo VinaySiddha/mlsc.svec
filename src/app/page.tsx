@@ -37,9 +37,9 @@ export default async function Home() {
   const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
             <MLSCLogo className="h-8 w-8 text-primary" />
@@ -103,7 +103,7 @@ export default async function Home() {
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-20 md:py-32 lg:py-40 bg-card/50">
+        <section className="w-full py-20 md:py-32 lg:py-40">
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="flex flex-col justify-center space-y-6">
@@ -148,7 +148,7 @@ export default async function Home() {
         </section>
 
         {/* Events Section */}
-        <section id="events" className="w-full py-20 md:py-28 bg-card/50">
+        <section id="events" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="space-y-12">
                     <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -183,7 +183,7 @@ export default async function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-card/50 border-t">
+      <footer className="bg-card/50 border-t backdrop-blur-sm">
           <div className="container mx-auto py-12 px-4 md:px-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="space-y-4">

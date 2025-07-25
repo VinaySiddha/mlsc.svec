@@ -24,7 +24,7 @@ export default async function InterviewAnalyticsPage() {
   if ('error' in analyticsData) {
       return (
         <div className="flex flex-col min-h-screen">
-         <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+         <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
             <div className="container mx-auto flex items-center justify-between gap-4">
               <Link href="/admin" className="flex items-center gap-4">
                 <MLSCLogo className="h-10 w-10 text-primary" />
@@ -60,7 +60,7 @@ export default async function InterviewAnalyticsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
         <div className="container mx-auto flex items-center justify-between gap-4">
           <Link href="/admin" className="flex items-center gap-4">
             <MLSCLogo className="h-10 w-10 text-primary" />

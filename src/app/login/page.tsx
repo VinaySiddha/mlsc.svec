@@ -64,7 +64,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-       <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
+       <header className="py-4 px-4 sm:px-6 md:px-8 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-4">
             <MLSCLogo className="h-10 w-10 text-primary" />
