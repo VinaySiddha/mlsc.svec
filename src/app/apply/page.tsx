@@ -6,7 +6,7 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileSearch, Home, LogIn, Menu, Clock } from "lucide-react";
+import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -26,23 +26,15 @@ export default async function ApplyPage() {
               MLSC SVEC
             </span>
           </Link>
-          <nav className="hidden sm:flex items-center gap-2">
-             <Button asChild variant="outline">
-              <Link href="/">
-                <Home />
-                <span>Home</span>
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/status">
-                <FileSearch />
-                <span>Check Status</span>
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link href="/login">
-                <LogIn />
-                <span>Admin Login</span>
+          <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
+             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
+             <Link href="/#about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
+             <Link href="/#events" className="text-muted-foreground hover:text-foreground transition-colors">Events</Link>
+             <Link href="/#team" className="text-muted-foreground hover:text-foreground transition-colors">Team</Link>
+             <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">Login</Link>
+             <Button asChild>
+              <Link href="/apply">
+                Apply
               </Link>
             </Button>
           </nav>
@@ -62,15 +54,33 @@ export default async function ApplyPage() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/status">
-                    <FileSearch className="mr-2" />
-                    <span>Check Status</span>
+                   <Link href="/#about">
+                    <Users className="mr-2" />
+                    <span>About</span>
+                  </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                   <Link href="/#events">
+                    <Calendar className="mr-2" />
+                    <span>Events</span>
+                  </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                   <Link href="/#team">
+                    <Group className="mr-2" />
+                    <span>Team</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/login">
                     <LogIn className="mr-2" />
-                    <span>Admin Login</span>
+                    <span>Login</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/apply">
+                    <Send className="mr-2" />
+                    <span>Apply</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
