@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -20,6 +21,7 @@ export default {
         sans: ['var(--font-custom)', 'sans-serif'],
         body: ['var(--font-custom)', 'sans-serif'],
         headline: ['var(--font-custom)', 'sans-serif'],
+        graffiti: ['"Rockhand"', 'cursive'],
       },
       colors: {
         background: 'hsl(var(--background))',

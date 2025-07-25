@@ -76,47 +76,49 @@ export default function Home() {
              ))}
              <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
              <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
-             <Button asChild>
-                <Link href="/apply">Apply Now</Link>
-             </Button>
           </nav>
-          <div className="lg:hidden">
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button variant="outline" size="icon" className="bg-transparent border-gray-400 hover:bg-white/10">
-                        <Menu />
-                        <span className="sr-only">Open menu</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="bg-gray-900/90 border-r-gray-700/50 text-white">
-                    <div className="p-4">
-                        <nav className="flex flex-col gap-4">
-                            {navLinks.map(link => (
-                                <SheetClose key={link.href} asChild>
-                                    <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                        <link.icon className="h-5 w-5" /> {link.label}
+          <div className="flex items-center gap-4">
+            <Button asChild>
+                <Link href="/apply">Apply Now</Link>
+            </Button>
+            <div className="lg:hidden">
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon" className="bg-transparent border-gray-400 hover:bg-white/10">
+                            <Menu />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="bg-gray-900/90 border-r-gray-700/50 text-white">
+                        <div className="p-4">
+                            <nav className="flex flex-col gap-4">
+                                {navLinks.map(link => (
+                                    <SheetClose key={link.href} asChild>
+                                        <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                            <link.icon className="h-5 w-5" /> {link.label}
+                                        </Link>
+                                    </SheetClose>
+                                ))}
+                                <SheetClose asChild>
+                                    <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <Book className="h-5 w-5" /> Blog
+                                    </a>
+                                </SheetClose>
+                                <SheetClose asChild>
+                                    <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <Code className="h-5 w-5" /> Projects
+                                    </a>
+                                </SheetClose>
+                                <SheetClose asChild>
+                                    <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <Send className="h-5 w-5" /> Apply
                                     </Link>
                                 </SheetClose>
-                            ))}
-                            <SheetClose asChild>
-                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                    <Book className="h-5 w-5" /> Blog
-                                </a>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                    <Code className="h-5 w-5" /> Projects
-                                </a>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                    <Send className="h-5 w-5" /> Apply
-                                </Link>
-                            </SheetClose>
-                        </nav>
-                    </div>
-                </SheetContent>
-            </Sheet>
+                            </nav>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
           </div>
         </div>
       </header>
@@ -134,9 +136,12 @@ export default function Home() {
                  <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-white/10 animate-pulse">
                     <Github className="w-full h-full" />
                 </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <h1 className="text-[20vw] font-black text-white/5 font-graffiti select-none">MLSC</h1>
+                </div>
             </div>
             <div className="home-content container mx-auto px-4 md:px-8 relative z-10">
-                <h1 className="text-5xl md:text-7xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-blue-400">SVEC</span></h1>
+                <h1 className="text-5xl md:text-7xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down font-graffiti" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-blue-400">SVEC</span></h1>
                 <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-white/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)] animate-fade-in-down" style={{animationDelay: '0.4s'}}>
                     <h3>Learn-Train-Serve</h3>
                 </div>
@@ -236,7 +241,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="footer bg-gray-900/70 border-t border-white/10 py-6">
+      <footer className="footer bg-gray-900/50 border-t border-white/10 py-6">
           <div className="container mx-auto text-center text-sm text-gray-400">
               <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>
