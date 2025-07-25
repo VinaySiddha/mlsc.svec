@@ -13,7 +13,7 @@ import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { createEvent, updateEvent } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -28,6 +28,9 @@ const eventFormSchema = z.object({
   }),
   image: z.string().url("Please enter a valid image URL."),
   registrationOpen: z.boolean().default(false),
+  bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
+  speakers: z.string().optional(),
+  highlightImages: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof eventFormSchema>;
@@ -49,6 +52,9 @@ export function EventForm({ event }: EventFormProps) {
             date: event?.date ? new Date(event.date) : new Date(),
             image: event?.image || "",
             registrationOpen: event?.registrationOpen || false,
+            bannerLink: event?.bannerLink || "",
+            speakers: event?.speakers || "",
+            highlightImages: event?.highlightImages || "",
         },
     });
 
@@ -125,14 +131,64 @@ export function EventForm({ event }: EventFormProps) {
                     name="image"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Event Image URL</FormLabel>
+                            <FormLabel>Cover Image URL</FormLabel>
                             <FormControl>
                                 <Input placeholder="https://placehold.co/600x400.png" {...field} />
+                            </FormControl>
+                            <FormDescription>This is the main image shown on the events list.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="bannerLink"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Event Banner Link (Optional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Google Drive link to the banner image" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+
+                <FormField
+                    control={form.control}
+                    name="speakers"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Speakers (Optional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g., John Doe, Jane Smith" {...field} />
+                            </FormControl>
+                            <FormDescription>Comma-separated list of speaker names.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="highlightImages"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Highlight Images (Optional)</FormLabel>
+                            <FormControl>
+                                <Textarea
+                                    placeholder="Enter one Google Drive image link per line."
+                                    className="resize-y"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormDescription>These images will be displayed in a carousel on the event page.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
 
                 <div className="flex flex-col sm:flex-row gap-4">
                     <FormField
@@ -209,4 +265,3 @@ export function EventForm({ event }: EventFormProps) {
         </Form>
     );
 }
-

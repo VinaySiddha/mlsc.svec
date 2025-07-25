@@ -100,6 +100,9 @@ const eventFormSchema = z.object({
   date: z.date(),
   image: z.string().url("Please enter a valid image URL."),
   registrationOpen: z.boolean().default(false),
+  bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
+  speakers: z.string().optional(),
+  highlightImages: z.string().optional(),
 });
 
 const registrationSchema = z.object({
@@ -935,7 +938,11 @@ export async function createEvent(values: z.infer<typeof eventFormSchema>) {
         return { error: 'Invalid event data.' };
     }
     try {
-        const docRef = await addDoc(collection(db, 'events'), parsed.data);
+        const dataToSave = {
+            ...parsed.data,
+            highlightImages: parsed.data.highlightImages?.split('\n').filter(link => link.trim() !== '') || [],
+        };
+        const docRef = await addDoc(collection(db, 'events'), dataToSave);
         return { success: true, id: docRef.id };
     } catch (error) {
         return { error: 'Failed to create event.' };
@@ -948,8 +955,12 @@ export async function updateEvent(id: string, values: z.infer<typeof eventFormSc
         return { error: 'Invalid event data.' };
     }
     try {
+        const dataToUpdate = {
+            ...parsed.data,
+            highlightImages: parsed.data.highlightImages?.split('\n').filter(link => link.trim() !== '') || [],
+        };
         const eventDoc = doc(db, 'events', id);
-        await updateDoc(eventDoc, parsed.data);
+        await updateDoc(eventDoc, dataToUpdate as any);
         return { success: true };
     } catch (error) {
         return { error: 'Failed to update event.' };
@@ -990,7 +1001,13 @@ export async function getEventById(id: string) {
         if (!eventDoc.exists()) {
             return { error: 'Event not found.' };
         }
-        const eventData = { ...eventDoc.data(), id: eventDoc.id, date: eventDoc.data().date.toDate().toISOString() };
+        const data = eventDoc.data();
+        const eventData = { 
+            ...data,
+            id: eventDoc.id,
+            date: data.date.toDate().toISOString(),
+            highlightImages: Array.isArray(data.highlightImages) ? data.highlightImages.join('\n') : '',
+        };
         return { event: eventData as any };
     } catch (error) {
         return { error: 'Failed to fetch event.' };
