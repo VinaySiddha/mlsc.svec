@@ -29,6 +29,7 @@ const navLinks = [
     { href: "/team", label: "Team", icon: Group },
     { href: "/events", label: "Events", icon: Calendar },
     { href: "/about", label: "About", icon: Users },
+    { href: "/blog", label: "Blog", icon: Book },
 ];
 
 export default function LoginPage() {
@@ -84,7 +85,6 @@ export default function LoginPage() {
              {navLinks.map(link => (
                  <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
              ))}
-             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
              <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
           <div className="lg:hidden">
@@ -105,11 +105,6 @@ export default function LoginPage() {
                                     </Link>
                                 </SheetClose>
                             ))}
-                             <SheetClose asChild>
-                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                    <Book className="h-5 w-5" /> Blog
-                                </a>
-                            </SheetClose>
                              <SheetClose asChild>
                                 <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Code className="h-5 w-5" /> Projects
@@ -162,7 +157,7 @@ export default function LoginPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-600" disabled={isSubmitting}>
+                <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600" disabled={isSubmitting}>
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Log in
                 </Button>

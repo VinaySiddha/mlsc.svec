@@ -14,6 +14,7 @@ const navLinks = [
     { href: "/team", label: "Team", icon: Group },
     { href: "/events", label: "Events", icon: Calendar },
     { href: "/about", label: "About", icon: Users },
+    { href: "/blog", label: "Blog", icon: Book },
 ];
 
 const VsCodeIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -74,7 +75,6 @@ export default function Home() {
              {navLinks.map(link => (
                  <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
              ))}
-             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
              <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
           <div className="flex items-center gap-4">
@@ -96,11 +96,6 @@ export default function Home() {
                                         </Link>
                                     </SheetClose>
                                 ))}
-                                <SheetClose asChild>
-                                    <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                        <Book className="h-5 w-5" /> Blog
-                                    </a>
-                                </SheetClose>
                                 <SheetClose asChild>
                                     <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                         <Code className="h-5 w-5" /> Projects
@@ -128,7 +123,7 @@ export default function Home() {
                 <div className="absolute top-1/4 left-1/4 w-16 h-16 text-blue-500/20 animate-pulse-slow">
                     <VsCodeIcon />
                 </div>
-                 <div className="absolute top-1/2 right-1/4 w-24 h-24 text-cyan-400/10 animate-spin-slow">
+                 <div className="absolute top-1/2 right-1/4 w-24 h-24 text-blue-400/10 animate-spin-slow">
                     <AzureIcon />
                 </div>
                  <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-white/10 animate-pulse">

@@ -22,6 +22,7 @@ const navLinks = [
     { href: "/team", label: "Team", icon: Group },
     { href: "/events", label: "Events", icon: Calendar },
     { href: "/about", label: "About", icon: Users },
+    { href: "/blog", label: "Blog", icon: Book },
 ];
 
 export default async function EventsPage() {
@@ -54,7 +55,6 @@ export default async function EventsPage() {
              {navLinks.map(link => (
                  <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
              ))}
-             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
              <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
           <div className="lg:hidden">
@@ -75,11 +75,6 @@ export default async function EventsPage() {
                                     </Link>
                                 </SheetClose>
                             ))}
-                            <SheetClose asChild>
-                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                    <Book className="h-5 w-5" /> Blog
-                                </a>
-                            </SheetClose>
                             <SheetClose asChild>
                                 <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Code className="h-5 w-5" /> Projects
@@ -103,7 +98,7 @@ export default async function EventsPage() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="space-y-12">
                     <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-cyan-400">Events</span></h2>
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-blue-400">Events</span></h2>
                         <p className="max-w-[900px] text-gray-300 md:text-xl">
                             We host a variety of events to help our members learn, grow, and connect.
                         </p>
@@ -123,7 +118,7 @@ export default async function EventsPage() {
                                 />
                                 </div>
                                 <div className="p-6 flex flex-col flex-1 lg:w-2/3">
-                                    <p className="text-sm text-cyan-400 font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
+                                    <p className="text-sm text-blue-400 font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
                                     <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
                                     <p className="text-gray-300 mt-2 flex-1">{event.description}</p>
                                     

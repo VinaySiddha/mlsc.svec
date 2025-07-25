@@ -1,30 +1,25 @@
 
-import { getDeadline } from "@/app/actions";
-import { ApplicationForm } from "@/components/application-form";
-import { CountdownTimer } from "@/components/countdown-timer";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group, Book, Code } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, Send, Menu, Book, Code, BookOpen } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const navLinks = [
-    { href: "/", label: "Home", icon: Home },
+    { href: "/", label: "Home", icon: HomeIcon },
     { href: "/team", label: "Team", icon: Group },
     { href: "/events", label: "Events", icon: Calendar },
     { href: "/about", label: "About", icon: Users },
     { href: "/blog", label: "Blog", icon: Book },
 ];
 
-export default async function ApplyPage() {
-  const { deadlineTimestamp } = await getDeadline();
-  const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
-
+export default function BlogPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Header */}
-       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
             <MLSCLogo className="h-10 w-10 text-primary" />
@@ -56,7 +51,7 @@ export default async function ApplyPage() {
                                     </Link>
                                 </SheetClose>
                             ))}
-                            <SheetClose asChild>
+                             <SheetClose asChild>
                                 <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Code className="h-5 w-5" /> Projects
                                 </a>
@@ -73,41 +68,49 @@ export default async function ApplyPage() {
           </div>
         </div>
       </header>
-      
-      {/* Main Content */}
-      <main className="flex-1 py-12 md:py-20">
-        {/* Application Form Section */}
-        <section id="apply" className="w-full">
-          <div className="container mx-auto px-4 md:px-6">
-            <Card className="max-w-3xl mx-auto shadow-lg glass-card text-white">
-              <CardHeader>
-                <CardTitle className="text-3xl">Application Form</CardTitle>
-                <CardDescription className="text-gray-300">
-                  {isClosed
-                    ? "Submissions are now closed. Thank you for your interest."
-                    : "Complete the form to apply for a role at MLSC."}
-                </CardDescription>
-                {deadlineTimestamp && !isClosed && <CountdownTimer deadline={deadlineTimestamp} />}
-              </CardHeader>
-              <CardContent>
-                {isClosed ? (
-                   <div className="flex flex-col items-center justify-center text-center p-8 bg-gray-800/60 rounded-lg">
-                      <Clock className="h-16 w-16 text-blue-400 mb-4" />
-                      <h3 className="text-xl font-semibold">Registrations are closed</h3>
-                      <p className="text-gray-400 mt-2">
-                        We are no longer accepting applications. Follow us for future announcements.
-                      </p>
-                    </div>
-                ) : (
-                   <ApplicationForm />
-                )}
-              </CardContent>
-            </Card>
-          </div>
+
+      <main className="flex-1">
+        <section id="blogs" className="w-full py-20 md:py-28">
+            <div className="container mx-auto px-4 md:px-6">
+                 <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-blue-400">Blogs</span></h2>
+                    <p className="max-w-[900px] text-gray-300 md:text-xl">
+                        Read our latest articles and updates.
+                    </p>
+                </div>
+                <div className="grid gap-8 lg:gap-12">
+                    <Card className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
+                        <div className="lg:w-2/5">
+                            <Image 
+                                src="https://placehold.co/600x400.png" 
+                                alt="Blog Post Image" 
+                                width={600} 
+                                height={400} 
+                                className="rounded-t-lg lg:rounded-l-lg lg:rounded-t-none object-cover h-full w-full" 
+                                data-ai-hint="tech event photo"
+                            />
+                        </div>
+                        <div className="p-6 flex flex-col flex-1 lg:w-3/5">
+                            <div className="flex items-center gap-2 text-blue-400 mb-2">
+                                <BookOpen className="h-6 w-6" />
+                                <span className="font-semibold">Medium</span>
+                            </div>
+                            <CardTitle className="pt-2 text-2xl">
+                                Unveiling Excellence: The Inauguration of the Microsoft Learn Student Club at Sri Vasavi Engineering College
+                            </CardTitle>
+                            <div className="mt-auto pt-4">
+                               <Button asChild variant="glass">
+                                <a href="https://link.medium.com/4aHNce3OlEb" target="_blank" rel="noopener noreferrer">Read More</a>
+                               </Button>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            </div>
         </section>
       </main>
 
-      {/* Footer */}
+       {/* Footer */}
       <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
           <div className="container mx-auto text-center text-sm text-gray-400">
               <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>

@@ -30,6 +30,7 @@ const navLinks = [
     { href: "/team", label: "Team", icon: Group },
     { href: "/events", label: "Events", icon: Calendar },
     { href: "/about", label: "About", icon: Users },
+    { href: "/blog", label: "Blog", icon: Book },
 ];
 
 const roleOrder: { [key: string]: number } = {
@@ -75,8 +76,8 @@ const renderMembers = (members: TeamMember[]) => {
                     data-ai-hint="person portrait"
                 />
                 <h4 className="font-semibold text-lg">{member.name}</h4>
-                <p className="text-cyan-400">{member.role}</p>
-                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-cyan-400 mt-1">
+                <p className="text-blue-400">{member.role}</p>
+                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-blue-400 mt-1">
                     LinkedIn
                 </a>
             </div>
@@ -101,7 +102,7 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
                   return (
                       <div key={category.id} className="w-full">
                           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-                              <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl text-cyan-400">{category.subDomain}</h3>
+                              <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl text-blue-400">{category.subDomain}</h3>
                           </div>
                           {renderMembers(category.members)}
                       </div>
@@ -148,7 +149,6 @@ export default async function TeamPage() {
              {navLinks.map(link => (
                  <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
              ))}
-             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
              <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
           <div className="lg:hidden">
@@ -171,11 +171,6 @@ export default async function TeamPage() {
                             ))}
                             <SheetClose asChild>
                                 <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
-                                    <Book className="h-5 w-5" /> Blog
-                                </a>
-                            </SheetClose>
-                            <SheetClose asChild>
-                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Code className="h-5 w-5" /> Projects
                                 </a>
                             </SheetClose>
@@ -194,7 +189,7 @@ export default async function TeamPage() {
 
       <main className="flex-1">
         <section className="w-full py-20 md:py-28 text-center">
-            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">Meet Our <span className="text-cyan-400">Team</span></h1>
+            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">Meet Our <span className="text-blue-400">Team</span></h1>
             <p className="max-w-[900px] mx-auto mt-4 text-gray-300 md:text-xl">The leaders and members driving the MLSC community forward.</p>
         </section>
         
