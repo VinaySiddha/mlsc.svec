@@ -138,8 +138,9 @@ export default function Home() {
                     <h1 className="text-[20vw] font-black text-white/5 font-graffiti select-none">MLSC</h1>
                 </div>
             </div>
-            <div className="home-content container mx-auto px-4 md:px-8 relative z-10">
+            <div className="home-content container mx-auto px-4 md:px-8 relative z-10 flex flex-col items-center">
                 <h1 className="text-5xl md:text-7xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down font-graffiti" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-blue-400">SVEC</span></h1>
+                 <MLSCLogo className="h-24 w-24 md:h-32 md:w-32 my-4 animate-fade-in-down" style={{animationDelay: '0.3s'}} />
                 <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-white/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)] animate-fade-in-down" style={{animationDelay: '0.4s'}}>
                     <h3>Learn-Train-Serve</h3>
                 </div>
@@ -188,7 +189,7 @@ export default function Home() {
             <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
                 <div className="image-container overflow-hidden rounded-lg shadow-lg mb-8 md:mb-0">
                     <div className="image-slider flex">
-                        <Image src="/team1.png" alt="MLSC Team" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
+                        <Image src="/team1.jpg" alt="MLSC Team" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
                     </div>
                 </div>
                 <div className="about-content text-center md:text-left">
@@ -246,3 +247,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
