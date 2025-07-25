@@ -5,7 +5,7 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileSearch, LogIn, Menu, Clock, Users, Calendar, Mic } from "lucide-react";
+import { FileSearch, LogIn, Menu, Clock, Users, Calendar, Mic, Send } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -48,13 +48,19 @@ export default async function Home() {
             </span>
           </Link>
           <nav className="hidden sm:flex items-center gap-2">
+             <Button asChild>
+              <Link href="/apply">
+                <Send />
+                <span>Apply Now</span>
+              </Link>
+            </Button>
             <Button asChild variant="outline">
               <Link href="/status">
                 <FileSearch />
                 <span>Check Status</span>
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild variant="ghost">
               <Link href="/login">
                 <LogIn />
                 <span>Admin Login</span>
@@ -70,6 +76,12 @@ export default async function Home() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                   <Link href="/apply">
+                    <Send className="mr-2" />
+                    <span>Apply Now</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/status">
                     <FileSearch className="mr-2" />
@@ -103,7 +115,7 @@ export default async function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                    <Button asChild size="lg">
-                    <Link href="#apply">Apply Now</Link>
+                    <Link href="/apply">Apply Now</Link>
                   </Button>
                 </div>
                 {deadlineTimestamp && <CountdownTimer deadline={deadlineTimestamp} />}
@@ -124,7 +136,7 @@ export default async function Home() {
         </section>
 
         {/* About Us Section */}
-        <section className="w-full py-20 md:py-28">
+        <section id="about" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">About MLSC SVEC</h2>
@@ -136,7 +148,7 @@ export default async function Home() {
         </section>
 
         {/* Events Section */}
-        <section className="w-full py-20 md:py-28 bg-card/50">
+        <section id="events" className="w-full py-20 md:py-28 bg-card/50">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="space-y-12">
                     <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -168,35 +180,6 @@ export default async function Home() {
                 </div>
             </div>
         </section>
-
-        {/* Application Form Section */}
-        <section id="apply" className="w-full py-20 md:py-28">
-          <div className="container mx-auto px-4 md:px-6">
-            <Card className="max-w-3xl mx-auto shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-3xl">Application Form</CardTitle>
-                <CardDescription>
-                  {isClosed
-                    ? "Submissions are now closed. Thank you for your interest."
-                    : "Complete the form to apply for a role at MLSC."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isClosed ? (
-                  <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
-                    <Clock className="h-16 w-16 text-primary mb-4" />
-                    <h3 className="text-xl font-semibold">Registrations are closed</h3>
-                    <p className="text-muted-foreground mt-2">
-                      We are no longer accepting applications. Follow us for future announcements.
-                    </p>
-                  </div>
-                ) : (
-                  <ApplicationForm />
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
@@ -215,7 +198,7 @@ export default async function Home() {
                       <ul className="space-y-2">
                           <li><Link href="#about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
                           <li><Link href="#events" className="text-muted-foreground hover:text-primary">Events</Link></li>
-                          <li><Link href="#apply" className="text-muted-foreground hover:text-primary">Apply</Link></li>
+                          <li><Link href="/apply" className="text-muted-foreground hover:text-primary">Apply</Link></li>
                       </ul>
                   </div>
                   <div className="space-y-4">
