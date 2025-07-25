@@ -114,6 +114,20 @@ const registrationSchema = z.object({
     yearOfStudy: z.string({ required_error: "Please select your year of study." }),
 });
 
+const teamCategorySchema = z.object({
+    name: z.string().min(2, "Category name is required."),
+    order: z.number().min(0, "Order must be a positive number."),
+});
+
+const teamMemberSchema = z.object({
+    name: z.string().min(2, "Name is required."),
+    role: z.string().min(2, "Role is required."),
+    image: z.string().url("A valid image URL is required."),
+    linkedin: z.string().url("A valid LinkedIn URL is required."),
+    categoryId: z.string({ required_error: "Please select a category." }),
+});
+
+
 // Generate a unique, readable reference ID
 function generateReferenceId() {
   const prefix = "MLSC";
@@ -1068,5 +1082,143 @@ export async function getEventRegistrations(eventId: string) {
     } catch (error) {
         console.error("Error fetching event registrations:", error);
         return { error: 'Could not fetch event registrations.' };
+    }
+}
+
+// Team Category Actions
+export async function createTeamCategory(values: z.infer<typeof teamCategorySchema>) {
+    const parsed = teamCategorySchema.safeParse(values);
+    if (!parsed.success) return { error: "Invalid data." };
+    try {
+        await addDoc(collection(db, 'teamCategories'), parsed.data);
+        return { success: true };
+    } catch (e) {
+        return { error: "Failed to create category." };
+    }
+}
+
+export async function getTeamCategories() {
+    try {
+        const q = query(collection(db, 'teamCategories'), orderBy('order'));
+        const snapshot = await getDocs(q);
+        const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return { categories };
+    } catch (e) {
+        return { error: "Failed to fetch categories." };
+    }
+}
+
+export async function getTeamCategoryById(id: string) {
+    try {
+        const docRef = doc(db, 'teamCategories', id);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) return { error: 'Category not found.' };
+        return { category: { id: docSnap.id, ...docSnap.data() } };
+    } catch (e) {
+        return { error: 'Failed to fetch category.' };
+    }
+}
+
+export async function updateTeamCategory(id: string, values: z.infer<typeof teamCategorySchema>) {
+    const parsed = teamCategorySchema.safeParse(values);
+    if (!parsed.success) return { error: "Invalid data." };
+    try {
+        await updateDoc(doc(db, 'teamCategories', id), parsed.data);
+        return { success: true };
+    } catch (e) {
+        return { error: "Failed to update category." };
+    }
+}
+
+export async function deleteTeamCategory(id: string) {
+    try {
+        // You might want to check if any team members are using this category first
+        await deleteDoc(doc(db, 'teamCategories', id));
+        return { success: true };
+    } catch (e) {
+        return { error: "Failed to delete category." };
+    }
+}
+
+// Team Member Actions
+export async function createTeamMember(values: z.infer<typeof teamMemberSchema>) {
+    const parsed = teamMemberSchema.safeParse(values);
+    if (!parsed.success) return { error: "Invalid data." };
+    try {
+        await addDoc(collection(db, 'teamMembers'), parsed.data);
+        return { success: true };
+    } catch (e) {
+        return { error: "Failed to create team member." };
+    }
+}
+
+export async function getTeamMembers() {
+    try {
+        const teamMembersSnapshot = await getDocs(collection(db, 'teamMembers'));
+        const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const teamCategoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), orderBy('order')));
+        const teamCategories = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const membersByCategory = teamCategories.map(category => ({
+            ...category,
+            members: teamMembers.filter(member => member.categoryId === category.id)
+        }));
+
+        return { membersByCategory };
+    } catch (e) {
+        console.error(e)
+        return { error: "Failed to fetch team members." };
+    }
+}
+
+export async function getAllTeamMembersWithCategory() {
+    try {
+        const membersSnapshot = await getDocs(collection(db, "teamMembers"));
+        const members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const categoriesSnapshot = await getDocs(collection(db, "teamCategories"));
+        const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
+        const categoryMap = new Map(categories.map(c => [c.id, c.name]));
+
+        const membersWithCategoryName = members.map(member => ({
+            ...member,
+            categoryName: categoryMap.get(member.categoryId) || 'Uncategorized'
+        }));
+        
+        return { members: membersWithCategoryName };
+    } catch (e) {
+        return { error: "Failed to fetch team members." };
+    }
+}
+
+export async function getTeamMemberById(id: string) {
+    try {
+        const docRef = doc(db, 'teamMembers', id);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) return { error: 'Team member not found.' };
+        return { member: { id: docSnap.id, ...docSnap.data() } };
+    } catch (e) {
+        return { error: 'Failed to fetch team member.' };
+    }
+}
+
+export async function updateTeamMember(id: string, values: z.infer<typeof teamMemberSchema>) {
+    const parsed = teamMemberSchema.safeParse(values);
+    if (!parsed.success) return { error: "Invalid data." };
+    try {
+        await updateDoc(doc(db, 'teamMembers', id), parsed.data);
+        return { success: true };
+    } catch (e) {
+        return { error: "Failed to update team member." };
+    }
+}
+
+export async function deleteTeamMember(id: string) {
+    try {
+        await deleteDoc(doc(db, 'teamMembers', id));
+        return { success: true };
+    } catch (e) {
+        return { error: "Failed to delete team member." };
     }
 }

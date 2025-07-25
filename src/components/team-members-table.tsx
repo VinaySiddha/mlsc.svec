@@ -1,0 +1,131 @@
+
+'use client';
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import { Pencil, Trash2, Loader2, Link as LinkIcon } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { deleteTeamMember } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+interface TeamMembersTableProps {
+    members: any[];
+}
+
+export function TeamMembersTable({ members }: TeamMembersTableProps) {
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const { toast } = useToast();
+    const router = useRouter();
+
+    const handleDelete = async (memberId: string) => {
+        setIsDeleting(memberId);
+        try {
+            const result = await deleteTeamMember(memberId);
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            toast({
+                title: "Member Deleted",
+                description: "The team member has been successfully deleted.",
+            });
+            router.refresh();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            toast({
+                variant: 'destructive',
+                title: 'Deletion Failed',
+                description: errorMessage,
+            });
+        } finally {
+            setIsDeleting(null);
+        }
+    }
+
+  return (
+    <div className="border rounded-md">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>LinkedIn</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {members.length > 0 ? (
+            members.map((member: any) => (
+                <TableRow key={member.id}>
+                  <TableCell className="font-medium flex items-center gap-3">
+                        <Image src={member.image} alt={member.name} width={40} height={40} className="rounded-full object-cover" />
+                        <span>{member.name}</span>
+                  </TableCell>
+                  <TableCell>{member.role}</TableCell>
+                  <TableCell>{member.categoryName}</TableCell>
+                  <TableCell>
+                      <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                          <LinkIcon className="h-4 w-4" />
+                      </a>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                         <Button asChild variant="outline" size="icon">
+                           <Link href={`/admin/team/edit/${member.id}`}>
+                               <Pencil className="h-4 w-4" />
+                               <span className="sr-only">Edit Member</span>
+                           </Link>
+                        </Button>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="icon" disabled={isDeleting === member.id}>
+                                    {isDeleting === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                    <span className="sr-only">Delete Member</span>
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the team member.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(member.id)} disabled={!!isDeleting}>
+                                    {isDeleting ? "Deleting..." : "Continue"}
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            )
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                No team members found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

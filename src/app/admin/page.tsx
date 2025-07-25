@@ -3,7 +3,7 @@ import { getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar } from "lucide-react";
+import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, Group } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -88,6 +88,22 @@ export default async function AdminPage() {
                   <CardContent>
                     <Button asChild>
                       <Link href="/admin/events">Manage Events</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                 <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Group className="h-6 w-6 text-primary" />
+                      Team Management
+                    </CardTitle>
+                    <CardDescription>
+                      Update the public team page members and categories.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild>
+                      <Link href="/admin/team">Manage Team</Link>
                     </Button>
                   </CardContent>
                 </Card>
