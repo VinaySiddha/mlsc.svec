@@ -4,7 +4,7 @@
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code } from "lucide-react";
+import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -28,9 +28,9 @@ const AzureIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
+const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.034c-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 12c0 1.74.45 3.48 1.34 5l-1.41 5.15 5.25-1.38c1.45.81 3.09 1.23 4.73 1.23h.01c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zM12.04 20.09h-.01c-1.47 0-2.92-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31c-.82-1.31-1.26-2.82-1.26-4.38 0-4.43 3.6-8.03 8.04-8.03s8.04 3.6 8.04 8.03-3.6 8.03-8.04 8.03zm4.52-6.13c-.27-.13-1.59-.78-1.84-.87-.25-.09-.43-.13-.62.13-.19.27-.7.87-.86 1.04-.16.18-.32.2-.59.06-.27-.13-1.14-.42-2.17-1.34-.8-.72-1.34-1.62-1.5-1.9-.16-.27-.02-.42.12-.55.12-.12.27-.3.4-.4.13-.12.18-.2.27-.34.09-.13.04-.27-.02-.39-.06-.13-.62-1.49-.84-2.04-.23-.55-.46-.48-.62-.48-.15 0-.33-.02-.51-.02s-.43.06-.66.33c-.23.27-.88.85-.88 2.07 0 1.22.9 2.39 1.02 2.56.12.18 1.76 2.69 4.27 3.78 2.51 1.08 2.51.72 2.96.69.45-.03 1.59-.65 1.81-1.26.22-.61.22-1.14.16-1.26-.06-.13-.24-.2-.51-.33z"/>
     </svg>
 );
 
@@ -123,7 +123,7 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden">
+        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden">
             <div className="absolute inset-0 bg-gray-900 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-16 h-16 text-blue-500/20 animate-pulse-slow">
                     <VsCodeIcon />
@@ -132,29 +132,29 @@ export default function Home() {
                     <AzureIcon />
                 </div>
                  <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-white/10 animate-pulse">
-                    <GithubIcon />
+                    <Github className="w-full h-full" />
                 </div>
             </div>
             <div className="home-content container mx-auto px-4 md:px-8 relative z-10">
-                <h1 className="text-5xl md:text-7xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)]">MLSC X <span className="text-blue-400">SVEC</span></h1>
-                <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-white/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)]">
+                <h1 className="text-5xl md:text-7xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-blue-400">SVEC</span></h1>
+                <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-white/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)] animate-fade-in-down" style={{animationDelay: '0.4s'}}>
                     <h3>Learn-Train-Serve</h3>
                 </div>
-                <p className="max-w-2xl text-lg text-gray-200 mx-auto [text-shadow:_0_1px_2px_rgb(0_0_0_/_20%)]">
+                <p className="max-w-2xl text-lg text-gray-200 mx-auto [text-shadow:_0_1px_2px_rgb(0_0_0_/_20%)] animate-fade-in-up" style={{animationDelay: '0.6s'}}>
                     Microsoft Learn Student Club, is a Technical Club which is dedicated to elevating the coding culture 
                     at Sri Vasavi Engineering College, Tadepalligudem by mentoring to refine 
                     their critical thinking and logical reasoning making them unrivalled!
                 </p>
             </div>
              <div className="home-sci absolute right-8 bottom-1/2 translate-y-1/2 flex-col gap-4 hidden md:flex z-10">
-                <a href="https://whatsapp.com/channel/0029VaJiNv72ER6emJMEl41u" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm">
-                    <Image src="/whatsapp.svg" alt="whatsapp" width={24} height={24} />
+                <a href="https://whatsapp.com/channel/0029VaJiNv72ER6emJMEl41u" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '0.8s'}}>
+                    <WhatsappIcon className="h-6 w-6"/>
                 </a>
-                <a href="https://www.instagram.com/mlsc.svec?igsh=MXNvandqbDJqdjhzOQ==" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm">
-                    <Image src="/instagram.svg" alt="instagram" width={24} height={24} />
+                <a href="https://www.instagram.com/mlsc.svec?igsh=MXNvandqbDJqdjhzOQ==" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '1s'}}>
+                    <Instagram className="h-6 w-6" />
                 </a>
-                <a href="https://www.linkedin.com/company/microsoft-learn-student-club-svec/" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm">
-                    <Image src="/linkedin.svg" alt="linkedin" width={24} height={24} />
+                <a href="https://www.linkedin.com/company/microsoft-learn-student-club-svec/" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '1.2s'}}>
+                    <Linkedin className="h-6 w-6" />
                 </a>
             </div>
         </section>
