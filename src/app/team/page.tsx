@@ -1,13 +1,11 @@
-'use client';
 
 import { getTeamMembers } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Github } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface TeamMember {
@@ -21,75 +19,22 @@ interface TeamMember {
 
 interface TeamCategory {
   id: string;
-  name: string; 
+  name: string;
   subDomain: string;
   order: number;
   members: TeamMember[];
 }
 
-
-export default function TeamPage() {
-  const [teamData, setTeamData] = useState<{
-      coreTeam: TeamCategory[],
-      technicalTeam: TeamCategory[],
-      nonTechnicalTeam: TeamCategory[],
-  }>({ coreTeam: [], technicalTeam: [], nonTechnicalTeam: [] });
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const result = await getTeamMembers();
-        if (result.error) {
-          setError(result.error);
-        } else if (result.membersByCategory) {
-          const categories = result.membersByCategory as TeamCategory[];
-          setTeamData({
-              coreTeam: categories.filter(c => c.name === 'Core Team'),
-              technicalTeam: categories.filter(c => c.name === 'Technical Team'),
-              nonTechnicalTeam: categories.filter(c => c.name === 'Non-Technical Team'),
-          });
-        }
-      } catch (e) {
-        setError("An unexpected error occurred.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  if (loading) {
-     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
-        <h2 className="text-2xl font-bold">Loading Team...</h2>
-      </div>
-     )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
-        <h2 className="text-2xl font-bold text-destructive">Failed to load team members</h2>
-        <p className="text-muted-foreground">{error}</p>
-        <Button asChild variant="link" className="mt-4">
-          <Link href="/">Return to Home</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  const roleOrder: { [key: string]: number } = {
+const roleOrder: { [key: string]: number } = {
     'Lead': 1,
     'Lead Advisor': 2,
     'Faculty Advisor': 3,
-    'Technical Architect': 4,
-    'Outreach Affairs Lead': 5,
-    'Secretary': 6,
-  };
+    'Secretary': 4,
+    'Technical Architect': 5,
+    'Outreach Affairs Lead': 6,
+};
 
-  const sortMembers = (members: TeamMember[]) => {
+const sortMembers = (members: TeamMember[]) => {
     return [...members].sort((a, b) => {
         const aOrder = roleOrder[a.role] || (a.role.includes('Head') ? 7 : 99);
         const bOrder = roleOrder[b.role] || (b.role.includes('Head') ? 7 : 99);
@@ -98,67 +43,88 @@ export default function TeamPage() {
         }
         return a.name.localeCompare(b.name);
     });
-  };
+};
 
-  const renderMembers = (members: TeamMember[]) => {
-      if (members.length === 0) return null;
-      
-      const containerClasses = cn(
-          "gap-8",
-          members.length > 1 
-            ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
-            : "flex justify-center"
-      );
+const renderMembers = (members: TeamMember[]) => {
+    if (members.length === 0) return null;
+    
+    const containerClasses = cn(
+        "gap-8",
+        members.length > 1 
+          ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
+          : "flex justify-center"
+    );
 
-      return (
-           <div className={containerClasses}>
-              {sortMembers(members).map((member: any) => (
-              <div key={member.id} className="flex flex-col items-center text-center group">
-                  <Image 
-                      src={member.image} 
-                      alt={`Photo of ${member.name}`}
-                      width={160} 
-                      height={160} 
-                      className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300 w-40 h-40"
-                      data-ai-hint="person portrait"
-                  />
-                  <h4 className="font-semibold text-lg">{member.name}</h4>
-                  <p className="text-primary">{member.role}</p>
-                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary mt-1">
-                      LinkedIn
-                  </a>
-              </div>
-              ))}
-          </div>
-      )
+    return (
+         <div className={containerClasses}>
+            {sortMembers(members).map((member: any) => (
+            <div key={member.id} className="flex flex-col items-center text-center group">
+                <Image 
+                    src={member.image} 
+                    alt={`Photo of ${member.name}`}
+                    width={160} 
+                    height={160} 
+                    className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300 w-40 h-40"
+                    data-ai-hint="person portrait"
+                />
+                <h4 className="font-semibold text-lg">{member.name}</h4>
+                <p className="text-primary">{member.role}</p>
+                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary mt-1">
+                    LinkedIn
+                </a>
+            </div>
+            ))}
+        </div>
+    )
+}
+
+const renderTeamSection = (teams: TeamCategory[], title: string) => {
+  if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
+      return null;
   }
   
-  const renderTeamSection = (teams: TeamCategory[], title: string) => {
-    if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
-        return null;
-    }
-    
-    return (
-        <section className="w-full bg-card/10 py-16">
-            <div className="container mx-auto px-4 md:px-6 space-y-12">
-                <div className="w-full text-center">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
-                </div>
-                {teams.map(category => {
-                    if (category.members.length === 0) return null;
-                    return (
-                        <div key={category.id} className="w-full">
-                            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-                                <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.subDomain}</h3>
-                            </div>
-                            {renderMembers(category.members)}
-                        </div>
-                    )
-                })}
+  return (
+      <section className="w-full bg-card/10 py-16">
+          <div className="container mx-auto px-4 md:px-6 space-y-12">
+              <div className="w-full text-center">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
+              </div>
+              {teams.map(category => {
+                  if (category.members.length === 0) return null;
+                  return (
+                      <div key={category.id} className="w-full">
+                          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                              <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.subDomain}</h3>
+                          </div>
+                          {renderMembers(category.members)}
+                      </div>
+                  )
+              })}
+          </div>
+      </section>
+  );
+};
+
+
+export default async function TeamPage() {
+    const { membersByCategory, error } = await getTeamMembers();
+
+    if (error || !membersByCategory) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen text-center">
+                <h2 className="text-2xl font-bold text-destructive">Failed to load team members</h2>
+                <p className="text-muted-foreground">{error}</p>
+                <Button asChild variant="link" className="mt-4">
+                    <Link href="/">Return to Home</Link>
+                </Button>
             </div>
-        </section>
-    );
-  };
+        );
+    }
+  
+  const allCategories = membersByCategory as TeamCategory[];
+  const coreTeam = allCategories.filter(c => c.name === 'Core Team');
+  const technicalTeam = allCategories.filter(c => c.name === 'Technical Team');
+  const nonTechnicalTeam = allCategories.filter(c => c.name === 'Non-Technical Team');
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -239,9 +205,9 @@ export default function TeamPage() {
         </section>
         
         <div className="space-y-16">
-            {renderTeamSection(teamData.coreTeam, "Core Team")}
-            {renderTeamSection(teamData.technicalTeam, "Technical Teams")}
-            {renderTeamSection(teamData.nonTechnicalTeam, "Non-Technical Teams")}
+            {renderTeamSection(coreTeam, "Core Team")}
+            {renderTeamSection(technicalTeam, "Technical Teams")}
+            {renderTeamSection(nonTechnicalTeam, "Non-Technical Teams")}
         </div>
         
       </main>
