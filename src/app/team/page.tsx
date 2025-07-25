@@ -79,10 +79,39 @@ export default function TeamPage() {
     "Data Science and Machine Learning",
     "Microsoft 365 and PowerPlatform"
   ];
+  
+  const roleOrder: { [key: string]: number } = {
+    'Lead': 1,
+    'Lead Advisor': 2,
+    'Faculty Advisor': 3,
+    'Secretary': 4,
+    'Technical Architect': 5,
+    'Outreach Affairs Lead': 6,
+    'Head': 7,
+    'Associate': 8,
+    'Subordinate': 9,
+  };
 
-  const coreTeams = membersByCategory.filter(category => coreCategoryNames.includes(category.name));
-  const technicalTeams = membersByCategory.filter(category => technicalCategoryNames.includes(category.name));
-  const nonTechnicalTeams = membersByCategory.filter(category => !coreCategoryNames.includes(category.name) && !technicalCategoryNames.includes(category.name));
+  const sortMembers = (a: TeamMember, b: TeamMember) => {
+    const roleA = roleOrder[a.role] || 99;
+    const roleB = roleOrder[b.role] || 99;
+    return roleA - roleB;
+  };
+  
+  const coreTeams = membersByCategory
+      .filter(category => coreCategoryNames.includes(category.name))
+      .map(category => ({ ...category, members: [...category.members].sort(sortMembers) }))
+      .sort((a, b) => a.order - b.order);
+
+  const technicalTeams = membersByCategory
+      .filter(category => technicalCategoryNames.includes(category.name))
+      .map(category => ({ ...category, members: [...category.members].sort(sortMembers) }))
+      .sort((a, b) => a.order - b.order);
+
+  const nonTechnicalTeams = membersByCategory
+      .filter(category => !coreCategoryNames.includes(category.name) && !technicalCategoryNames.includes(category.name))
+      .map(category => ({ ...category, members: [...category.members].sort(sortMembers) }))
+      .sort((a, b) => a.order - b.order);
 
 
   const renderTeamSection = (teams: TeamCategory[], showCategoryHeading: boolean = true) => {
