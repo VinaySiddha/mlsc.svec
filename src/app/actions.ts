@@ -1010,9 +1010,25 @@ export async function getEvents() {
             id: '2',
             title: 'Web development BootCamp',
             description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
-            date: new Date().toISOString(), // Shows as upcoming
+            date: new Date('2024-03-14T00:00:00Z').toISOString(),
             image: 'https://placehold.co/600x400.png',
-            registrationOpen: true,
+            registrationOpen: false,
+        },
+        {
+            id: '3',
+            title: 'Blue Day',
+            description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
+            date: new Date('2024-01-25T00:00:00Z').toISOString(),
+            image: 'https://placehold.co/600x400.png',
+            registrationOpen: false,
+        },
+        {
+            id: '4',
+            title: 'The Flask Edition',
+            description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
+            date: new Date('2024-02-06T00:00:00Z').toISOString(),
+            image: 'https://placehold.co/600x400.png',
+            registrationOpen: false,
         }
     ];
 
