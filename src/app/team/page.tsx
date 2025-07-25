@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const teamMembers = [
-    { name: "Vinay Siddha", role: "Club Lead", image: "https://placehold.co/400x400.png", aiHint: "male portrait" },
+    { name: "Vinay Siddha", role: "Club Lead", image: "https://lh3.googleusercontent.com/a/ACg8ocK_3K-g86gqclO21b22qJAnrI6h1E3hQkL-iO-p18yV=s96-c", aiHint: "male portrait" },
     { name: "Varshini", role: "Co-Lead", image: "https://placehold.co/400x400.png", aiHint: "female portrait" },
     { name: "Pavan", role: "Web Lead", image: "https://placehold.co/400x400.png", aiHint: "male portrait" },
     { name: "Ganesh", role: "AI Lead", image: "https://placehold.co/400x400.png", aiHint: "male portrait" },
