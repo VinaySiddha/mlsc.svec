@@ -101,13 +101,13 @@ export default async function TeamPage() {
         </section>
         
         {membersByCategory.map(category => (
-            <section key={category.id} className="w-full py-12 md:py-16 bg-card/50">
+            <section key={category.id} className="w-full py-12 md:py-16 bg-card/10">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="space-y-12">
                         <div className="flex flex-col items-center justify-center space-y-4 text-center">
                             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{category.name}</h2>
                         </div>
-                        <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 justify-center">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 justify-center">
                             {category.members.map((member: any) => (
                               <div key={member.id} className="flex flex-col items-center text-center group">
                                   <Image 
