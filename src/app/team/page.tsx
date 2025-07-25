@@ -86,17 +86,19 @@ export default function TeamPage() {
   const nonTechnicalTeams = membersByCategory.filter(category => !coreCategoryNames.includes(category.name) && !technicalCategoryNames.includes(category.name));
 
 
-  const renderTeamSection = (teams: TeamCategory[], title: string) => {
-    // Don't render the section if there are no teams
+  const renderTeamSection = (teams: TeamCategory[], title: string, showMainHeading: boolean = true) => {
+    // Don't render the section if there are no teams or members
     if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
         return null;
     }
 
     return (
         <>
-            <div className="w-full py-12 text-center">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
-            </div>
+            {showMainHeading && (
+                 <div className="w-full py-12 text-center">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
+                </div>
+            )}
             {teams.map(category => (
                 <section key={category.id} className="w-full py-12 md:py-16 bg-card/10">
                     <div className="container mx-auto px-4 md:px-6">
@@ -209,9 +211,9 @@ export default function TeamPage() {
             <p className="max-w-[900px] mx-auto mt-4 text-muted-foreground md:text-xl">The leaders and members driving the MLSC community forward.</p>
         </section>
         
-        {renderTeamSection(coreTeams, "Core Team")}
-        {renderTeamSection(technicalTeams, "Technical Teams")}
-        {renderTeamSection(nonTechnicalTeams, "Non-Technical Teams")}
+        {renderTeamSection(coreTeams, "Core Team", true)}
+        {renderTeamSection(technicalTeams, "Technical Teams", true)}
+        {renderTeamSection(nonTechnicalTeams, "Non-Technical Teams", true)}
         
       </main>
 
