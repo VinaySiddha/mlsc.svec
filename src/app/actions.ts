@@ -1032,7 +1032,9 @@ export async function getEvents() {
         }
     ];
 
-    return { events: staticEvents, error: null };
+    const sortedEvents = staticEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return { events: sortedEvents, error: null };
 }
 
 
