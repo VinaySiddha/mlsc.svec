@@ -61,50 +61,58 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen text-foreground bg-gray-900 text-white">
+    <div className="flex flex-col min-h-screen text-foreground bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
             <MLSCLogo className="h-10 w-10 text-primary" />
-            <span className="text-2xl font-bold tracking-tight">
+            <span className="text-xl font-bold tracking-tight">
               Microsoft Learn Student Club
             </span>
           </Link>
           <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
              {navLinks.map(link => (
-                 <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
+                 <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
              ))}
-             <Link href="/projects" className="text-gray-300 hover:text-white transition-colors">Projects</Link>
+             <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
           </nav>
           <div className="flex items-center gap-4">
+            <Button asChild variant="glass" size="sm" className="hidden lg:flex">
+              <Link href="/login"><LogIn /> Login</Link>
+            </Button>
             <div className="lg:hidden">
                 <Sheet>
                     <SheetTrigger asChild>
-                        <Button variant="outline" size="icon" className="bg-transparent border-gray-400 hover:bg-white/10">
+                        <Button variant="outline" size="icon" className="bg-transparent border-border hover:bg-background/80">
                             <Menu />
                             <span className="sr-only">Open menu</span>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="bg-gray-900/90 border-r-gray-700/50 text-white">
+                    <SheetContent side="left" className="bg-background/90 border-r-border/50 text-foreground">
                         <div className="p-4">
                             <nav className="flex flex-col gap-4">
                                 {navLinks.map(link => (
                                     <SheetClose key={link.href} asChild>
-                                        <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
                                             <link.icon className="h-5 w-5" /> {link.label}
                                         </Link>
                                     </SheetClose>
                                 ))}
                                 <SheetClose asChild>
-                                    <Link href="/projects" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Link href="/projects" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
                                         <Code className="h-5 w-5" /> Projects
                                     </Link>
                                 </SheetClose>
                                 <SheetClose asChild>
-                                    <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
                                         <Send className="h-5 w-5" /> Apply
                                     </Link>
+                                </SheetClose>
+                                <SheetClose asChild>
+                                  <Link href="/login" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
+                                    <LogIn className="h-5 w-5" /> Login
+                                  </Link>
                                 </SheetClose>
                             </nav>
                         </div>
@@ -119,67 +127,67 @@ export default function Home() {
         {/* Hero Section */}
         <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('/team1.jpg')"}}>
             <div className="absolute inset-0 bg-black/60 backdrop-brightness-75"></div>
-            <div className="absolute inset-0 bg-gray-900 -z-10">
-                <div className="absolute top-1/4 left-1/4 w-16 h-16 text-blue-500/20 animate-pulse-slow">
+            <div className="absolute inset-0 bg-background -z-10">
+                <div className="absolute top-1/4 left-1/4 w-16 h-16 text-primary/20 animate-pulse-slow">
                     <VsCodeIcon />
                 </div>
-                 <div className="absolute top-1/2 right-1/4 w-24 h-24 text-blue-400/10 animate-spin-slow">
+                 <div className="absolute top-1/2 right-1/4 w-24 h-24 text-primary/10 animate-spin-slow">
                     <AzureIcon />
                 </div>
-                 <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-white/10 animate-pulse">
+                 <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-foreground/10 animate-pulse">
                     <Github className="w-full h-full" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <h1 className="text-[20vw] font-black text-white/5 font-graffiti select-none">MLSC</h1>
+                    <h1 className="text-[20vw] font-black text-foreground/5 font-graffiti select-none">MLSC</h1>
                 </div>
             </div>
             <div className="home-content container mx-auto px-4 md:px-8 relative z-10 flex flex-col items-center">
-                <h1 className="text-5xl md:text-7xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down font-graffiti" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-blue-400">SVEC</span></h1>
-                <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-white/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)] animate-fade-in-down" style={{animationDelay: '0.4s'}}>
+                <h1 className="text-5xl md:text-7xl font-bold text-foreground [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down font-graffiti" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-primary">SVEC</span></h1>
+                <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-foreground/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)] animate-fade-in-down" style={{animationDelay: '0.4s'}}>
                     <h3>Learn-Train-Serve</h3>
                 </div>
-                <p className="max-w-2xl text-lg text-gray-200 mx-auto [text-shadow:_0_1px_2px_rgb(0_0_0_/_20%)] animate-fade-in-up" style={{animationDelay: '0.6s'}}>
+                <p className="max-w-2xl text-lg text-muted-foreground mx-auto [text-shadow:_0_1px_2px_rgb(0_0_0_/_20%)] animate-fade-in-up" style={{animationDelay: '0.6s'}}>
                     Microsoft Learn Student Club, is a Technical Club which is dedicated to elevating the coding culture 
                     at Sri Vasavi Engineering College, Tadepalligudem by mentoring to refine 
                     their critical thinking and logical reasoning making them unrivalled!
                 </p>
             </div>
              <div className="home-sci absolute right-8 bottom-1/2 translate-y-1/2 flex-col gap-4 hidden md:flex z-10">
-                <a href="https://whatsapp.com/channel/0029VaJiNv72ER6emJMEl41u" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '0.8s'}}>
+                <a href="https://whatsapp.com/channel/0029VaJiNv72ER6emJMEl41u" target="_blank" className="bg-muted/50 p-2 rounded-full hover:bg-primary transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '0.8s'}}>
                     <WhatsappIcon className="h-6 w-6"/>
                 </a>
-                <a href="https://www.instagram.com/mlsc.svec?igsh=MXNvandqbDJqdjhzOQ==" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '1s'}}>
+                <a href="https://www.instagram.com/mlsc.svec?igsh=MXNvandqbDJqdjhzOQ==" target="_blank" className="bg-muted/50 p-2 rounded-full hover:bg-primary transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '1s'}}>
                     <Instagram className="h-6 w-6" />
                 </a>
-                <a href="https://www.linkedin.com/company/microsoft-learn-student-club-svec/" target="_blank" className="bg-gray-800/50 p-2 rounded-full hover:bg-blue-500 transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '1.2s'}}>
+                <a href="https://www.linkedin.com/company/microsoft-learn-student-club-svec/" target="_blank" className="bg-muted/50 p-2 rounded-full hover:bg-primary transition-colors backdrop-blur-sm animate-fade-in-left" style={{animationDelay: '1.2s'}}>
                     <Linkedin className="h-6 w-6" />
                 </a>
             </div>
         </section>
         
         {/* Ambassador Section */}
-        <section className="py-12 md:py-16 bg-gray-900">
+        <section className="py-12 md:py-16 bg-background">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-8">Meet Our <span className="text-blue-400">Ambassadors!</span></h2>
+            <h2 className="text-3xl font-bold mb-8">Meet Our <span className="text-primary">Ambassadors!</span></h2>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div className="glass-card p-6 flex flex-col items-center">
                 <Image src="https://placehold.co/400x400.png" alt="Chandu Neelam" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
                 <h3 className="text-2xl font-bold">Chandu Neelam</h3>
-                <h4 className="text-xl font-semibold text-blue-400 my-1">MLSA</h4>
-                <p className="text-sm text-gray-300">Our pioneering MLSA leader, with exceptional leadership and technical prowess.</p>
+                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
+                <p className="text-sm text-muted-foreground">Our pioneering MLSA leader, with exceptional leadership and technical prowess.</p>
               </div>
               <div className="glass-card p-6 flex flex-col items-center">
                 <Image src="https://placehold.co/400x400.png" alt="Vinay Siddha" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
                 <h3 className="text-2xl font-bold">Vinay Siddha</h3>
-                <h4 className="text-xl font-semibold text-blue-400 my-1">MLSA</h4>
-                <p className="text-sm text-gray-300">A passionate advocate for technology and community building.</p>
+                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
+                <p className="text-sm text-muted-foreground">A passionate advocate for technology and community building.</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* About Us Section */}
-        <section className="about py-20 bg-gray-900/70">
+        <section className="about py-20 bg-background/70">
             <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
                 <div className="image-container overflow-hidden rounded-lg shadow-lg mb-8 md:mb-0">
                     <div className="image-slider flex">
@@ -187,8 +195,8 @@ export default function Home() {
                     </div>
                 </div>
                 <div className="about-content text-center md:text-left">
-                    <h2 className="heading text-4xl font-bold mb-4">About <span className="text-blue-400">Us</span></h2>
-                    <p className="text-lg text-gray-300 mb-8">
+                    <h2 className="heading text-4xl font-bold mb-4">About <span className="text-primary">Us</span></h2>
+                    <p className="text-lg text-muted-foreground mb-8">
                         Microsoft Learn Student Club is paramount in creating one of the most influential events. Our peer-to-peer learning strategy has made our response rate phenomenal and has helped the participants by a substantial improvement in their vocational skills, problem-solving skills, and advancements in the technical domain.
                     </p>
                     <Button asChild size="lg" variant="glass">
@@ -199,25 +207,25 @@ export default function Home() {
         </section>
 
         {/* Events Section */}
-        <section className="py-20 bg-gray-900">
-            <h2 className="heading text-center text-4xl font-bold mb-16">Our <span className="text-blue-400">Flagship Events</span></h2>
+        <section className="py-20 bg-background">
+            <h2 className="heading text-center text-4xl font-bold mb-16">Our <span className="text-primary">Flagship Events</span></h2>
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-8">
                     <div className="glass-card p-6">
                         <div className="event-content">
                             <div className="content">
-                                <div className="year flex items-center gap-2 text-sm text-gray-400 mb-2"><Calendar className="h-4 w-4" />18th October 2023</div>
+                                <div className="year flex items-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4" />18th October 2023</div>
                                 <h3 className="text-xl font-bold">Azure Cloud Workshop</h3>
-                                <p className="mt-2 text-gray-300">Successfully conducted a hands-on event on the Azure Cloud Platform with more than 300 attendees, empowering numerous skilled peers in their cloud journey.</p>
+                                <p className="mt-2 text-muted-foreground">Successfully conducted a hands-on event on the Azure Cloud Platform with more than 300 attendees, empowering numerous skilled peers in their cloud journey.</p>
                             </div>
                         </div>
                     </div>
                     <div className="glass-card p-6">
                          <div className="event-content">
                             <div className="content">
-                                <div className="year flex items-center gap-2 text-sm text-gray-400 mb-2"><Calendar className="h-4 w-4" />16th October 2023</div>
+                                <div className="year flex items-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4" />16th October 2023</div>
                                 <h3 className="text-xl font-bold">Inauguration Ceremony</h3>
-                                <p className="mt-2 text-gray-300">The inauguration of the Microsoft Learn Student Club marked a momentous occasion, fostering a dynamic hub for technology enthusiasts empowered by the Microsoft Learn ecosystem.</p>
+                                <p className="mt-2 text-muted-foreground">The inauguration of the Microsoft Learn Student Club marked a momentous occasion, fostering a dynamic hub for technology enthusiasts empowered by the Microsoft Learn ecosystem.</p>
                             </div>
                         </div>
                     </div>
@@ -234,7 +242,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
-          <div className="container mx-auto text-center text-sm text-gray-400">
+          <div className="container mx-auto text-center text-sm text-muted-foreground">
               <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>
       </footer>
