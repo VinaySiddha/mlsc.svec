@@ -7,7 +7,6 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { CountdownTimer } from "@/components/countdown-timer";
 
 export default async function Home() {
   const { deadlineTimestamp } = await getDeadline();
@@ -99,13 +98,9 @@ export default async function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                    <Button asChild size="lg" className="shadow-lg hover:shadow-primary/50 transition-shadow">
-                    <Link href="/apply">Apply Now</Link>
-                  </Button>
-                   <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-accent/50 transition-shadow">
-                    <Link href="/status">Check Status</Link>
+                    <Link href="/apply">Join The Community</Link>
                   </Button>
                 </div>
-                {deadlineTimestamp && <CountdownTimer deadline={deadlineTimestamp} />}
               </div>
               <div className="w-full flex justify-center">
                 <Image
