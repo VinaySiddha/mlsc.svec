@@ -9,8 +9,6 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group } from "lucide-react";
 import Link from "next/link";
 
-export const dynamic = 'force-dynamic';
-
 export default async function ApplyPage() {
   const { deadlineTimestamp } = await getDeadline();
   const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;

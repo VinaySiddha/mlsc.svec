@@ -9,8 +9,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { CountdownTimer } from "@/components/countdown-timer";
 
-export const dynamic = 'force-dynamic';
-
 export default async function Home() {
   const { deadlineTimestamp } = await getDeadline();
 

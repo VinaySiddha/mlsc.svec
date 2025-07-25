@@ -10,8 +10,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { format } from "date-fns";
 
-export const dynamic = 'force-dynamic';
-
 export default async function EventRegistrationsPage({ params }: { params: { id: string } }) {
     const headersList = headers();
     const userRole = headersList.get('X-User-Role');
