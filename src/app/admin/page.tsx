@@ -73,7 +73,7 @@ export default async function AdminPage() {
             </Card>
             {userRole === 'admin' && (
               <>
-                 <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Calendar className="h-6 w-6 text-primary" />
@@ -89,7 +89,7 @@ export default async function AdminPage() {
                     </Button>
                   </CardContent>
                 </Card>
-                 <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Group className="h-6 w-6 text-primary" />
@@ -121,7 +121,7 @@ export default async function AdminPage() {
                     </Button>
                   </CardContent>
                 </Card>
-                 <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                         <UserCheck className="h-6 w-6 text-primary" />
@@ -161,28 +161,28 @@ export default async function AdminPage() {
             <DeadlineSetter />
           )}
 
-          {userRole === 'panel' && analyticsData && !('error' in analyticsData) && (
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight mb-4">Domain Analytics</h2>
-              <AdminDashboardAnalytics data={analyticsData} />
-            </div>
+          {userRole === 'panel' && analyticsData && (
+            ('error' in analyticsData) ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-destructive" />
+                      Analytics Error
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-destructive">
+                    {analyticsData.error || "Could not load analytics data for your panel."}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight mb-4">Domain Analytics</h2>
+                <AdminDashboardAnalytics data={analyticsData} />
+              </div>
+            )
           )}
-          {userRole === 'panel' && analyticsData && 'error' in analyticsData && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-destructive" />
-                    Analytics Error
-                </Title>
-              </CardHeader>
-              <CardContent>
-                <p className="text-destructive">
-                  {analyticsData.error || "Could not load analytics data for your panel."}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
         </div>
       </main>
     </div>
