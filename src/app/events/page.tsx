@@ -5,7 +5,7 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Clock, Mic, Image as ImageIcon } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Clock, Mic, Image as ImageIcon, Book, Code } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -17,6 +17,12 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 
+const navLinks = [
+    { href: "/", label: "Home", icon: HomeIcon },
+    { href: "/team", label: "Team", icon: Group },
+    { href: "/events", label: "Events", icon: Calendar },
+    { href: "/about", label: "About", icon: Users },
+];
 
 export default async function EventsPage() {
     const { events, error } = await getEvents();
@@ -34,66 +40,53 @@ export default async function EventsPage() {
     }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
+      <header className="header sticky top-0 z-50 w-full border-b border-white/20 bg-black/30 backdrop-blur-sm">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <MLSCLogo className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              MLSC SVEC
+            <MLSCLogo className="h-10 w-10 text-primary" />
+            <span className="text-xl font-bold tracking-tight">
+              Microsoft Learn Student Club
             </span>
           </Link>
-          <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
-             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-             <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
-             <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">Events</Link>
-             <Link href="/team" className="text-muted-foreground hover:text-foreground transition-colors">Team</Link>
-             <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">Login</Link>
-             <Button asChild>
-              <Link href="/apply">
-                Apply
-              </Link>
-            </Button>
+          <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
+             {navLinks.map(link => (
+                 <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
+             ))}
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
-          <div className="sm:hidden">
+          <div className="lg:hidden">
             <Sheet>
                 <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" className="bg-transparent border-gray-400 hover:bg-white/10">
                         <Menu />
                         <span className="sr-only">Open menu</span>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="left">
+                <SheetContent side="left" className="bg-gray-900/90 border-r-gray-700/50 text-white">
                     <div className="p-4">
                         <nav className="flex flex-col gap-4">
+                            {navLinks.map(link => (
+                                <SheetClose key={link.href} asChild>
+                                    <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <link.icon className="h-5 w-5" /> {link.label}
+                                    </Link>
+                                </SheetClose>
+                            ))}
                             <SheetClose asChild>
-                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                                    <HomeIcon className="h-5 w-5" /> Home
-                                </Link>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Book className="h-5 w-5" /> Blog
+                                </a>
+                            </SheetClose>
+                            <SheetClose asChild>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Code className="h-5 w-5" /> Projects
+                                </a>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/about" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Users className="h-5 w-5" /> About
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/events" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Calendar className="h-5 w-5" /> Events
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/team" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Group className="h-5 w-5" /> Team
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/login" className="flex items-center gap-2 text-lg font-semibold">
-                                    <LogIn className="h-5 w-5" /> Login
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/apply" className="flex items-center gap-2 text-lg font-semibold">
+                                <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Send className="h-5 w-5" /> Apply
                                 </Link>
                             </SheetClose>
@@ -110,15 +103,15 @@ export default async function EventsPage() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="space-y-12">
                     <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our Events</h2>
-                        <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-cyan-400">Events</span></h2>
+                        <p className="max-w-[900px] text-gray-300 md:text-xl">
                             We host a variety of events to help our members learn, grow, and connect.
                         </p>
                     </div>
                     {events.length > 0 ? (
                         <div className="grid gap-8 lg:gap-12">
                             {events.map((event: any) => (
-                            <Card key={event.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
+                            <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
                                 <div className="lg:w-1/3">
                                 <Image 
                                     src={event.image} 
@@ -130,9 +123,9 @@ export default async function EventsPage() {
                                 />
                                 </div>
                                 <div className="p-6 flex flex-col flex-1 lg:w-2/3">
-                                    <p className="text-sm text-primary font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
+                                    <p className="text-sm text-cyan-400 font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
                                     <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
-                                    <p className="text-muted-foreground mt-2 flex-1">{event.description}</p>
+                                    <p className="text-gray-300 mt-2 flex-1">{event.description}</p>
                                     
                                     {event.bannerLink && (
                                         <div className="mt-4">
@@ -145,7 +138,7 @@ export default async function EventsPage() {
                                     {event.speakers && (
                                         <div className="mt-4">
                                             <h4 className="font-semibold flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</h4>
-                                            <p className="text-muted-foreground">{event.speakers}</p>
+                                            <p className="text-gray-300">{event.speakers}</p>
                                         </div>
                                     )}
 
@@ -174,7 +167,7 @@ export default async function EventsPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center text-muted-foreground">
+                        <div className="text-center text-gray-400">
                             <p>No upcoming events at the moment. Check back soon!</p>
                         </div>
                     )}
@@ -184,34 +177,9 @@ export default async function EventsPage() {
       </main>
 
        {/* Footer */}
-      <footer className="bg-card/50 border-t backdrop-blur-sm">
-          <div className="container mx-auto py-12 px-4 md:px-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                          <MLSCLogo className="h-8 w-8" />
-                          <h3 className="text-xl font-bold">MLSC SVEC</h3>
-                      </div>
-                      <p className="text-muted-foreground">Fostering innovation and learning in the tech community at Sri Vasavi Engineering College.</p>
-                  </div>
-                  <div className="space-y-4">
-                      <h4 className="font-semibold text-lg">Quick Links</h4>
-                      <ul className="space-y-2">
-                          <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
-                          <li><Link href="/events" className="text-muted-foreground hover:text-primary">Events</Link></li>
-                          <li><Link href="/team" className="text-muted-foreground hover:text-primary">Team</Link></li>
-                          <li><Link href="/apply" className="text-muted-foreground hover:text-primary">Apply</Link></li>
-                      </ul>
-                  </div>
-                  <div className="space-y-4">
-                      <h4 className="font-semibold text-lg">Contact Us</h4>
-                      <p className="text-muted-foreground">Tadepalligudem, Andhra Pradesh, 534101</p>
-                      <p className="text-muted-foreground">Email: mlscsvec@gmail.com</p>
-                  </div>
-              </div>
-              <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-                  <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
-              </div>
+      <footer className="footer bg-gray-900/50 border-t border-white/10 py-6">
+          <div className="container mx-auto text-center text-sm text-gray-400">
+              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>
       </footer>
     </div>

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState } from 'react';
@@ -14,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Home, Users, Calendar, LogIn, Menu, Send, Group } from 'lucide-react';
+import { Loader2, Home, Users, Calendar, LogIn, Menu, Send, Group, Book, Code } from 'lucide-react';
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
@@ -24,6 +23,13 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
+
+const navLinks = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/team", label: "Team", icon: Group },
+    { href: "/events", label: "Events", icon: Calendar },
+    { href: "/about", label: "About", icon: Users },
+];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,65 +71,52 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
-       <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
+    <div className="flex min-h-screen flex-col bg-gray-900 text-white">
+       <header className="header sticky top-0 z-50 w-full border-b border-white/20 bg-black/30 backdrop-blur-sm">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <MLSCLogo className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              MLSC SVEC
+            <MLSCLogo className="h-10 w-10 text-primary" />
+            <span className="text-xl font-bold tracking-tight">
+              Microsoft Learn Student Club
             </span>
           </Link>
-          <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
-             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-             <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
-             <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">Events</Link>
-             <Link href="/team" className="text-muted-foreground hover:text-foreground transition-colors">Team</Link>
-             <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">Login</Link>
-             <Button asChild>
-              <Link href="/apply">
-                Apply
-              </Link>
-            </Button>
+          <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
+             {navLinks.map(link => (
+                 <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
+             ))}
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
-          <div className="sm:hidden">
-             <Sheet>
+          <div className="lg:hidden">
+            <Sheet>
                 <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" className="bg-transparent border-gray-400 hover:bg-white/10">
                         <Menu />
                         <span className="sr-only">Open menu</span>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="left">
+                <SheetContent side="left" className="bg-gray-900/90 border-r-gray-700/50 text-white">
                     <div className="p-4">
                         <nav className="flex flex-col gap-4">
-                            <SheetClose asChild>
-                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Home className="h-5 w-5" /> Home
-                                </Link>
+                            {navLinks.map(link => (
+                                <SheetClose key={link.href} asChild>
+                                    <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <link.icon className="h-5 w-5" /> {link.label}
+                                    </Link>
+                                </SheetClose>
+                            ))}
+                             <SheetClose asChild>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Book className="h-5 w-5" /> Blog
+                                </a>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/about" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Users className="h-5 w-5" /> About
-                                </Link>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Code className="h-5 w-5" /> Projects
+                                </a>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/events" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Calendar className="h-5 w-5" /> Events
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/team" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Group className="h-5 w-5" /> Team
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/login" className="flex items-center gap-2 text-lg font-semibold">
-                                    <LogIn className="h-5 w-5" /> Login
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/apply" className="flex items-center gap-2 text-lg font-semibold">
+                                <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Send className="h-5 w-5" /> Apply
                                 </Link>
                             </SheetClose>
@@ -135,10 +128,10 @@ export default function LoginPage() {
         </div>
       </header>
       <main className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-sm">
+        <Card className="w-full max-w-sm glass-card">
           <CardHeader>
             <CardTitle className="text-2xl">Admin Login</CardTitle>
-            <CardDescription>Enter your credentials to access the admin panel.</CardDescription>
+            <CardDescription className="text-gray-300">Enter your credentials to access the admin panel.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -150,7 +143,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="admin" {...field} />
+                        <Input placeholder="admin" {...field} className="bg-gray-700/50 border-gray-600 text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -163,13 +156,13 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} className="bg-gray-700/50 border-gray-600 text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                <Button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-600" disabled={isSubmitting}>
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Log in
                 </Button>

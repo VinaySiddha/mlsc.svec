@@ -2,72 +2,66 @@
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+
+const navLinks = [
+    { href: "/", label: "Home", icon: HomeIcon },
+    { href: "/team", label: "Team", icon: Group },
+    { href: "/events", label: "Events", icon: Calendar },
+    { href: "/about", label: "About", icon: Users },
+];
 
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
+       <header className="header sticky top-0 z-50 w-full border-b border-white/20 bg-black/30 backdrop-blur-sm">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <MLSCLogo className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              MLSC SVEC
+            <MLSCLogo className="h-10 w-10 text-primary" />
+            <span className="text-xl font-bold tracking-tight">
+              Microsoft Learn Student Club
             </span>
           </Link>
-          <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
-             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-             <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
-             <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">Events</Link>
-             <Link href="/team" className="text-muted-foreground hover:text-foreground transition-colors">Team</Link>
-             <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">Login</Link>
-             <Button asChild>
-              <Link href="/apply">
-                Apply
-              </Link>
-            </Button>
+          <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
+             {navLinks.map(link => (
+                 <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
+             ))}
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
-          <div className="sm:hidden">
+          <div className="lg:hidden">
             <Sheet>
                 <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" className="bg-transparent border-gray-400 hover:bg-white/10">
                         <Menu />
                         <span className="sr-only">Open menu</span>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="left">
+                <SheetContent side="left" className="bg-gray-900/90 border-r-gray-700/50 text-white">
                     <div className="p-4">
                         <nav className="flex flex-col gap-4">
-                            <SheetClose asChild>
-                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                                    <HomeIcon className="h-5 w-5" /> Home
-                                </Link>
+                            {navLinks.map(link => (
+                                <SheetClose key={link.href} asChild>
+                                    <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <link.icon className="h-5 w-5" /> {link.label}
+                                    </Link>
+                                </SheetClose>
+                            ))}
+                             <SheetClose asChild>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Book className="h-5 w-5" /> Blog
+                                </a>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/about" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Users className="h-5 w-5" /> About
-                                </Link>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Code className="h-5 w-5" /> Projects
+                                </a>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/events" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Calendar className="h-5 w-5" /> Events
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/team" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Group className="h-5 w-5" /> Team
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/login" className="flex items-center gap-2 text-lg font-semibold">
-                                    <LogIn className="h-5 w-5" /> Login
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/apply" className="flex items-center gap-2 text-lg font-semibold">
+                                <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Send className="h-5 w-5" /> Apply
                                 </Link>
                             </SheetClose>
@@ -79,12 +73,12 @@ export default function AboutPage() {
         </div>
       </header>
 
-      <main className="flex-1">
-        <section id="about" className="w-full py-20 md:py-28 bg-card/50">
+      <main className="flex-1 bg-gray-900 text-white">
+        <section id="about" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">About MLSC SVEC</h2>
-                    <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">About <span className="text-cyan-400">MLSC SVEC</span></h2>
+                    <p className="max-w-[900px] text-gray-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                         The Microsoft Learn Student Club (MLSC) at Sri Vasavi Engineering College is a dynamic community dedicated to fostering a culture of continuous learning and innovation. We empower students with technical skills, leadership qualities, and a collaborative spirit to tackle real-world challenges. Through workshops, hackathons, and projects, we bridge the gap between academic knowledge and industry demands.
                     </p>
                 </div>
@@ -93,34 +87,9 @@ export default function AboutPage() {
       </main>
 
        {/* Footer */}
-       <footer className="bg-card/50 border-t backdrop-blur-sm">
-          <div className="container mx-auto py-12 px-4 md:px-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                          <MLSCLogo className="h-8 w-8" />
-                          <h3 className="text-xl font-bold">MLSC SVEC</h3>
-                      </div>
-                      <p className="text-muted-foreground">Fostering innovation and learning in the tech community at Sri Vasavi Engineering College.</p>
-                  </div>
-                  <div className="space-y-4">
-                      <h4 className="font-semibold text-lg">Quick Links</h4>
-                      <ul className="space-y-2">
-                          <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
-                          <li><Link href="/events" className="text-muted-foreground hover:text-primary">Events</Link></li>
-                          <li><Link href="/team" className="text-muted-foreground hover:text-primary">Team</Link></li>
-                          <li><Link href="/apply" className="text-muted-foreground hover:text-primary">Apply</Link></li>
-                      </ul>
-                  </div>
-                  <div className="space-y-4">
-                      <h4 className="font-semibold text-lg">Contact Us</h4>
-                      <p className="text-muted-foreground">Tadepalligudem, Andhra Pradesh, 534101</p>
-                      <p className="text-muted-foreground">Email: mlscsvec@gmail.com</p>
-                  </div>
-              </div>
-              <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-                  <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
-              </div>
+       <footer className="footer bg-gray-900/50 border-t border-white/10 py-6">
+          <div className="container mx-auto text-center text-sm text-gray-400">
+              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>
       </footer>
     </div>

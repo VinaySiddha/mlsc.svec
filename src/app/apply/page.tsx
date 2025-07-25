@@ -6,74 +6,68 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group } from "lucide-react";
+import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group, Book, Code } from "lucide-react";
 import Link from "next/link";
+
+const navLinks = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/team", label: "Team", icon: Group },
+    { href: "/events", label: "Events", icon: Calendar },
+    { href: "/about", label: "About", icon: Users },
+];
 
 export default async function ApplyPage() {
   const { deadlineTimestamp } = await getDeadline();
   const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
+       <header className="header sticky top-0 z-50 w-full border-b border-white/20 bg-black/30 backdrop-blur-sm">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <MLSCLogo className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              MLSC SVEC
+            <MLSCLogo className="h-10 w-10 text-primary" />
+            <span className="text-xl font-bold tracking-tight">
+              Microsoft Learn Student Club
             </span>
           </Link>
-          <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
-             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-             <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
-             <Link href="/events" className="text-muted-foreground hover:text-foreground transition-colors">Events</Link>
-             <Link href="/team" className="text-muted-foreground hover:text-foreground transition-colors">Team</Link>
-             <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">Login</Link>
-             <Button asChild>
-              <Link href="/apply">
-                Apply
-              </Link>
-            </Button>
+          <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
+             {navLinks.map(link => (
+                 <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
+             ))}
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
+             <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
-          <div className="sm:hidden">
+          <div className="lg:hidden">
             <Sheet>
                 <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" className="bg-transparent border-gray-400 hover:bg-white/10">
                         <Menu />
                         <span className="sr-only">Open menu</span>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="left">
+                <SheetContent side="left" className="bg-gray-900/90 border-r-gray-700/50 text-white">
                     <div className="p-4">
                         <nav className="flex flex-col gap-4">
+                            {navLinks.map(link => (
+                                <SheetClose key={link.href} asChild>
+                                    <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                        <link.icon className="h-5 w-5" /> {link.label}
+                                    </Link>
+                                </SheetClose>
+                            ))}
                             <SheetClose asChild>
-                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Home className="h-5 w-5" /> Home
-                                </Link>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Book className="h-5 w-5" /> Blog
+                                </a>
+                            </SheetClose>
+                            <SheetClose asChild>
+                                <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Code className="h-5 w-5" /> Projects
+                                </a>
                             </SheetClose>
                              <SheetClose asChild>
-                                <Link href="/about" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Users className="h-5 w-5" /> About
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/events" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Calendar className="h-5 w-5" /> Events
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/team" className="flex items-center gap-2 text-lg font-semibold">
-                                    <Group className="h-5 w-5" /> Team
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/login" className="flex items-center gap-2 text-lg font-semibold">
-                                    <LogIn className="h-5 w-5" /> Login
-                                </Link>
-                            </SheetClose>
-                             <SheetClose asChild>
-                                <Link href="/apply" className="flex items-center gap-2 text-lg font-semibold">
+                                <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                     <Send className="h-5 w-5" /> Apply
                                 </Link>
                             </SheetClose>
@@ -90,10 +84,10 @@ export default async function ApplyPage() {
         {/* Application Form Section */}
         <section id="apply" className="w-full">
           <div className="container mx-auto px-4 md:px-6">
-            <Card className="max-w-3xl mx-auto shadow-lg">
+            <Card className="max-w-3xl mx-auto shadow-lg glass-card text-white">
               <CardHeader>
                 <CardTitle className="text-3xl">Application Form</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-300">
                   {isClosed
                     ? "Submissions are now closed. Thank you for your interest."
                     : "Complete the form to apply for a role at MLSC."}
@@ -102,10 +96,10 @@ export default async function ApplyPage() {
               </CardHeader>
               <CardContent>
                 {isClosed ? (
-                   <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
-                      <Clock className="h-16 w-16 text-primary mb-4" />
+                   <div className="flex flex-col items-center justify-center text-center p-8 bg-gray-800/60 rounded-lg">
+                      <Clock className="h-16 w-16 text-cyan-400 mb-4" />
                       <h3 className="text-xl font-semibold">Registrations are closed</h3>
-                      <p className="text-muted-foreground mt-2">
+                      <p className="text-gray-400 mt-2">
                         We are no longer accepting applications. Follow us for future announcements.
                       </p>
                     </div>
@@ -119,8 +113,8 @@ export default async function ApplyPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-card/50 border-t backdrop-blur-sm">
-          <div className="container mx-auto py-8 px-4 md:px-6 text-center text-sm text-muted-foreground">
+      <footer className="footer bg-gray-900/50 border-t border-white/10 py-6">
+          <div className="container mx-auto text-center text-sm text-gray-400">
               <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>
       </footer>
