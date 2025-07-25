@@ -29,8 +29,6 @@
     --chart-4: 210 80% 55%;
     --chart-5: 240 75% 55%;
     --radius: 0.5rem;
-    --main-color: #0ef;
-    --second-bg-color: #323946;
   }
   .dark {
     --background: 222 47% 11%;
@@ -65,17 +63,17 @@
     @apply border-border;
   }
   body {
-    background-color: #081b29;
-    color: #ededed;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     @apply font-sans;
   }
 }
 
 @layer components {
     .glass-card {
-        @apply bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl shadow-lg transition-all duration-300;
+        @apply bg-card/60 backdrop-blur-sm border border-border/50 rounded-2xl shadow-lg transition-all duration-300;
     }
     .glass-card:hover {
-        @apply border-cyan-400/50 scale-[1.02];
+        @apply border-primary/50 scale-[1.02];
     }
 }
