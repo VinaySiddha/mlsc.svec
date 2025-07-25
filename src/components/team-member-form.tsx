@@ -27,7 +27,7 @@ type FormValues = z.infer<typeof teamMemberSchema>;
 
 interface TeamMemberFormProps {
     member?: FormValues & { id: string };
-    categories: { id: string, name: string }[];
+    categories: { id: string, name: string, subDomain: string }[];
 }
 
 export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
@@ -147,7 +147,11 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}
+                            {categories.map(cat => (
+                                <SelectItem key={cat.id} value={cat.id}>
+                                    {cat.name} - {cat.subDomain}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                         </Select>
                         <FormMessage />
