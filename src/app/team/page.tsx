@@ -1,14 +1,14 @@
-
 'use client';
 
 import { getTeamMembers } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Github } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface TeamMember {
   id: string;
@@ -102,8 +102,16 @@ export default function TeamPage() {
 
   const renderMembers = (members: TeamMember[]) => {
       if (members.length === 0) return null;
+      
+      const containerClasses = cn(
+          "gap-8",
+          members.length > 1 
+            ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
+            : "flex justify-center"
+      );
+
       return (
-           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+           <div className={containerClasses}>
               {sortMembers(members).map((member: any) => (
               <div key={member.id} className="flex flex-col items-center text-center group">
                   <Image 
