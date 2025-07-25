@@ -792,6 +792,99 @@ export async function getAnalyticsData(panelDomain?: string) {
   }
 }
 
+export async function getInterviewAnalyticsData() {
+  try {
+    const applicationsRef = collection(db, 'applications');
+    // Base query is now filtered for attended interviews
+    const baseQuery = query(applicationsRef, where('interviewAttended', '==', true));
+
+    // 1. Get total applications count for the scope (which is already attended)
+    const totalSnapshot = await getCountFromServer(baseQuery);
+    const totalApplications = totalSnapshot.data().count; // This is the total number of attended interviews
+    
+    // 2. Get all applications within the scope to aggregate various counts
+    const allApplicationsSnapshot = await getDocs(baseQuery);
+    const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
+
+    // 3. Calculate various counts
+    const techDomainCounts: { [key: string]: number } = {};
+    const nonTechDomainCounts: { [key: string]: number } = {};
+    const statusCounts: { [key: string]: number } = {};
+    const branchCounts: { [key: string]: number } = {};
+    const yearCounts: { [key: string]: number } = {};
+    let hiredCount = 0;
+    let rejectedCount = 0;
+
+    const techDomainLabels: Record<string, string> = {
+      gen_ai: "Generative AI",
+      ds_ml: "Data Science & ML",
+      azure: "Azure Cloud",
+      web_app: "Web & App Development",
+    };
+    
+    const nonTechDomainLabels: Record<string, string> = {
+        event_management: "Event Management",
+        public_relations: "Public Relations",
+        media_marketing: "Media Marketing",
+        creativity: "Creativity",
+    };
+
+    applications.forEach(app => {
+      // Status
+      const status = app.status || 'Received';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+      if (status === 'Hired') hiredCount++;
+      if (status === 'Rejected') rejectedCount++;
+
+      // Technical Domain
+      const techDomainKey = app.technicalDomain;
+      const techDomainName = techDomainLabels[techDomainKey] || techDomainKey;
+      if (techDomainName) {
+        techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
+      }
+      
+      // Non-Technical Domain
+      const nonTechDomainKey = app.nonTechnicalDomain;
+      const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
+      if (nonTechDomainName) {
+          nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
+      }
+
+      // Branch
+      const branch = app.branch || 'Unknown';
+      branchCounts[branch] = (branchCounts[branch] || 0) + 1;
+      // Year
+      const year = app.yearOfStudy || 'Unknown';
+      yearCounts[year] = (yearCounts[year] || 0) + 1;
+    });
+
+    const techDomainData = Object.entries(techDomainCounts).map(([name, count]) => ({ name, count }));
+    const nonTechDomainData = Object.entries(nonTechDomainCounts).map(([name, count]) => ({ name, count }));
+    const statusData = Object.entries(statusCounts).map(([name, count]) => ({ name, count }));
+    const branchData = Object.entries(branchCounts).map(([name, count]) => ({ name, count }));
+    const yearData = Object.entries(yearCounts).map(([name, count]) => ({ name, count }));
+
+    return {
+      totalApplications, // This now represents attended interviews
+      attendedCount: totalApplications, // attendedCount is the same as total in this context
+      hiredCount,
+      rejectedCount,
+      techDomainData,
+      nonTechDomainData,
+      statusData,
+      branchData,
+      yearData,
+    };
+    
+  } catch (error) {
+    console.error("Error fetching interview analytics data:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to fetch analytics: ${error.message}` };
+    }
+    return { error: 'An unexpected server error occurred.' };
+  }
+}
+
 export async function setDeadline(deadline: Date) {
   try {
     const settingsRef = doc(db, 'settings', 'deadline');
@@ -820,5 +913,3 @@ export async function getDeadline() {
     return { deadlineTimestamp: null, error: 'Failed to fetch deadline.' };
   }
 }
-
-    
