@@ -1,34 +1,30 @@
 
+import { getEvents, registerForEvent } from "@/app/actions";
+import { EventRegistrationForm } from "@/components/event-registration-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { format } from "date-fns";
 
-const events = [
-  {
-    title: "Innovate AI Hackathon",
-    description: "A 24-hour hackathon focused on developing innovative AI-powered solutions to real-world problems. Participants collaborated in teams to build and present their projects.",
-    image: "https://placehold.co/600x400.png",
-    aiHint: "hackathon team"
-  },
-  {
-    title: "Azure Cloud Workshop",
-    description: "An interactive workshop where members learned the fundamentals of cloud computing with Microsoft Azure. It covered virtual machines, storage, and serverless functions.",
-    image: "https://placehold.co/600x400.png",
-    aiHint: "cloud workshop"
-  },
-  {
-    title: "Data Science Bootcamp",
-    description: "A week-long intensive bootcamp on data science and machine learning. Topics included data analysis, visualization, and building predictive models with Python.",
-    image: "https://placehold.co/600x400.png",
-    aiHint: "data science"
-  },
-];
+export default async function EventsPage() {
+    const { events, error } = await getEvents();
 
-export default function EventsPage() {
+    if (error) {
+        return (
+             <div className="flex flex-col items-center justify-center min-h-screen text-center">
+                <h2 className="text-2xl font-bold text-destructive">Failed to load events</h2>
+                <p className="text-muted-foreground">{error}</p>
+                 <Button asChild variant="link" className="mt-4">
+                    <Link href="/">Return to Home</Link>
+                </Button>
+            </div>
+        )
+    }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -106,31 +102,41 @@ export default function EventsPage() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="space-y-12">
                     <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our Past Events</h2>
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our Events</h2>
                         <p className="max-w-[900px] text-muted-foreground md:text-xl">
                             We host a variety of events to help our members learn, grow, and connect.
                         </p>
                     </div>
-                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                        {events.map((event) => (
-                          <Card key={event.title} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2">
-                              <CardHeader>
-                                  <Image 
-                                    src={event.image} 
-                                    alt={event.title} 
-                                    width={600} 
-                                    height={400} 
-                                    className="rounded-t-lg object-cover" 
-                                    data-ai-hint={event.aiHint}
-                                  />
-                                  <CardTitle className="pt-4">{event.title}</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                  <p className="text-muted-foreground">{event.description}</p>
-                              </CardContent>
-                          </Card>
-                        ))}
-                    </div>
+                    {events.length > 0 ? (
+                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                            {events.map((event) => (
+                            <Card key={event.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2 flex flex-col">
+                                <CardHeader className="p-0">
+                                    <Image 
+                                        src={event.image} 
+                                        alt={event.title} 
+                                        width={600} 
+                                        height={400} 
+                                        className="rounded-t-lg object-cover aspect-[3/2]" 
+                                        data-ai-hint="event photo"
+                                    />
+                                </CardHeader>
+                                <CardContent className="p-6 flex flex-col flex-1">
+                                    <p className="text-sm text-primary font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
+                                    <CardTitle className="pt-2 text-xl">{event.title}</CardTitle>
+                                    <p className="text-muted-foreground mt-2 flex-1">{event.description}</p>
+                                    <div className="mt-6">
+                                       <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center text-muted-foreground">
+                            <p>No upcoming events at the moment. Check back soon!</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </section>

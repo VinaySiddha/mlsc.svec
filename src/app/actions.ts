@@ -32,6 +32,7 @@ import {
   QueryConstraint,
   runTransaction,
   setDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import papaparse from 'papaparse';
 
@@ -92,6 +93,19 @@ const ConfirmationEmailInputSchema = z.object({
 });
 export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
 
+
+const eventFormSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters."),
+  description: z.string().min(10, "Description must be at least 10 characters."),
+  date: z.date(),
+  image: z.string().url("Please enter a valid image URL."),
+  registrationOpen: z.boolean().default(false),
+});
+
+const registrationSchema = z.object({
+    name: z.string().min(2, 'Name is required.'),
+    email: z.string().email('Please enter a valid email address.'),
+});
 
 // Generate a unique, readable reference ID
 function generateReferenceId() {
@@ -912,4 +926,126 @@ export async function getDeadline() {
     console.error('Error fetching deadline:', error);
     return { deadlineTimestamp: null, error: 'Failed to fetch deadline.' };
   }
+}
+
+
+export async function createEvent(values: z.infer<typeof eventFormSchema>) {
+    const parsed = eventFormSchema.safeParse(values);
+    if (!parsed.success) {
+        return { error: 'Invalid event data.' };
+    }
+    try {
+        const docRef = await addDoc(collection(db, 'events'), parsed.data);
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        return { error: 'Failed to create event.' };
+    }
+}
+
+export async function updateEvent(id: string, values: z.infer<typeof eventFormSchema>) {
+    const parsed = eventFormSchema.safeParse(values);
+    if (!parsed.success) {
+        return { error: 'Invalid event data.' };
+    }
+    try {
+        const eventDoc = doc(db, 'events', id);
+        await updateDoc(eventDoc, parsed.data);
+        return { success: true };
+    } catch (error) {
+        return { error: 'Failed to update event.' };
+    }
+}
+
+export async function deleteEvent(id: string) {
+    try {
+        await deleteDoc(doc(db, 'events', id));
+        // Note: Does not delete subcollections like registrations. 
+        // For a production app, a Cloud Function would be needed to handle this.
+        return { success: true };
+    } catch (error) {
+        return { error: 'Failed to delete event.' };
+    }
+}
+
+export async function getEvents() {
+    try {
+        const eventsCol = collection(db, 'events');
+        const q = query(eventsCol, orderBy('date', 'desc'));
+        const eventSnapshot = await getDocs(q);
+        const eventList = eventSnapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id,
+            date: doc.data().date.toDate().toISOString(),
+        }));
+        return { events: eventList };
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        return { error: 'Could not fetch events.' };
+    }
+}
+
+export async function getEventById(id: string) {
+    try {
+        const eventDoc = await getDoc(doc(db, 'events', id));
+        if (!eventDoc.exists()) {
+            return { error: 'Event not found.' };
+        }
+        const eventData = { ...eventDoc.data(), id: eventDoc.id, date: eventDoc.data().date.toDate().toISOString() };
+        return { event: eventData as any };
+    } catch (error) {
+        return { error: 'Failed to fetch event.' };
+    }
+}
+
+
+export async function registerForEvent(eventId: string, values: z.infer<typeof registrationSchema>) {
+    const parsed = registrationSchema.safeParse(values);
+    if (!parsed.success) {
+        return { error: 'Invalid registration data.' };
+    }
+    
+    try {
+        const eventRef = doc(db, 'events', eventId);
+        const eventSnap = await getDoc(eventRef);
+
+        if (!eventSnap.exists() || !eventSnap.data().registrationOpen) {
+            return { error: 'Registrations for this event are closed.' };
+        }
+        
+        const registrationsRef = collection(db, 'events', eventId, 'registrations');
+
+        // Check for existing email in this event's registrations
+        const emailQuery = query(registrationsRef, where("email", "==", parsed.data.email));
+        const emailSnapshot = await getDocs(emailQuery);
+        if (!emailSnapshot.empty) {
+            return { error: 'This email is already registered for this event.' };
+        }
+
+        await addDoc(registrationsRef, {
+            ...parsed.data,
+            registeredAt: new Date().toISOString(),
+        });
+        
+        return { success: true };
+
+    } catch (error) {
+        console.error("Error registering for event:", error);
+        return { error: 'An unexpected error occurred during registration.' };
+    }
+}
+
+export async function getEventRegistrations(eventId: string) {
+    try {
+        const registrationsCol = collection(db, 'events', eventId, 'registrations');
+        const q = query(registrationsCol, orderBy('registeredAt', 'desc'));
+        const registrationSnapshot = await getDocs(q);
+        const registrationList = registrationSnapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id,
+        }));
+        return { registrations: registrationList as any[] };
+    } catch (error) {
+        console.error("Error fetching event registrations:", error);
+        return { error: 'Could not fetch event registrations.' };
+    }
 }
