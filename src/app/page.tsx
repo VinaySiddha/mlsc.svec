@@ -62,7 +62,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen text-foreground bg-gray-900 text-white">
       {/* Header */}
-      <header className="header sticky top-0 z-50 w-full border-b border-white/20 bg-black/30 backdrop-blur-sm">
+      <header className="header sticky top-0 z-50 w-full border-b border-white/20">
         <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
             <MLSCLogo className="h-10 w-10 text-primary" />

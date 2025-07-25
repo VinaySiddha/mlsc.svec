@@ -72,6 +72,9 @@
   * {
     @apply border-border;
   }
+  html {
+    font-size: 17px;
+  }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -80,6 +83,9 @@
 }
 
 @layer components {
+    .header {
+      @apply bg-primary;
+    }
     .glass-card {
         @apply bg-card/60 backdrop-blur-sm border border-border/50 rounded-2xl shadow-lg transition-all duration-300;
     }
