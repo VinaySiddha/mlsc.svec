@@ -108,6 +108,10 @@ const eventFormSchema = z.object({
 const registrationSchema = z.object({
     name: z.string().min(2, 'Name is required.'),
     email: z.string().email('Please enter a valid email address.'),
+    rollNo: z.string().min(1, 'Roll number is required.'),
+    phone: z.string().regex(/^\d{10}$/, 'Please enter a valid 10-digit phone number.'),
+    branch: z.string({ required_error: "Please select your branch." }),
+    yearOfStudy: z.string({ required_error: "Please select your year of study." }),
 });
 
 // Generate a unique, readable reference ID

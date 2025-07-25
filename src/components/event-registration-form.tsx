@@ -12,11 +12,20 @@ import { Input } from '@/components/ui/input';
 import { registerForEvent } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Clock } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+
+const branches = ["AIML", "CAI", "CSE", "CST", "ECE", "Others"];
+const years = ["1st", "2nd", "3rd", "4th"];
 
 const registrationSchema = z.object({
     name: z.string().min(2, 'Name is required.'),
     email: z.string().email('Please enter a valid email address.'),
+    rollNo: z.string().min(1, 'Roll number is required.'),
+    phone: z.string().regex(/^\d{10}$/, 'Please enter a valid 10-digit phone number.'),
+    branch: z.string({ required_error: "Please select your branch." }),
+    yearOfStudy: z.string({ required_error: "Please select your year of study." }),
 });
+
 
 type RegistrationFormValues = z.infer<typeof registrationSchema>;
 
@@ -32,7 +41,7 @@ export function EventRegistrationForm({ eventId, registrationOpen }: EventRegist
 
     const form = useForm<RegistrationFormValues>({
         resolver: zodResolver(registrationSchema),
-        defaultValues: { name: '', email: '' },
+        defaultValues: { name: '', email: '', rollNo: '', phone: '' },
     });
 
     const onSubmit = async (values: RegistrationFormValues) => {
@@ -109,6 +118,72 @@ export function EventRegistrationForm({ eventId, registrationOpen }: EventRegist
                                 </FormItem>
                             )}
                         />
+                         <FormField
+                            control={form.control}
+                            name="rollNo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Roll No</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., 22A91A4201" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Phone Number</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="10-digit number" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="branch"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Branch</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                    <SelectValue placeholder="Select your branch" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                                </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="yearOfStudy"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Year of Study</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                    <SelectValue placeholder="Select your year" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                                </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
                          <DialogFooter>
                             <DialogClose asChild>
                                 <Button type="button" variant="secondary">
@@ -126,4 +201,3 @@ export function EventRegistrationForm({ eventId, registrationOpen }: EventRegist
         </Dialog>
     );
 }
-

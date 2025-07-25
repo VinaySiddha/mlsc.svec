@@ -70,6 +70,10 @@ export default async function EventRegistrationsPage({ params }: { params: { id:
                                         <TableRow>
                                             <TableHead>Name</TableHead>
                                             <TableHead>Email</TableHead>
+                                            <TableHead>Roll No</TableHead>
+                                            <TableHead>Phone</TableHead>
+                                            <TableHead>Branch</TableHead>
+                                            <TableHead>Year</TableHead>
                                             <TableHead>Registered At</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -79,12 +83,16 @@ export default async function EventRegistrationsPage({ params }: { params: { id:
                                                 <TableRow key={reg.id}>
                                                     <TableCell className="font-medium">{reg.name}</TableCell>
                                                     <TableCell>{reg.email}</TableCell>
+                                                    <TableCell>{reg.rollNo}</TableCell>
+                                                    <TableCell>{reg.phone}</TableCell>
+                                                    <TableCell>{reg.branch}</TableCell>
+                                                    <TableCell>{reg.yearOfStudy}</TableCell>
                                                     <TableCell>{format(new Date(reg.registeredAt), "PPP p")}</TableCell>
                                                 </TableRow>
                                             ))
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={3} className="text-center h-24">
+                                                <TableCell colSpan={7} className="text-center h-24">
                                                     No registrations yet.
                                                 </TableCell>
                                             </TableRow>
@@ -99,4 +107,3 @@ export default async function EventRegistrationsPage({ params }: { params: { id:
         </div>
     );
 }
-
