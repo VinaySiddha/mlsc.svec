@@ -73,13 +73,18 @@
     @apply border-border;
   }
   html {
-    font-size: 16px;
+    font-size: 15px;
   }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     @apply font-sans;
   }
+  
+  .admin-panel-body {
+    background: #020617; /* dark blue */
+  }
+
 }
 
 @layer components {

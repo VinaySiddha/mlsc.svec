@@ -165,5 +165,3 @@ export default async function ApplicationsPage({
     </div>
   );
 }
-
-    
