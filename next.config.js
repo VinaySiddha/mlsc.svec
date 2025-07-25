@@ -7,7 +7,20 @@ const config = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["placehold.co", "lh3.googleusercontent.com", "gratisography.com"],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'gratisography.com',
+      },
+    ],
   },
 };
 
