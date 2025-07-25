@@ -5,7 +5,7 @@ import { CountdownTimer } from "@/components/countdown-timer";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group } from "lucide-react";
 import Link from "next/link";
 
@@ -39,52 +39,50 @@ export default async function ApplyPage() {
             </Button>
           </nav>
           <div className="sm:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                 <DropdownMenuItem asChild>
-                   <Link href="/">
-                    <Home className="mr-2" />
-                    <span>Home</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                   <Link href="/#about">
-                    <Users className="mr-2" />
-                    <span>About</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                   <Link href="/#events">
-                    <Calendar className="mr-2" />
-                    <span>Events</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                   <Link href="/#team">
-                    <Group className="mr-2" />
-                    <span>Team</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/login">
-                    <LogIn className="mr-2" />
-                    <span>Login</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/apply">
-                    <Send className="mr-2" />
-                    <span>Apply</span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="outline" size="icon">
+                        <Menu />
+                        <span className="sr-only">Open menu</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left">
+                    <div className="p-4">
+                        <nav className="flex flex-col gap-4">
+                            <SheetClose asChild>
+                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Home className="h-5 w-5" /> Home
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/#about" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Users className="h-5 w-5" /> About
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/#events" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Calendar className="h-5 w-5" /> Events
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/#team" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Group className="h-5 w-5" /> Team
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/login" className="flex items-center gap-2 text-lg font-semibold">
+                                    <LogIn className="h-5 w-5" /> Login
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/apply" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Send className="h-5 w-5" /> Apply
+                                </Link>
+                            </SheetClose>
+                        </nav>
+                    </div>
+                </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>

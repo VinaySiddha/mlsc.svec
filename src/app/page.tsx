@@ -1,13 +1,13 @@
+
 import { getDeadline } from "@/app/actions";
-import { ApplicationForm } from "@/components/application-form";
-import { CountdownTimer } from "@/components/countdown-timer";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { FileSearch, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { CountdownTimer } from "@/components/countdown-timer";
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +42,6 @@ const teamMembers = [
 
 export default async function Home() {
   const { deadlineTimestamp } = await getDeadline();
-  const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -68,52 +67,50 @@ export default async function Home() {
             </Button>
           </nav>
           <div className="sm:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                   <Link href="/">
-                    <Home className="mr-2" />
-                    <span>Home</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                   <Link href="/#about">
-                    <Users className="mr-2" />
-                    <span>About</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                   <Link href="/#events">
-                    <Calendar className="mr-2" />
-                    <span>Events</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                   <Link href="/#team">
-                    <Group className="mr-2" />
-                    <span>Team</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/login">
-                    <LogIn className="mr-2" />
-                    <span>Login</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/apply">
-                    <Send className="mr-2" />
-                    <span>Apply</span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="outline" size="icon">
+                        <Menu />
+                        <span className="sr-only">Open menu</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left">
+                    <div className="p-4">
+                        <nav className="flex flex-col gap-4">
+                            <SheetClose asChild>
+                                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+                                    <HomeIcon className="h-5 w-5" /> Home
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/#about" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Users className="h-5 w-5" /> About
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/#events" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Calendar className="h-5 w-5" /> Events
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/#team" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Group className="h-5 w-5" /> Team
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/login" className="flex items-center gap-2 text-lg font-semibold">
+                                    <LogIn className="h-5 w-5" /> Login
+                                </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Link href="/apply" className="flex items-center gap-2 text-lg font-semibold">
+                                    <Send className="h-5 w-5" /> Apply
+                                </Link>
+                            </SheetClose>
+                        </nav>
+                    </div>
+                </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
@@ -132,10 +129,10 @@ export default async function Home() {
                   We are a community of innovators, thinkers, and creators at SVEC. Join us to learn, build, and grow your skills in technology and beyond.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                   <Button asChild size="lg">
+                   <Button asChild size="lg" className="shadow-lg hover:shadow-primary/50 transition-shadow">
                     <Link href="/apply">Apply Now</Link>
                   </Button>
-                   <Button asChild variant="outline" size="lg">
+                   <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-accent/50 transition-shadow">
                     <Link href="/status">Check Status</Link>
                   </Button>
                 </div>
@@ -148,7 +145,7 @@ export default async function Home() {
                   width={400}
                   height={400}
                   alt="Microsoft Learn Student Club (MLSC) SVEC Logo"
-                  className="rounded-full object-contain shadow-2xl"
+                  className="rounded-full object-contain shadow-2xl hover:scale-105 transition-transform duration-300"
                   priority
                 />
               </div>
@@ -180,7 +177,7 @@ export default async function Home() {
                     </div>
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {events.map((event) => (
-                          <Card key={event.title} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                          <Card key={event.title} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2">
                               <CardHeader>
                                   <Image 
                                     src={event.image} 
@@ -214,13 +211,13 @@ export default async function Home() {
                     </div>
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 justify-center">
                         {teamMembers.map((member) => (
-                          <div key={member.name} className="flex flex-col items-center text-center">
+                          <div key={member.name} className="flex flex-col items-center text-center group">
                               <Image 
                                 src={member.image} 
                                 alt={`Photo of ${member.name}`}
                                 width={160} 
                                 height={160} 
-                                className="rounded-full mb-4 object-cover shadow-lg"
+                                className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300"
                                 data-ai-hint={member.aiHint}
                               />
                               <h4 className="font-semibold text-lg">{member.name}</h4>
@@ -267,3 +264,5 @@ export default async function Home() {
     </div>
   );
 }
+
+    
