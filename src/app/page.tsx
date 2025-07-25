@@ -125,7 +125,8 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden">
+        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('https://placehold.co/1920x1080.png')"}}>
+            <div className="absolute inset-0 bg-black/60 backdrop-brightness-75"></div>
             <div className="absolute inset-0 bg-gray-900 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-16 h-16 text-blue-500/20 animate-pulse-slow">
                     <VsCodeIcon />
