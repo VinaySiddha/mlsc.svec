@@ -122,7 +122,7 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('/placeholder.svg')"}}>
+        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('/team1.jpg')"}}>
             <div className="absolute inset-0 bg-black/60 backdrop-brightness-75"></div>
             <div className="absolute inset-0 bg-gray-900 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-16 h-16 text-blue-500/20 animate-pulse-slow">
@@ -140,7 +140,6 @@ export default function Home() {
             </div>
             <div className="home-content container mx-auto px-4 md:px-8 relative z-10 flex flex-col items-center">
                 <h1 className="text-5xl md:text-7xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down font-graffiti" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-blue-400">SVEC</span></h1>
-                 <MLSCLogo className="h-24 w-24 md:h-32 md:w-32 my-4 animate-fade-in-down" style={{animationDelay: '0.3s'}} />
                 <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-white/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)] animate-fade-in-down" style={{animationDelay: '0.4s'}}>
                     <h3>Learn-Train-Serve</h3>
                 </div>
@@ -247,5 +246,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
