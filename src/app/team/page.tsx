@@ -28,7 +28,8 @@ interface TeamCategory {
 
 
 export default function TeamPage() {
-  const [membersByCategory, setMembersByCategory] = useState<TeamCategory[]>([]);
+  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
+  const [categories, setCategories] = useState<TeamCategory[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +40,9 @@ export default function TeamPage() {
         if (result.error) {
           setError(result.error);
         } else if (result.membersByCategory) {
-          setMembersByCategory(result.membersByCategory);
+            const allMembersData = result.membersByCategory.flatMap(category => category.members);
+            setAllMembers(allMembersData);
+            setCategories(result.membersByCategory);
         }
       } catch (e) {
         setError("An unexpected error occurred.");
@@ -49,7 +52,6 @@ export default function TeamPage() {
     }
     fetchData();
   }, []);
-
 
   if (loading) {
      return (
@@ -70,8 +72,22 @@ export default function TeamPage() {
       </div>
     );
   }
+
+  const coreRoleOrder: { [key: string]: number } = {
+    'Lead': 1,
+    'Lead Advisor': 2,
+    'Faculty Advisor': 3,
+    'Technical Architect': 4,
+    'Outreach Affairs Lead': 5,
+    'Secretary': 6,
+  };
   
-  const coreCategoryNames = ["Core Team", "Lead Advisors", "Core"];
+  const coreTeamRoles = Object.keys(coreRoleOrder);
+  const coreTeamMembers = allMembers
+    .filter(member => coreTeamRoles.includes(member.role))
+    .sort((a, b) => (coreRoleOrder[a.role] || 99) - (coreRoleOrder[b.role] || 99));
+
+
   const technicalCategoryNames = [
     "Generative AI",
     "Data Science & Machine Learning",
@@ -81,44 +97,43 @@ export default function TeamPage() {
     "Microsoft 365 and PowerPlatform"
   ];
   
-  const roleOrder: { [key: string]: number } = {
-    'Lead': 1,
-    'Lead Advisor': 2,
-    'Faculty Advisor': 3,
-    'Secretary': 4,
-    'Technical Architect': 5,
-    'Outreach Affairs Lead': 6,
-    'Head': 7,
-    'Associate': 8,
-    'Subordinate': 9,
-  };
-
-  const sortMembers = (a: TeamMember, b: TeamMember) => {
-    const roleA = roleOrder[a.role] || 99;
-    const roleB = roleOrder[b.role] || 99;
-    if (roleA !== roleB) {
-        return roleA - roleB;
-    }
-    return a.name.localeCompare(b.name);
-  };
-  
-  const coreTeams = membersByCategory
-      .filter(category => coreCategoryNames.includes(category.name))
-      .map(category => ({ ...category, members: [...category.members].sort(sortMembers) }))
-      .sort((a, b) => a.order - b.order);
-
-  const technicalTeams = membersByCategory
+  const technicalTeams = categories
       .filter(category => technicalCategoryNames.includes(category.name))
-      .map(category => ({ ...category, members: [...category.members].sort(sortMembers) }))
+      .map(category => ({ ...category, members: [...category.members].sort((a,b) => a.name.localeCompare(b.name)) }))
       .sort((a, b) => a.order - b.order);
 
-  const nonTechnicalTeams = membersByCategory
-      .filter(category => !coreCategoryNames.includes(category.name) && !technicalCategoryNames.includes(category.name))
-      .map(category => ({ ...category, members: [...category.members].sort(sortMembers) }))
+  const nonTechnicalTeams = categories
+      .filter(category => !technicalCategoryNames.includes(category.name))
+      .map(category => ({ ...category, members: [...category.members].sort((a,b) => a.name.localeCompare(b.name)) }))
       .sort((a, b) => a.order - b.order);
 
 
-  const renderTeamSection = (teams: TeamCategory[], showCategoryHeading: boolean = true) => {
+  const renderMembers = (members: TeamMember[]) => {
+      if (members.length === 0) return null;
+      return (
+           <div className="flex flex-wrap justify-center items-start gap-8">
+              {members.map((member: any) => (
+              <div key={member.id} className="flex flex-col items-center text-center group w-full max-w-[200px] sm:max-w-[220px]">
+                  <Image 
+                      src={member.image} 
+                      alt={`Photo of ${member.name}`}
+                      width={160} 
+                      height={160} 
+                      className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300 w-40 h-40"
+                      data-ai-hint="person portrait"
+                  />
+                  <h4 className="font-semibold text-lg">{member.name}</h4>
+                  <p className="text-primary">{member.role}</p>
+                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary mt-1">
+                      LinkedIn
+                  </a>
+              </div>
+              ))}
+          </div>
+      )
+  }
+
+  const renderTeamSection = (teams: TeamCategory[]) => {
     if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
         return null;
     }
@@ -128,30 +143,10 @@ export default function TeamPage() {
 
         return (
             <div key={category.id} className="w-full">
-                {showCategoryHeading && (
-                    <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-                        <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.name}</h3>
-                    </div>
-                )}
-                <div className="flex flex-wrap justify-center items-start gap-8">
-                    {category.members.map((member: any) => (
-                    <div key={member.id} className="flex flex-col items-center text-center group w-full max-w-[200px] sm:max-w-[220px]">
-                        <Image 
-                            src={member.image} 
-                            alt={`Photo of ${member.name}`}
-                            width={160} 
-                            height={160} 
-                            className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300 w-40 h-40"
-                            data-ai-hint="person portrait"
-                        />
-                        <h4 className="font-semibold text-lg">{member.name}</h4>
-                        <p className="text-primary">{member.role}</p>
-                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary mt-1">
-                            LinkedIn
-                        </a>
-                    </div>
-                    ))}
+                <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                    <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.name}</h3>
                 </div>
+                {renderMembers(category.members)}
             </div>
         )
     });
@@ -236,13 +231,13 @@ export default function TeamPage() {
         </section>
         
         <div className="space-y-16">
-            {coreTeams.length > 0 && (
+            {coreTeamMembers.length > 0 && (
             <section className="w-full bg-card/10 py-16">
                 <div className="container mx-auto px-4 md:px-6 space-y-12">
-                <div className="w-full text-center">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Core Team</h2>
-                </div>
-                {renderTeamSection(coreTeams, true)}
+                    <div className="w-full text-center">
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Core Team</h2>
+                    </div>
+                    {renderMembers(coreTeamMembers)}
                 </div>
             </section>
             )}
@@ -253,7 +248,7 @@ export default function TeamPage() {
                     <div className="w-full text-center">
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Technical Teams</h2>
                     </div>
-                    {renderTeamSection(technicalTeams, true)}
+                    {renderTeamSection(technicalTeams)}
                 </div>
             </section>
             )}
@@ -264,7 +259,7 @@ export default function TeamPage() {
                     <div className="w-full text-center">
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Non-Technical Teams</h2>
                     </div>
-                    {renderTeamSection(nonTechnicalTeams, true)}
+                    {renderTeamSection(nonTechnicalTeams)}
                 </div>
             </section>
             )}
