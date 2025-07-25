@@ -4,7 +4,7 @@ import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics"
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -78,6 +78,14 @@ export default async function InterviewAnalyticsPage() {
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto space-y-8">
+            <div className="flex justify-end">
+                <Button asChild>
+                    <Link href="/admin/applications?attendedOnly=true">
+                        <Users className="mr-2 h-4 w-4" />
+                        View Interviewed Applications
+                    </Link>
+                </Button>
+            </div>
            <AdminDashboardAnalytics data={analyticsData} />
         </div>
       </main>
