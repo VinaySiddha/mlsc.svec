@@ -165,5 +165,4 @@ export default async function TeamPage() {
       </footer>
     </div>
   );
-
-    
+}
