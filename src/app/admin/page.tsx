@@ -32,19 +32,19 @@ export default async function AdminPage() {
   const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-20">
-        <div className="container mx-auto flex items-center justify-between gap-4">
-          <Link href="/admin" className="flex items-center gap-4">
-            <MLSCLogo className="h-10 w-10 text-primary" />
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
+          <Link href="/admin" className="flex items-center gap-2">
+            <MLSCLogo className="h-8 w-8 text-primary" />
+            <h1 className="text-xl font-bold tracking-tight">
               {title}
             </h1>
           </Link>
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="glass" size="sm">
               <Link href="/">
-                <Home className="mr-2 h-4 w-4" />
+                <Home />
                 <span>Home</span>
               </Link>
             </Button>
@@ -52,103 +52,103 @@ export default async function AdminPage() {
           </div>
         </div>
       </header>
-      <main className="flex-1 p-4 sm:p-6 md:p-8">
-        <div className="container mx-auto space-y-8">
+      <main className="flex-1 p-4">
+        <div className="container mx-auto space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+            <Card className="glass-card flex flex-col justify-between">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-6 w-6 text-primary" />
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Users />
                   All Applications
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs">
                   View, filter, and manage all submitted applications.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button asChild>
+                <Button asChild variant="glass" size="sm">
                   <Link href="/admin/applications">Go to Applications</Link>
                 </Button>
               </CardContent>
             </Card>
             {userRole === 'admin' && (
               <>
-                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-6 w-6 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Calendar />
                       Event Management
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs">
                       Create, update, and manage all club events.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button asChild>
+                    <Button asChild variant="glass" size="sm">
                       <Link href="/admin/events">Manage Events</Link>
                     </Button>
                   </CardContent>
                 </Card>
-                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Group className="h-6 w-6 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Group />
                       Team Management
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs">
                       Update the public team page members and categories.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button asChild>
+                    <Button asChild variant="glass" size="sm">
                       <Link href="/admin/team">Manage Team</Link>
                     </Button>
                   </CardContent>
                 </Card>
-                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BarChart2 className="h-6 w-6 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <BarChart2 />
                       Hiring Analytics
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs">
                       Visualize application data, trends, and statistics.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button asChild>
+                    <Button asChild variant="glass" size="sm">
                       <Link href="/admin/analytics">View Analytics</Link>
                     </Button>
                   </CardContent>
                 </Card>
-                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="glass-card flex flex-col justify-between">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                        <UserCheck className="h-6 w-6 text-primary" />
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                        <UserCheck />
                         Interview Analytics
                         </CardTitle>
-                        <CardDescription>
+                        <CardDescription className="text-xs">
                         Analytics for candidates who completed their interview.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Button asChild>
-                        <Link href="/admin/interview-analytics">View Interview Analytics</Link>
+                        <Button asChild variant="glass" size="sm">
+                          <Link href="/admin/interview-analytics">View Interview Analytics</Link>
                         </Button>
                     </CardContent>
                 </Card>
-                <Card className="flex flex-col justify-between hover:shadow-lg transition-shadow">
+                <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <PencilRuler className="h-6 w-6 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <PencilRuler />
                       Internal Registration
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs">
                       Manually register a candidate on their behalf.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button asChild>
+                    <Button asChild variant="glass" size="sm">
                       <Link href="/admin/internal-registration">Register Candidate</Link>
                     </Button>
                   </CardContent>
@@ -163,22 +163,22 @@ export default async function AdminPage() {
 
           {userRole === 'panel' && analyticsData && (
             ('error' in analyticsData) ? (
-              <Card>
+              <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                      <AlertCircle className="h-5 w-5 text-destructive" />
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                      <AlertCircle className="text-destructive" />
                       Analytics Error
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-destructive">
+                  <p className="text-destructive text-sm">
                     {analyticsData.error || "Could not load analytics data for your panel."}
                   </p>
                 </CardContent>
               </Card>
             ) : (
               <div>
-                <h2 className="text-2xl font-bold tracking-tight mb-4">Domain Analytics</h2>
+                <h2 className="text-xl font-bold tracking-tight mb-4">Domain Analytics</h2>
                 <AdminDashboardAnalytics data={analyticsData} />
               </div>
             )

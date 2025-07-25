@@ -1,3 +1,4 @@
+
 import { getApplicationById } from "@/app/actions";
 import { ApplicationReviewForm } from "@/components/application-review-form";
 import { MLSCLogo } from "@/components/icons";
@@ -72,52 +73,52 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
   const status = application.status || 'Received';
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-        <div className="container mx-auto flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-4">
-            <MLSCLogo className="h-10 w-10 text-primary" />
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
+          <Link href="/" className="flex items-center gap-2">
+            <MLSCLogo className="h-8 w-8 text-primary" />
+            <h1 className="text-xl font-bold tracking-tight">
               MLSC 3.0 Hiring Program
             </h1>
           </Link>
-          <Button asChild variant="outline">
+          <Button asChild variant="glass" size="sm">
             <Link href="/admin/applications">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Back to Applications</span>
+              <ArrowLeft />
+              <span>Back to Applications</span>
             </Link>
           </Button>
         </div>
       </header>
-      <main className="flex-1 p-4 sm:p-6 md:p-8">
-        <div className="container mx-auto grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <Card>
+      <main className="flex-1 p-4">
+        <div className="container mx-auto grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="glass-card">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-3xl">{application.name}</CardTitle>
-                    <CardDescription>
+                    <CardTitle className="text-xl">{application.name}</CardTitle>
+                    <CardDescription className="text-xs">
                       Submitted on {format(new Date(application.submittedAt), "MMMM d, yyyy 'at' h:mm a")}
                     </CardDescription>
                   </div>
-                   <Badge variant={getStatusVariant(status)} className="text-sm shrink-0">
+                   <Badge variant={getStatusVariant(status)} className="text-xs shrink-0">
                       {status}
                     </Badge>
                 </div>
-                 <div className="text-sm text-muted-foreground pt-4">
+                 <div className="text-xs text-muted-foreground pt-3">
                   Reference ID: <span className="font-mono text-foreground break-all">{application.id}</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 text-sm">
                  {application.resumeSummary && (
                     <div>
-                      <h4 className="font-semibold text-base mb-2">AI-Generated Resume Summary</h4>
-                      <blockquote className="text-sm text-muted-foreground mt-2 p-4 border rounded-md bg-muted/50 italic">{application.resumeSummary}</blockquote>
+                      <h4 className="font-semibold text-sm mb-2">AI-Generated Resume Summary</h4>
+                      <blockquote className="text-xs text-muted-foreground mt-2 p-3 border rounded-md bg-muted/50 italic">{application.resumeSummary}</blockquote>
                     </div>
                   )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div>
                     <h4 className="font-semibold">Email</h4>
                     <p className="text-muted-foreground break-all">{application.email}</p>
@@ -159,18 +160,18 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                       </div>
                   )}
                 </div>
-                 <div className="flex flex-wrap gap-4 text-sm">
+                 <div className="flex flex-wrap gap-3 text-xs">
                    <div>
-                    <h4 className="font-semibold mb-2">Technical Domain</h4>
+                    <h4 className="font-semibold mb-1">Technical Domain</h4>
                     <Badge variant="secondary">{domainLabels[application.technicalDomain] || application.technicalDomain}</Badge>
                   </div>
                    <div>
-                    <h4 className="font-semibold mb-2">Non-Technical Domain</h4>
+                    <h4 className="font-semibold mb-1">Non-Technical Domain</h4>
                     <Badge variant="secondary">{domainLabels[application.nonTechnicalDomain] || application.nonTechnicalDomain}</Badge>
                   </div>
                  </div>
 
-                <div className="space-y-4 text-sm">
+                <div className="space-y-3 text-xs">
                   <div>
                     <h4 className="font-semibold">Why do you want to join this club?</h4>
                     <p className="text-muted-foreground whitespace-pre-wrap">{application.joinReason}</p>
@@ -190,7 +191,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
               </CardContent>
             </Card>
           </div>
-          <div className="space-y-8">
+          <div className="space-y-6">
             <ApplicationReviewForm application={application} userRole={userRole} />
           </div>
         </div>
