@@ -78,9 +78,6 @@ export default function Home() {
              <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
           </nav>
           <div className="flex items-center gap-4">
-            <Button asChild>
-                <Link href="/apply">Apply Now</Link>
-            </Button>
             <div className="lg:hidden">
                 <Sheet>
                     <SheetTrigger asChild>
@@ -125,7 +122,7 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('https://placehold.co/1920x1080.png')"}}>
+        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('/placeholder.svg')"}}>
             <div className="absolute inset-0 bg-black/60 backdrop-brightness-75"></div>
             <div className="absolute inset-0 bg-gray-900 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-16 h-16 text-blue-500/20 animate-pulse-slow">
@@ -191,8 +188,7 @@ export default function Home() {
             <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
                 <div className="image-container overflow-hidden rounded-lg shadow-lg mb-8 md:mb-0">
                     <div className="image-slider flex">
-                        <Image src="https://placehold.co/600x400.png" alt="Team Image 1" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
-                        <Image src="https://placehold.co/600x400.png" alt="Team Image 2" width={600} height={400} className="w-full shrink-0" data-ai-hint="people working"/>
+                        <Image src="/team1.png" alt="MLSC Team" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
                     </div>
                 </div>
                 <div className="about-content text-center md:text-left">
