@@ -21,7 +21,7 @@ interface TeamMember {
 
 interface TeamCategory {
   id: string;
-  name: string; // This is now 'Core Team', 'Technical Team', etc.
+  name: string; 
   subDomain: string;
   order: number;
   members: TeamMember[];
@@ -91,8 +91,8 @@ export default function TeamPage() {
 
   const sortMembers = (members: TeamMember[]) => {
     return [...members].sort((a, b) => {
-        const aOrder = roleOrder[a.role] || 99;
-        const bOrder = roleOrder[b.role] || 99;
+        const aOrder = roleOrder[a.role] || (a.role.includes('Head') ? 7 : 99);
+        const bOrder = roleOrder[b.role] || (b.role.includes('Head') ? 7 : 99);
         if (aOrder !== bOrder) {
             return aOrder - bOrder;
         }
@@ -103,9 +103,9 @@ export default function TeamPage() {
   const renderMembers = (members: TeamMember[]) => {
       if (members.length === 0) return null;
       return (
-           <div className="flex flex-wrap justify-center items-start gap-8">
+           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
               {sortMembers(members).map((member: any) => (
-              <div key={member.id} className="flex flex-col items-center text-center group w-full max-w-[200px] sm:max-w-[220px]">
+              <div key={member.id} className="flex flex-col items-center text-center group">
                   <Image 
                       src={member.image} 
                       alt={`Photo of ${member.name}`}
@@ -124,7 +124,7 @@ export default function TeamPage() {
           </div>
       )
   }
-
+  
   const renderTeamSection = (teams: TeamCategory[], title: string) => {
     if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
         return null;
