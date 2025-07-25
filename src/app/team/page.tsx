@@ -1,4 +1,6 @@
 
+'use client';
+
 import { getTeamMembers } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -6,9 +8,56 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
-export default async function TeamPage() {
-  const { membersByCategory, error } = await getTeamMembers();
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  linkedin: string;
+  categoryId: string;
+}
+
+interface TeamCategory {
+  id: string;
+  name: string;
+  order: number;
+  members: TeamMember[];
+}
+
+
+export default function TeamPage() {
+  const [membersByCategory, setMembersByCategory] = useState<TeamCategory[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await getTeamMembers();
+        if (result.error) {
+          setError(result.error);
+        } else if (result.membersByCategory) {
+          setMembersByCategory(result.membersByCategory);
+        }
+      } catch (e) {
+        setError("An unexpected error occurred.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+
+  if (loading) {
+     return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+        <h2 className="text-2xl font-bold">Loading Team...</h2>
+      </div>
+     )
+  }
 
   if (error) {
     return (
@@ -218,3 +267,4 @@ export default async function TeamPage() {
     </div>
   );
 }
+
