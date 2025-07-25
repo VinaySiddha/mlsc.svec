@@ -995,21 +995,30 @@ export async function deleteEvent(id: string) {
 }
 
 export async function getEvents() {
-    try {
-        const eventsCol = collection(db, 'events');
-        const q = query(eventsCol, orderBy('date', 'desc'));
-        const eventSnapshot = await getDocs(q);
-        const eventList = eventSnapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id,
-            date: doc.data().date.toDate().toISOString(),
-        }));
-        return { events: eventList };
-    } catch (error) {
-        console.error("Error fetching events:", error);
-        return { error: 'Could not fetch events.' };
-    }
+    // This is a temporary solution to display events without a database.
+    // In a real application, this would fetch from Firestore.
+    const staticEvents = [
+        {
+            id: '1',
+            title: 'Azure Cloud Workshop',
+            description: 'Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.',
+            date: new Date('2023-10-18T00:00:00Z').toISOString(),
+            image: 'https://placehold.co/600x400.png',
+            registrationOpen: false,
+        },
+        {
+            id: '2',
+            title: 'Web development BootCamp',
+            description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
+            date: new Date().toISOString(), // Shows as upcoming
+            image: 'https://placehold.co/600x400.png',
+            registrationOpen: true,
+        }
+    ];
+
+    return { events: staticEvents, error: null };
 }
+
 
 export async function getEventById(id: string) {
     try {
