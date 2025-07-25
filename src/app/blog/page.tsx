@@ -82,7 +82,7 @@ export default function BlogPage() {
                     <Card className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
                         <div className="lg:w-2/5">
                             <Image 
-                                src="https://placehold.co/600x400.png" 
+                                src="/blog1.jpg" 
                                 alt="Blog Post Image" 
                                 width={600} 
                                 height={400} 
