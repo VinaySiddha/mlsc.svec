@@ -1,3 +1,4 @@
+
 'use client';
 
 import { getTeamMembers } from "@/app/actions";
@@ -95,7 +96,10 @@ export default function TeamPage() {
   const sortMembers = (a: TeamMember, b: TeamMember) => {
     const roleA = roleOrder[a.role] || 99;
     const roleB = roleOrder[b.role] || 99;
-    return roleA - roleB;
+    if (roleA !== roleB) {
+        return roleA - roleB;
+    }
+    return a.name.localeCompare(b.name); // Alphabetical sort for same-level roles
   };
   
   const coreTeams = membersByCategory
