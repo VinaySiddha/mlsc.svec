@@ -11,8 +11,6 @@ import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
 
-export const dynamic = 'force-dynamic';
-
 export default async function AdminPage() {
   const headersList = headers();
   const userRole = headersList.get('X-User-Role');
@@ -173,9 +171,9 @@ export default async function AdminPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-destructive" />
-                  Analytics Error
-                </CardTitle>
+                    <AlertCircle className="h-5 w-5 text-destructive" />
+                    Analytics Error
+                </Title>
               </CardHeader>
               <CardContent>
                 <p className="text-destructive">

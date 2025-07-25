@@ -278,7 +278,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     setSearch('');
     setSearchBy('rollNo');
     startTransition(() => {
-      router.push(pathname);
+      router.push(pathname, { scroll: false });
     });
   };
   

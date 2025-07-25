@@ -9,8 +9,6 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export const dynamic = 'force-dynamic';
-
 export default async function EventsPage() {
     const headersList = headers();
     const userRole = headersList.get('X-User-Role');
@@ -69,4 +67,3 @@ export default async function EventsPage() {
         </div>
     );
 }
-

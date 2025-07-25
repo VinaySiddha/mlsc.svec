@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { deleteEvent } from "@/app/actions";
 import { useRouter } from "next/navigation";
@@ -32,29 +32,33 @@ export function EventsTable({ events }: EventsTableProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+
 
     const handleDelete = async (eventId: string) => {
-        setIsDeleting(true);
-        try {
-            const result = await deleteEvent(eventId);
-            if (result.error) {
-                throw new Error(result.error);
+        startTransition(async () => {
+            setIsDeleting(true);
+            try {
+                const result = await deleteEvent(eventId);
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                toast({
+                    title: "Event Deleted",
+                    description: "The event has been successfully deleted.",
+                });
+                router.refresh();
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+                toast({
+                    variant: 'destructive',
+                    title: 'Deletion Failed',
+                    description: errorMessage,
+                });
+            } finally {
+                setIsDeleting(false);
             }
-            toast({
-                title: "Event Deleted",
-                description: "The event has been successfully deleted.",
-            });
-            router.refresh();
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            toast({
-                variant: 'destructive',
-                title: 'Deletion Failed',
-                description: errorMessage,
-            });
-        } finally {
-            setIsDeleting(false);
-        }
+        });
     }
 
   return (
@@ -99,8 +103,8 @@ export function EventsTable({ events }: EventsTableProps) {
                         </Button>
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="icon">
-                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                <Button variant="destructive" size="icon" disabled={isDeleting || isPending}>
+                                    {(isDeleting || isPending) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                     <span className="sr-only">Delete Event</span>
                                 </Button>
                             </AlertDialogTrigger>
@@ -114,8 +118,8 @@ export function EventsTable({ events }: EventsTableProps) {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(event.id)} disabled={isDeleting}>
-                                    {isDeleting ? "Deleting..." : "Continue"}
+                                <AlertDialogAction onClick={() => handleDelete(event.id)} disabled={isDeleting || isPending}>
+                                    {(isDeleting || isPending) ? "Deleting..." : "Continue"}
                                 </AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>

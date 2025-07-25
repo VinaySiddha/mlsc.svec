@@ -11,8 +11,6 @@ import { format } from 'date-fns';
 import { headers } from "next/headers";
 import type { Metadata, ResolvingMetadata } from 'next'
 
-export const dynamic = 'force-dynamic';
-
 type Props = {
   params: { id: string }
 }

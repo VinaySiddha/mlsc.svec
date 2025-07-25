@@ -53,8 +53,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
         toast({
           title: 'Attendance Updated',
         });
-        // No need to refresh the whole page, the local state change is enough for visual feedback
-        // until the next full page load.
+        router.refresh();
       }
     });
   };

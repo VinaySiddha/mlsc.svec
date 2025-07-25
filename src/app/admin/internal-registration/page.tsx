@@ -9,8 +9,6 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { InternalRegistrationForm } from "@/components/internal-registration-form";
 
-export const dynamic = 'force-dynamic';
-
 export default async function InternalRegistrationPage() {
   const headersList = headers();
   const userRole = headersList.get('X-User-Role');

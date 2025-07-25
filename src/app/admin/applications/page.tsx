@@ -13,9 +13,6 @@ import { AdminFilters } from "@/components/admin-filters";
 import { PaginationComponent } from "@/components/pagination";
 import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 function ApplicationsDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
     const domainLabels: Record<string, string> = {
       gen_ai: "Generative AI",
