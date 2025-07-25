@@ -115,9 +115,9 @@ const registrationSchema = z.object({
 });
 
 const teamCategorySchema = z.object({
-    name: z.string({ required_error: "Please select a main category."}),
-    subDomain: z.string().min(2, "Sub-domain name is required."),
-    order: z.number().min(0, "Order must be a positive number."),
+  name: z.string({ required_error: "Please select a main category." }),
+  subDomain: z.string().min(2, "Sub-domain name is required."),
+  order: z.coerce.number().min(0, "Order must be a positive number."),
 });
 
 const teamMemberSchema = z.object({
@@ -427,33 +427,30 @@ export async function getApplications(params: {
       currentPage: 1,
     };
   }
+  
+  // For pagination, we fetch one more than the limit to see if there's a next page
+  const paginatedQuery = query(finalQuery, limit(limitNumber + 1));
+  let queryWithCursor = paginatedQuery;
 
-
-  // Get total count based on the constructed query
-  // For counting, we don't need the orderBy clause
-  const countQuery = baseQuery;
-  const countSnapshot = await getCountFromServer(countQuery);
-  const totalApplications = countSnapshot.data().count;
-  const totalPages = Math.ceil(totalApplications / limitNumber);
-
-  // Apply pagination
-  let paginatedQuery = finalQuery;
   if (page && parseInt(page, 10) > 1 && lastVisibleId) {
       const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
-      if(lastVisibleDoc.exists()) {
-        paginatedQuery = query(paginatedQuery, startAfter(lastVisibleDoc));
+      if (lastVisibleDoc.exists()) {
+        queryWithCursor = query(paginatedQuery, startAfter(lastVisibleDoc));
       }
   }
 
-  paginatedQuery = query(paginatedQuery, limit(limitNumber));
-
-  const querySnapshot = await getDocs(paginatedQuery);
+  const querySnapshot = await getDocs(queryWithCursor);
   const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
+
+  const hasNextPage = applications.length > limitNumber;
+  // Remove the extra document we fetched for the check
+  if (hasNextPage) {
+    applications.pop();
+  }
 
   return {
     applications,
-    totalApplications,
-    totalPages,
+    hasNextPage,
     currentPage: parseInt(page, 10),
   };
 }

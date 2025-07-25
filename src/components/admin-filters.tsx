@@ -371,10 +371,6 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
                 {(isPending && searchParams.get('sortByPerformance') === 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
                 Sort by Performance
             </Button>
-            <Button variant={currentFilters.sortByRecommended === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByRecommended')} disabled={isPending || isBulkUpdating}>
-                {(isPending && searchParams.get('sortByRecommended') === 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Award className="mr-2 h-4 w-4" />}
-                Sort by Recommended
-            </Button>
             <div className="flex items-center gap-2">
                 <Select onValueChange={setBulkUpdateTargetStatus} value={bulkUpdateTargetStatus} disabled={isPending || isBulkUpdating}>
                     <SelectTrigger className="w-full sm:w-[180px]">
@@ -428,5 +424,3 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     </div>
   );
 }
-
-    

@@ -7,19 +7,19 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useTransition } from 'react';
 
 interface PaginationComponentProps {
-  totalPages: number;
+  hasNextPage: boolean;
   currentPage: number;
   applications: any[];
 }
 
-export function PaginationComponent({ totalPages, currentPage, applications }: PaginationComponentProps) {
+export function PaginationComponent({ hasNextPage, currentPage, applications }: PaginationComponentProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
+    if (newPage < 1) return;
     
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
@@ -28,8 +28,6 @@ export function PaginationComponent({ totalPages, currentPage, applications }: P
       const lastVisibleId = applications[applications.length - 1].firestoreId;
       params.set('lastVisibleId', lastVisibleId);
     } else {
-      // For going to a previous page, we don't need lastVisibleId
-      // and for the first page, it should be cleared.
       params.delete('lastVisibleId');
     }
     
@@ -38,7 +36,7 @@ export function PaginationComponent({ totalPages, currentPage, applications }: P
     });
   };
   
-  if (totalPages <= 1) {
+  if (currentPage === 1 && !hasNextPage) {
     return null;
   }
 
@@ -49,7 +47,7 @@ export function PaginationComponent({ totalPages, currentPage, applications }: P
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1 || isPending}
       >
-        {isPending ? (
+        {isPending && currentPage > 1 ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <ChevronLeft className="mr-2 h-4 w-4" />
@@ -57,14 +55,14 @@ export function PaginationComponent({ totalPages, currentPage, applications }: P
         Previous
       </Button>
       <div className="text-sm text-muted-foreground">
-        Page {currentPage} of {totalPages}
+        Page {currentPage}
       </div>
       <Button
         variant="outline"
         onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages || isPending}
+        disabled={!hasNextPage || isPending}
       >
-         {isPending ? (
+         {isPending && hasNextPage ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           "Next"

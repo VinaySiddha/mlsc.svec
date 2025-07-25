@@ -61,7 +61,7 @@ async function ApplicationsDashboard({
   const lastVisibleId = typeof searchParams.lastVisibleId === 'string' ? searchParams.lastVisibleId : undefined;
   const attendedOnly = typeof searchParams.attendedOnly === 'string' ? searchParams.attendedOnly === 'true' : undefined;
 
-  const { applications, totalApplications, totalPages, currentPage } = await getApplications({ 
+  const { applications, hasNextPage, currentPage } = await getApplications({ 
     panelDomain, 
     search, 
     searchBy,
@@ -92,7 +92,7 @@ async function ApplicationsDashboard({
   
   const description = panelDomain
     ? `Applications for the ${domainLabels[panelDomain]} domain.`
-    : `Showing ${applications.length} of ${totalApplications} matching applications.`;
+    : `View and manage all submitted applications.`;
 
   return (
     <>
@@ -113,7 +113,7 @@ async function ApplicationsDashboard({
             <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
         </Suspense>
         <PaginationComponent 
-            totalPages={totalPages} 
+            hasNextPage={hasNextPage} 
             currentPage={currentPage} 
             applications={applications}
         />
