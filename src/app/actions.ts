@@ -995,46 +995,26 @@ export async function deleteEvent(id: string) {
 }
 
 export async function getEvents() {
-    // This is a temporary solution to display events without a database.
-    // In a real application, this would fetch from Firestore.
-    const staticEvents = [
-        {
-            id: '1',
-            title: 'Azure Cloud Workshop',
-            description: 'Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.',
-            date: new Date('2023-10-18T00:00:00Z').toISOString(),
-            image: '/azure.jpg',
-            registrationOpen: false,
-        },
-        {
-            id: '2',
-            title: 'Web development BootCamp',
-            description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
-            date: new Date('2024-03-14T00:00:00Z').toISOString(),
-            image: '/web.jpg',
-            registrationOpen: false,
-        },
-        {
-            id: '3',
-            title: 'Blue Day',
-            description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
-            date: new Date('2025-01-25T00:00:00Z').toISOString(),
-            image: '/blueday.jpg',
-            registrationOpen: false,
-        },
-        {
-            id: '4',
-            title: 'The Flask Edition',
-            description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
-            date: new Date('2025-02-06T00:00:00Z').toISOString(),
-            image: '/flask.jpg',
-            registrationOpen: false,
+    try {
+        const eventsCol = collection(db, 'events');
+        const q = query(eventsCol, orderBy('date', 'desc'));
+        const eventSnapshot = await getDocs(q);
+        const eventList = eventSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                id: doc.id,
+                date: data.date.toDate().toISOString(),
+            }
+        });
+        return { events: eventList as any[], error: null };
+    } catch (error) {
+        console.error("Could not fetch events:", error);
+        if (error instanceof Error) {
+            return { error: `Failed to fetch events: ${error.message}` };
         }
-    ];
-
-    const sortedEvents = staticEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-    return { events: sortedEvents, error: null };
+        return { error: 'An unexpected error occurred while fetching events.' };
+    }
 }
 
 

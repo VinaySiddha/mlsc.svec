@@ -1,11 +1,12 @@
 
-import { getEvents } from "@/app/actions";
+'use client'
+
 import { EventRegistrationForm } from "@/components/event-registration-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Clock, Mic, Image as ImageIcon, Book, Code } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, Send, Menu, Book, Code, ImageIcon, Mic } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -25,20 +26,44 @@ const navLinks = [
     { href: "/blog", label: "Blog", icon: Book },
 ];
 
-export default async function EventsPage() {
-    const { events, error } = await getEvents();
+const staticEvents = [
+    {
+        id: '3',
+        title: 'Blue Day',
+        description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
+        date: new Date('2025-01-25T00:00:00Z').toISOString(),
+        image: '/blueday.jpg',
+        registrationOpen: false,
+    },
+    {
+        id: '4',
+        title: 'The Flask Edition',
+        description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
+        date: new Date('2025-02-06T00:00:00Z').toISOString(),
+        image: '/flask.jpg',
+        registrationOpen: false,
+    },
+    {
+        id: '2',
+        title: 'Web development BootCamp',
+        description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
+        date: new Date('2024-03-14T00:00:00Z').toISOString(),
+        image: '/web.jpg',
+        registrationOpen: false,
+    },
+    {
+        id: '1',
+        title: 'Azure Cloud Workshop',
+        description: 'Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.',
+        date: new Date('2023-10-18T00:00:00Z').toISOString(),
+        image: '/azure.jpg',
+        registrationOpen: false,
+    },
+];
 
-    if (error) {
-        return (
-             <div className="flex flex-col items-center justify-center min-h-screen text-center">
-                <h2 className="text-2xl font-bold text-destructive">Failed to load events</h2>
-                <p className="text-muted-foreground">{error}</p>
-                 <Button asChild variant="link" className="mt-4">
-                    <Link href="/">Return to Home</Link>
-                </Button>
-            </div>
-        )
-    }
+export default function EventsPage() {
+    
+    const events = staticEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
