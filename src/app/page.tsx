@@ -75,7 +75,7 @@ export default function Home() {
              {navLinks.map(link => (
                  <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">{link.label}</Link>
              ))}
-             <a href="#" className="text-gray-300 hover:text-white transition-colors">Projects</a>
+             <Link href="/projects" className="text-gray-300 hover:text-white transition-colors">Projects</Link>
           </nav>
           <div className="flex items-center gap-4">
             <div className="lg:hidden">
@@ -97,9 +97,9 @@ export default function Home() {
                                     </SheetClose>
                                 ))}
                                 <SheetClose asChild>
-                                    <a href="#" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
+                                    <Link href="/projects" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">
                                         <Code className="h-5 w-5" /> Projects
-                                    </a>
+                                    </Link>
                                 </SheetClose>
                                 <SheetClose asChild>
                                     <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-white/10">

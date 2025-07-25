@@ -1,11 +1,9 @@
 
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, Send, Menu, Book, Code, BookOpen } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -15,7 +13,7 @@ const navLinks = [
     { href: "/blog", label: "Blog", icon: Book },
 ];
 
-export default function BlogPage() {
+export default function ProjectsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -70,48 +68,20 @@ export default function BlogPage() {
       </header>
 
       <main className="flex-1">
-        <section id="blogs" className="w-full py-20 md:py-28">
+        <section id="projects" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
-                 <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-blue-400">Blogs</span></h2>
+                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-blue-400">Projects</span></h2>
                     <p className="max-w-[900px] text-gray-300 md:text-xl">
-                        Read our latest articles and updates.
+                        This page is under construction. Check back soon to see our projects!
                     </p>
-                </div>
-                <div className="grid gap-8 lg:gap-12">
-                    <Card className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
-                        <div className="lg:w-2/5">
-                            <Image 
-                                src="/blog1.jpg" 
-                                alt="Blog Post Image" 
-                                width={600} 
-                                height={400} 
-                                className="rounded-t-lg lg:rounded-l-lg lg:rounded-t-none object-cover h-full w-full" 
-                                data-ai-hint="tech event photo"
-                            />
-                        </div>
-                        <div className="p-6 flex flex-col flex-1 lg:w-3/5">
-                            <div className="flex items-center gap-2 text-blue-400 mb-2">
-                                <BookOpen className="h-6 w-6" />
-                                <span className="font-semibold">Medium</span>
-                            </div>
-                            <CardTitle className="pt-2 text-2xl">
-                                Unveiling Excellence: The Inauguration of the Microsoft Learn Student Club at Sri Vasavi Engineering College
-                            </CardTitle>
-                            <div className="mt-auto pt-4">
-                               <Button asChild variant="glass">
-                                <a href="https://link.medium.com/4aHNce3OlEb" target="_blank" rel="noopener noreferrer">Read More</a>
-                               </Button>
-                            </div>
-                        </div>
-                    </Card>
                 </div>
             </div>
         </section>
       </main>
 
        {/* Footer */}
-      <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
+       <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
           <div className="container mx-auto text-center text-sm text-gray-400">
               <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>
