@@ -1,13 +1,14 @@
 import type {Metadata} from 'next';
 import './globals.css';
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
 
-const inter = Inter({ 
-  subsets: ['latin'], 
-  variable: '--font-body' 
+const customFont = localFont({
+  src: '../../public/font.ttf',
+  display: 'swap',
+  variable: '--font-custom',
 })
 
 export const metadata: Metadata = {
@@ -62,7 +63,7 @@ export default function RootLayout({
         <meta name="google-adsense-account" content="ca-pub-3162461325924366"></meta>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" crossOrigin="anonymous"></script>
         </head>
-      <body className={cn('font-body antialiased', inter.variable)}>
+      <body className={cn('font-sans antialiased', customFont.variable)}>
         <main className="min-h-screen">{children}</main>
         <Toaster />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>
