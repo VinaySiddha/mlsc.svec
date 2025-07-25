@@ -304,8 +304,9 @@ function buildFilteredQuery(params: {
   branch?: string;
   domain?: string;
   attendedOnly?: boolean;
+  sortByRecommended?: string; // Add sortByRecommended here
 }) {
-  const { panelDomain, search, searchBy, status, year, branch, domain, attendedOnly } = params;
+  const { panelDomain, search, searchBy, status, year, branch, domain, attendedOnly, sortByRecommended } = params;
   let q: Query<DocumentData> = collection(db, 'applications');
   const constraints: QueryConstraint[] = [];
 
@@ -322,6 +323,9 @@ function buildFilteredQuery(params: {
   if (year) constraints.push(where('yearOfStudy', '==', year));
   if (branch) constraints.push(where('branch', '==', branch));
   if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
+  if (sortByRecommended === 'true') {
+    constraints.push(where('isRecommended', '==', true));
+  }
   
   if (search) {
       const searchTermLower = search.toLowerCase();
@@ -356,7 +360,7 @@ export async function getApplications(params: {
   fetchAll?: boolean;
   attendedOnly?: boolean;
 }) {
-  const { search, searchBy, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
+  const { search, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
   
   let baseQuery = buildFilteredQuery(params);
@@ -364,20 +368,15 @@ export async function getApplications(params: {
 
   const sortConstraints: QueryConstraint[] = [];
 
+  // Apply sorting logic
   if (sortByRecommended === 'true') {
-    sortConstraints.push(where('isRecommended', '==', true));
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
   } else if (sortByPerformance === 'true') {
     sortConstraints.push(orderBy('ratings.overall', 'desc'));
-  } else if (search) {
-    // When searching with exact match '==', we don't need a specific orderBy for the search to work.
-    // We can use the default sort order.
-    sortConstraints.push(orderBy('submittedAt', 'desc'));
   } else {
-    // Default sort order
+    // Default sort order when no specific sort is applied
     sortConstraints.push(orderBy('submittedAt', 'desc'));
   }
-
 
   finalQuery = query(baseQuery, ...sortConstraints);
 
@@ -395,7 +394,8 @@ export async function getApplications(params: {
 
 
   // Get total count based on the constructed query
-  const countQuery = query(baseQuery, ...sortConstraints.filter(c => c.type !== 'orderBy'));
+  // For counting, we don't need the orderBy clause
+  const countQuery = baseQuery;
   const countSnapshot = await getCountFromServer(countQuery);
   const totalApplications = countSnapshot.data().count;
   const totalPages = Math.ceil(totalApplications / limitNumber);
