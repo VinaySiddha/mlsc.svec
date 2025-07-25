@@ -22,6 +22,19 @@ export default async function TeamPage() {
     );
   }
 
+  // Manually define which categories are technical
+  const technicalCategoryNames = [
+    "Generative AI",
+    "Data Science & Machine Learning",
+    "Azure Cloud",
+    "Web and APP Development",
+    "Data Science and Machine Learning",
+    "Microsoft 365 and PowerPlatform"
+  ];
+
+  const technicalTeams = membersByCategory.filter(category => technicalCategoryNames.includes(category.name));
+  const nonTechnicalTeams = membersByCategory.filter(category => !technicalCategoryNames.includes(category.name));
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -100,12 +113,51 @@ export default async function TeamPage() {
             <p className="max-w-[900px] mx-auto mt-4 text-muted-foreground md:text-xl">The leaders and members driving the MLSC community forward.</p>
         </section>
         
-        {membersByCategory.map(category => (
+        {/* Non-Technical Teams */}
+        <div className="w-full py-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Non-Technical Teams</h2>
+        </div>
+        {nonTechnicalTeams.map(category => (
             <section key={category.id} className="w-full py-12 md:py-16 bg-card/10">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="space-y-12">
                         <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{category.name}</h2>
+                            <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.name}</h3>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-8">
+                            {category.members.map((member: any) => (
+                              <div key={member.id} className="flex flex-col items-center text-center group w-full max-w-[200px] sm:max-w-[220px]">
+                                  <Image 
+                                    src={member.image} 
+                                    alt={`Photo of ${member.name}`}
+                                    width={160} 
+                                    height={160} 
+                                    className="rounded-full mb-4 object-cover shadow-lg group-hover:scale-110 transition-transform duration-300 w-40 h-40"
+                                    data-ai-hint="person portrait"
+                                  />
+                                  <h4 className="font-semibold text-lg">{member.name}</h4>
+                                  <p className="text-primary">{member.role}</p>
+                                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary mt-1">
+                                    LinkedIn
+                                  </a>
+                              </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        ))}
+
+        {/* Technical Teams */}
+        <div className="w-full py-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Technical Teams</h2>
+        </div>
+        {technicalTeams.map(category => (
+            <section key={category.id} className="w-full py-12 md:py-16 bg-card/10">
+                <div className="container mx-auto px-4 md:px-6">
+                    <div className="space-y-12">
+                        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                            <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">{category.name}</h3>
                         </div>
                         <div className="flex flex-wrap justify-center gap-8">
                             {category.members.map((member: any) => (
