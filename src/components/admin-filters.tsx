@@ -7,6 +7,8 @@ import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { Search, X, TrendingUp, Award, Loader2, ClipboardCheck, FileDown, FileText, Users } from 'lucide-react';
+import { Checkbox } from './ui/checkbox';
+import { Label } from './ui/label';
 import { bulkUpdateStatus, exportHiredToCsv, getApplications } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -31,6 +33,7 @@ interface AdminFiltersProps {
     domain?: string;
     sortByPerformance?: string;
     sortByRecommended?: string;
+    attendedOnly?: string;
   };
 }
 
@@ -80,10 +83,15 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     });
   };
   
-  const handleFilterChange = (name: string, value: string) => {
-    const updatedValue = value === 'all' ? '' : value;
+  const handleFilterChange = (name: string, value: string | boolean) => {
+    let stringValue = '';
+    if (typeof value === 'boolean') {
+      stringValue = value ? 'true' : '';
+    } else {
+      stringValue = value === 'all' ? '' : value;
+    }
     startTransition(() => {
-      router.push(pathname + '?' + createQueryString([{ name, value: updatedValue }]));
+      router.push(pathname + '?' + createQueryString([{ name, value: stringValue }]));
     });
   };
   
@@ -105,7 +113,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     }
 
     setIsBulkUpdating(true);
-    const filtersToPass = { ...currentFilters, attendedOnly: false, panelDomain };
+    const filtersToPass = { ...currentFilters, attendedOnly: currentFilters.attendedOnly === 'true', panelDomain };
     
     try {
         const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
@@ -356,7 +364,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
           </Select>
         )}
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-4">
          {userRole === 'admin' && (
           <>
             <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
@@ -387,6 +395,15 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                 Export Hired
             </Button>
+             <div className="flex items-center space-x-2">
+                <Checkbox 
+                    id="attended-only" 
+                    checked={currentFilters.attendedOnly === 'true'} 
+                    onCheckedChange={(checked) => handleFilterChange('attendedOnly', !!checked)}
+                    disabled={isPending || isBulkUpdating}
+                />
+                <Label htmlFor="attended-only" className="text-sm font-medium">Show Attended Only</Label>
+            </div>
           </>
         )}
         {(showPdfButtonsForAdmin || showPdfButtonsForPanel) && (

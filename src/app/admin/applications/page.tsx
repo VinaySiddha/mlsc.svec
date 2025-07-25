@@ -59,6 +59,7 @@ async function ApplicationsDashboard({
   const sortByRecommended = typeof searchParams.sortByRecommended === 'string' ? searchParams.sortByRecommended : undefined;
   const page = typeof searchParams.page === 'string' ? searchParams.page : '1';
   const lastVisibleId = typeof searchParams.lastVisibleId === 'string' ? searchParams.lastVisibleId : undefined;
+  const attendedOnly = typeof searchParams.attendedOnly === 'string' ? searchParams.attendedOnly === 'true' : undefined;
 
   const { applications, totalApplications, totalPages, currentPage } = await getApplications({ 
     panelDomain, 
@@ -71,7 +72,8 @@ async function ApplicationsDashboard({
     sortByPerformance,
     sortByRecommended,
     page,
-    lastVisibleId
+    lastVisibleId,
+    attendedOnly,
   });
   
   const filterData = {
@@ -105,7 +107,7 @@ async function ApplicationsDashboard({
           userRole={userRole}
           panelDomain={panelDomain}
           filterData={filterData}
-          currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended }}
+          currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended, attendedOnly: searchParams.attendedOnly as string }}
          />
         <Suspense fallback={<ApplicationsTableSkeleton />}>
             <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
