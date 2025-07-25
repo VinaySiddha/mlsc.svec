@@ -107,9 +107,9 @@ export default async function TeamPage() {
                         <div className="flex flex-col items-center justify-center space-y-4 text-center">
                             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{category.name}</h2>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-center">
+                        <div className="flex flex-wrap justify-center gap-8">
                             {category.members.map((member: any) => (
-                              <div key={member.id} className="flex flex-col items-center text-center group w-full">
+                              <div key={member.id} className="flex flex-col items-center text-center group w-full max-w-[200px] sm:max-w-[220px]">
                                   <Image 
                                     src={member.image} 
                                     alt={`Photo of ${member.name}`}
@@ -165,4 +165,5 @@ export default async function TeamPage() {
       </footer>
     </div>
   );
-}
+
+    
