@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 228 100% 98%;
-    --foreground: 222 47% 11%;
-    --card: 228 100% 98%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 228 50% 92%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 228 30% 90%;
-    --muted-foreground: 222 47% 40%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 40% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%; /* Blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 222 30% 20%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 30% 20%;
+    --muted-foreground: 210 40% 70%;
+    --accent: 217 91% 60%; /* Blue */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 228 20% 85%;
-    --input: 228 30% 92%;
-    --ring: 217 91% 60%;
+    --border: 222 30% 25%;
+    --input: 222 30% 25%;
+    --ring: 217 91% 60%; /* Blue */
     --chart-1: 220 70% 50%;
     --chart-2: 217 91% 60%;
     --chart-3: 197 37% 24%;
@@ -37,19 +37,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 68%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 217 91% 60%; /* Blue */
+    --primary-foreground: 210 40% 98%;
     --secondary: 222 30% 20%;
     --secondary-foreground: 210 40% 98%;
     --muted: 222 30% 20%;
     --muted-foreground: 210 40% 70%;
-    --accent: 217 91% 68%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 217 91% 60%; /* Blue */
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 222 30% 25%;
     --input: 222 30% 25%;
-    --ring: 217 91% 68%;
+    --ring: 217 91% 60%; /* Blue */
     --chart-1: 220 70% 50%;
     --chart-2: 190 60% 45%;
     --chart-3: 210 80% 55%;
@@ -75,5 +75,26 @@
     }
     .glass-card:hover {
         @apply border-primary/50 scale-[1.02];
+    }
+}
+
+@layer utilities {
+    @keyframes pulse-slow {
+        50% {
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+    }
+    .animate-pulse-slow {
+        animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes spin-slow {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    .animate-spin-slow {
+        animation: spin-slow 10s linear infinite;
     }
 }
