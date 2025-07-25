@@ -17,11 +17,11 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-       <header className="header sticky top-0 z-50 w-full border-b border-white/20">
-        <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 md:px-8">
+       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
             <MLSCLogo className="h-10 w-10 text-primary" />
-            <span className="text-xl font-bold tracking-tight">
+            <span className="text-2xl font-bold tracking-tight">
               Microsoft Learn Student Club
             </span>
           </Link>
@@ -87,7 +87,7 @@ export default function AboutPage() {
       </main>
 
        {/* Footer */}
-       <footer className="footer bg-gray-900/50 border-t border-white/10 py-6">
+       <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
           <div className="container mx-auto text-center text-sm text-gray-400">
               <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>

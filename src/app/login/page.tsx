@@ -72,11 +72,11 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-900 text-white">
-       <header className="header sticky top-0 z-50 w-full border-b border-white/20">
-        <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 md:px-8">
+       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
             <MLSCLogo className="h-10 w-10 text-primary" />
-            <span className="text-xl font-bold tracking-tight">
+            <span className="text-2xl font-bold tracking-tight">
               Microsoft Learn Student Club
             </span>
           </Link>
