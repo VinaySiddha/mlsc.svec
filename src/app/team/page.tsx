@@ -1,6 +1,4 @@
 
-'use client';
-
 import { getTeamMembers } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -9,8 +7,6 @@ import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface TeamMember {
   id: string;
@@ -90,30 +86,6 @@ const renderMembers = (members: TeamMember[]) => {
     )
 }
 
-const TeamSectionSkeleton = () => (
-    <div className="container mx-auto px-4 md:px-6 space-y-12">
-        <div className="w-full text-center glass-card p-8">
-            <Skeleton className="h-10 w-1/2 mx-auto" />
-        </div>
-        <div className="w-full">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-                <Skeleton className="h-8 w-1/3 mx-auto" />
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-                {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="glass-card p-4 flex flex-col items-center text-center">
-                        <Skeleton className="rounded-full w-40 h-40 mb-4" />
-                        <Skeleton className="h-6 w-3/4" />
-                        <Skeleton className="h-5 w-1/2 mt-1" />
-                        <Skeleton className="h-4 w-1/4 mt-1" />
-                    </div>
-                ))}
-            </div>
-        </div>
-    </div>
-);
-
-
 const renderTeamSection = (teams: TeamCategory[], title: string) => {
   if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
       return null;
@@ -142,41 +114,27 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
 };
 
 
-export default function TeamPage() {
-    const [teamData, setTeamData] = useState<{ coreTeam: TeamCategory[], technicalTeam: TeamCategory[], nonTechnicalTeam: TeamCategory[] } | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
+export default async function TeamPage() {
+    const { membersByCategory, error } = await getTeamMembers();
 
-    useEffect(() => {
-        const fetchTeam = async () => {
-            setLoading(true);
-            const { membersByCategory, error } = await getTeamMembers();
-            if (error || !membersByCategory) {
-                setError(error || "Failed to load team members");
-            } else {
-                 const allCategories = membersByCategory as TeamCategory[];
-                 setTeamData({
-                    coreTeam: allCategories.filter(c => c.name === 'Core Team'),
-                    technicalTeam: allCategories.filter(c => c.name === 'Technical Team'),
-                    nonTechnicalTeam: allCategories.filter(c => c.name === 'Non-Technical Team'),
-                 });
-            }
-            setLoading(false);
-        }
-        fetchTeam();
-    }, []);
-
-    if (error) {
+    if (error || !membersByCategory) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen text-center">
                 <h2 className="text-2xl font-bold text-destructive">Failed to load team members</h2>
-                <p className="text-muted-foreground">{error}</p>
+                <p className="text-muted-foreground">{error || "An unknown error occurred."}</p>
                 <Button asChild variant="link" className="mt-4">
                     <Link href="/">Return to Home</Link>
                 </Button>
             </div>
         );
     }
+
+    const allCategories = membersByCategory as TeamCategory[];
+    const teamData = {
+        coreTeam: allCategories.filter(c => c.name === 'Core Team'),
+        technicalTeam: allCategories.filter(c => c.name === 'Technical Team'),
+        nonTechnicalTeam: allCategories.filter(c => c.name === 'Non-Technical Team'),
+    };
   
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -242,25 +200,20 @@ export default function TeamPage() {
       </header>
 
       <main className="flex-1">
-        <section className="w-full py-20 md:py-28 text-center glass-card m-4 md:m-8">
-            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">Meet Our <span className="text-primary">Team</span></h1>
-            <p className="max-w-[900px] mx-auto mt-4 text-muted-foreground md:text-xl">The leaders and members driving the MLSC community forward.</p>
+        <section className="relative w-full py-20 md:py-28 text-center bg-cover bg-center" style={{backgroundImage: "url('/team1.jpg')"}}>
+            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="relative z-10 container mx-auto px-4">
+              <div className="glass-card inline-block p-8">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">Meet Our <span className="text-primary">Team</span></h1>
+                <p className="max-w-[900px] mx-auto mt-4 text-muted-foreground md:text-xl">The leaders and members driving the MLSC community forward.</p>
+              </div>
+            </div>
         </section>
         
         <div className="space-y-16">
-            {loading ? (
-                <>
-                    <TeamSectionSkeleton />
-                    <TeamSectionSkeleton />
-                    <TeamSectionSkeleton />
-                </>
-            ) : teamData && (
-                <>
-                    {renderTeamSection(teamData.coreTeam, "Core Team")}
-                    {renderTeamSection(teamData.technicalTeam, "Technical Teams")}
-                    {renderTeamSection(teamData.nonTechnicalTeam, "Non-Technical Teams")}
-                </>
-            )}
+            {renderTeamSection(teamData.coreTeam, "Core Team")}
+            {renderTeamSection(teamData.technicalTeam, "Technical Teams")}
+            {renderTeamSection(teamData.nonTechnicalTeam, "Non-Technical Teams")}
         </div>
         
       </main>

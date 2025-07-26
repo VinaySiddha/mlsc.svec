@@ -32,7 +32,7 @@ const staticEvents = [
         title: 'Blue Day',
         description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
         date: new Date('2025-01-25T00:00:00Z').toISOString(),
-        image: '/blueday.jpg',
+        image: '/blueday.png',
         registrationOpen: false,
     },
     {
@@ -40,7 +40,7 @@ const staticEvents = [
         title: 'The Flask Edition',
         description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
         date: new Date('2025-02-06T00:00:00Z').toISOString(),
-        image: '/flask.jpg',
+        image: '/flask.png',
         registrationOpen: false,
     },
     {
