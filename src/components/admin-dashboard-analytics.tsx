@@ -122,11 +122,13 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
         const result = await getAnalyticsData(panelDomain);
         if ('error' in result) {
           setError(result.error ?? "Failed to fetch analytics data.");
+          setData(null);
         } else {
           setData(result as AnalyticsData);
         }
       } catch (e) {
         setError("An unexpected error occurred.");
+        setData(null);
       } finally {
         setIsLoading(false);
       }
@@ -135,13 +137,12 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
   }, [panelDomain]);
 
 
-  const [activeIndex, setActiveIndex] = useState(0);
   const [statusIndex, setStatusIndex] = useState(0);
   const [branchIndex, setBranchIndex] = useState(0);
   const [yearIndex, setYearIndex] = useState(0);
   const [nonTechIndex, setNonTechIndex] = useState(0);
 
-  const onPieEnter = useCallback((_: any, index: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
+  const onPieEnter = useCallback((setter: React.Dispatch<React.SetStateAction<number>>, _: any, index: number) => {
     setter(index);
   }, []);
 
@@ -273,7 +274,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                         outerRadius={110}
                         fill="hsl(var(--chart-2))"
                         dataKey="count"
-                        onMouseEnter={(...args) => onPieEnter(...args, setNonTechIndex)}
+                        onMouseEnter={(_: any, index: number) => setNonTechIndex(index)}
                     >
                         {data.nonTechDomainData.map((entry, index) => (
                         <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -311,7 +312,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                     outerRadius={90}
                     fill="hsl(var(--chart-3))"
                     dataKey="count"
-                    onMouseEnter={(...args) => onPieEnter(...args, setStatusIndex)}
+                    onMouseEnter={(_: any, index: number) => setStatusIndex(index)}
                  >
                     {data.statusData.map((entry, index) => (
                       <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -353,7 +354,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                     outerRadius={90}
                     fill="hsl(var(--chart-4))"
                     dataKey="count"
-                    onMouseEnter={(...args) => onPieEnter(...args, setBranchIndex)}
+                    onMouseEnter={(_: any, index: number) => setBranchIndex(index)}
                  >
                     {data.branchData.map((entry, index) => (
                       <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -395,7 +396,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                     outerRadius={90}
                     fill="hsl(var(--chart-5))"
                     dataKey="count"
-                    onMouseEnter={(...args) => onPieEnter(...args, setYearIndex)}
+                    onMouseEnter={(_: any, index: number) => setYearIndex(index)}
                  >
                     {data.yearData.map((entry, index) => (
                       <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
