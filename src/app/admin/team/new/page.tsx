@@ -32,7 +32,7 @@ export default async function NewTeamMemberPage() {
                             Add New Team Member
                         </h1>
                     </div>
-                     <Button asChild variant="outline">
+                     <Button asChild variant="glass">
                         <Link href="/admin/team">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Team
@@ -42,7 +42,7 @@ export default async function NewTeamMemberPage() {
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container mx-auto">
-                     <Card className="max-w-2xl mx-auto">
+                     <Card className="max-w-2xl mx-auto glass-card">
                         <CardHeader>
                             <CardTitle>New Team Member Details</CardTitle>
                             <CardDescription>

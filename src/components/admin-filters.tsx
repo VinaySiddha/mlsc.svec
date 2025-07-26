@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useCallback, useState, useEffect, useTransition } from 'react';
+import { useCallback, useState, useTransition } from 'react';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
@@ -315,7 +315,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
                 </SelectContent>
               </Select>
             )}
-            <Button type="submit" variant="outline" disabled={isPending || isBulkUpdating}>Search</Button>
+            <Button type="submit" variant="glass" disabled={isPending || isBulkUpdating}>Search</Button>
         </form>
         <Select onValueChange={(value) => handleFilterChange('status', value)} value={currentFilters.status || 'all'} disabled={isPending || isBulkUpdating}>
           <SelectTrigger className="w-full">
@@ -367,7 +367,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
       <div className="flex flex-wrap items-center gap-4">
          {userRole === 'admin' && (
           <>
-            <Button variant={currentFilters.sortByPerformance === 'true' ? 'secondary' : 'outline'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
+            <Button variant={currentFilters.sortByPerformance === 'true' ? 'glass' : 'glass'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
                 {(isPending && searchParams.get('sortByPerformance') === 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
                 Sort by Performance
             </Button>
@@ -382,12 +382,12 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
                         ))}
                     </SelectContent>
                 </Select>
-                 <Button variant="outline" onClick={handleBulkUpdate} disabled={isPending || isBulkUpdating || !bulkUpdateTargetStatus}>
+                 <Button variant="glass" onClick={handleBulkUpdate} disabled={isPending || isBulkUpdating || !bulkUpdateTargetStatus}>
                     {isBulkUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ClipboardCheck className="mr-2 h-4 w-4" />}
                     Bulk Update
                 </Button>
             </div>
-            <Button variant="outline" onClick={handleExport} disabled={isExporting}>
+            <Button variant="glass" onClick={handleExport} disabled={isExporting}>
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                 Export Hired
             </Button>
@@ -404,11 +404,11 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
         )}
         {(showPdfButtonsForAdmin || showPdfButtonsForPanel) && (
           <>
-             <Button variant="outline" onClick={() => handleDownloadPdf(true)} disabled={isDownloadingPdf}>
+             <Button variant="glass" onClick={() => handleDownloadPdf(true)} disabled={isDownloadingPdf}>
                 {isDownloadingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
                 Download Attendance PDF
             </Button>
-             <Button variant="outline" onClick={() => handleDownloadPdf(false)} disabled={isDownloadingRegisteredPdf}>
+             <Button variant="glass" onClick={() => handleDownloadPdf(false)} disabled={isDownloadingRegisteredPdf}>
                 {isDownloadingRegisteredPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
                 Download Registered PDF
             </Button>

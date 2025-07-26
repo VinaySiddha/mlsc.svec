@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, Group } from "lucide-react";
 import Link from "next/link";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
@@ -52,7 +50,7 @@ export default function AdminPage() {
   const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
 
   return (
-    <div className="flex flex-col min-h-screen admin-panel-body">
+    <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/admin" className="flex items-center gap-2">

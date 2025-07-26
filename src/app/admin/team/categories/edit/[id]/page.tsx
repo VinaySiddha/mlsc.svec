@@ -33,7 +33,7 @@ export default async function EditTeamCategoryPage({ params }: { params: { id: s
                             Edit Category
                         </h1>
                     </div>
-                     <Button asChild variant="outline">
+                     <Button asChild variant="glass">
                         <Link href="/admin/team/categories">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Categories
@@ -43,7 +43,7 @@ export default async function EditTeamCategoryPage({ params }: { params: { id: s
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container mx-auto">
-                     <Card className="max-w-xl mx-auto">
+                     <Card className="max-w-xl mx-auto glass-card">
                         <CardHeader>
                             <CardTitle>Edit Category Details</CardTitle>
                             <CardDescription>

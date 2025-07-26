@@ -34,13 +34,13 @@ export default async function TeamCategoriesPage() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
-                         <Button asChild>
+                         <Button asChild variant="glass">
                             <Link href="/admin/team/categories/new">
                                 <PlusCircle className="mr-2 h-4 w-4" />
                                 Add Category
                             </Link>
                         </Button>
-                        <Button asChild variant="outline">
+                        <Button asChild variant="glass">
                             <Link href="/admin/team">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Team
@@ -51,7 +51,7 @@ export default async function TeamCategoriesPage() {
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container mx-auto space-y-8">
-                    <Card>
+                    <Card className="glass-card">
                         <CardHeader>
                             <CardTitle>All Team Categories</CardTitle>
                             <CardDescription>

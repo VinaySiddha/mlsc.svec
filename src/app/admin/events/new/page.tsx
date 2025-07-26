@@ -26,7 +26,7 @@ export default async function NewEventPage() {
                             Create New Event
                         </h1>
                     </div>
-                     <Button asChild variant="outline">
+                     <Button asChild variant="glass">
                         <Link href="/admin/events">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Events
@@ -36,7 +36,7 @@ export default async function NewEventPage() {
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container mx-auto">
-                     <Card className="max-w-3xl mx-auto">
+                     <Card className="max-w-3xl mx-auto glass-card">
                         <CardHeader>
                             <CardTitle>New Event Details</CardTitle>
                             <CardDescription>

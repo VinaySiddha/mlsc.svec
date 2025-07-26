@@ -73,18 +73,13 @@
     @apply border-border;
   }
   html {
-    font-size: 15px;
+    font-size: 14px;
   }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     @apply font-sans;
   }
-  
-  .admin-panel-body {
-    background: #020617; /* dark blue */
-  }
-
 }
 
 @layer components {
@@ -93,26 +88,5 @@
     }
     .glass-card:hover {
         @apply border-primary/50;
-    }
-}
-
-@layer utilities {
-    @keyframes pulse-slow {
-        50% {
-            opacity: 0.5;
-            transform: scale(1.1);
-        }
-    }
-    .animate-pulse-slow {
-        animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes spin-slow {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-    .animate-spin-slow {
-        animation: spin-slow 10s linear infinite;
     }
 }

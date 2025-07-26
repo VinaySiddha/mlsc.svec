@@ -44,7 +44,7 @@ export default async function EventRegistrationsPage({ params }: { params: { id:
                             <p className="text-sm text-muted-foreground">{eventData.event.title}</p>
                         </div>
                     </div>
-                     <Button asChild variant="outline">
+                     <Button asChild variant="glass">
                         <Link href="/admin/events">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Events
@@ -54,7 +54,7 @@ export default async function EventRegistrationsPage({ params }: { params: { id:
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container mx-auto space-y-8">
-                    <Card>
+                    <Card className="glass-card">
                         <CardHeader>
                             <CardTitle>Registered Users ({registrations.length})</CardTitle>
                             <CardDescription>

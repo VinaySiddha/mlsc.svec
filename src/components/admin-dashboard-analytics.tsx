@@ -95,7 +95,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
     <div className="space-y-6">
       {/* Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-        <Card>
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -105,7 +105,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             <p className="text-xs text-muted-foreground">Total applications received</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Interviews Attended</CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
@@ -115,7 +115,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             <p className="text-xs text-muted-foreground">Candidates who attended interviews</p>
           </CardContent>
         </Card>
-         <Card>
+         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
@@ -127,7 +127,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             <p className="text-xs text-muted-foreground">From application to interview</p>
           </CardContent>
         </Card>
-         <Card>
+         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Candidates Hired</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
@@ -137,7 +137,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             <p className="text-xs text-muted-foreground">Total candidates hired</p>
           </CardContent>
         </Card>
-         <Card>
+         <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Candidates Rejected</CardTitle>
             <UserX className="h-4 w-4 text-muted-foreground" />
@@ -151,7 +151,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
       
       {/* Domain Charts */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-         <Card className="lg:col-span-4">
+         <Card className="lg:col-span-4 glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart className="h-5 w-5" />
@@ -177,7 +177,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-3">
+        <Card className="lg:col-span-3 glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
@@ -215,7 +215,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
 
       {/* Demographic Pie Charts */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <PieChartIcon className="h-5 w-5" />
@@ -257,7 +257,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="h-5 w-5" />
@@ -299,7 +299,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />

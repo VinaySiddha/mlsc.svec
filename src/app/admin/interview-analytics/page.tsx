@@ -30,7 +30,7 @@ export default async function InterviewAnalyticsPage() {
                   Interview Analytics
                 </h1>
               </Link>
-              <Button asChild variant="outline">
+              <Button asChild variant="glass">
                 <Link href="/admin">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Dashboard
@@ -40,7 +40,7 @@ export default async function InterviewAnalyticsPage() {
           </header>
           <main className="flex-1 p-4 sm:p-6 md:p-8">
             <div className="container mx-auto space-y-8">
-                <Card>
+                <Card className="glass-card">
                   <CardHeader>
                     <CardTitle>Error</CardTitle>
                   </CardHeader>
@@ -66,7 +66,7 @@ export default async function InterviewAnalyticsPage() {
               Interview Analytics
             </h1>
           </Link>
-          <Button asChild variant="outline">
+          <Button asChild variant="glass">
             <Link href="/admin">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
@@ -77,7 +77,7 @@ export default async function InterviewAnalyticsPage() {
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto space-y-8">
             <div className="flex justify-end">
-                <Button asChild>
+                <Button asChild variant="glass">
                     <Link href="/admin/applications?attendedOnly=true">
                         <Users className="mr-2 h-4 w-4" />
                         View Interviewed Applications

@@ -22,7 +22,7 @@ export default async function AnalyticsPage() {
   if ('error' in analyticsData) {
       return (
         <div className="flex flex-col min-h-screen">
-         <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
+         <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/60 backdrop-blur-sm z-10">
             <div className="container mx-auto flex items-center justify-between gap-4">
               <Link href="/admin" className="flex items-center gap-4">
                 <MLSCLogo className="h-10 w-10 text-primary" />
@@ -30,7 +30,7 @@ export default async function AnalyticsPage() {
                   Hiring Analytics
                 </h1>
               </Link>
-              <Button asChild variant="outline">
+              <Button asChild variant="glass">
                 <Link href="/admin">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Dashboard
@@ -40,7 +40,7 @@ export default async function AnalyticsPage() {
           </header>
           <main className="flex-1 p-4 sm:p-6 md:p-8">
             <div className="container mx-auto space-y-8">
-                <Card>
+                <Card className="glass-card">
                   <CardHeader>
                     <CardTitle>Error</CardTitle>
                   </CardHeader>
@@ -58,7 +58,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
+      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/60 backdrop-blur-sm z-10">
         <div className="container mx-auto flex items-center justify-between gap-4">
           <Link href="/admin" className="flex items-center gap-4">
             <MLSCLogo className="h-10 w-10 text-primary" />
@@ -66,7 +66,7 @@ export default async function AnalyticsPage() {
               Hiring Analytics
             </h1>
           </Link>
-          <Button asChild variant="outline">
+          <Button asChild variant="glass">
             <Link href="/admin">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Dashboard
