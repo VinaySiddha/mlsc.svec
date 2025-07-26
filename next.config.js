@@ -11,6 +11,12 @@ const config = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'gratisography.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
