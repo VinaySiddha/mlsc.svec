@@ -17,7 +17,9 @@ import {
   Cell,
   Sector,
 } from 'recharts';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import { getAnalyticsData } from '@/app/actions';
+import { Skeleton } from './ui/skeleton';
 
 interface AnalyticsData {
   totalApplications: number;
@@ -79,17 +81,103 @@ const renderActiveShape = (props: any) => {
   );
 };
 
+function AnalyticsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        {[...Array(5)].map((_, i) => (
+          <Card key={i} className="glass-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-7 w-12" />
+              <Skeleton className="h-3 w-32 mt-1" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="lg:col-span-4 glass-card p-6">
+           <Skeleton className="h-[350px] w-full" />
+        </Card>
+        <Card className="lg:col-span-3 glass-card p-6">
+           <Skeleton className="h-[350px] w-full" />
+        </Card>
+      </div>
+    </div>
+  )
+}
 
-export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
+export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string }) {
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const result = await getAnalyticsData(panelDomain);
+        if ('error' in result) {
+          setError(result.error ?? "Failed to fetch analytics data.");
+        } else {
+          setData(result as AnalyticsData);
+        }
+      } catch (e) {
+        setError("An unexpected error occurred.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, [panelDomain]);
+
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [statusIndex, setStatusIndex] = useState(0);
   const [branchIndex, setBranchIndex] = useState(0);
   const [yearIndex, setYearIndex] = useState(0);
   const [nonTechIndex, setNonTechIndex] = useState(0);
 
-  const onPieEnter = useCallback((setter: React.Dispatch<React.SetStateAction<number>>, _: any, index: number) => {
-    setter(index);
+  const onTechPieEnter = useCallback((_: any, index: number) => {
+    setActiveIndex(index);
   }, []);
+  const onStatusPieEnter = useCallback((_: any, index: number) => {
+    setStatusIndex(index);
+  }, []);
+  const onBranchPieEnter = useCallback((_: any, index: number) => {
+    setBranchIndex(index);
+  }, []);
+  const onYearPieEnter = useCallback((_: any, index: number) => {
+    setYearIndex(index);
+  }, []);
+  const onNonTechPieEnter = useCallback((_: any, index: number) => {
+    setNonTechIndex(index);
+  }, []);
+
+  if (isLoading) {
+    return <AnalyticsSkeleton />;
+  }
+
+  if (error || !data) {
+    return (
+      <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg text-destructive">
+                <AlertCircle className="h-5 w-5" />
+                Analytics Error
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-destructive-foreground">
+              {error || "Could not load analytics data."}
+            </p>
+          </CardContent>
+        </Card>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -197,7 +285,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                         outerRadius={110}
                         fill="hsl(var(--chart-2))"
                         dataKey="count"
-                        onMouseEnter={(...args) => onPieEnter(setNonTechIndex, ...args)}
+                        onMouseEnter={onNonTechPieEnter}
                     >
                         {data.nonTechDomainData.map((entry, index) => (
                         <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -235,7 +323,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     outerRadius={90}
                     fill="hsl(var(--chart-3))"
                     dataKey="count"
-                    onMouseEnter={(...args) => onPieEnter(setStatusIndex, ...args)}
+                    onMouseEnter={onStatusPieEnter}
                  >
                     {data.statusData.map((entry, index) => (
                       <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -277,7 +365,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     outerRadius={90}
                     fill="hsl(var(--chart-4))"
                     dataKey="count"
-                    onMouseEnter={(...args) => onPieEnter(setBranchIndex, ...args)}
+                    onMouseEnter={onBranchPieEnter}
                  >
                     {data.branchData.map((entry, index) => (
                       <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -319,7 +407,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     outerRadius={90}
                     fill="hsl(var(--chart-5))"
                     dataKey="count"
-                    onMouseEnter={(...args) => onPieEnter(setYearIndex, ...args)}
+                    onMouseEnter={onYearPieEnter}
                  >
                     {data.yearData.map((entry, index) => (
                       <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />

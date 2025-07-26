@@ -15,11 +15,6 @@ export default async function AdminPage() {
   const userRole = headersList.get('X-User-Role');
   const panelDomain = headersList.get('X-Panel-Domain') || undefined;
   
-  let analyticsData;
-  if (userRole === 'panel') {
-    analyticsData = await getAnalyticsData(panelDomain);
-  }
-
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
     ds_ml: "Data Science & ML",
@@ -160,29 +155,13 @@ export default async function AdminPage() {
               <DeadlineSetter />
             </div>
           )}
-
-          {userRole === 'panel' && analyticsData && (
-            ('error' in analyticsData) ? (
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                      <AlertCircle className="text-destructive" />
-                      Analytics Error
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-destructive text-sm">
-                    {analyticsData.error || "Could not load analytics data for your panel."}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div>
-                <h2 className="text-xl font-bold tracking-tight mb-4">Domain Analytics</h2>
-                <AdminDashboardAnalytics data={analyticsData} />
+          
+           {userRole === 'panel' && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold tracking-tight">Domain Analytics</h2>
+                <AdminDashboardAnalytics panelDomain={panelDomain} />
               </div>
-            )
-          )}
+            )}
         </div>
       </main>
     </div>
