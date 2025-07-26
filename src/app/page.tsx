@@ -1,13 +1,11 @@
 
-'use client';
-
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect } from "react";
+import { ImageSlider } from "@/components/image-slider";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -37,29 +35,6 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function Home() {
-
-  useEffect(() => {
-    const imageSlider = document.querySelector('.image-slider') as HTMLElement | null;
-    if (!imageSlider) return;
-    
-    const images = imageSlider.querySelectorAll('img');
-    let imageIndex = 0;
-    const totalImages = images.length;
-
-    if (totalImages <= 1) return;
-
-    const intervalId = setInterval(() => {
-        imageIndex = (imageIndex + 1) % totalImages;
-        const translateValue = imageIndex * 100;
-        if (imageSlider) {
-          imageSlider.style.transition = 'transform 0.5s ease-in-out';
-          imageSlider.style.transform = `translateX(-${translateValue}%)`;
-        }
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
   return (
     <div className="flex flex-col min-h-screen text-foreground bg-background">
       {/* Header */}
@@ -189,11 +164,7 @@ export default function Home() {
         {/* About Us Section */}
         <section className="about py-20 bg-background/70">
             <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
-                <div className="image-container overflow-hidden rounded-lg shadow-lg mb-8 md:mb-0">
-                    <div className="image-slider flex">
-                        <Image src="/team1.jpg" alt="MLSC Team" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
-                    </div>
-                </div>
+                <ImageSlider />
                 <div className="about-content text-center md:text-left glass-card p-8">
                     <h2 className="heading text-4xl font-bold mb-4">About <span className="text-primary">Us</span></h2>
                     <p className="text-lg text-muted-foreground mb-8">

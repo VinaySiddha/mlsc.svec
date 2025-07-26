@@ -1,6 +1,4 @@
 
-'use client';
-
 import { getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -10,7 +8,7 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
-import { useEffect, useState } from "react";
+import { headers } from "next/headers";
 
 type AnalyticsData = {
   totalApplications: number;
@@ -24,18 +22,15 @@ type AnalyticsData = {
   yearData: { name: string; count: number }[];
 } | { error: string };
 
-export default function AdminPage() {
-  const userRole = 'admin'; 
-  const panelDomain = undefined; 
+export default async function AdminPage() {
+  const headersList = headers();
+  const userRole = headersList.get('X-User-Role'); 
+  const panelDomain = headersList.get('X-Panel-Domain') || undefined;
 
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
-
-  useEffect(() => {
-    if (userRole === 'panel') {
-      getAnalyticsData(panelDomain).then(setAnalyticsData);
-    }
-  }, [userRole, panelDomain]);
-
+  let analyticsData: AnalyticsData | null = null;
+  if (userRole === 'panel') {
+      analyticsData = await getAnalyticsData(panelDomain);
+  }
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",

@@ -51,10 +51,12 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === "/login") {
     if (sessionToken) {
-      const payload = await verifyToken(sessionToken);
-      if (payload) {
-        return NextResponse.redirect(new URL("/admin", req.url));
-      }
+       const payload = await verifyToken(sessionToken);
+       if (payload) {
+         const url = req.nextUrl.clone()
+         url.pathname = '/admin'
+         return NextResponse.redirect(url);
+       }
     }
   }
 
