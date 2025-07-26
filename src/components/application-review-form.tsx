@@ -190,7 +190,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
 
   return (
     <div className="space-y-8">
-      <Card>
+      <Card className="glass-card">
           <CardHeader>
               <CardTitle>Application Review</CardTitle>
               <CardDescription>
