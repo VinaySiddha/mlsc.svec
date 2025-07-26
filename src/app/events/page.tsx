@@ -132,11 +132,16 @@ export default function EventsPage() {
         <section id="events" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="space-y-12">
-                    <div className="glass-card p-8 md:p-12 flex flex-col items-center justify-center space-y-4 text-center">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-primary">Events</span></h2>
-                        <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                            We host a variety of events to help our members learn, grow, and connect.
-                        </p>
+                     <div className="relative w-full py-20 md:py-28 text-center bg-cover bg-center mb-12 rounded-lg" style={{backgroundImage: "url('/team1.jpg')"}}>
+                        <div className="absolute inset-0 bg-black/60 rounded-lg"></div>
+                        <div className="relative z-10 container mx-auto px-4">
+                            <div className="glass-card inline-block p-8">
+                                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-primary">Events</span></h2>
+                                <p className="max-w-[900px] text-muted-foreground md:text-xl mt-4">
+                                    We host a variety of events to help our members learn, grow, and connect.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     {events.length > 0 ? (
                         <div className="grid gap-8 lg:gap-12">

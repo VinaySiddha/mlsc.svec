@@ -82,11 +82,16 @@ export default function BlogPage() {
       <main className="flex-1">
         <section id="blogs" className="w-full py-20 md:py-28">
             <div className="container mx-auto px-4 md:px-6">
-                 <div className="glass-card p-8 md:p-12 flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-primary">Blogs</span></h2>
-                    <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                        Read our latest articles and updates.
-                    </p>
+                 <div className="relative w-full py-20 md:py-28 text-center bg-cover bg-center mb-12 rounded-lg" style={{backgroundImage: "url('/team1.jpg')"}}>
+                    <div className="absolute inset-0 bg-black/60 rounded-lg"></div>
+                    <div className="relative z-10 container mx-auto px-4">
+                        <div className="glass-card inline-block p-8">
+                            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-primary">Blogs</span></h2>
+                            <p className="max-w-[900px] text-muted-foreground md:text-xl mt-4">
+                                Read our latest articles and updates.
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <div className="grid gap-8 lg:gap-12">
                     <Card className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">

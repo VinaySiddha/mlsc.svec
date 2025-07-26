@@ -79,11 +79,12 @@ export default function AboutPage() {
       </header>
 
       <main className="flex-1">
-        <section id="about" className="w-full py-20 md:py-28">
-            <div className="container mx-auto px-4 md:px-6">
-                <div className="glass-card p-8 md:p-12 flex flex-col items-center justify-center space-y-4 text-center">
+        <section id="about" className="relative w-full py-20 md:py-28 text-center bg-cover bg-center" style={{backgroundImage: "url('/team1.jpg')"}}>
+            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="relative z-10 container mx-auto px-4 md:px-6">
+                <div className="glass-card inline-block p-8 md:p-12">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">About <span className="text-primary">MLSC SVEC</span></h2>
-                    <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    <p className="max-w-[900px] mx-auto mt-4 text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                         The Microsoft Learn Student Club (MLSC) at Sri Vasavi Engineering College is a dynamic community dedicated to fostering a culture of continuous learning and innovation. We empower students with technical skills, leadership qualities, and a collaborative spirit to tackle real-world challenges. Through workshops, hackathons, and projects, we bridge the gap between academic knowledge and industry demands.
                     </p>
                 </div>
