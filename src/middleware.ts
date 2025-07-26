@@ -55,7 +55,8 @@ export async function middleware(req: NextRequest) {
        if (payload) {
          const url = req.nextUrl.clone()
          url.pathname = '/admin'
-         return NextResponse.redirect(url);
+         url.search = '' // Clear query params
+         return NextResponse.rewrite(url);
        }
     }
   }

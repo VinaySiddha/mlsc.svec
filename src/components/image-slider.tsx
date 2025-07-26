@@ -2,11 +2,13 @@
 'use client';
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export function ImageSlider() {
+      const sliderRef = useRef<HTMLDivElement>(null);
+
       useEffect(() => {
-        const imageSlider = document.querySelector('.image-slider') as HTMLElement | null;
+        const imageSlider = sliderRef.current;
         if (!imageSlider) return;
         
         const images = imageSlider.querySelectorAll('img');
@@ -29,7 +31,7 @@ export function ImageSlider() {
 
     return (
         <div className="image-container overflow-hidden rounded-lg shadow-lg mb-8 md:mb-0">
-            <div className="image-slider flex">
+            <div className="image-slider flex" ref={sliderRef}>
                 <Image src="/team1.jpg" alt="MLSC Team" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
             </div>
         </div>

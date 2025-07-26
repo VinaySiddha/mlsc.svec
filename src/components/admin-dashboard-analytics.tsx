@@ -17,7 +17,7 @@ import {
   Cell,
   Sector,
 } from 'recharts';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 interface AnalyticsData {
   totalApplications: number;
@@ -87,9 +87,9 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
   const [yearIndex, setYearIndex] = useState(0);
   const [nonTechIndex, setNonTechIndex] = useState(0);
 
-  const onPieEnter = (index: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
+  const onPieEnter = useCallback((_: any, index: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
     setter(index);
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -197,7 +197,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                         outerRadius={110}
                         fill="hsl(var(--chart-2))"
                         dataKey="count"
-                        onMouseEnter={(_, index) => onPieEnter(index, setNonTechIndex)}
+                        onMouseEnter={(...args) => onPieEnter(...args, setNonTechIndex)}
                     >
                         {data.nonTechDomainData.map((entry, index) => (
                         <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -235,7 +235,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     outerRadius={90}
                     fill="hsl(var(--chart-3))"
                     dataKey="count"
-                    onMouseEnter={(_, index) => onPieEnter(index, setStatusIndex)}
+                    onMouseEnter={(...args) => onPieEnter(...args, setStatusIndex)}
                  >
                     {data.statusData.map((entry, index) => (
                       <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -277,7 +277,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     outerRadius={90}
                     fill="hsl(var(--chart-4))"
                     dataKey="count"
-                    onMouseEnter={(_, index) => onPieEnter(index, setBranchIndex)}
+                    onMouseEnter={(...args) => onPieEnter(...args, setBranchIndex)}
                  >
                     {data.branchData.map((entry, index) => (
                       <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -319,7 +319,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     outerRadius={90}
                     fill="hsl(var(--chart-5))"
                     dataKey="count"
-                    onMouseEnter={(_, index) => onPieEnter(index, setYearIndex)}
+                    onMouseEnter={(...args) => onPieEnter(...args, setYearIndex)}
                  >
                     {data.yearData.map((entry, index) => (
                       <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
