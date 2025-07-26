@@ -1,7 +1,7 @@
 
 'use client';
 
-import { BarChart, Users, CheckCircle, PieChart as PieChartIcon, Target, Building, Calendar, Briefcase, UserCheck, UserX } from 'lucide-react';
+import { BarChart, Users, CheckCircle, PieChart as PieChartIcon, Target, Building, Calendar, Briefcase, UserCheck, UserX, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   BarChart as RechartsBarChart,
@@ -141,20 +141,8 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
   const [yearIndex, setYearIndex] = useState(0);
   const [nonTechIndex, setNonTechIndex] = useState(0);
 
-  const onTechPieEnter = useCallback((_: any, index: number) => {
-    setActiveIndex(index);
-  }, []);
-  const onStatusPieEnter = useCallback((_: any, index: number) => {
-    setStatusIndex(index);
-  }, []);
-  const onBranchPieEnter = useCallback((_: any, index: number) => {
-    setBranchIndex(index);
-  }, []);
-  const onYearPieEnter = useCallback((_: any, index: number) => {
-    setYearIndex(index);
-  }, []);
-  const onNonTechPieEnter = useCallback((_: any, index: number) => {
-    setNonTechIndex(index);
+  const onPieEnter = useCallback((_: any, index: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
+    setter(index);
   }, []);
 
   if (isLoading) {
@@ -285,7 +273,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                         outerRadius={110}
                         fill="hsl(var(--chart-2))"
                         dataKey="count"
-                        onMouseEnter={onNonTechPieEnter}
+                        onMouseEnter={(...args) => onPieEnter(...args, setNonTechIndex)}
                     >
                         {data.nonTechDomainData.map((entry, index) => (
                         <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -323,7 +311,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                     outerRadius={90}
                     fill="hsl(var(--chart-3))"
                     dataKey="count"
-                    onMouseEnter={onStatusPieEnter}
+                    onMouseEnter={(...args) => onPieEnter(...args, setStatusIndex)}
                  >
                     {data.statusData.map((entry, index) => (
                       <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -365,7 +353,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                     outerRadius={90}
                     fill="hsl(var(--chart-4))"
                     dataKey="count"
-                    onMouseEnter={onBranchPieEnter}
+                    onMouseEnter={(...args) => onPieEnter(...args, setBranchIndex)}
                  >
                     {data.branchData.map((entry, index) => (
                       <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -407,7 +395,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
                     outerRadius={90}
                     fill="hsl(var(--chart-5))"
                     dataKey="count"
-                    onMouseEnter={onYearPieEnter}
+                    onMouseEnter={(...args) => onPieEnter(...args, setYearIndex)}
                  >
                     {data.yearData.map((entry, index) => (
                       <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
