@@ -68,14 +68,14 @@ export function DeadlineSetter() {
   today.setHours(0, 0, 0, 0);
 
   return (
-    <Card>
-      <CardHeader>
+    <>
+      <CardHeader className="p-0 mb-4">
         <CardTitle>Set Application Deadline</CardTitle>
         <CardDescription>
           Choose a date and time to automatically close application submissions. You can update this at any time. The time is based on the server's timezone.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -89,7 +89,7 @@ export function DeadlineSetter() {
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            variant={'outline'}
+                            variant={'glass'}
                             className={cn('w-full sm:w-[240px] pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
                           >
                             {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
@@ -130,13 +130,13 @@ export function DeadlineSetter() {
                 )}
               />
             </div>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" variant="glass" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Set or Update Deadline
             </Button>
           </form>
         </Form>
       </CardContent>
-    </Card>
+    </>
   );
 }

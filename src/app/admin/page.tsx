@@ -25,11 +25,8 @@ type AnalyticsData = {
 } | { error: string };
 
 export default function AdminPage() {
-  // Since we can't use headers in a client component, 
-  // we would need a different way to get user role, perhaps from a client-side auth context.
-  // For now, we'll assume a role for layout purposes but this should be revisited.
-  const userRole = 'admin'; // This is a placeholder
-  const panelDomain = undefined; // This is a placeholder
+  const userRole = 'admin'; 
+  const panelDomain = undefined; 
 
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
 
@@ -50,8 +47,8 @@ export default function AdminPage() {
   const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
+    <div className="flex flex-col min-h-screen bg-background">
+      <header className="sticky top-0 z-50 w-full border-b border-white/20 bg-background/50 backdrop-blur-lg">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/admin" className="flex items-center gap-2">
             <MLSCLogo className="h-8 w-8 text-primary" />
@@ -79,7 +76,7 @@ export default function AdminPage() {
                   <Users />
                   All Applications
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-xs text-muted-foreground">
                   View, filter, and manage all submitted applications.
                 </CardDescription>
               </CardHeader>
@@ -97,7 +94,7 @@ export default function AdminPage() {
                       <Calendar />
                       Event Management
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-muted-foreground">
                       Create, update, and manage all club events.
                     </CardDescription>
                   </CardHeader>
@@ -113,7 +110,7 @@ export default function AdminPage() {
                       <Group />
                       Team Management
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-muted-foreground">
                       Update the public team page members and categories.
                     </CardDescription>
                   </CardHeader>
@@ -129,7 +126,7 @@ export default function AdminPage() {
                       <BarChart2 />
                       Hiring Analytics
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-muted-foreground">
                       Visualize application data, trends, and statistics.
                     </CardDescription>
                   </CardHeader>
@@ -145,7 +142,7 @@ export default function AdminPage() {
                         <UserCheck />
                         Interview Analytics
                         </CardTitle>
-                        <CardDescription className="text-xs">
+                        <CardDescription className="text-xs text-muted-foreground">
                         Analytics for candidates who completed their interview.
                         </CardDescription>
                     </CardHeader>
@@ -161,7 +158,7 @@ export default function AdminPage() {
                       <PencilRuler />
                       Internal Registration
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-muted-foreground">
                       Manually register a candidate on their behalf.
                     </CardDescription>
                   </CardHeader>
@@ -176,7 +173,9 @@ export default function AdminPage() {
           </div>
 
           {userRole === 'admin' && (
-            <DeadlineSetter />
+            <div className="glass-card p-6">
+              <DeadlineSetter />
+            </div>
           )}
 
           {userRole === 'panel' && analyticsData && (
