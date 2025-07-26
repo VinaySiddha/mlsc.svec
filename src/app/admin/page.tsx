@@ -1,6 +1,4 @@
 
-'use client';
-
 import { getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -10,45 +8,17 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
-import { useEffect, useState } from "react";
+import { headers } from "next/headers";
 
-type AnalyticsData = {
-  totalApplications: number;
-  attendedCount: number;
-  hiredCount: number;
-  rejectedCount: number;
-  techDomainData: { name: string; count: number }[];
-  nonTechDomainData: { name: string; count: number }[];
-  statusData: { name: string; count: number }[];
-  branchData: { name: string; count: number }[];
-  yearData: { name: string; count: number }[];
-} | { error: string };
-
-export default function AdminPage() {
-  // Mock user role and domain for client-side rendering
-  // In a real app, this would come from a client-side auth context/hook
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [panelDomain, setPanelDomain] = useState<string | undefined>(undefined);
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
-
-  useEffect(() => {
-    // This is a workaround to get headers on the client.
-    // In a real app, you'd use a context provider.
-    const role = document.cookie.includes('session') ? (sessionStorage.getItem('userRole') || 'admin') : null;
-    const domain = sessionStorage.getItem('panelDomain') || undefined;
-    
-    setUserRole(role);
-    setPanelDomain(domain);
-
-    if (role === 'panel') {
-      const fetchData = async () => {
-        const data = await getAnalyticsData(domain);
-        setAnalyticsData(data);
-      };
-      fetchData();
-    }
-  }, []);
-
+export default async function AdminPage() {
+  const headersList = headers();
+  const userRole = headersList.get('X-User-Role');
+  const panelDomain = headersList.get('X-Panel-Domain') || undefined;
+  
+  let analyticsData;
+  if (userRole === 'panel') {
+    analyticsData = await getAnalyticsData(panelDomain);
+  }
 
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
