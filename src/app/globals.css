@@ -14,33 +14,33 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%; /* Light gray background */
-    --foreground: 224 71.4% 4.1%;
+    --background: 240 10% 3.9%; /* Black */
+    --foreground: 210 40% 98%; /* Light Gray for text */
 
-    --card: 220 20% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card: 240 10% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 20% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%; /* Microsoft Blue */
-    --primary-foreground: 210 20% 98%;
+    --primary: 333 70% 56%; /* Pink/Magenta: #df3f8b */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 142.1 76.2% 36.3%; /* Microsoft Green */
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 196 83% 66%; /* Light Blue: #63ceeb */
+    --secondary-foreground: 240 10% 3.9%;
     
-    --muted: 220 20% 94%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
     
-    --accent: 45 93.4% 47.5%; /* Microsoft Yellow */
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%; /* Microsoft Red */
+    --destructive: 0 72% 51%; /* A vivid red */
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 217.2 91.2% 59.8%;
+    --border: 240 4% 18%;
+    --input: 240 4% 18%;
+    --ring: 333 70% 56%; /* Pink ring for focus */
     
     --radius: 0.5rem;
   }
