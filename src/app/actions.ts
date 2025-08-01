@@ -1330,7 +1330,7 @@ export async function completeOnboarding(values: z.infer<typeof completeOnboardi
             tokenExpiresAt: '',
         });
 
-        return { success: true, member };
+        return { success: true, member: { ...member, image, linkedin } };
     } catch (e) {
         console.error("Error completing onboarding:", e);
         return { error: "Failed to activate profile." };

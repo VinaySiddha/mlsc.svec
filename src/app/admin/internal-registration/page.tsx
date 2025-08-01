@@ -43,7 +43,7 @@ export default async function InternalRegistrationPage() {
             <CardHeader>
                 <CardTitle>Internal Candidate Registration</CardTitle>
                 <CardDescription>
-                  Use this form to manually register a candidate. A confirmation email will not be sent, but a reference ID will be generated.
+                  Use this form to manually register a candidate who did not apply through the public form. This will create a record in the system so they can be included in the bulk status update.
                 </CardDescription>
             </CardHeader>
             <CardContent>
