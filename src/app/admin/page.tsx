@@ -16,6 +16,9 @@ import {
   MenubarMenu,
   MenubarSeparator,
   MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
 
@@ -46,16 +49,16 @@ export default async function AdminPage() {
           <div className="flex items-center gap-4">
              <Menubar>
               <MenubarMenu>
-                <MenubarTrigger>Navigate</MenubarTrigger>
+                <MenubarTrigger>File</MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem asChild>
                     <Link href="/">
-                      <Home className="mr-2 h-4 w-4" /> Home Page
+                      Go to Home Page <MenubarShortcut>⌘H</MenubarShortcut>
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild>
                      <Link href="/admin/applications">
-                      <Users className="mr-2 h-4 w-4" /> Applications
+                       View Applications <MenubarShortcut>⌘A</MenubarShortcut>
                     </Link>
                   </MenubarItem>
                 </MenubarContent>
@@ -65,40 +68,38 @@ export default async function AdminPage() {
                   <MenubarMenu>
                     <MenubarTrigger>Actions</MenubarTrigger>
                     <MenubarContent>
-                       <MenubarItem asChild>
-                         <Link href="/admin/events">
-                          <Calendar className="mr-2 h-4 w-4" /> Manage Events
-                        </Link>
-                      </MenubarItem>
-                      <MenubarItem asChild>
-                        <Link href="/admin/team">
-                          <Group className="mr-2 h-4 w-4" /> Manage Team
-                        </Link>
-                      </MenubarItem>
-                       <MenubarItem asChild>
-                         <Link href="/admin/internal-registration">
-                          <PencilRuler className="mr-2 h-4 w-4" /> Internal Registration
-                        </Link>
-                      </MenubarItem>
-                       <MenubarItem asChild>
-                         <Link href="/admin/bulk-update">
-                          <UploadCloud className="mr-2 h-4 w-4" /> Bulk Status Update
-                        </Link>
-                      </MenubarItem>
+                      <MenubarSub>
+                        <MenubarSubTrigger>Management</MenubarSubTrigger>
+                        <MenubarSubContent>
+                           <MenubarItem asChild>
+                            <Link href="/admin/events">Manage Events</Link>
+                          </MenubarItem>
+                          <MenubarItem asChild>
+                            <Link href="/admin/team">Manage Team</Link>
+                          </MenubarItem>
+                        </MenubarSubContent>
+                      </MenubarSub>
+                      <MenubarSub>
+                        <MenubarSubTrigger>Data</MenubarSubTrigger>
+                        <MenubarSubContent>
+                           <MenubarItem asChild>
+                            <Link href="/admin/internal-registration">Internal Registration</Link>
+                          </MenubarItem>
+                          <MenubarItem asChild>
+                            <Link href="/admin/bulk-update">Bulk Status Update</Link>
+                          </MenubarItem>
+                        </MenubarSubContent>
+                      </MenubarSub>
                     </MenubarContent>
                   </MenubarMenu>
                    <MenubarMenu>
                     <MenubarTrigger>View</MenubarTrigger>
                     <MenubarContent>
                        <MenubarItem asChild>
-                         <Link href="/admin/analytics">
-                          <BarChart2 className="mr-2 h-4 w-4" /> Hiring Analytics
-                        </Link>
+                         <Link href="/admin/analytics">Hiring Analytics</Link>
                       </MenubarItem>
                        <MenubarItem asChild>
-                         <Link href="/admin/interview-analytics">
-                          <UserCheck className="mr-2 h-4 w-4" /> Interview Analytics
-                        </Link>
+                         <Link href="/admin/interview-analytics">Interview Analytics</Link>
                       </MenubarItem>
                     </MenubarContent>
                   </MenubarMenu>
