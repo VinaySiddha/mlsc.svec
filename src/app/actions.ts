@@ -209,13 +209,8 @@ export async function submitApplication(formData: FormData) {
     docRef = await addDoc(applicationsRef, { ...newApplication });
     await updateDoc(docRef, { firestoreId: docRef.id });
 
-    // 2. Return success to the user immediately
-    const resultForUser = { summary: null, referenceId };
-
-    // 3. Process background tasks (summarization and email)
-    // Don't await these promise chains in the user-facing response
-    (async () => {
-        // Send confirmation email directly
+    // Send confirmation email in background
+     (async () => {
         try {
             const emailInput: ConfirmationEmailInput = { 
                 name: newApplication.name, 
@@ -226,31 +221,35 @@ export async function submitApplication(formData: FormData) {
         } catch (emailError) {
             console.error(`Email sending failed for ${referenceId}:`, emailError);
         }
-
-        // Process resume summarization
-        if (file && file.size > 0) {
-            try {
-                const buffer = await file.arrayBuffer();
-                const base64 = Buffer.from(buffer).toString('base64');
-                const resumeDataUri = `data:${file.type};base64,${base64}`;
-
-                const summarizationInput: SummarizeResumeInput = {resumeDataUri};
-                const result = await summarizeResume(summarizationInput);
-                
-                if (docRef) {
-                    await updateDoc(docRef, { resumeSummary: result.summary });
-                    console.log(`Successfully generated summary for ${referenceId}`);
-                }
-            } catch (aiError) {
-                console.error(`AI summarization failed for ${referenceId}:`, aiError);
-                if (docRef) {
-                    await updateDoc(docRef, { resumeSummary: "AI summary failed." });
-                }
-            }
-        }
     })();
+    
+    // Process resume and return result to user
+    let summaryResult = null;
+    if (file && file.size > 0) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const base64 = Buffer.from(buffer).toString('base64');
+        const resumeDataUri = `data:${file.type};base64,${base64}`;
 
-    return resultForUser;
+        const summarizationInput: SummarizeResumeInput = {resumeDataUri};
+        const result = await summarizeResume(summarizationInput);
+        
+        if (docRef) {
+            await updateDoc(docRef, { resumeSummary: result.summary });
+            summaryResult = result.summary;
+            console.log(`Successfully generated summary for ${referenceId}`);
+        }
+      } catch (aiError) {
+          console.error(`AI summarization failed for ${referenceId}:`, aiError);
+          summaryResult = "AI summary generation failed. We'll process your resume manually.";
+          if (docRef) {
+              await updateDoc(docRef, { resumeSummary: "AI summary failed." });
+          }
+      }
+    }
+
+
+    return { summary: summaryResult, referenceId };
   } catch (error) {
     console.error('Error submitting application:', error);
     if (error instanceof Error) {

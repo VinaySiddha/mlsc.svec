@@ -87,7 +87,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function ApplicationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<{name: string, referenceId: string | null} | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<{name: string, referenceId: string | null, summary: string | null} | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -129,7 +129,7 @@ export function ApplicationForm() {
         throw new Error(result.error);
       }
       
-      setSubmissionResult({ name: values.name, referenceId: result.referenceId });
+      setSubmissionResult({ name: values.name, referenceId: result.referenceId, summary: result.summary });
       toast({
         title: "Application Submitted!",
         description: "We've received your application. Keep your reference ID safe.",
@@ -175,6 +175,16 @@ export function ApplicationForm() {
                   Please copy and save your Reference ID below. You will need it to check your application status.
                 </AlertDescription>
              </Alert>
+            
+             {submissionResult.summary && (
+              <div>
+                <Label className="text-sm font-medium text-foreground">AI-Generated Resume Summary</Label>
+                 <blockquote className="text-sm text-muted-foreground mt-2 p-3 border rounded-md bg-muted/50 italic">
+                  {submissionResult.summary}
+                </blockquote>
+              </div>
+             )}
+
 
              <DigitalIdCard
                 name={submissionResult.name}
