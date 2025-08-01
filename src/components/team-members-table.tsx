@@ -4,7 +4,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Pencil, Trash2, Loader2, Link as LinkIcon, MailWarning } from "lucide-react";
+import { Pencil, Trash2, Loader2, Link as LinkIcon, MailWarning, Send } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { deleteTeamMember } from "@/app/actions";
+import { deleteTeamMember, resendInvitation } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import { Image } from "@/components/image";
 import { Badge } from "./ui/badge";
@@ -29,6 +29,7 @@ interface TeamMembersTableProps {
 
 export function TeamMembersTable({ members }: TeamMembersTableProps) {
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const [isResending, setIsResending] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
 
@@ -53,6 +54,29 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
             });
         } finally {
             setIsDeleting(null);
+        }
+    }
+
+    const handleResend = async (memberId: string) => {
+        setIsResending(memberId);
+        try {
+            const result = await resendInvitation(memberId);
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            toast({
+                title: "Invitation Sent",
+                description: "The profile edit link has been sent to the member's email.",
+            });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            toast({
+                variant: 'destructive',
+                title: 'Failed to Send',
+                description: errorMessage,
+            });
+        } finally {
+            setIsResending(null);
         }
     }
 
@@ -108,6 +132,15 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleResend(member.id)}
+                            disabled={isResending === member.id}
+                            title="Resend Invitation Email"
+                        >
+                            {isResending === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        </Button>
                          <Button asChild variant="outline" size="icon">
                            <Link href={`/admin/team/edit/${member.id}`}>
                                <Pencil className="h-4 w-4" />

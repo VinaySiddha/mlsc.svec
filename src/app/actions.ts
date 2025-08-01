@@ -123,14 +123,14 @@ const teamCategorySchema = z.object({
   order: z.coerce.number().min(0, "Order must be a positive number."),
 });
 
-const teamMemberInviteSchema = z.object({
+const teamMemberSchema = z.object({
     name: z.string().min(2, "Name is required."),
     email: z.string().email("A valid email is required."),
     role: z.string().min(2, "Role is required."),
     categoryId: z.string({ required_error: "Please select a category." }),
 });
 
-const teamMemberUpdateSchema = teamMemberInviteSchema.extend({
+const teamMemberUpdateSchema = teamMemberSchema.extend({
     image: z.string().url("A valid image URL is required."),
     linkedin: z.string().url("A valid LinkedIn URL is required."),
 });
@@ -1258,8 +1258,8 @@ export async function deleteTeamCategory(id: string) {
 }
 
 // Team Member Actions
-export async function inviteTeamMember(values: z.infer<typeof teamMemberInviteSchema>) {
-    const parsed = teamMemberInviteSchema.safeParse(values);
+export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>) {
+    const parsed = teamMemberSchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data provided." };
 
     const { email, name, role, categoryId } = parsed.data;
@@ -1308,6 +1308,29 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberInviteSc
         return { error: "Failed to invite team member." };
     }
 }
+
+export async function resendInvitation(memberId: string) {
+    try {
+        const memberDoc = await getDoc(doc(db, 'teamMembers', memberId));
+        if (!memberDoc.exists()) {
+            return { error: "Team member not found." };
+        }
+        const member = memberDoc.data();
+
+        // Send profile confirmation email which contains the edit link
+        await sendProfileConfirmationEmail({
+            name: member.name,
+            email: member.email,
+            editLink: `https://mlscsvec.in/profile/edit/${memberId}`,
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error resending invitation:", error);
+        return { error: "Failed to resend invitation email." };
+    }
+}
+
 
 export async function updateTeamMember(id: string, values: z.infer<typeof teamMemberUpdateSchema>) {
     const parsed = teamMemberUpdateSchema.safeParse(values);
