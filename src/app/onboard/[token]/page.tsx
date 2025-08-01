@@ -108,7 +108,7 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
                     referenceId={memberData.role}
                 />
                  <Button asChild variant="secondary" className="w-full">
-                    <Link href={`/admin/team/edit/${memberData.id}`}>Edit Your Profile</Link>
+                    <Link href={`/profile/edit/${memberData.id}`}>Edit Your Profile</Link>
                  </Button>
                  <Link href="/team" className="text-primary hover:underline mt-4 inline-block w-full text-center">
                     View the Team Page

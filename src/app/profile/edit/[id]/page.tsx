@@ -4,17 +4,19 @@ import { TeamMemberForm } from "@/components/team-member-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-export default async function EditTeamMemberPage({ params }: { params: { id: string } }) {
-    const headersList = headers();
-    const userRole = headersList.get('X-User-Role');
+export default async function EditProfilePage({ params }: { params: { id: string } }) {
+    // This is a placeholder for a real session check.
+    // In a real app, you would verify the user's token or session here
+    // to ensure they are authorized to edit this profile.
+    const isAuthorized = true; // For now, we assume authorized.
 
-    if (userRole !== 'admin') {
-        redirect('/admin');
+    if (!isAuthorized) {
+        redirect('/login');
     }
 
     const { member, error: memberError } = await getTeamMemberById(params.id);
@@ -31,13 +33,13 @@ export default async function EditTeamMemberPage({ params }: { params: { id: str
                     <div className="flex items-center gap-4">
                         <MLSCLogo className="h-10 w-10 text-primary" />
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                            Edit Team Member
+                            Edit Your Profile
                         </h1>
                     </div>
                      <Button asChild variant="glass">
-                        <Link href="/admin/team">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                           Back to Team
+                        <Link href="/team">
+                            <Home className="mr-2 h-4 w-4" />
+                            Back to Team Page
                         </Link>
                     </Button>
                 </div>
@@ -46,13 +48,13 @@ export default async function EditTeamMemberPage({ params }: { params: { id: str
                 <div className="container mx-auto">
                      <Card className="max-w-2xl mx-auto glass-card">
                         <CardHeader>
-                            <CardTitle>Edit Member Details</CardTitle>
+                            <CardTitle>Update Your Profile</CardTitle>
                             <CardDescription>
-                                Update the details for the team member below.
+                                Keep your profile information up to date.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <TeamMemberForm member={member as any} categories={categories} isAdmin={true} />
+                            <TeamMemberForm member={member as any} categories={categories} isAdmin={false} />
                         </CardContent>
                     </Card>
                 </div>

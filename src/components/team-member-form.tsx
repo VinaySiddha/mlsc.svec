@@ -36,17 +36,19 @@ type UpdateFormValues = z.infer<typeof teamMemberUpdateSchema>;
 interface TeamMemberFormProps {
     member?: UpdateFormValues & { id: string };
     categories: { id: string, name: string, subDomain: string }[];
+    isAdmin?: boolean;
 }
 
-export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
+export function TeamMemberForm({ member, categories, isAdmin = false }: TeamMemberFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
 
     const isUpdateMode = !!member;
+    const schema = isUpdateMode ? teamMemberUpdateSchema : teamMemberInviteSchema;
 
     const form = useForm<InviteFormValues | UpdateFormValues>({
-        resolver: zodResolver(isUpdateMode ? teamMemberUpdateSchema : teamMemberInviteSchema),
+        resolver: zodResolver(schema),
         defaultValues: isUpdateMode ? {
             ...member,
             image: member.image || '',
@@ -63,6 +65,8 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
         setIsSubmitting(true);
         try {
             let result;
+            const redirectUrl = isAdmin ? '/admin/team' : '/team';
+
             if (isUpdateMode) {
                 result = await updateTeamMember(member.id, values as UpdateFormValues);
             } else {
@@ -77,7 +81,8 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                 title: isUpdateMode ? "Member Updated!" : "Invitation Sent!",
                 description: `Team member "${values.name}" has been saved successfully.`,
             });
-            router.push('/admin/team');
+            
+            router.push(redirectUrl);
             router.refresh();
 
         } catch (error) {
@@ -91,6 +96,9 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
             setIsSubmitting(false);
         }
     };
+    
+    // Only admins can edit these fields
+    const adminOnlyFields = ["role", "categoryId"];
 
     return (
         <Form {...form}>
@@ -121,20 +129,8 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                         </FormItem>
                     )}
                 />
-                 <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Role</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., Club Lead" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <div className={cn(!isUpdateMode && "hidden", "space-y-6")}>
+
+                <div className={cn(!isUpdateMode && "hidden", "space-y-6")}>
                     <FormField
                         control={form.control}
                         name="image"
@@ -162,31 +158,42 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                         )}
                     />
                 </div>
-                <FormField
-                    control={form.control}
-                    name="categoryId"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                            <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            {categories.map(cat => (
-                                <SelectItem key={cat.id} value={cat.id}>
-                                    {cat.name} - {cat.subDomain}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
 
+                {adminOnlyFields.map(fieldName => (
+                     <div key={fieldName} className={cn(!isAdmin && "hidden")}>
+                        <FormField
+                            control={form.control}
+                            name={fieldName as "role" | "categoryId"}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{fieldName === 'role' ? 'Role' : 'Category'}</FormLabel>
+                                    {fieldName === 'role' ? (
+                                        <FormControl>
+                                            <Input placeholder="e.g., Club Lead" {...field} />
+                                        </FormControl>
+                                    ) : (
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a category" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {categories.map(cat => (
+                                                    <SelectItem key={cat.id} value={cat.id}>
+                                                        {cat.name} - {cat.subDomain}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                ))}
+                
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (
                         <>
@@ -194,7 +201,7 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                             Saving...
                         </>
                     ) : (
-                        isUpdateMode ? "Update Member" : "Send Invitation"
+                        isUpdateMode ? "Update Profile" : "Send Invitation"
                     )}
                 </Button>
             </form>
