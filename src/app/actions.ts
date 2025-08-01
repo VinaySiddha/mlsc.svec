@@ -701,55 +701,48 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
   try {
     const applicationsRef = collection(db, 'applications');
     const allApplicationsSnapshot = await getDocs(applicationsRef);
-    const existingAppsByRollNo = new Map(allApplicationsSnapshot.docs.map(d => [d.data().rollNo_lowercase, d]));
-
+    
     const batch = writeBatch(db);
     const emailsToReject: StatusUpdateEmailInput[] = [];
-    const newMemberInvites: InvitationEmailInput[] = [];
+    const newMemberInvites: {name: string, email: string, role: string}[] = [];
 
-    // Process hired candidates
-    for (const rollNo of hiredRollNos) {
-        const existingAppDoc = existingAppsByRollNo.get(rollNo);
-        
-        let name: string, email: string;
-
-        if (existingAppDoc) {
-            const app = existingAppDoc.data();
-            name = app.name;
-            email = app.email;
-            if (app.status !== 'Hired') {
-                batch.update(existingAppDoc.ref, { status: 'Hired' });
-            }
-        } else {
-            // New candidate, not in DB
-            name = "New Member";
-            email = `${rollNo}@svec.org.in`; // Construct email
-            const newApplication = {
-              id: generateReferenceId(),
-              submittedAt: new Date().toISOString(),
-              name, email, rollNo, rollNo_lowercase: rollNo,
-              status: 'Hired',
-              phone: 'N/A', branch: 'N/A', section: 'N/A', yearOfStudy: 'N/A', cgpa: 'N/A', backlogs: '0',
-              joinReason: 'Manually added via bulk hire.', aboutClub: 'N/A', technicalDomain: 'N/A', nonTechnicalDomain: 'N/A',
-              isRecommended: true, interviewAttended: true,
-            };
-            const newDocRef = doc(collection(db, 'applications'));
-            batch.set(newDocRef, newApplication);
-        }
-        
-        newMemberInvites.push({ name, email, role: 'Team Member', onboardingToken: '' }); // Token added later
-    }
-
-    // Process rejections for everyone else
-    allApplicationsSnapshot.docs.forEach(doc => {
+    for (const doc of allApplicationsSnapshot.docs) {
         const app = doc.data();
         const isHired = hiredRollNos.has(app.rollNo_lowercase);
         
-        if (!isHired && app.status !== 'Hired' && app.status !== 'Rejected') {
-            batch.update(doc.ref, { status: 'Rejected' });
-            emailsToReject.push({ name: app.name, email: app.email, status: 'Rejected', referenceId: app.id });
+        if (isHired) {
+            if (app.status !== 'Hired') {
+                batch.update(doc.ref, { status: 'Hired' });
+                newMemberInvites.push({ name: app.name, email: app.email, role: 'Team Member' });
+            }
+            hiredRollNos.delete(app.rollNo_lowercase);
+        } else {
+            if (app.status !== 'Hired' && app.status !== 'Rejected') {
+                batch.update(doc.ref, { status: 'Rejected' });
+                emailsToReject.push({ name: app.name, email: app.email, status: 'Rejected', referenceId: app.id });
+            }
         }
-    });
+    }
+
+    // Handle hired candidates who were not in the database
+    for (const rollNo of hiredRollNos) {
+        const newMemberEmail = `${rollNo}@sves.org.in`;
+        const newApplication = {
+            id: generateReferenceId(),
+            submittedAt: new Date().toISOString(),
+            name: "New Member",
+            email: newMemberEmail,
+            rollNo,
+            rollNo_lowercase: rollNo,
+            status: 'Hired',
+            phone: 'N/A', branch: 'N/A', section: 'N/A', yearOfStudy: 'N/A', cgpa: 'N/A', backlogs: '0',
+            joinReason: 'Manually added via bulk hire.', aboutClub: 'N/A', technicalDomain: 'N/A', nonTechnicalDomain: 'N/A',
+            isRecommended: true, interviewAttended: true,
+        };
+        const newDocRef = doc(applicationsRef);
+        batch.set(newDocRef, newApplication);
+        newMemberInvites.push({ name: "New Member", email: newMemberEmail, role: 'Team Member' });
+    }
 
     await batch.commit();
 
@@ -758,10 +751,13 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
       // Find the default categoryId for "Team Member" role
       const categoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), where('name', '==', 'Technical Team'), limit(1)));
       const defaultCategoryId = !categoriesSnapshot.empty ? categoriesSnapshot.docs[0].id : "default_category_id";
+      
+      if(defaultCategoryId === "default_category_id") {
+          console.error("Default category 'Technical Team' not found. Cannot invite new members.");
+      }
 
       for (const invite of newMemberInvites) {
           try {
-              // Pass categoryId to inviteTeamMember
               await inviteTeamMember({ ...invite, categoryId: defaultCategoryId });
           } catch(inviteError) {
               console.error(`Failed to invite new member ${invite.email}:`, inviteError);
@@ -1310,9 +1306,13 @@ export async function updateTeamMember(id: string, values: z.infer<typeof teamMe
     const parsed = teamMemberUpdateSchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data provided." };
     try {
-        await updateDoc(doc(db, "teamMembers", id), values as any);
+        await updateDoc(doc(db, "teamMembers", id), parsed.data as any);
         return { success: true };
     } catch (error) {
+        console.error("Error updating team member:", error)
+        if (error instanceof Error) {
+            return { error: `Failed to update team member: ${error.message}` };
+        }
         return { error: "Failed to update team member." };
     }
 }
