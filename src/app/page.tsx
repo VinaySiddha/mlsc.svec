@@ -43,11 +43,8 @@ export default function Home() {
   ];
 
   const galleryImages = [
-    { src: "/team1.jpg", alt: "MLSC Team at an event", hint: "group photo", className: "col-span-2 row-span-2" },
-    { src: "/azure.jpg", alt: "Azure workshop in progress", hint: "tech workshop" },
-    { src: "/web.jpg", alt: "Students learning at a web development bootcamp", hint: "coding bootcamp" },
-    { src: "/blueday.png", alt: "Club members celebrating Blue Day", hint: "club event" },
-    { src: "/flask.png", alt: "The Flask Edition event poster", hint: "event poster" },
+    { src: "/team1.jpg", alt: "MLSC Team at an event", hint: "group photo" },
+    { src: "/g2.jpg", alt: "Azure workshop in progress", hint: "tech workshop" },
   ];
 
   return (
@@ -216,14 +213,14 @@ export default function Home() {
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-4xl font-bold mb-12">Gallery: <span className="text-primary">Moments & Milestones</span></h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {galleryImages.map((image, index) => (
-                      <div key={index} className={image.className}>
+                      <div key={index}>
                           <Image
                               src={image.src}
                               alt={image.alt}
-                              width={500}
-                              height={500}
+                              width={600}
+                              height={400}
                               className="w-full h-full object-cover rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
                               data-ai-hint={image.hint}
                           />
