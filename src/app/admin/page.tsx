@@ -20,6 +20,9 @@ import {
   MenubarSubContent,
   MenubarSubTrigger,
   MenubarTrigger,
+  MenubarCheckboxItem,
+  MenubarRadioGroup,
+  MenubarRadioItem
 } from "@/components/ui/menubar"
 
 export default async function AdminPage() {
@@ -61,13 +64,15 @@ export default async function AdminPage() {
                        View Applications <MenubarShortcut>⌘A</MenubarShortcut>
                     </Link>
                   </MenubarItem>
+                  <MenubarSeparator />
+                   <MenubarItem disabled>Print</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
                {userRole === 'admin' && (
                 <>
                   <MenubarMenu>
-                    <MenubarTrigger>Actions</MenubarTrigger>
-                    <MenubarContent>
+                    <MenubarTrigger>Edit</MenubarTrigger>
+                     <MenubarContent>
                       <MenubarSub>
                         <MenubarSubTrigger>Management</MenubarSubTrigger>
                         <MenubarSubContent>
@@ -95,18 +100,47 @@ export default async function AdminPage() {
                    <MenubarMenu>
                     <MenubarTrigger>View</MenubarTrigger>
                     <MenubarContent>
-                       <MenubarItem asChild>
+                       <MenubarCheckboxItem checked disabled>Always Show Full URLs</MenubarCheckboxItem>
+                       <MenubarSeparator />
+                       <MenubarItem asChild inset>
                          <Link href="/admin/analytics">Hiring Analytics</Link>
                       </MenubarItem>
-                       <MenubarItem asChild>
+                       <MenubarItem asChild inset>
                          <Link href="/admin/interview-analytics">Interview Analytics</Link>
+                      </MenubarItem>
+                    </MenubarContent>
+                  </MenubarMenu>
+                   <MenubarMenu>
+                    <MenubarTrigger>Profiles</MenubarTrigger>
+                    <MenubarContent>
+                      <MenubarRadioGroup value="admin">
+                        <MenubarRadioItem value="admin">Admin</MenubarRadioItem>
+                        <MenubarRadioItem value="panel" disabled>Panel</MenubarRadioItem>
+                      </MenubarRadioGroup>
+                      <MenubarSeparator />
+                      <MenubarItem inset>
+                         <LogoutButton />
                       </MenubarItem>
                     </MenubarContent>
                   </MenubarMenu>
                 </>
                )}
+                {userRole === 'panel' && (
+                  <MenubarMenu>
+                    <MenubarTrigger>Profiles</MenubarTrigger>
+                     <MenubarContent>
+                       <MenubarRadioGroup value="panel">
+                        <MenubarRadioItem value="admin" disabled>Admin</MenubarRadioItem>
+                        <MenubarRadioItem value="panel">Panel</MenubarRadioItem>
+                      </MenubarRadioGroup>
+                      <MenubarSeparator />
+                      <MenubarItem inset>
+                         <LogoutButton />
+                      </MenubarItem>
+                    </MenubarContent>
+                  </MenubarMenu>
+                )}
             </Menubar>
-            <LogoutButton />
           </div>
         </div>
       </header>
