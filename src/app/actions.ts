@@ -7,6 +7,7 @@ import {
 } from '@/ai/flows/summarize-resume';
 import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
+import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 
 
 import {z} from 'zod';
@@ -1222,7 +1223,7 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
     const parsed = teamMemberSchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data provided." };
 
-    const { email, name, role } = parsed.data;
+    const { email, name, role, categoryId } = parsed.data;
 
     try {
         // Check if member with this email already exists
@@ -1246,10 +1247,21 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
 
         await addDoc(collection(db, 'teamMembers'), newMemberData);
 
-        // TODO: Send an email with the onboarding link
-        // The link would be something like: https://<your-domain>/onboard/${onboardingToken}
-        // For now, we will just log it.
-        console.log(`Generated onboarding token for ${email}: ${onboardingToken}`);
+        // Send invitation email
+        (async () => {
+            try {
+                const emailInput: InvitationEmailInput = {
+                    name,
+                    email,
+                    role,
+                    onboardingToken,
+                };
+                await sendInvitationEmail(emailInput);
+            } catch (emailError) {
+                console.error(`Invitation email sending failed for ${email}:`, emailError);
+                // Even if email fails, the member is in the DB. This could be handled with a retry queue.
+            }
+        })();
         
         return { success: true };
     } catch (e) {
