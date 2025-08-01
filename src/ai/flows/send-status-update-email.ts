@@ -18,51 +18,25 @@ export type StatusUpdateEmailInput = z.infer<typeof StatusUpdateEmailInputSchema
 
 function getEmailContent(status: string, name: string, referenceId: string): { subject: string; message: string } {
     if (status === 'Hired') {
-        const subject = `Congratulations, ${name}! Welcome to the MLSC Team!`;
+        const subject = `Update on Your MLSC 3.0 Application`;
         const message = `
         <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #d4edda; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Top Gradient Bar -->
-    <div style="background: linear-gradient(135deg, #0056b3 0%, #007bff 100%); height: 8px;"></div>
-    
-    <!-- Blue Congratulations Banner -->
-    <div style="background-color: #0056b3; color: #ffffff; text-align: center; padding: 16px 20px; font-size: 24px; font-weight: 600; letter-spacing: 0.5px;">
-        🎉 Welcome Aboard, ${name}! 🎉
-    </div>
-    
-    <div style="padding: 30px 25px;">
-        <h1 style="color: #222; font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 10px;">You're Officially Part of the Team!</h1>
-        <p style="text-align: center; font-size: 17px; color: #555; margin-bottom: 25px;">
-            We are thrilled to welcome you to the <strong>Microsoft Learn Student Club (MLSC)</strong>. Your skills, passion, and performance truly stood out.
-        </p>
-
-        <div style="background-color: #f1f8ff; border-left: 4px solid #007bff; padding: 15px; margin: 25px 0; text-align: center;">
-            <p style="margin: 0; font-size: 16px;">This is the beginning of an exciting journey. We can't wait to see what you'll achieve with us.</p>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+            <div style="background: linear-gradient(135deg, #0056b3 0%, #007bff 100%); height: 8px;"></div>
+            <div style="padding: 30px 25px;">
+                <h1 style="color: #222; font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 10px;">Congratulations, ${name}!</h1>
+                <p style="text-align: center; font-size: 17px; color: #555; margin-bottom: 25px;">
+                    We are thrilled to inform you that your application for the <strong>MLSC 3.0 Hiring Program</strong> has been successful, and you have been selected to join the team!
+                </p>
+                <div style="background-color: #f1f8ff; border-left: 4px solid #007bff; padding: 15px; margin: 25px 0; text-align: center;">
+                    <p style="margin: 0; font-size: 16px;">You will receive a separate invitation email shortly with instructions on how to complete your onboarding process.</p>
+                </div>
+                <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>The MLSC Hiring Team</strong></p>
+            </div>
+            <div style="background-color: #0056b3; text-align: center; padding: 12px; font-size: 12px; color: #ffffff;">
+                🚀 #MLSC3.0 #DreamBig #FutureReady
+            </div>
         </div>
-
-        <h3 style="font-size: 18px; font-weight: 600; color: #333; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 30px;">Your Onboarding Pass</h3>
-        <p style="font-size: 16px;">
-            To get started, please complete your team profile and join our official communication channels. Click the button below to begin your onboarding process.
-        </p>
-
-        <!-- Onboarding Button -->
-        <div style="text-align: center; margin: 30px 0;">
-            <a href="https://mlscsvec.in/team" target="_blank" style="background-color: #007bff; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: background-color 0.3s ease;">
-                Get Started & View Team
-            </a>
-        </div>
-        
-        <p style="font-size: 16px; font-weight: 400;">We can't wait for you to join us and start building the future of tech together.</p>
-        <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>The MLSC Hiring Team</strong></p>
-    </div>
-    
-    <!-- Footer -->
-    <div style="background-color: #0056b3; text-align: center; padding: 12px; font-size: 12px; color: #ffffff;">
-        🚀 #MLSC3.0 #DreamBig #FutureReady
-    </div>
-</div>
         `;
         return { subject, message };
     }
@@ -180,5 +154,3 @@ export async function sendStatusUpdateEmail(input: StatusUpdateEmailInput): Prom
         console.error(`Failed to send email to ${email}:`, error);
     }
 }
-
-    
