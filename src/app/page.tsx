@@ -150,10 +150,34 @@ export default function Home() {
             </div>
         </section>
 
-        {/* Chapter 1: The Journey So Far */}
+        {/* The People Behind the Code */}
+        <section className="py-12 md:py-16 bg-transparent">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-bold mb-2">The People Behind the Code</h2>
+             <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
+                Meet the leaders guiding our community.
+            </p>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="glass-card p-6 flex flex-col items-center">
+                <Image src="/a1.jpg" alt="Chandu Neelam" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
+                <h3 className="text-2xl font-bold">Chandu Neelam</h3>
+                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
+                <p className="text-sm text-muted-foreground">Our pioneering MLSA leader, with exceptional leadership and technical prowess.</p>
+              </div>
+              <div className="glass-card p-6 flex flex-col items-center">
+                <Image src="/a2.jpg" alt="Vinay Siddha" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
+                <h3 className="text-2xl font-bold">Akash Pydipala</h3>
+                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
+                <p className="text-sm text-muted-foreground">A passionate advocate for technology and community building.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* The Journey So Far */}
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-4xl font-bold mb-2">Chapter 1: <span className="text-primary">The Journey So Far</span></h2>
+                <h2 className="text-4xl font-bold mb-2">The Journey So Far</h2>
                 <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                     A legacy of innovation, collaboration, and learning.
                 </p>
@@ -188,10 +212,10 @@ export default function Home() {
             </div>
         </section>
         
-        {/* Chapter 2: The Next Level */}
+        {/* The Next Level */}
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-4xl font-bold mb-2">Chapter 2: <span className="text-primary">The Next Level</span></h2>
+                <h2 className="text-4xl font-bold mb-2">The Next Level</h2>
                 <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                     Unlock your potential with hands-on projects, expert mentorship, and a vibrant community of tech enthusiasts.
                 </p>
@@ -222,31 +246,6 @@ export default function Home() {
                 </div>
             </div>
         </section>
-        
-        {/* Chapter 3: The People Behind the Code */}
-        <section className="py-12 md:py-16 bg-transparent">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-bold mb-2">Chapter 3: <span className="text-primary">The People Behind the Code</span></h2>
-             <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
-                Meet the leaders guiding our community.
-            </p>
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <div className="glass-card p-6 flex flex-col items-center">
-                <Image src="/a1.jpg" alt="Chandu Neelam" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
-                <h3 className="text-2xl font-bold">Chandu Neelam</h3>
-                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
-                <p className="text-sm text-muted-foreground">Our pioneering MLSA leader, with exceptional leadership and technical prowess.</p>
-              </div>
-              <div className="glass-card p-6 flex flex-col items-center">
-                <Image src="/a2.jpg" alt="Vinay Siddha" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
-                <h3 className="text-2xl font-bold">Akash Pydipala</h3>
-                <h4 className="text-xl font-semibold text-primary my-1">MLSA</h4>
-                <p className="text-sm text-muted-foreground">A passionate advocate for technology and community building.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
       </main>
 
       {/* Footer */}
