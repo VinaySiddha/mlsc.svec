@@ -37,9 +37,7 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function Home() {
   const notifications = [
-    "Hiring for MLSC 3.0 has concluded. Thanks to all who applied!",
-    "Results for the final round will be announced soon. Stay tuned.",
-    "New blog post: 'Getting Started with Generative AI'. Check it out!"
+    "MLSC 3.0 results have been declared! Congratulations to all the new members.",
   ];
 
   const galleryImages = [
@@ -255,12 +253,12 @@ export default function Home() {
                     </div>
                 </div>
                  <div className="text-center mt-12">
-                    <div className="glass-card inline-block p-6">
-                        <div className="flex items-center gap-4 text-xl font-bold">
-                           <CheckCircle className="h-6 w-6 text-green-500" />
-                           <span>Hiring for MLSC 3.0 has concluded. Thanks for applying!</span>
-                        </div>
-                    </div>
+                    <Button variant="glass" size="lg" asChild>
+                        <Link href="/apply">
+                            <CheckCircle className="mr-2 h-5 w-5" />
+                            <span>Hiring Closed</span>
+                        </Link>
+                    </Button>
                 </div>
             </div>
         </section>
