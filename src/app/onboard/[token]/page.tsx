@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AlertTriangle, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { DigitalIdCard } from "@/components/digital-id-card";
+import { Button } from "@/components/ui/button";
 
 interface OnboardingPageProps {
   params: { token: string };
@@ -106,6 +107,9 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
                     name={memberData.name}
                     referenceId={memberData.role}
                 />
+                 <Button asChild variant="secondary" className="w-full">
+                    <Link href={`/admin/team/edit/${memberData.id}`}>Edit Your Profile</Link>
+                 </Button>
                  <Link href="/team" className="text-primary hover:underline mt-4 inline-block w-full text-center">
                     View the Team Page
                 </Link>

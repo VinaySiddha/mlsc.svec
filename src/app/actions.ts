@@ -758,7 +758,9 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
 
       for (const invite of newMemberInvites) {
           try {
-              await inviteTeamMember({ ...invite, categoryId: defaultCategoryId });
+              if (defaultCategoryId !== "default_category_id") {
+                  await inviteTeamMember({ ...invite, categoryId: defaultCategoryId });
+              }
           } catch(inviteError) {
               console.error(`Failed to invite new member ${invite.email}:`, inviteError);
           }
