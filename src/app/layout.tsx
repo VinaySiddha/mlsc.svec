@@ -6,8 +6,8 @@ import { cn } from '@/lib/utils';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'MLSC 3.0 Hiring Program X SVEC',
-  description: 'Apply for MLSC 3.0 at SVEC and kickstart your journey in tech. Join Microsoft Learn Student Club for technical and non-technical roles.',
+  title: 'MLSC X SVEC',
+  description: 'We ',
   keywords: [
     'MLSC 3.0',
     'MLSC SVEC',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
    
   ],
   openGraph: {
-    title: 'MLSC 3.0 Hiring Program X SVEC',
+    title: 'MLSC X SVEC',
     description: 'We are hiring passionate students for technical and non-technical roles at MLSC SVEC. Apply now!',
     url: 'https://mlscsvec.in',
     siteName: 'MLSC SVEC',
