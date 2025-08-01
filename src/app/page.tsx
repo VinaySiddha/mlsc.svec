@@ -2,7 +2,7 @@
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github, BrainCircuit, Rocket, Briefcase } from "lucide-react";
+import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github, BrainCircuit, Rocket, Briefcase, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { ImageSlider } from "@/components/image-slider";
@@ -213,9 +213,12 @@ export default function Home() {
                     </div>
                 </div>
                  <div className="text-center mt-12">
-                     <Button asChild size="lg" variant="default">
-                       <Link href="/apply">Apply Now</Link>
-                    </Button>
+                    <div className="glass-card inline-block p-6 group">
+                         <Link href="/apply" className="flex items-center gap-4 text-xl font-bold">
+                            <span>We&apos;re Hiring! Apply Now</span>
+                            <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                         </Link>
+                    </div>
                 </div>
             </div>
         </section>
@@ -255,4 +258,3 @@ export default function Home() {
     </div>
   );
 }
-
