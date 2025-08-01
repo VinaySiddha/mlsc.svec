@@ -92,7 +92,7 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
   }
   
   return (
-      <section className="w-full bg-background/50 py-16">
+      <section className="w-full bg-transparent py-16">
           <div className="container mx-auto px-4 md:px-6 space-y-12">
               <div className="w-full text-center glass-card p-8">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
@@ -137,7 +137,7 @@ export default async function TeamPage() {
     };
   
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen bg-transparent text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">

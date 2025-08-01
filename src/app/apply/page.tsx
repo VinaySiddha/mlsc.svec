@@ -22,7 +22,7 @@ export default async function ApplyPage() {
   const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen bg-transparent text-foreground">
       {/* Header */}
        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
