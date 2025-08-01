@@ -1,15 +1,9 @@
 
 import type {Metadata} from 'next';
 import './globals.css';
-import { Inter } from 'next/font/google'
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-})
 
 export const metadata: Metadata = {
   title: 'MLSC 3.0 Hiring Program X SVEC',
@@ -63,7 +57,7 @@ export default function RootLayout({
         <meta name="google-adsense-account" content="ca-pub-3162461325924366"></meta>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" crossOrigin="anonymous"></script>
         </head>
-      <body className={cn('font-sans antialiased', inter.variable)}>
+      <body className={cn('font-sans antialiased')}>
         <main className="min-h-screen">{children}</main>
         <Toaster />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>

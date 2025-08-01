@@ -1,11 +1,16 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Turret+Road:wght@800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  @font-face {
+    font-family: 'CustomFont';
+    src: url('/font.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
   :root {
     --background: 240 10% 3.9%; /* Black */
     --foreground: 210 40% 98%; /* Light Gray for text */
@@ -45,27 +50,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'CustomFont', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
-  }
-  
-  body::before {
-    content: 'MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -1;
-    font-family: 'Turret Road', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: hsl(var(--foreground) / 0.02);
-    line-height: 1.8;
-    word-break: break-all;
-    overflow: hidden;
-    transform: rotate(-15deg);
-    user-select: none;
-    mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
   }
 }
 

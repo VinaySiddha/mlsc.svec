@@ -30,8 +30,7 @@ export default {
         '6xl': '4rem',
       },
       fontFamily: {
-        sans: ['var(--font-sans)'],
-        graffiti: ['"Turret Road"', 'sans-serif'],
+        sans: ['CustomFont', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
