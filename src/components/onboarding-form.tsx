@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 const onboardingSchema = z.object({
@@ -67,6 +67,9 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
               <FormControl>
                 <Input placeholder="e.g., https://your-image-host.com/profile.jpg" {...field} />
               </FormControl>
+              <FormDescription>
+                Please use a Google Drive link. Make sure the link sharing is set to &quot;Anyone with the link&quot; can view.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

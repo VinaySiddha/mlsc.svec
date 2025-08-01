@@ -704,55 +704,50 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
     const existingAppsByRollNo = new Map(allApplicationsSnapshot.docs.map(d => [d.data().rollNo_lowercase, d]));
 
     const batch = writeBatch(db);
-    const emailsToSend: (StatusUpdateEmailInput | InvitationEmailInput)[] = [];
-    const newMemberInvites: any[] = [];
+    const emailsToReject: StatusUpdateEmailInput[] = [];
+    const newMemberInvites: InvitationEmailInput[] = [];
 
     // Process hired candidates
     for (const rollNo of hiredRollNos) {
         const existingAppDoc = existingAppsByRollNo.get(rollNo);
         
+        let name: string, email: string;
+
         if (existingAppDoc) {
             const app = existingAppDoc.data();
+            name = app.name;
+            email = app.email;
             if (app.status !== 'Hired') {
                 batch.update(existingAppDoc.ref, { status: 'Hired' });
-                emailsToSend.push({ name: app.name, email: app.email, status: 'Hired', referenceId: app.id });
-                newMemberInvites.push({ name: app.name, email: app.email, role: 'Team Member' });
             }
         } else {
             // New candidate, not in DB
-            const name = "New Member";
-            const email = `${rollNo}@svec.org.in`; // Construct email
-            const referenceId = generateReferenceId();
-            
+            name = "New Member";
+            email = `${rollNo}@svec.org.in`; // Construct email
             const newApplication = {
-              id: referenceId,
+              id: generateReferenceId(),
               submittedAt: new Date().toISOString(),
-              name,
-              email,
-              rollNo,
-              rollNo_lowercase: rollNo,
+              name, email, rollNo, rollNo_lowercase: rollNo,
               status: 'Hired',
-              // Add other default fields to make the document valid
               phone: 'N/A', branch: 'N/A', section: 'N/A', yearOfStudy: 'N/A', cgpa: 'N/A', backlogs: '0',
               joinReason: 'Manually added via bulk hire.', aboutClub: 'N/A', technicalDomain: 'N/A', nonTechnicalDomain: 'N/A',
               isRecommended: true, interviewAttended: true,
             };
-
             const newDocRef = doc(collection(db, 'applications'));
             batch.set(newDocRef, newApplication);
-            emailsToSend.push({ name, email, status: 'Hired', referenceId });
-            newMemberInvites.push({ name, email, role: 'Team Member' });
         }
+        
+        newMemberInvites.push({ name, email, role: 'Team Member', onboardingToken: '' }); // Token added later
     }
 
-    // Process rejections
+    // Process rejections for everyone else
     allApplicationsSnapshot.docs.forEach(doc => {
         const app = doc.data();
         const isHired = hiredRollNos.has(app.rollNo_lowercase);
         
         if (!isHired && app.status !== 'Hired' && app.status !== 'Rejected') {
             batch.update(doc.ref, { status: 'Rejected' });
-            emailsToSend.push({ name: app.name, email: app.email, status: 'Rejected', referenceId: app.id });
+            emailsToReject.push({ name: app.name, email: app.email, status: 'Rejected', referenceId: app.id });
         }
     });
 
@@ -764,26 +759,25 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
       const categoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), where('name', '==', 'Technical Team'), limit(1)));
       const defaultCategoryId = !categoriesSnapshot.empty ? categoriesSnapshot.docs[0].id : "default_category_id";
 
-      for (const emailInput of emailsToSend) {
-        try {
-          // This is a type guard to differentiate between email types
-          if ('status' in emailInput) { 
-            await sendStatusUpdateEmail(emailInput);
-          }
-        } catch (emailError) {
-          console.error(`Failed to send status update email to ${(emailInput as any).email}:`, emailError);
-        }
-      }
       for (const invite of newMemberInvites) {
           try {
+              // Pass categoryId to inviteTeamMember
               await inviteTeamMember({ ...invite, categoryId: defaultCategoryId });
           } catch(inviteError) {
               console.error(`Failed to invite new member ${invite.email}:`, inviteError);
           }
       }
+
+      for (const emailInput of emailsToReject) {
+        try {
+          await sendStatusUpdateEmail(emailInput);
+        } catch (emailError) {
+          console.error(`Failed to send status update email to ${emailInput.email}:`, emailError);
+        }
+      }
     })();
     
-    return { success: true, updatedCount: emailsToSend.length };
+    return { success: true, updatedCount: emailsToReject.length + newMemberInvites.length };
 
   } catch (error) {
     console.error('Error during bulk update from CSV:', error);
