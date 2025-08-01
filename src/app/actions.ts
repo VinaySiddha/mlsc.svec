@@ -8,6 +8,7 @@ import {
 import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
+import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
 
 
 import {z} from 'zod';
@@ -706,27 +707,30 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
     const emailsToReject: StatusUpdateEmailInput[] = [];
     const newMemberInvites: {name: string, email: string, role: string}[] = [];
 
-    for (const doc of allApplicationsSnapshot.docs) {
+    allApplicationsSnapshot.docs.forEach(doc => {
         const app = doc.data();
         const isHired = hiredRollNos.has(app.rollNo_lowercase);
         
         if (isHired) {
+            // Update to Hired and add to invite list
             if (app.status !== 'Hired') {
                 batch.update(doc.ref, { status: 'Hired' });
                 newMemberInvites.push({ name: app.name, email: app.email, role: 'Team Member' });
             }
-            hiredRollNos.delete(app.rollNo_lowercase);
+            hiredRollNos.delete(app.rollNo_lowercase); // Remove from set to find those not in DB
         } else {
+            // Update to Rejected if not already Hired or Rejected
             if (app.status !== 'Hired' && app.status !== 'Rejected') {
                 batch.update(doc.ref, { status: 'Rejected' });
                 emailsToReject.push({ name: app.name, email: app.email, status: 'Rejected', referenceId: app.id });
             }
         }
-    }
+    });
 
     // Handle hired candidates who were not in the database
     for (const rollNo of hiredRollNos) {
         const newMemberEmail = `${rollNo}@sves.org.in`;
+        // We create an application record for them so they exist in the system
         const newApplication = {
             id: generateReferenceId(),
             submittedAt: new Date().toISOString(),
@@ -737,9 +741,9 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
             status: 'Hired',
             phone: 'N/A', branch: 'N/A', section: 'N/A', yearOfStudy: 'N/A', cgpa: 'N/A', backlogs: '0',
             joinReason: 'Manually added via bulk hire.', aboutClub: 'N/A', technicalDomain: 'N/A', nonTechnicalDomain: 'N/A',
-            isRecommended: true, interviewAttended: true,
+            isRecommended: true, interviewAttended: true, // Assuming they were interviewed and recommended
         };
-        const newDocRef = doc(applicationsRef);
+        const newDocRef = doc(applicationsRef); // Let firestore generate ID
         batch.set(newDocRef, newApplication);
         newMemberInvites.push({ name: "New Member", email: newMemberEmail, role: 'Team Member' });
     }
@@ -756,6 +760,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
           console.error("Default category 'Technical Team' not found. Cannot invite new members.");
       }
 
+      // Send a single "Welcome Aboard" email to hired members, which contains the onboarding link
       for (const invite of newMemberInvites) {
           try {
               if (defaultCategoryId !== "default_category_id") {
@@ -1366,15 +1371,31 @@ export async function completeOnboarding(values: z.infer<typeof completeOnboardi
             return { error: error || "Failed to validate token." };
         }
 
-        await updateDoc(doc(db, 'teamMembers', member.id), {
+        const updatedMemberData = {
             image,
             linkedin,
             status: 'active',
             onboardingToken: '', // Clear the token after use
             tokenExpiresAt: '',
-        });
-        
-        const updatedMember = { ...member, image, linkedin, status: 'active' };
+        };
+
+        await updateDoc(doc(db, 'teamMembers', member.id), updatedMemberData);
+
+        const updatedMember = { ...member, ...updatedMemberData };
+
+        // Send confirmation email with edit link
+        (async () => {
+            try {
+                const emailInput: ProfileConfirmationEmailInput = {
+                    name: updatedMember.name,
+                    email: updatedMember.email,
+                    editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+                };
+                await sendProfileConfirmationEmail(emailInput);
+            } catch (emailError) {
+                console.error(`Profile confirmation email sending failed for ${updatedMember.email}:`, emailError);
+            }
+        })();
 
         return { success: true, member: updatedMember };
     } catch (e) {
