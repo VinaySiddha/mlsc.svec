@@ -8,7 +8,6 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { completeOnboarding } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -22,17 +21,10 @@ const onboardingSchema = z.object({
 type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
 interface OnboardingFormProps {
-  member: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    onboardingToken: string;
-  };
+  onComplete: (values: OnboardingFormValues) => Promise<{error?: string}>;
 }
 
-export function OnboardingForm({ member }: OnboardingFormProps) {
-  const router = useRouter();
+export function OnboardingForm({ onComplete }: OnboardingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -47,22 +39,10 @@ export function OnboardingForm({ member }: OnboardingFormProps) {
   const onSubmit = async (values: OnboardingFormValues) => {
     setIsSubmitting(true);
     try {
-      const result = await completeOnboarding({
-        ...values,
-        token: member.onboardingToken,
-      });
-
+      const result = await onComplete(values);
       if (result.error) {
         throw new Error(result.error);
       }
-
-      toast({
-        title: "Profile Complete!",
-        description: `Welcome aboard, ${member.name}! Your profile has been activated.`,
-      });
-      router.push('/team');
-      router.refresh();
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       toast({

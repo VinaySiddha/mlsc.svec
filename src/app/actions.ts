@@ -134,6 +134,12 @@ const memberProfileSchema = teamMemberSchema.extend({
     linkedin: z.string().url("A valid LinkedIn URL is required."),
 })
 
+const completeOnboardingSchema = z.object({
+    token: z.string(),
+    image: z.string().url("Image URL is required."),
+    linkedin: z.string().url("LinkedIn URL is required."),
+});
+
 
 // Generate a unique, readable reference ID
 function generateReferenceId() {
@@ -1269,14 +1275,65 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
     }
 }
 
-export async function updateTeamMember(id: string, values: z.infer<typeof memberProfileSchema>) {
-    const parsed = memberProfileSchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data." };
+export async function getTeamMemberByToken(token: string) {
     try {
-        await updateDoc(doc(db, 'teamMembers', id), parsed.data);
-        return { success: true };
+        const q = query(
+            collection(db, 'teamMembers'),
+            where('onboardingToken', '==', token)
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            return { error: "Invalid onboarding link." };
+        }
+        
+        const memberDoc = snapshot.docs[0];
+        const member = { id: memberDoc.id, ...memberDoc.data() };
+        
+        if (member.status !== 'pending') {
+            return { error: "This invitation has already been used." };
+        }
+
+        const now = new Date();
+        const expiresAt = new Date(member.tokenExpiresAt);
+        
+        if (now > expiresAt) {
+            return { error: "This onboarding link has expired." };
+        }
+        
+        return { member };
     } catch (e) {
-        return { error: "Failed to update team member." };
+        console.error("Error fetching member by token:", e);
+        return { error: "Failed to validate onboarding link." };
+    }
+}
+
+export async function completeOnboarding(values: z.infer<typeof completeOnboardingSchema>) {
+    const parsed = completeOnboardingSchema.safeParse(values);
+    if (!parsed.success) {
+        return { error: "Invalid data provided." };
+    }
+
+    const { token, image, linkedin } = parsed.data;
+
+    try {
+        const { member, error } = await getTeamMemberByToken(token);
+        if (error || !member) {
+            return { error: error || "Failed to validate token." };
+        }
+
+        await updateDoc(doc(db, 'teamMembers', member.id), {
+            image,
+            linkedin,
+            status: 'active',
+            onboardingToken: '', // Clear the token after use
+            tokenExpiresAt: '',
+        });
+
+        return { success: true, member };
+    } catch (e) {
+        console.error("Error completing onboarding:", e);
+        return { error: "Failed to activate profile." };
     }
 }
 
