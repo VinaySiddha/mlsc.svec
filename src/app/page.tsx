@@ -220,10 +220,13 @@ export default function Home() {
             </div>
         </section>
         
-        {/* Ambassador Section */}
+        {/* Chapter 3: The People Behind the Code */}
         <section className="py-12 md:py-16 bg-transparent">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-8">Meet Our <span className="text-primary">Ambassadors!</span></h2>
+            <h2 className="text-4xl font-bold mb-2">Chapter 3: <span className="text-primary">The People Behind the Code</span></h2>
+             <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
+                Meet the leaders guiding our community.
+            </p>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div className="glass-card p-6 flex flex-col items-center">
                 <Image src="/a1.jpg" alt="Chandu Neelam" width={120} height={120} className="object-cover rounded-full mb-4" data-ai-hint="person portrait"/>
@@ -252,3 +255,4 @@ export default function Home() {
     </div>
   );
 }
+
