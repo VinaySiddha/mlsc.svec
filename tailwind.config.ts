@@ -131,6 +131,10 @@ export default {
                 opacity: '1',
                 transform: 'translateX(0)'
             },
+        },
+        'marquee': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
         }
       },
       animation: {
@@ -141,6 +145,7 @@ export default {
         'fade-in-down': 'fade-in-down 0.5s ease-out forwards',
         'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
         'fade-in-left': 'fade-in-left 0.5s ease-out forwards',
+        'marquee': 'marquee 30s linear infinite',
       },
     },
   },

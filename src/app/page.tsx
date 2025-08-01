@@ -6,6 +6,7 @@ import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code
 import Link from "next/link";
 import Image from "next/image";
 import { ImageSlider } from "@/components/image-slider";
+import { NotificationTicker } from "@/components/notification-ticker";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -35,6 +36,12 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function Home() {
+  const notifications = [
+    "Hiring for MLSC 3.0 is now open! Apply now to join the team.",
+    "Our annual tech fest is scheduled for next month. Stay tuned for details.",
+    "New blog post: 'Getting Started with Generative AI'. Check it out!"
+  ];
+
   return (
     <div className="flex flex-col min-h-screen text-foreground bg-transparent">
       {/* Header */}
@@ -99,6 +106,9 @@ export default function Home() {
       </header>
       
       <main className="flex-1">
+        {/* Notification Scroller */}
+        <NotificationTicker notifications={notifications} />
+
         {/* Hero Section */}
         <section 
             className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center"
@@ -139,11 +149,49 @@ export default function Home() {
                 </a>
             </div>
         </section>
-        
-        {/* Why Join Us Section */}
+
+        {/* Chapter 1: The Journey So Far */}
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-4xl font-bold mb-2">Why Join <span className="text-primary">Us?</span></h2>
+                <h2 className="text-4xl font-bold mb-2">Chapter 1: <span className="text-primary">The Journey So Far</span></h2>
+                <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
+                    A legacy of innovation, collaboration, and learning.
+                </p>
+                <div className="grid md:grid-cols-2 gap-8">
+                    <div className="glass-card p-6">
+                         <div className="event-content">
+                            <div className="content">
+                                <div className="year flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4" />18th October 2023</div>
+                                <h3 className="text-xl font-bold">Azure Cloud Workshop</h3>
+                                <p className="mt-2 text-muted-foreground">Successfully conducted a hands-on event on the Azure Cloud Platform with more than 300 attendees, empowering numerous skilled peers in their cloud journey.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="glass-card p-6">
+                         <div className="event-content">
+                            <div className="content">
+                                <div className="year flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4" />16th October 2023</div>
+                                <h3 className="text-xl font-bold">Inauguration Ceremony</h3>
+                                <p className="mt-2 text-muted-foreground">The inauguration of the Microsoft Learn Student Club marked a momentous occasion, fostering a dynamic hub for technology enthusiasts empowered by the Microsoft Learn ecosystem.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* Gallery Section */}
+        <section className="py-20 bg-transparent">
+            <div className="container mx-auto px-4 text-center">
+                <h2 className="text-4xl font-bold mb-12">Gallery: <span className="text-primary">Moments & Milestones</span></h2>
+                <ImageSlider />
+            </div>
+        </section>
+        
+        {/* Chapter 2: The Next Level */}
+        <section className="py-20 bg-transparent">
+            <div className="container mx-auto px-4 text-center">
+                <h2 className="text-4xl font-bold mb-2">Chapter 2: <span className="text-primary">The Next Level</span></h2>
                 <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                     Unlock your potential with hands-on projects, expert mentorship, and a vibrant community of tech enthusiasts.
                 </p>
@@ -164,25 +212,14 @@ export default function Home() {
                         <p className="text-muted-foreground">Network with industry professionals and get a head start on your career in technology.</p>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        {/* Gallery Section */}
-        <section className="about py-20 bg-transparent">
-            <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
-                <ImageSlider />
-                <div className="about-content text-center md:text-left glass-card p-8 mt-8 md:mt-0">
-                    <h2 className="heading text-4xl font-bold mb-4">About <span className="text-primary">Us</span></h2>
-                    <p className="text-lg text-muted-foreground mb-8">
-                        Microsoft Learn Student Club is paramount in creating one of the most influential events. Our peer-to-peer learning strategy has made our response rate phenomenal and has helped the participants by a substantial improvement in their vocational skills, problem-solving skills, and advancements in the technical domain.
-                    </p>
-                    <Button asChild size="lg" variant="glass">
-                       <Link href="/team">Our Team</Link>
+                 <div className="text-center mt-12">
+                     <Button asChild size="lg" variant="default">
+                       <Link href="/apply">Apply Now</Link>
                     </Button>
                 </div>
             </div>
         </section>
-
+        
         {/* Ambassador Section */}
         <section className="py-12 md:py-16 bg-transparent">
           <div className="container mx-auto px-4 text-center">
@@ -202,39 +239,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
-
-
-        {/* Events Section */}
-        <section className="py-20 bg-transparent">
-            <h2 className="heading text-center text-4xl font-bold mb-16">Our <span className="text-primary">Flagship Events</span></h2>
-            <div className="container mx-auto px-4">
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="glass-card p-6">
-                        <div className="event-content">
-                            <div className="content">
-                                <div className="year flex items-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4" />18th October 2023</div>
-                                <h3 className="text-xl font-bold">Azure Cloud Workshop</h3>
-                                <p className="mt-2 text-muted-foreground">Successfully conducted a hands-on event on the Azure Cloud Platform with more than 300 attendees, empowering numerous skilled peers in their cloud journey.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="glass-card p-6">
-                         <div className="event-content">
-                            <div className="content">
-                                <div className="year flex items-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4" />16th October 2023</div>
-                                <h3 className="text-xl font-bold">Inauguration Ceremony</h3>
-                                <p className="mt-2 text-muted-foreground">The inauguration of the Microsoft Learn Student Club marked a momentous occasion, fostering a dynamic hub for technology enthusiasts empowered by the Microsoft Learn ecosystem.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="text-center mt-12">
-                     <Button asChild size="lg" variant="glass">
-                       <Link href="/events">More Events</Link>
-                    </Button>
-                </div>
-            </div>
         </section>
 
       </main>
