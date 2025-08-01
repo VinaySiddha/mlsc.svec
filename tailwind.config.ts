@@ -31,7 +31,7 @@ export default {
       },
       fontFamily: {
         sans: ['var(--font-sans)'],
-        graffiti: ['"Rock Salt"', 'cursive'],
+        graffiti: ['"Turret Road"', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
