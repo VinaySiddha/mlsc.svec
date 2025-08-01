@@ -148,7 +148,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="admin" {...field} className="bg-muted/50 border-border text-foreground" />
+                        <Input placeholder="admin" {...field} className="bg-background/20" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -161,13 +161,13 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="bg-muted/50 border-border text-foreground" />
+                        <Input type="password" placeholder="••••••••" {...field} className="bg-background/20" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                <Button type="submit" className="w-full" variant="default" disabled={isSubmitting}>
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Log in
                 </Button>
