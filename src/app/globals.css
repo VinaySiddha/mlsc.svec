@@ -16,10 +16,10 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 333 70% 56%; /* Pink/Magenta: #df3f8b */
+    --primary: 217 91% 60%; /* Blue: #3B82F6 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 196 100% 46%; /* Light Blue/Cyan: #00caeb */
+    --secondary: 188 89% 45%; /* Cyan: #17c5d4 */
     --secondary-foreground: 240 10% 3.9%;
     
     --muted: 240 5% 15%;
@@ -33,7 +33,7 @@
 
     --border: 240 4% 18%;
     --input: 240 4% 18%;
-    --ring: 333 70% 56%; /* Pink ring for focus */
+    --ring: 217 91% 60%; /* Blue ring for focus */
     
     --radius: 0.5rem;
   }
