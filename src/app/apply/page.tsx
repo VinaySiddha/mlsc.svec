@@ -1,7 +1,5 @@
 
-import { getDeadline } from "@/app/actions";
 import { ApplicationForm } from "@/components/application-form";
-import { CountdownTimer } from "@/components/countdown-timer";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,8 +16,7 @@ const navLinks = [
 ];
 
 export default async function ApplyPage() {
-  const { deadlineTimestamp } = await getDeadline();
-  const isClosed = deadlineTimestamp ? new Date() > new Date(deadlineTimestamp) : false;
+  const isClosed = true;
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-foreground">
@@ -97,7 +94,6 @@ export default async function ApplyPage() {
                     ? "Submissions are now closed. Thank you for your interest."
                     : "Complete the form to apply for a role at MLSC."}
                 </CardDescription>
-                {deadlineTimestamp && !isClosed && <CountdownTimer deadline={deadlineTimestamp} />}
               </CardHeader>
               <CardContent>
                 {isClosed ? (

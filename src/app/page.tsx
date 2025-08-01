@@ -2,7 +2,7 @@
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github, BrainCircuit, Rocket, Briefcase, ArrowRight } from "lucide-react";
+import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github, BrainCircuit, Rocket, Briefcase, ArrowRight, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { ImageSlider } from "@/components/image-slider";
@@ -37,8 +37,8 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function Home() {
   const notifications = [
-    "Hiring for MLSC 3.0 is now open! Apply now to join the team.",
-    "Our annual tech fest is scheduled for next month. Stay tuned for details.",
+    "Hiring for MLSC 3.0 has concluded. Thanks to all who applied!",
+    "Results for the final round will be announced soon. Stay tuned.",
     "New blog post: 'Getting Started with Generative AI'. Check it out!"
   ];
 
@@ -213,11 +213,11 @@ export default function Home() {
                     </div>
                 </div>
                  <div className="text-center mt-12">
-                    <div className="glass-card inline-block p-6 group">
-                         <Link href="/apply" className="flex items-center gap-4 text-xl font-bold">
-                            <span>We&apos;re Hiring! Apply Now</span>
-                            <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
-                         </Link>
+                    <div className="glass-card inline-block p-6">
+                        <div className="flex items-center gap-4 text-xl font-bold">
+                           <CheckCircle className="h-6 w-6 text-green-500" />
+                           <span>Hiring for MLSC 3.0 has concluded. Thanks for applying!</span>
+                        </div>
                     </div>
                 </div>
             </div>
