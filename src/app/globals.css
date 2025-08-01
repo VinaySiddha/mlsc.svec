@@ -53,22 +53,26 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-image: url('/graffiti-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
   }
   
   body::before {
-    content: '';
+    content: 'MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC MLSC SVEC';
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: hsla(var(--background), 0.85);
     z-index: -1;
+    font-family: 'Rockhand', cursive;
+    font-size: 5rem;
+    font-weight: bold;
+    color: hsl(var(--foreground) / 0.02);
+    line-height: 1.5;
+    word-break: break-all;
+    overflow: hidden;
+    transform: rotate(-15deg);
+    user-select: none;
+    mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
   }
 }
 
