@@ -28,7 +28,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "glass",
+      variant: "default",
       size: "default",
     },
   }

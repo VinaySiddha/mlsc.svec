@@ -23,24 +23,24 @@
     --popover: 220 20% 100%;
     --popover-foreground: 224 71.4% 4.1%;
 
-    --primary: 217.2 100% 50%; /* Electric Blue */
+    --primary: 217.2 91.2% 59.8%; /* Microsoft Blue */
     --primary-foreground: 210 20% 98%;
 
-    --secondary: 190 95% 60%; /* Vibrant Cyan */
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 142.1 76.2% 36.3%; /* Microsoft Green */
+    --secondary-foreground: 210 20% 98%;
     
     --muted: 220 20% 94%;
     --muted-foreground: 215.4 16.3% 46.9%;
     
-    --accent: 300 100% 60%; /* Neon Magenta/Pink */
-    --accent-foreground: 210 20% 98%;
+    --accent: 45 93.4% 47.5%; /* Microsoft Yellow */
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 100% 50%; /* Bright Red */
+    --destructive: 0 84.2% 60.2%; /* Microsoft Red */
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 217.2 100% 50%;
+    --ring: 217.2 91.2% 59.8%;
     
     --radius: 0.5rem;
   }
