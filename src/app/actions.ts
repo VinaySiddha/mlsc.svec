@@ -679,6 +679,73 @@ export async function bulkUpdateStatus(filters: {
   }
 }
 
+export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
+  if (!hiredCandidates || hiredCandidates.length === 0) {
+    return { error: "The CSV file is empty or invalid." };
+  }
+
+  const hiredRollNos = new Set(hiredCandidates.map(c => c.rollNo.toLowerCase()));
+  
+  try {
+    const applicationsRef = collection(db, 'applications');
+    const allApplicationsSnapshot = await getDocs(applicationsRef);
+    
+    const batch = writeBatch(db);
+    const applicantsToEmail: StatusUpdateEmailInput[] = [];
+
+    allApplicationsSnapshot.docs.forEach(doc => {
+      const app = doc.data();
+      const isHired = hiredRollNos.has(app.rollNo_lowercase);
+      
+      if (isHired) {
+        // Update to Hired if not already
+        if (app.status !== 'Hired') {
+          batch.update(doc.ref, { status: 'Hired' });
+          applicantsToEmail.push({
+            name: app.name,
+            email: app.email,
+            status: 'Hired',
+            referenceId: app.id,
+          });
+        }
+      } else {
+        // Update to Rejected if not already Hired or Rejected
+        if (app.status !== 'Hired' && app.status !== 'Rejected') {
+          batch.update(doc.ref, { status: 'Rejected' });
+          applicantsToEmail.push({
+            name: app.name,
+            email: app.email,
+            status: 'Rejected',
+            referenceId: app.id,
+          });
+        }
+      }
+    });
+
+    await batch.commit();
+
+    // Send emails in the background
+    (async () => {
+      for (const applicant of applicantsToEmail) {
+        try {
+          await sendStatusUpdateEmail(applicant);
+        } catch (emailError) {
+          console.error(`Failed to send status update email to ${applicant.email}:`, emailError);
+        }
+      }
+    })();
+    
+    return { success: true, updatedCount: applicantsToEmail.length };
+
+  } catch (error) {
+    console.error('Error during bulk update from CSV:', error);
+    if (error instanceof Error) {
+      return { error: `Bulk update failed: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred during bulk update.' };
+  }
+}
+
 export async function exportHiredToCsv() {
     try {
         const q = query(collection(db, 'applications'), where('status', '==', 'Hired'));
