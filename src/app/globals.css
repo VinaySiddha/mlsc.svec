@@ -1,12 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap');
-
-@font-face {
-  font-family: 'Rockhand';
-  src: url('/Rockhand.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Rock+Salt&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -63,11 +56,11 @@
     right: 0;
     bottom: 0;
     z-index: -1;
-    font-family: 'Rockhand', cursive;
-    font-size: 3rem;
-    font-weight: bold;
+    font-family: 'Rock Salt', cursive;
+    font-size: 2.5rem;
+    font-weight: normal;
     color: hsl(var(--foreground) / 0.02);
-    line-height: 1.5;
+    line-height: 1.8;
     word-break: break-all;
     overflow: hidden;
     transform: rotate(-15deg);

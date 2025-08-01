@@ -117,7 +117,7 @@ export default function Home() {
                 </div>
             </div>
             <div className="home-content container mx-auto px-4 md:px-8 relative z-10 flex flex-col items-center">
-                <h1 className="text-5xl md:text-7xl font-bold text-foreground [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down font-graffiti" style={{animationDelay: '0.2s'}}>MLSC X <span className="text-primary">SVEC</span></h1>
+                <h1 className="text-5xl md:text-7xl font-bold text-foreground [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] animate-fade-in-down font-graffiti">MLSC X <span className="text-primary">SVEC</span></h1>
                 <div className="text-animate text-3xl md:text-4xl font-semibold my-4 text-foreground/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)] animate-fade-in-down" style={{animationDelay: '0.4s'}}>
                     <h3>Learn-Train-Serve</h3>
                 </div>

@@ -30,10 +30,8 @@ export default {
         '6xl': '4rem',
       },
       fontFamily: {
-        sans: ['var(--font-custom)', 'sans-serif'],
-        body: ['var(--font-custom)', 'sans-serif'],
-        headline: ['var(--font-custom)', 'sans-serif'],
-        graffiti: ['"Rockhand"', 'cursive'],
+        sans: ['var(--font-sans)'],
+        graffiti: ['"Rock Salt"', 'cursive'],
       },
       colors: {
         background: 'hsl(var(--background))',
