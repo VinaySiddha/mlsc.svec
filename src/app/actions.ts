@@ -131,8 +131,8 @@ const teamMemberSchema = z.object({
 });
 
 const teamMemberUpdateSchema = teamMemberSchema.extend({
-    image: z.string().url("A valid image URL is required."),
-    linkedin: z.string().url("A valid LinkedIn URL is required."),
+    image: z.string().url("A valid image URL is required.").or(z.literal('')),
+    linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
 });
 
 
@@ -705,24 +705,35 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
     
     const batch = writeBatch(db);
     const applicantsToEmail: StatusUpdateEmailInput[] = [];
+    const membersToInvite: { email: string, name: string, role: string, categoryId: string }[] = [];
+    
+    // Find the default "Technical Team" category
+    const categoriesRef = collection(db, 'teamCategories');
+    const q = query(categoriesRef, where('name', '==', 'Technical Team'), limit(1));
+    const categorySnapshot = await getDocs(q);
+    const defaultCategoryId = !categorySnapshot.empty ? categorySnapshot.docs[0].id : null;
 
-    allApplicationsSnapshot.docs.forEach(doc => {
+    if (!defaultCategoryId) {
+      console.warn("Default 'Technical Team' category not found. Hired members won't be assigned a category.");
+    }
+
+    for (const doc of allApplicationsSnapshot.docs) {
       const app = doc.data();
       const isHired = hiredRollNos.has(app.rollNo_lowercase);
       
       if (isHired) {
-        // Update to Hired if not already
         if (app.status !== 'Hired') {
           batch.update(doc.ref, { status: 'Hired' });
-          applicantsToEmail.push({
-            name: app.name,
-            email: app.email,
-            status: 'Hired',
-            referenceId: app.id,
-          });
+          if (defaultCategoryId) {
+            membersToInvite.push({
+              name: app.name,
+              email: app.email,
+              role: 'Team Member',
+              categoryId: defaultCategoryId
+            });
+          }
         }
       } else {
-        // Update to Rejected if not already Hired or Rejected
         if (app.status !== 'Hired' && app.status !== 'Rejected') {
           batch.update(doc.ref, { status: 'Rejected' });
           applicantsToEmail.push({
@@ -733,12 +744,22 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
           });
         }
       }
-    });
+    }
 
     await batch.commit();
 
     // Send emails in the background
     (async () => {
+      // Invite Hired Members
+      for (const member of membersToInvite) {
+        try {
+          await inviteTeamMember(member);
+        } catch (inviteError) {
+          console.error(`Failed to invite team member ${member.email}:`, inviteError);
+        }
+      }
+      
+      // Notify Rejected Applicants
       for (const applicant of applicantsToEmail) {
         try {
           await sendStatusUpdateEmail(applicant);
@@ -748,7 +769,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
       }
     })();
     
-    return { success: true, updatedCount: applicantsToEmail.length };
+    return { success: true, updatedCount: applicantsToEmail.length + membersToInvite.length };
 
   } catch (error) {
     console.error('Error during bulk update from CSV:', error);
