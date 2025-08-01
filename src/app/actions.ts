@@ -35,6 +35,7 @@ import {
   deleteDoc,
 } from 'firebase/firestore';
 import papaparse from 'papaparse';
+import { randomBytes } from 'crypto';
 
 
 const applicationSchema = z.object({
@@ -122,11 +123,15 @@ const teamCategorySchema = z.object({
 
 const teamMemberSchema = z.object({
     name: z.string().min(2, "Name is required."),
+    email: z.string().email("A valid email is required."),
     role: z.string().min(2, "Role is required."),
-    image: z.string().url("A valid image URL is required."),
-    linkedin: z.string().url("A valid LinkedIn URL is required."),
     categoryId: z.string({ required_error: "Please select a category." }),
 });
+
+const memberProfileSchema = teamMemberSchema.extend({
+    image: z.string().url("A valid image URL is required."),
+    linkedin: z.string().url("A valid LinkedIn URL is required."),
+})
 
 
 // Generate a unique, readable reference ID
@@ -1213,20 +1218,61 @@ export async function deleteTeamCategory(id: string) {
 }
 
 // Team Member Actions
-export async function createTeamMember(values: z.infer<typeof teamMemberSchema>) {
+export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>) {
     const parsed = teamMemberSchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data." };
+    if (!parsed.success) return { error: "Invalid data provided." };
+
+    const { email, name, role } = parsed.data;
+
     try {
-        await addDoc(collection(db, 'teamMembers'), parsed.data);
+        // Check if member with this email already exists
+        const q = query(collection(db, 'teamMembers'), where('email', '==', email));
+        const existing = await getDocs(q);
+        if (!existing.empty) {
+            return { error: "A team member with this email already exists." };
+        }
+
+        const onboardingToken = randomBytes(32).toString('hex');
+        const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // Token valid for 24 hours
+
+        const newMemberData = {
+            ...parsed.data,
+            status: 'pending',
+            onboardingToken,
+            tokenExpiresAt: tokenExpiresAt.toISOString(),
+            image: '', // To be filled by the user
+            linkedin: '', // To be filled by the user
+        };
+
+        await addDoc(collection(db, 'teamMembers'), newMemberData);
+
+        // TODO: Send an email with the onboarding link
+        // The link would be something like: https://<your-domain>/onboard/${onboardingToken}
+        // For now, we will just log it.
+        console.log(`Generated onboarding token for ${email}: ${onboardingToken}`);
+        
         return { success: true };
     } catch (e) {
-        return { error: "Failed to create team member." };
+        console.error("Error inviting team member:", e);
+        return { error: "Failed to invite team member." };
     }
 }
 
+export async function updateTeamMember(id: string, values: z.infer<typeof memberProfileSchema>) {
+    const parsed = memberProfileSchema.safeParse(values);
+    if (!parsed.success) return { error: "Invalid data." };
+    try {
+        await updateDoc(doc(db, 'teamMembers', id), parsed.data);
+        return { success: true };
+    } catch (e) {
+        return { error: "Failed to update team member." };
+    }
+}
+
+
 export async function getTeamMembers() {
     try {
-        const teamMembersSnapshot = await getDocs(collection(db, 'teamMembers'));
+        const teamMembersSnapshot = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'active')));
         const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
         const teamCategoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), orderBy('order')));
@@ -1277,16 +1323,6 @@ export async function getTeamMemberById(id: string) {
     }
 }
 
-export async function updateTeamMember(id: string, values: z.infer<typeof teamMemberSchema>) {
-    const parsed = teamMemberSchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data." };
-    try {
-        await updateDoc(doc(db, 'teamMembers', id), parsed.data);
-        return { success: true };
-    } catch (e) {
-        return { error: "Failed to update team member." };
-    }
-}
 
 export async function deleteTeamMember(id: string) {
     try {

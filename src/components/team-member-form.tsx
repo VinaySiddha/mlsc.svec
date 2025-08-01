@@ -8,25 +8,33 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { createTeamMember, updateTeamMember } from "@/app/actions";
+import { inviteTeamMember, updateTeamMember } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { cn } from "@/lib/utils";
 
-const teamMemberSchema = z.object({
+
+const teamMemberInviteSchema = z.object({
   name: z.string().min(2, "Name is required."),
+  email: z.string().email("A valid email is required to send the invite."),
   role: z.string().min(2, "Role is required."),
-  image: z.string().url("A valid image URL is required."),
-  linkedin: z.string().url("A valid LinkedIn URL is required."),
   categoryId: z.string({ required_error: "Please select a category." }),
 });
 
-type FormValues = z.infer<typeof teamMemberSchema>;
+const teamMemberUpdateSchema = teamMemberInviteSchema.extend({
+    image: z.string().url("A valid image URL is required."),
+    linkedin: z.string().url("A valid LinkedIn URL is required."),
+});
+
+type InviteFormValues = z.infer<typeof teamMemberInviteSchema>;
+type UpdateFormValues = z.infer<typeof teamMemberUpdateSchema>;
+
 
 interface TeamMemberFormProps {
-    member?: FormValues & { id: string };
+    member?: UpdateFormValues & { id: string };
     categories: { id: string, name: string, subDomain: string }[];
 }
 
@@ -35,25 +43,26 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
 
-    const form = useForm<FormValues>({
-        resolver: zodResolver(teamMemberSchema),
-        defaultValues: {
-            name: member?.name || "",
-            role: member?.role || "",
-            image: member?.image || "",
-            linkedin: member?.linkedin || "",
-            categoryId: member?.categoryId || "",
+    const isUpdateMode = !!member;
+
+    const form = useForm<InviteFormValues | UpdateFormValues>({
+        resolver: zodResolver(isUpdateMode ? teamMemberUpdateSchema : teamMemberInviteSchema),
+        defaultValues: isUpdateMode ? member : {
+            name: "",
+            role: "",
+            email: "",
+            categoryId: "",
         },
     });
 
-    const onSubmit = async (values: FormValues) => {
+    const onSubmit = async (values: InviteFormValues | UpdateFormValues) => {
         setIsSubmitting(true);
         try {
             let result;
-            if (member) {
-                result = await updateTeamMember(member.id, values);
+            if (isUpdateMode) {
+                result = await updateTeamMember(member.id, values as UpdateFormValues);
             } else {
-                result = await createTeamMember(values);
+                result = await inviteTeamMember(values as InviteFormValues);
             }
 
             if (result.error) {
@@ -61,7 +70,7 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
             }
 
             toast({
-                title: member ? "Member Updated!" : "Member Added!",
+                title: isUpdateMode ? "Member Updated!" : "Invitation Sent!",
                 description: `Team member "${values.name}" has been saved successfully.`,
             });
             router.push('/admin/team');
@@ -97,6 +106,19 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                 />
                  <FormField
                     control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                                <Input type="email" placeholder="john.doe@example.com" {...field} disabled={isUpdateMode} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
                     name="role"
                     render={({ field }) => (
                         <FormItem>
@@ -108,32 +130,34 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                         </FormItem>
                     )}
                 />
-                 <FormField
-                    control={form.control}
-                    name="image"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                                <Input placeholder="https://..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="linkedin"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>LinkedIn Profile URL</FormLabel>
-                            <FormControl>
-                                <Input placeholder="https://linkedin.com/in/..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                 <div className={cn(!isUpdateMode && "hidden")}>
+                    <FormField
+                        control={form.control}
+                        name="image"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Image URL</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="https://..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="linkedin"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>LinkedIn Profile URL</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="https://linkedin.com/in/..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
                 <FormField
                     control={form.control}
                     name="categoryId"
@@ -166,7 +190,7 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                             Saving...
                         </>
                     ) : (
-                        member ? "Update Member" : "Add Member"
+                        isUpdateMode ? "Update Member" : "Send Invitation"
                     )}
                 </Button>
             </form>

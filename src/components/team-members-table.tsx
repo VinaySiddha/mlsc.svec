@@ -4,7 +4,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Pencil, Trash2, Loader2, Link as LinkIcon } from "lucide-react";
+import { Pencil, Trash2, Loader2, Link as LinkIcon, MailWarning } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { deleteTeamMember } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Badge } from "./ui/badge";
 
 interface TeamMembersTableProps {
     members: any[];
@@ -55,6 +56,10 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
         }
     }
 
+    const getStatusVariant = (status: string) => {
+        return status === 'active' ? 'default' : 'secondary';
+    }
+
   return (
     <div className="border rounded-md">
       <Table>
@@ -63,7 +68,7 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Sub-Domain</TableHead>
-            <TableHead>Main Category</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>LinkedIn</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -72,17 +77,34 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
           {members.length > 0 ? (
             members.map((member: any) => (
                 <TableRow key={member.id}>
-                  <TableCell className="font-medium flex items-center gap-3">
-                        <Image src={member.image} alt={member.name} width={40} height={40} className="rounded-full object-cover" />
-                        <span>{member.name}</span>
+                  <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                         {member.image ? (
+                            <Image src={member.image} alt={member.name} width={40} height={40} className="rounded-full object-cover" />
+                         ) : (
+                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                                <MailWarning className="h-5 w-5"/>
+                            </div>
+                         )}
+                         <div>
+                            <span>{member.name}</span>
+                            <p className="text-xs text-muted-foreground">{member.email}</p>
+                         </div>
+                      </div>
                   </TableCell>
                   <TableCell>{member.role}</TableCell>
                   <TableCell>{member.subDomain}</TableCell>
-                  <TableCell>{member.categoryName}</TableCell>
+                   <TableCell>
+                      <Badge variant={getStatusVariant(member.status)}>{member.status}</Badge>
+                  </TableCell>
                   <TableCell>
-                      <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
-                          <LinkIcon className="h-4 w-4" />
-                      </a>
+                      {member.linkedin ? (
+                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                            <LinkIcon className="h-4 w-4" />
+                        </a>
+                      ) : (
+                         <span className="text-muted-foreground text-xs">N/A</span>
+                      )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
