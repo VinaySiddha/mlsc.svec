@@ -7,7 +7,7 @@ import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'MLSC X SVEC',
-  description: 'We ',
+  description: "The official website for the MLSC at Sri Vasavi Engineering College. We are looking for passionate students to join our team.",
   keywords: [
     'MLSC 3.0',
     'MLSC SVEC',

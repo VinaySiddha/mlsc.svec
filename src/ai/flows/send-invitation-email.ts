@@ -44,7 +44,6 @@ export async function sendInvitationEmail(input: InvitationEmailInput): Promise<
       },
   });
   
-  // For now, the link points to the team page. This will be updated to the onboarding page later.
   const onboardingLink = `https://mlscsvec.in/onboard/${onboardingToken}`;
 
   const subject = `Welcome to the MLSC Team, ${name}!`;
@@ -81,6 +80,13 @@ export async function sendInvitationEmail(input: InvitationEmailInput): Promise<
             <a href="${onboardingLink}" target="_blank" style="background-color: #007bff; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: background-color 0.3s ease;">
                 Complete Your Profile
             </a>
+        </div>
+
+        <!-- WhatsApp Group -->
+        <div style="text-align: center; margin: 30px 0;">
+            <p style="font-size: 16px; font-weight: 500;">📢 Stay Updated!</p>
+            <p style="font-size: 15px; font-weight: 400;">Join our WhatsApp group to receive important announcements and updates directly.</p>
+            <a href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank" style="display: inline-block; background-color: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Join WhatsApp Group</a>
         </div>
         
         <p style="font-size: 16px; font-weight: 400;">We can't wait for you to join us and start building the future of tech together.</p>

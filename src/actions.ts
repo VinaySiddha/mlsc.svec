@@ -134,6 +134,12 @@ const memberProfileSchema = teamMemberSchema.extend({
     linkedin: z.string().url("A valid LinkedIn URL is required."),
 })
 
+const completeOnboardingSchema = z.object({
+    token: z.string(),
+    image: z.string().url("Image URL is required."),
+    linkedin: z.string().url("LinkedIn URL is required."),
+});
+
 
 // Generate a unique, readable reference ID
 function generateReferenceId() {
@@ -209,13 +215,8 @@ export async function submitApplication(formData: FormData) {
     docRef = await addDoc(applicationsRef, { ...newApplication });
     await updateDoc(docRef, { firestoreId: docRef.id });
 
-    // 2. Return success to the user immediately
-    const resultForUser = { referenceId };
-
-    // 3. Process background tasks (summarization and email)
-    // Don't await these promise chains in the user-facing response
-    (async () => {
-        // Send confirmation email directly
+    // Send confirmation email in background
+     (async () => {
         try {
             const emailInput: ConfirmationEmailInput = { 
                 name: newApplication.name, 
@@ -226,31 +227,35 @@ export async function submitApplication(formData: FormData) {
         } catch (emailError) {
             console.error(`Email sending failed for ${referenceId}:`, emailError);
         }
-
-        // Process resume summarization
-        if (file && file.size > 0) {
-            try {
-                const buffer = await file.arrayBuffer();
-                const base64 = Buffer.from(buffer).toString('base64');
-                const resumeDataUri = `data:${file.type};base64,${base64}`;
-
-                const summarizationInput: SummarizeResumeInput = {resumeDataUri};
-                const result = await summarizeResume(summarizationInput);
-                
-                if (docRef) {
-                    await updateDoc(docRef, { resumeSummary: result.summary });
-                    console.log(`Successfully generated summary for ${referenceId}`);
-                }
-            } catch (aiError) {
-                console.error(`AI summarization failed for ${referenceId}:`, aiError);
-                if (docRef) {
-                    await updateDoc(docRef, { resumeSummary: "AI summary failed." });
-                }
-            }
-        }
     })();
+    
+    // Process resume and return result to user
+    let summaryResult = null;
+    if (file && file.size > 0) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const base64 = Buffer.from(buffer).toString('base64');
+        const resumeDataUri = `data:${file.type};base64,${base64}`;
 
-    return resultForUser;
+        const summarizationInput: SummarizeResumeInput = {resumeDataUri};
+        const result = await summarizeResume(summarizationInput);
+        
+        if (docRef) {
+            await updateDoc(docRef, { resumeSummary: result.summary });
+            summaryResult = result.summary;
+            console.log(`Successfully generated summary for ${referenceId}`);
+        }
+      } catch (aiError) {
+          console.error(`AI summarization failed for ${referenceId}:`, aiError);
+          summaryResult = "AI summary generation failed. We'll process your resume manually.";
+          if (docRef) {
+              await updateDoc(docRef, { resumeSummary: "AI summary failed." });
+          }
+      }
+    }
+
+
+    return { summary: summaryResult, referenceId };
   } catch (error) {
     console.error('Error submitting application:', error);
     if (error instanceof Error) {
@@ -1270,14 +1275,65 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
     }
 }
 
-export async function updateTeamMember(id: string, values: z.infer<typeof memberProfileSchema>) {
-    const parsed = memberProfileSchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data." };
+export async function getTeamMemberByToken(token: string) {
     try {
-        await updateDoc(doc(db, 'teamMembers', id), parsed.data);
+        const q = query(
+            collection(db, 'teamMembers'),
+            where('onboardingToken', '==', token)
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            return { error: "Invalid onboarding link." };
+        }
+        
+        const memberDoc = snapshot.docs[0];
+        const member = { id: memberDoc.id, ...memberDoc.data() };
+        
+        if (member.status !== 'pending') {
+            return { error: "This invitation has already been used." };
+        }
+
+        const now = new Date();
+        const expiresAt = new Date(member.tokenExpiresAt);
+        
+        if (now > expiresAt) {
+            return { error: "This onboarding link has expired." };
+        }
+        
+        return { member };
+    } catch (e) {
+        console.error("Error fetching member by token:", e);
+        return { error: "Failed to validate onboarding link." };
+    }
+}
+
+export async function completeOnboarding(values: z.infer<typeof completeOnboardingSchema>) {
+    const parsed = completeOnboardingSchema.safeParse(values);
+    if (!parsed.success) {
+        return { error: "Invalid data provided." };
+    }
+
+    const { token, image, linkedin } = parsed.data;
+
+    try {
+        const { member, error } = await getTeamMemberByToken(token);
+        if (error || !member) {
+            return { error: error || "Failed to validate token." };
+        }
+
+        await updateDoc(doc(db, 'teamMembers', member.id), {
+            image,
+            linkedin,
+            status: 'active',
+            onboardingToken: '', // Clear the token after use
+            tokenExpiresAt: '',
+        });
+
         return { success: true };
     } catch (e) {
-        return { error: "Failed to update team member." };
+        console.error("Error completing onboarding:", e);
+        return { error: "Failed to activate profile." };
     }
 }
 
