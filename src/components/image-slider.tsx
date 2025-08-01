@@ -4,6 +4,13 @@
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 
+const images = [
+    { src: "/team1.jpg", alt: "MLSC Team", hint: "group photo" },
+    { src: "/azure.jpg", alt: "Azure Workshop", hint: "tech workshop" },
+    { src: "/web.jpg", alt: "Web Development Bootcamp", hint: "coding bootcamp" },
+    { src: "/blueday.png", alt: "MLSC Blue Day", hint: "club event" },
+];
+
 export function ImageSlider() {
       const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -11,7 +18,6 @@ export function ImageSlider() {
         const imageSlider = sliderRef.current;
         if (!imageSlider) return;
         
-        const images = imageSlider.querySelectorAll('img');
         let imageIndex = 0;
         const totalImages = images.length;
 
@@ -21,18 +27,28 @@ export function ImageSlider() {
             imageIndex = (imageIndex + 1) % totalImages;
             const translateValue = imageIndex * 100;
             if (imageSlider) {
-              imageSlider.style.transition = 'transform 0.5s ease-in-out';
+              imageSlider.style.transition = 'transform 0.7s ease-in-out';
               imageSlider.style.transform = `translateX(-${translateValue}%)`;
             }
-        }, 5000);
+        }, 4000); // Changed interval to 4 seconds for a better viewing experience
 
         return () => clearInterval(intervalId);
       }, []);
 
     return (
-        <div className="image-container overflow-hidden rounded-lg shadow-lg mb-8 md:mb-0">
-            <div className="image-slider flex" ref={sliderRef}>
-                <Image src="/team1.jpg" alt="MLSC Team" width={600} height={400} className="w-full shrink-0" data-ai-hint="group photo"/>
+        <div className="image-container overflow-hidden rounded-lg shadow-lg aspect-video">
+            <div className="image-slider flex h-full" ref={sliderRef}>
+                {images.map((image, index) => (
+                     <Image 
+                        key={index}
+                        src={image.src} 
+                        alt={image.alt} 
+                        width={600} 
+                        height={400} 
+                        className="w-full shrink-0 object-cover h-full" 
+                        data-ai-hint={image.hint}
+                     />
+                ))}
             </div>
         </div>
     )

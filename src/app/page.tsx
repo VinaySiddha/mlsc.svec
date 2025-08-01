@@ -2,7 +2,7 @@
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github } from "lucide-react";
+import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github, BrainCircuit, Rocket, Briefcase } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { ImageSlider } from "@/components/image-slider";
@@ -140,6 +140,49 @@ export default function Home() {
             </div>
         </section>
         
+        {/* Why Join Us Section */}
+        <section className="py-20 bg-transparent">
+            <div className="container mx-auto px-4 text-center">
+                <h2 className="text-4xl font-bold mb-2">Why Join <span className="text-primary">Us?</span></h2>
+                <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
+                    Unlock your potential with hands-on projects, expert mentorship, and a vibrant community of tech enthusiasts.
+                </p>
+                <div className="grid md:grid-cols-3 gap-8">
+                    <div className="glass-card p-8 text-center flex flex-col items-center">
+                        <BrainCircuit className="h-12 w-12 text-primary mb-4" />
+                        <h3 className="text-2xl font-bold mb-2">Skill Development</h3>
+                        <p className="text-muted-foreground">Gain hands-on experience with cutting-edge technologies and platforms through workshops and projects.</p>
+                    </div>
+                     <div className="glass-card p-8 text-center flex flex-col items-center">
+                        <Rocket className="h-12 w-12 text-primary mb-4" />
+                        <h3 className="text-2xl font-bold mb-2">Build & Innovate</h3>
+                        <p className="text-muted-foreground">Collaborate on real-world projects, build your portfolio, and bring your innovative ideas to life.</p>
+                    </div>
+                     <div className="glass-card p-8 text-center flex flex-col items-center">
+                        <Briefcase className="h-12 w-12 text-primary mb-4" />
+                        <h3 className="text-2xl font-bold mb-2">Career Opportunities</h3>
+                        <p className="text-muted-foreground">Network with industry professionals and get a head start on your career in technology.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* Gallery Section */}
+        <section className="about py-20 bg-transparent">
+            <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
+                <ImageSlider />
+                <div className="about-content text-center md:text-left glass-card p-8 mt-8 md:mt-0">
+                    <h2 className="heading text-4xl font-bold mb-4">About <span className="text-primary">Us</span></h2>
+                    <p className="text-lg text-muted-foreground mb-8">
+                        Microsoft Learn Student Club is paramount in creating one of the most influential events. Our peer-to-peer learning strategy has made our response rate phenomenal and has helped the participants by a substantial improvement in their vocational skills, problem-solving skills, and advancements in the technical domain.
+                    </p>
+                    <Button asChild size="lg" variant="glass">
+                       <Link href="/team">Our Team</Link>
+                    </Button>
+                </div>
+            </div>
+        </section>
+
         {/* Ambassador Section */}
         <section className="py-12 md:py-16 bg-transparent">
           <div className="container mx-auto px-4 text-center">
@@ -161,21 +204,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About Us Section */}
-        <section className="about py-20 bg-transparent">
-            <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
-                <ImageSlider />
-                <div className="about-content text-center md:text-left glass-card p-8">
-                    <h2 className="heading text-4xl font-bold mb-4">About <span className="text-primary">Us</span></h2>
-                    <p className="text-lg text-muted-foreground mb-8">
-                        Microsoft Learn Student Club is paramount in creating one of the most influential events. Our peer-to-peer learning strategy has made our response rate phenomenal and has helped the participants by a substantial improvement in their vocational skills, problem-solving skills, and advancements in the technical domain.
-                    </p>
-                    <Button asChild size="lg" variant="glass">
-                       <Link href="/team">Our Team</Link>
-                    </Button>
-                </div>
-            </div>
-        </section>
 
         {/* Events Section */}
         <section className="py-20 bg-transparent">
@@ -220,5 +248,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
