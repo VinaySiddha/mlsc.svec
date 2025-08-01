@@ -28,6 +28,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Checkbox } from "./ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import Link from "next/link";
+import { DigitalIdCard } from "./digital-id-card";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
@@ -86,7 +87,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function ApplicationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<{summary: string | null, referenceId: string | null} | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<{name: string, referenceId: string | null} | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -128,7 +129,7 @@ export function ApplicationForm() {
         throw new Error(result.error);
       }
       
-      setSubmissionResult({ summary: result.summary, referenceId: result.referenceId });
+      setSubmissionResult({ name: values.name, referenceId: result.referenceId });
       toast({
         title: "Application Submitted!",
         description: "We've received your application. Keep your reference ID safe.",
@@ -163,7 +164,7 @@ export function ApplicationForm() {
               <span>Application Received!</span>
             </CardTitle>
             <CardDescription>
-              Your application has been submitted successfully.
+              Your application has been submitted successfully. Here is your digital ID card.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -174,6 +175,11 @@ export function ApplicationForm() {
                   Please copy and save your Reference ID below. You will need it to check your application status.
                 </AlertDescription>
              </Alert>
+
+             <DigitalIdCard
+                name={submissionResult.name}
+                referenceId={submissionResult.referenceId!}
+             />
 
             {submissionResult.referenceId && (
               <div>
