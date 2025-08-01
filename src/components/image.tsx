@@ -9,12 +9,17 @@ export const Image = (props: ImageProps) => {
   const { src, className, ...rest } = props;
   const isGoogleDrive = typeof src === 'string' && src.includes('drive.google.com');
 
-  const convertedSrc = typeof src === 'string' ? convertGoogleDriveLink(src) : src;
+  let finalSrc = src;
 
-  if (isGoogleDrive) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={convertedSrc as string} className={cn(className)} alt={props.alt} width={props.width} height={props.height} referrerPolicy="no-referrer" {...(rest as any)} />;
+  if (typeof src === 'string' && isGoogleDrive) {
+    const convertedSrc = convertGoogleDriveLink(src);
+    // Use the API proxy route for Google Drive images
+    finalSrc = `/api/image?url=${encodeURIComponent(convertedSrc)}`;
+  } else if (typeof src === 'string') {
+    // For non-google drive links, just use them as is if they are absolute, or prepend '/' if relative
+    finalSrc = src.startsWith('http') ? src : src.startsWith('/') ? src : `/${src}`;
   }
-
-  return <NextImage src={convertedSrc} className={className} {...rest} />;
+  
+  // The next/image component can handle the proxy route
+  return <NextImage src={finalSrc} className={className} {...rest} />;
 };

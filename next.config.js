@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const config = {
   typescript: {
@@ -14,12 +15,6 @@ const config = {
       {
         protocol: 'https',
         hostname: 'gratisography.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'drive.google.com',
         port: '',
         pathname: '/**',
       },
