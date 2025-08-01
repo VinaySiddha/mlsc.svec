@@ -25,8 +25,8 @@ const teamMemberInviteSchema = z.object({
 });
 
 const teamMemberUpdateSchema = teamMemberInviteSchema.extend({
-    image: z.string().url("A valid image URL is required."),
-    linkedin: z.string().url("A valid LinkedIn URL is required."),
+    image: z.string().url("A valid image URL is required.").or(z.literal('')),
+    linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
 });
 
 type InviteFormValues = z.infer<typeof teamMemberInviteSchema>;
@@ -123,7 +123,7 @@ export function TeamMemberForm({ member, categories, isAdmin = false }: TeamMemb
                         <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input type="email" placeholder="john.doe@example.com" {...field} disabled={isUpdateMode} />
+                                <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin && isUpdateMode} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

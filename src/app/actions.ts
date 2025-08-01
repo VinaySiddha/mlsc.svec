@@ -1311,17 +1311,28 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
 
 export async function resendInvitation(memberId: string) {
     try {
-        const memberDoc = await getDoc(doc(db, 'teamMembers', memberId));
+        const memberDocRef = doc(db, 'teamMembers', memberId);
+        const memberDoc = await getDoc(memberDocRef);
         if (!memberDoc.exists()) {
             return { error: "Team member not found." };
         }
         const member = memberDoc.data();
 
-        // Send profile confirmation email which contains the edit link
-        await sendProfileConfirmationEmail({
+        const onboardingToken = randomBytes(32).toString('hex');
+        const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        await updateDoc(memberDocRef, {
+            onboardingToken,
+            tokenExpiresAt: tokenExpiresAt.toISOString(),
+            status: 'pending',
+        });
+
+        // Send invitation email with the new token
+        await sendInvitationEmail({
             name: member.name,
             email: member.email,
-            editLink: `https://mlscsvec.in/profile/edit/${memberId}`,
+            role: member.role,
+            onboardingToken,
         });
 
         return { success: true };
