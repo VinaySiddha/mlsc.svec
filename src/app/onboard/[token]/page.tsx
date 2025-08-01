@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getTeamMemberByToken, completeOnboarding } from "@/app/actions";
 import { OnboardingForm } from "@/components/onboarding-form";
 import { MLSCLogo } from "@/components/icons";
@@ -19,7 +19,7 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
   const [memberData, setMemberData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     const verifyToken = async () => {
       if (!params.token) {
         setError("Invalid onboarding link.");
@@ -38,7 +38,7 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
       }
     };
     verifyToken();
-  });
+  }, [params.token]);
 
   const handleOnboardingComplete = async (values: { image: string, linkedin: string }) => {
     const result = await completeOnboarding({ token: params.token, ...values });

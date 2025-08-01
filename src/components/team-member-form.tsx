@@ -47,7 +47,11 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
 
     const form = useForm<InviteFormValues | UpdateFormValues>({
         resolver: zodResolver(isUpdateMode ? teamMemberUpdateSchema : teamMemberInviteSchema),
-        defaultValues: isUpdateMode ? member : {
+        defaultValues: isUpdateMode ? {
+            ...member,
+            image: member.image || '',
+            linkedin: member.linkedin || ''
+        } : {
             name: "",
             role: "",
             email: "",
@@ -130,7 +134,7 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                         </FormItem>
                     )}
                 />
-                 <div className={cn(!isUpdateMode && "hidden")}>
+                 <div className={cn(!isUpdateMode && "hidden", "space-y-6")}>
                     <FormField
                         control={form.control}
                         name="image"
@@ -138,7 +142,7 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                             <FormItem>
                                 <FormLabel>Image URL</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="https://..." {...field} />
+                                    <Input placeholder="https://..." {...field as any} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -151,7 +155,7 @@ export function TeamMemberForm({ member, categories }: TeamMemberFormProps) {
                             <FormItem>
                                 <FormLabel>LinkedIn Profile URL</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="https://linkedin.com/in/..." {...field} />
+                                    <Input placeholder="https://linkedin.com/in/..." {...field as any} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

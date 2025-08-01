@@ -122,17 +122,18 @@ const teamCategorySchema = z.object({
   order: z.coerce.number().min(0, "Order must be a positive number."),
 });
 
-const teamMemberSchema = z.object({
+const teamMemberInviteSchema = z.object({
     name: z.string().min(2, "Name is required."),
     email: z.string().email("A valid email is required."),
     role: z.string().min(2, "Role is required."),
     categoryId: z.string({ required_error: "Please select a category." }),
 });
 
-const memberProfileSchema = teamMemberSchema.extend({
+const teamMemberUpdateSchema = teamMemberInviteSchema.extend({
     image: z.string().url("A valid image URL is required."),
     linkedin: z.string().url("A valid LinkedIn URL is required."),
-})
+});
+
 
 const completeOnboardingSchema = z.object({
     token: z.string(),
@@ -700,53 +701,89 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
   try {
     const applicationsRef = collection(db, 'applications');
     const allApplicationsSnapshot = await getDocs(applicationsRef);
-    
-    const batch = writeBatch(db);
-    const applicantsToEmail: StatusUpdateEmailInput[] = [];
+    const existingAppsByRollNo = new Map(allApplicationsSnapshot.docs.map(d => [d.data().rollNo_lowercase, d]));
 
+    const batch = writeBatch(db);
+    const emailsToSend: (StatusUpdateEmailInput | InvitationEmailInput)[] = [];
+    const newMemberInvites: any[] = [];
+
+    // Process hired candidates
+    for (const rollNo of hiredRollNos) {
+        const existingAppDoc = existingAppsByRollNo.get(rollNo);
+        
+        if (existingAppDoc) {
+            const app = existingAppDoc.data();
+            if (app.status !== 'Hired') {
+                batch.update(existingAppDoc.ref, { status: 'Hired' });
+                emailsToSend.push({ name: app.name, email: app.email, status: 'Hired', referenceId: app.id });
+                newMemberInvites.push({ name: app.name, email: app.email, role: 'Team Member' });
+            }
+        } else {
+            // New candidate, not in DB
+            const name = "New Member";
+            const email = `${rollNo}@svec.org.in`; // Construct email
+            const referenceId = generateReferenceId();
+            
+            const newApplication = {
+              id: referenceId,
+              submittedAt: new Date().toISOString(),
+              name,
+              email,
+              rollNo,
+              rollNo_lowercase: rollNo,
+              status: 'Hired',
+              // Add other default fields to make the document valid
+              phone: 'N/A', branch: 'N/A', section: 'N/A', yearOfStudy: 'N/A', cgpa: 'N/A', backlogs: '0',
+              joinReason: 'Manually added via bulk hire.', aboutClub: 'N/A', technicalDomain: 'N/A', nonTechnicalDomain: 'N/A',
+              isRecommended: true, interviewAttended: true,
+            };
+
+            const newDocRef = doc(collection(db, 'applications'));
+            batch.set(newDocRef, newApplication);
+            emailsToSend.push({ name, email, status: 'Hired', referenceId });
+            newMemberInvites.push({ name, email, role: 'Team Member' });
+        }
+    }
+
+    // Process rejections
     allApplicationsSnapshot.docs.forEach(doc => {
-      const app = doc.data();
-      const isHired = hiredRollNos.has(app.rollNo_lowercase);
-      
-      if (isHired) {
-        // Update to Hired if not already
-        if (app.status !== 'Hired') {
-          batch.update(doc.ref, { status: 'Hired' });
-          applicantsToEmail.push({
-            name: app.name,
-            email: app.email,
-            status: 'Hired',
-            referenceId: app.id,
-          });
+        const app = doc.data();
+        const isHired = hiredRollNos.has(app.rollNo_lowercase);
+        
+        if (!isHired && app.status !== 'Hired' && app.status !== 'Rejected') {
+            batch.update(doc.ref, { status: 'Rejected' });
+            emailsToSend.push({ name: app.name, email: app.email, status: 'Rejected', referenceId: app.id });
         }
-      } else {
-        // Update to Rejected if not already Hired or Rejected
-        if (app.status !== 'Hired' && app.status !== 'Rejected') {
-          batch.update(doc.ref, { status: 'Rejected' });
-          applicantsToEmail.push({
-            name: app.name,
-            email: app.email,
-            status: 'Rejected',
-            referenceId: app.id,
-          });
-        }
-      }
     });
 
     await batch.commit();
 
-    // Send emails in the background
+    // Send emails in background
     (async () => {
-      for (const applicant of applicantsToEmail) {
+      // Find the default categoryId for "Team Member" role
+      const categoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), where('name', '==', 'Technical Team'), limit(1)));
+      const defaultCategoryId = !categoriesSnapshot.empty ? categoriesSnapshot.docs[0].id : "default_category_id";
+
+      for (const emailInput of emailsToSend) {
         try {
-          await sendStatusUpdateEmail(applicant);
+          // This is a type guard to differentiate between email types
+          if ('status' in emailInput) { 
+            await sendStatusUpdateEmail(emailInput);
+          }
         } catch (emailError) {
-          console.error(`Failed to send status update email to ${applicant.email}:`, emailError);
+          console.error(`Failed to send status update email to ${(emailInput as any).email}:`, emailError);
         }
+      }
+      for (const invite of newMemberInvites) {
+          try {
+              await inviteTeamMember({ ...invite, categoryId: defaultCategoryId });
+          } catch(inviteError) {
+              console.error(`Failed to invite new member ${invite.email}:`, inviteError);
+          }
       }
     })();
     
-    return { success: true, updatedCount: applicantsToEmail.length };
+    return { success: true, updatedCount: emailsToSend.length };
 
   } catch (error) {
     console.error('Error during bulk update from CSV:', error);
@@ -1224,8 +1261,8 @@ export async function deleteTeamCategory(id: string) {
 }
 
 // Team Member Actions
-export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>) {
-    const parsed = teamMemberSchema.safeParse(values);
+export async function inviteTeamMember(values: z.infer<typeof teamMemberInviteSchema>) {
+    const parsed = teamMemberInviteSchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data provided." };
 
     const { email, name, role, categoryId } = parsed.data;
@@ -1272,6 +1309,17 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
     } catch (e) {
         console.error("Error inviting team member:", e);
         return { error: "Failed to invite team member." };
+    }
+}
+
+export async function updateTeamMember(id: string, values: z.infer<typeof teamMemberUpdateSchema>) {
+    const parsed = teamMemberUpdateSchema.safeParse(values);
+    if (!parsed.success) return { error: "Invalid data provided." };
+    try {
+        await updateDoc(doc(db, "teamMembers", id), values as any);
+        return { success: true };
+    } catch (error) {
+        return { error: "Failed to update team member." };
     }
 }
 
@@ -1329,8 +1377,10 @@ export async function completeOnboarding(values: z.infer<typeof completeOnboardi
             onboardingToken: '', // Clear the token after use
             tokenExpiresAt: '',
         });
+        
+        const updatedMember = { ...member, image, linkedin, status: 'active' };
 
-        return { success: true, member: { ...member, image, linkedin } };
+        return { success: true, member: updatedMember };
     } catch (e) {
         console.error("Error completing onboarding:", e);
         return { error: "Failed to activate profile." };
