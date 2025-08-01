@@ -704,83 +704,51 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
     const allApplicationsSnapshot = await getDocs(applicationsRef);
     
     const batch = writeBatch(db);
-    const emailsToReject: StatusUpdateEmailInput[] = [];
-    const newMemberInvites: {name: string, email: string, role: string}[] = [];
+    const applicantsToEmail: StatusUpdateEmailInput[] = [];
 
     allApplicationsSnapshot.docs.forEach(doc => {
-        const app = doc.data();
-        const isHired = hiredRollNos.has(app.rollNo_lowercase);
-        
-        if (isHired) {
-            // Update to Hired and add to invite list
-            if (app.status !== 'Hired') {
-                batch.update(doc.ref, { status: 'Hired' });
-                newMemberInvites.push({ name: app.name, email: app.email, role: 'Team Member' });
-            }
-            hiredRollNos.delete(app.rollNo_lowercase); // Remove from set to find those not in DB
-        } else {
-            // Update to Rejected if not already Hired or Rejected
-            if (app.status !== 'Hired' && app.status !== 'Rejected') {
-                batch.update(doc.ref, { status: 'Rejected' });
-                emailsToReject.push({ name: app.name, email: app.email, status: 'Rejected', referenceId: app.id });
-            }
-        }
-    });
-
-    // Handle hired candidates who were not in the database
-    for (const rollNo of hiredRollNos) {
-        const newMemberEmail = `${rollNo}@sves.org.in`;
-        // We create an application record for them so they exist in the system
-        const newApplication = {
-            id: generateReferenceId(),
-            submittedAt: new Date().toISOString(),
-            name: "New Member",
-            email: newMemberEmail,
-            rollNo,
-            rollNo_lowercase: rollNo,
+      const app = doc.data();
+      const isHired = hiredRollNos.has(app.rollNo_lowercase);
+      
+      if (isHired) {
+        // Update to Hired if not already
+        if (app.status !== 'Hired') {
+          batch.update(doc.ref, { status: 'Hired' });
+          applicantsToEmail.push({
+            name: app.name,
+            email: app.email,
             status: 'Hired',
-            phone: 'N/A', branch: 'N/A', section: 'N/A', yearOfStudy: 'N/A', cgpa: 'N/A', backlogs: '0',
-            joinReason: 'Manually added via bulk hire.', aboutClub: 'N/A', technicalDomain: 'N/A', nonTechnicalDomain: 'N/A',
-            isRecommended: true, interviewAttended: true, // Assuming they were interviewed and recommended
-        };
-        const newDocRef = doc(applicationsRef); // Let firestore generate ID
-        batch.set(newDocRef, newApplication);
-        newMemberInvites.push({ name: "New Member", email: newMemberEmail, role: 'Team Member' });
-    }
+            referenceId: app.id,
+          });
+        }
+      } else {
+        // Update to Rejected if not already Hired or Rejected
+        if (app.status !== 'Hired' && app.status !== 'Rejected') {
+          batch.update(doc.ref, { status: 'Rejected' });
+          applicantsToEmail.push({
+            name: app.name,
+            email: app.email,
+            status: 'Rejected',
+            referenceId: app.id,
+          });
+        }
+      }
+    });
 
     await batch.commit();
 
-    // Send emails in background
+    // Send emails in the background
     (async () => {
-      // Find the default categoryId for "Team Member" role
-      const categoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), where('name', '==', 'Technical Team'), limit(1)));
-      const defaultCategoryId = !categoriesSnapshot.empty ? categoriesSnapshot.docs[0].id : "default_category_id";
-      
-      if(defaultCategoryId === "default_category_id") {
-          console.error("Default category 'Technical Team' not found. Cannot invite new members.");
-      }
-
-      // Send a single "Welcome Aboard" email to hired members, which contains the onboarding link
-      for (const invite of newMemberInvites) {
-          try {
-              if (defaultCategoryId !== "default_category_id") {
-                  await inviteTeamMember({ ...invite, categoryId: defaultCategoryId });
-              }
-          } catch(inviteError) {
-              console.error(`Failed to invite new member ${invite.email}:`, inviteError);
-          }
-      }
-
-      for (const emailInput of emailsToReject) {
+      for (const applicant of applicantsToEmail) {
         try {
-          await sendStatusUpdateEmail(emailInput);
+          await sendStatusUpdateEmail(applicant);
         } catch (emailError) {
-          console.error(`Failed to send status update email to ${emailInput.email}:`, emailError);
+          console.error(`Failed to send status update email to ${applicant.email}:`, emailError);
         }
       }
     })();
     
-    return { success: true, updatedCount: emailsToReject.length + newMemberInvites.length };
+    return { success: true, updatedCount: applicantsToEmail.length };
 
   } catch (error) {
     console.error('Error during bulk update from CSV:', error);
@@ -1318,6 +1286,10 @@ export async function resendInvitation(memberId: string) {
         }
         const member = memberDoc.data();
 
+        if (member.status !== 'pending') {
+            return { error: "This member is already active. Use the 'Send Edit Link' option instead." };
+        }
+
         const onboardingToken = randomBytes(32).toString('hex');
         const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
@@ -1339,6 +1311,34 @@ export async function resendInvitation(memberId: string) {
     } catch (error) {
         console.error("Error resending invitation:", error);
         return { error: "Failed to resend invitation email." };
+    }
+}
+
+export async function sendProfileEditLink(memberId: string) {
+    try {
+        const memberDocRef = doc(db, 'teamMembers', memberId);
+        const memberDoc = await getDoc(memberDocRef);
+
+        if (!memberDoc.exists()) {
+            return { error: "Team member not found." };
+        }
+        const member = { id: memberDoc.id, ...memberDoc.data() };
+
+        if (member.status !== 'active') {
+             return { error: "Cannot send edit link to a pending member. Please resend their invitation instead." };
+        }
+
+        // Send profile confirmation/edit email
+        await sendProfileConfirmationEmail({
+            name: member.name,
+            email: member.email,
+            editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error sending profile edit link:", error);
+        return { error: "Failed to send profile edit link email." };
     }
 }
 
