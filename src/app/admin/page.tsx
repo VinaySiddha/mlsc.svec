@@ -9,6 +9,15 @@ import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
 import { headers } from "next/headers";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar"
 
 export default async function AdminPage() {
   const headersList = headers();
@@ -34,13 +43,68 @@ export default async function AdminPage() {
               {title}
             </h1>
           </Link>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="glass" size="sm">
-              <Link href="/">
-                <Home />
-                <span>Home</span>
-              </Link>
-            </Button>
+          <div className="flex items-center gap-4">
+             <Menubar>
+              <MenubarMenu>
+                <MenubarTrigger>Navigate</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem asChild>
+                    <Link href="/">
+                      <Home className="mr-2 h-4 w-4" /> Home Page
+                    </Link>
+                  </MenubarItem>
+                  <MenubarItem asChild>
+                     <Link href="/admin/applications">
+                      <Users className="mr-2 h-4 w-4" /> Applications
+                    </Link>
+                  </MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+               {userRole === 'admin' && (
+                <>
+                  <MenubarMenu>
+                    <MenubarTrigger>Actions</MenubarTrigger>
+                    <MenubarContent>
+                       <MenubarItem asChild>
+                         <Link href="/admin/events">
+                          <Calendar className="mr-2 h-4 w-4" /> Manage Events
+                        </Link>
+                      </MenubarItem>
+                      <MenubarItem asChild>
+                        <Link href="/admin/team">
+                          <Group className="mr-2 h-4 w-4" /> Manage Team
+                        </Link>
+                      </MenubarItem>
+                       <MenubarItem asChild>
+                         <Link href="/admin/internal-registration">
+                          <PencilRuler className="mr-2 h-4 w-4" /> Internal Registration
+                        </Link>
+                      </MenubarItem>
+                       <MenubarItem asChild>
+                         <Link href="/admin/bulk-update">
+                          <UploadCloud className="mr-2 h-4 w-4" /> Bulk Status Update
+                        </Link>
+                      </MenubarItem>
+                    </MenubarContent>
+                  </MenubarMenu>
+                   <MenubarMenu>
+                    <MenubarTrigger>View</MenubarTrigger>
+                    <MenubarContent>
+                       <MenubarItem asChild>
+                         <Link href="/admin/analytics">
+                          <BarChart2 className="mr-2 h-4 w-4" /> Hiring Analytics
+                        </Link>
+                      </MenubarItem>
+                       <MenubarItem asChild>
+                         <Link href="/admin/interview-analytics">
+                          <UserCheck className="mr-2 h-4 w-4" /> Interview Analytics
+                        </Link>
+                      </MenubarItem>
+                    </MenubarContent>
+                  </MenubarMenu>
+                </>
+               )}
+            </Menubar>
             <LogoutButton />
           </div>
         </div>
