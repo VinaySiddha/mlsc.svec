@@ -8,7 +8,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ImageIcon, Mic } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { Image } from "@/components/image";
 import { format } from "date-fns";
 import {
   Carousel,

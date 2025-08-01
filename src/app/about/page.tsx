@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { Image } from "@/components/image";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },

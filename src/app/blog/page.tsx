@@ -5,7 +5,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, BookOpen } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { Image } from "@/components/image";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },

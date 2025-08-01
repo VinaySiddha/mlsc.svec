@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { LogIn, Menu, Users, Calendar, Send, Group, Home as HomeIcon, Book, Code, Instagram, Linkedin, Github, BrainCircuit, Rocket, Briefcase, ArrowRight, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { Image } from "@/components/image";
 import { ImageSlider } from "@/components/image-slider";
 import { NotificationTicker } from "@/components/notification-ticker";
 

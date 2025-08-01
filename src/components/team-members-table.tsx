@@ -20,7 +20,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { deleteTeamMember } from "@/app/actions";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { Image } from "@/components/image";
 import { Badge } from "./ui/badge";
 
 interface TeamMembersTableProps {
