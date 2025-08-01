@@ -100,8 +100,11 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden">
-            <div className="absolute inset-0 bg-background/50 backdrop-brightness-75"></div>
+        <section 
+            className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center"
+            style={{backgroundImage: "url('/team1.jpg')"}}
+        >
+            <div className="absolute inset-0 bg-background/70 backdrop-brightness-50"></div>
             <div className="absolute inset-0 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-16 h-16 text-primary/20 animate-pulse-slow">
                     <VsCodeIcon />
@@ -111,9 +114,6 @@ export default function Home() {
                 </div>
                  <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-foreground/10 animate-pulse">
                     <Github className="w-full h-full" />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <h1 className="text-[20vw] font-black text-foreground/5 font-graffiti select-none">MLSC</h1>
                 </div>
             </div>
             <div className="home-content container mx-auto px-4 md:px-8 relative z-10 flex flex-col items-center">
