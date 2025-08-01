@@ -36,7 +36,7 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen text-foreground bg-background">
+    <div className="flex flex-col min-h-screen text-foreground bg-transparent">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
@@ -100,9 +100,9 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('/team1.jpg')"}}>
-            <div className="absolute inset-0 bg-black/60 backdrop-brightness-75"></div>
-            <div className="absolute inset-0 bg-background -z-10">
+        <section className="home relative flex items-center justify-center text-center py-24 md:py-32 lg:py-48 overflow-hidden">
+            <div className="absolute inset-0 bg-background/50 backdrop-brightness-75"></div>
+            <div className="absolute inset-0 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-16 h-16 text-primary/20 animate-pulse-slow">
                     <VsCodeIcon />
                 </div>
@@ -141,7 +141,7 @@ export default function Home() {
         </section>
         
         {/* Ambassador Section */}
-        <section className="py-12 md:py-16 bg-background">
+        <section className="py-12 md:py-16 bg-transparent">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-8">Meet Our <span className="text-primary">Ambassadors!</span></h2>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -162,7 +162,7 @@ export default function Home() {
         </section>
 
         {/* About Us Section */}
-        <section className="about py-20 bg-background/70">
+        <section className="about py-20 bg-transparent">
             <div className="container mx-auto px-4 md:grid md:grid-cols-2 md:gap-12 items-center">
                 <ImageSlider />
                 <div className="about-content text-center md:text-left glass-card p-8">
@@ -178,7 +178,7 @@ export default function Home() {
         </section>
 
         {/* Events Section */}
-        <section className="py-20 bg-background">
+        <section className="py-20 bg-transparent">
             <h2 className="heading text-center text-4xl font-bold mb-16">Our <span className="text-primary">Flagship Events</span></h2>
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-8">
