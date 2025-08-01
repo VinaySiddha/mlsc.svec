@@ -9,6 +9,7 @@ const images = [
     { src: "/azure.jpg", alt: "Azure Workshop", hint: "tech workshop" },
     { src: "/web.jpg", alt: "Web Development Bootcamp", hint: "coding bootcamp" },
     { src: "/blueday.png", alt: "MLSC Blue Day", hint: "club event" },
+    { src: "/flask.png", alt: "The Flask Edition", hint: "event poster" },
 ];
 
 export function ImageSlider() {

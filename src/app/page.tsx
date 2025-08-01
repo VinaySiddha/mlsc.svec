@@ -42,6 +42,14 @@ export default function Home() {
     "New blog post: 'Getting Started with Generative AI'. Check it out!"
   ];
 
+  const galleryImages = [
+    { src: "/team1.jpg", alt: "MLSC Team at an event", hint: "group photo", className: "col-span-2 row-span-2" },
+    { src: "/azure.jpg", alt: "Azure workshop in progress", hint: "tech workshop" },
+    { src: "/web.jpg", alt: "Students learning at a web development bootcamp", hint: "coding bootcamp" },
+    { src: "/blueday.png", alt: "Club members celebrating Blue Day", hint: "club event" },
+    { src: "/flask.png", alt: "The Flask Edition event poster", hint: "event poster" },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen text-foreground bg-transparent">
       {/* Header */}
@@ -150,10 +158,10 @@ export default function Home() {
             </div>
         </section>
 
-        {/* The People Behind the Code */}
+        {/* Chapter 3: The People Behind the Code */}
         <section className="py-12 md:py-16 bg-transparent">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-bold mb-2">The People Behind the Code</h2>
+            <h2 className="text-4xl font-bold mb-2">Chapter 3: The People Behind the Code</h2>
              <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                 Meet the leaders guiding our community.
             </p>
@@ -174,10 +182,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* The Journey So Far */}
+        {/* Chapter 1: The Journey So Far */}
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-4xl font-bold mb-2">The Journey So Far</h2>
+                <h2 className="text-4xl font-bold mb-2">Chapter 1: The Journey So Far</h2>
                 <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                     A legacy of innovation, collaboration, and learning.
                 </p>
@@ -208,14 +216,27 @@ export default function Home() {
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-4xl font-bold mb-12">Gallery: <span className="text-primary">Moments & Milestones</span></h2>
-                <ImageSlider />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {galleryImages.map((image, index) => (
+                      <div key={index} className={image.className}>
+                          <Image
+                              src={image.src}
+                              alt={image.alt}
+                              width={500}
+                              height={500}
+                              className="w-full h-full object-cover rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+                              data-ai-hint={image.hint}
+                          />
+                      </div>
+                  ))}
+                </div>
             </div>
         </section>
         
-        {/* The Next Level */}
+        {/* Chapter 2: The Next Level */}
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-4xl font-bold mb-2">The Next Level</h2>
+                <h2 className="text-4xl font-bold mb-2">Chapter 2: The Next Level</h2>
                 <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                     Unlock your potential with hands-on projects, expert mentorship, and a vibrant community of tech enthusiasts.
                 </p>
