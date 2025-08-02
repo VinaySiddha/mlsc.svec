@@ -4,8 +4,7 @@ import { TeamMemberForm } from "@/components/team-member-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Home } from "lucide-react";
-import { headers } from "next/headers";
+import { Home } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -50,7 +49,7 @@ export default async function EditProfilePage({ params }: { params: { id: string
                         <CardHeader>
                             <CardTitle>Update Your Profile</CardTitle>
                             <CardDescription>
-                                Keep your profile information up to date.
+                                Keep your profile information up to date. Only your Image and LinkedIn can be updated here. Contact an admin to change other details.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>

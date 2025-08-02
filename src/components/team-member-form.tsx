@@ -24,7 +24,11 @@ const teamMemberInviteSchema = z.object({
   categoryId: z.string({ required_error: "Please select a category." }),
 });
 
-const teamMemberUpdateSchema = teamMemberInviteSchema.extend({
+const teamMemberUpdateSchema = z.object({
+    name: z.string().min(2, "Name is required."),
+    email: z.string().email("A valid email is required."),
+    role: z.string().min(2, "Role is required."),
+    categoryId: z.string({ required_error: "Please select a category." }),
     image: z.string().url("A valid image URL is required.").or(z.literal('')),
     linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
 });
@@ -39,15 +43,17 @@ interface TeamMemberFormProps {
     isAdmin?: boolean;
 }
 
-export function TeamMemberForm({ member, categories, isAdmin = false }: TeamMemberFormProps) {
+export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMemberFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
 
     const isUpdateMode = !!member;
     const schema = isUpdateMode ? teamMemberUpdateSchema : teamMemberInviteSchema;
+    
+    type FormValues = z.infer<typeof schema>;
 
-    const form = useForm<InviteFormValues | UpdateFormValues>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(schema),
         defaultValues: isUpdateMode ? {
             ...member,
@@ -61,7 +67,7 @@ export function TeamMemberForm({ member, categories, isAdmin = false }: TeamMemb
         },
     });
 
-    const onSubmit = async (values: InviteFormValues | UpdateFormValues) => {
+    const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
         try {
             let result;
@@ -79,7 +85,7 @@ export function TeamMemberForm({ member, categories, isAdmin = false }: TeamMemb
 
             toast({
                 title: isUpdateMode ? "Member Updated!" : "Invitation Sent!",
-                description: `Team member "${values.name}" has been saved successfully.`,
+                description: `Team member "${(values as InviteFormValues).name}" has been saved successfully.`,
             });
             
             router.push(redirectUrl);
@@ -97,48 +103,24 @@ export function TeamMemberForm({ member, categories, isAdmin = false }: TeamMemb
         }
     };
     
-    // Only admins can edit these fields
-    const adminOnlyFields = ["role", "categoryId"];
+    // Fields that only an admin can edit
+    const adminOnlyFields = ["name", "email", "role", "categoryId"];
+    // Fields that a user can edit for themselves
+    const userEditableFields = ["image", "linkedin"];
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                                <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin && isUpdateMode} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <div className={cn(!isUpdateMode && "hidden", "space-y-6")}>
-                    <FormField
+                 {/* Fields editable by admin or when creating new */}
+                <div className={cn(!isAdmin && "space-y-6")}>
+                     <FormField
                         control={form.control}
-                        name="image"
+                        name="name"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Image URL</FormLabel>
+                                <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="https://..." {...field as any} />
+                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -146,53 +128,87 @@ export function TeamMemberForm({ member, categories, isAdmin = false }: TeamMemb
                     />
                     <FormField
                         control={form.control}
-                        name="linkedin"
+                        name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>LinkedIn Profile URL</FormLabel>
+                                <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="https://linkedin.com/in/..." {...field as any} />
+                                    <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin} />
                                 </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="role"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Role</FormLabel>
+                                 <FormControl>
+                                     <Input placeholder="e.g., Club Lead" {...field} disabled={!isAdmin}/>
+                                 </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="categoryId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Category</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!isAdmin}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a category" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {categories.map(cat => (
+                                            <SelectItem key={cat.id} value={cat.id}>
+                                                {cat.name} - {cat.subDomain}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
-
-                {adminOnlyFields.map(fieldName => (
-                     <div key={fieldName} className={cn(!isAdmin && "hidden")}>
+                
+                 {/* Fields for updating image and linkedin, only shown in update mode */}
+                {isUpdateMode && (
+                    <div className="space-y-6">
                         <FormField
                             control={form.control}
-                            name={fieldName as "role" | "categoryId"}
+                            name="image"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{fieldName === 'role' ? 'Role' : 'Category'}</FormLabel>
-                                    {fieldName === 'role' ? (
-                                        <FormControl>
-                                            <Input placeholder="e.g., Club Lead" {...field} />
-                                        </FormControl>
-                                    ) : (
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select a category" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {categories.map(cat => (
-                                                    <SelectItem key={cat.id} value={cat.id}>
-                                                        {cat.name} - {cat.subDomain}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
+                                    <FormLabel>Image URL</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="https://..." {...field as any} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="linkedin"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>LinkedIn Profile URL</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="https://linkedin.com/in/..." {...field as any} />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                     </div>
-                ))}
+                )}
                 
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (

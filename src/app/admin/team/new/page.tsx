@@ -46,7 +46,7 @@ export default async function NewTeamMemberPage() {
                         <CardHeader>
                             <CardTitle>New Team Member Details</CardTitle>
                             <CardDescription>
-                                Fill out the form below to add a new member to the team.
+                                Fill out the form below to invite a new member to the team. They will receive an email to complete their onboarding.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
