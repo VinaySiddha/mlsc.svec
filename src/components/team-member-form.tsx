@@ -27,7 +27,10 @@ const teamMemberSchema = z.object({
 });
 
 const teamMemberUpdateSchema = teamMemberSchema.extend({
-    image: z.any().optional(), // Optional on update
+    image: z.any()
+        .refine((files) => !files || files.length === 0 || (files?.[0]?.size <= MAX_FILE_SIZE), `Max file size is 5MB.`)
+        .refine((files) => !files || files.length === 0 || (ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type)), ".jpg, .jpeg, .png and .webp files are accepted.")
+        .optional(),
     linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
 });
 
@@ -124,7 +127,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode && !member} />
+                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode && !!member} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -137,7 +140,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin && isUpdateMode} />
+                                    <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
