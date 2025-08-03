@@ -23,6 +23,9 @@ export default async function TeamManagementPage() {
         return <div>Error loading team members: {error}</div>
     }
 
+    const hasPending = members.some(m => m.status === 'pending');
+    const hasActive = members.some(m => m.status === 'active');
+
     return (
         <div className="flex flex-col min-h-screen">
             <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
@@ -64,7 +67,7 @@ export default async function TeamManagementPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <TeamMembersTable members={members} />
+                            <TeamMembersTable members={members} hasPending={hasPending} hasActive={hasActive} />
                         </CardContent>
                     </Card>
                 </div>

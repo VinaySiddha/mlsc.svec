@@ -18,18 +18,22 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { deleteTeamMember, resendInvitation, sendProfileEditLink } from "@/app/actions";
+import { deleteTeamMember, resendInvitation, sendProfileEditLink, bulkResendInvitations, bulkSendProfileEditLinks } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import { Image } from "@/components/image";
 import { Badge } from "./ui/badge";
 
 interface TeamMembersTableProps {
     members: any[];
+    hasPending: boolean;
+    hasActive: boolean;
 }
 
-export function TeamMembersTable({ members }: TeamMembersTableProps) {
+export function TeamMembersTable({ members, hasPending, hasActive }: TeamMembersTableProps) {
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const [isSendingEmail, setIsSendingEmail] = useState<string | null>(null);
+    const [isBulkSending, setIsBulkSending] = useState<string | null>(null);
+
     const { toast } = useToast();
     const router = useRouter();
 
@@ -90,116 +94,168 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
         }
     }
 
+    const handleBulkSend = async (type: 'pending' | 'active') => {
+        setIsBulkSending(type);
+         try {
+            let result;
+            let successMessage = "";
+
+            if (type === 'pending') {
+                result = await bulkResendInvitations();
+                successMessage = `Onboarding invitations sent to ${result.count} pending member(s).`;
+            } else { // active
+                result = await bulkSendProfileEditLinks();
+                successMessage = `Profile edit links sent to ${result.count} active member(s).`;
+            }
+
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            toast({
+                title: "Bulk Emails Sent!",
+                description: successMessage,
+            });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            toast({
+                variant: 'destructive',
+                title: 'Bulk Email Failed',
+                description: errorMessage,
+            });
+        } finally {
+            setIsBulkSending(null);
+        }
+    }
 
     const getStatusVariant = (status: string) => {
         return status === 'active' ? 'default' : 'secondary';
     }
 
   return (
-    <div className="border rounded-md">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Sub-Domain</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>LinkedIn</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {members.length > 0 ? (
-            members.map((member: any) => (
-                <TableRow key={member.id}>
-                  <TableCell className="font-medium">
-                      <div className="flex items-center gap-3">
-                         {member.image ? (
-                            <Image src={member.image} alt={member.name} width={40} height={40} className="rounded-full object-cover" />
-                         ) : (
-                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                                <MailWarning className="h-5 w-5"/>
-                            </div>
-                         )}
-                         <div>
-                            <span>{member.name}</span>
-                            <p className="text-xs text-muted-foreground">{member.email}</p>
-                         </div>
-                      </div>
-                  </TableCell>
-                  <TableCell>{member.role}</TableCell>
-                  <TableCell>{member.subDomain}</TableCell>
-                   <TableCell>
-                      <Badge variant={getStatusVariant(member.status)}>{member.status}</Badge>
-                  </TableCell>
-                  <TableCell>
-                      {member.linkedin ? (
-                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
-                            <LinkIcon className="h-4 w-4" />
-                        </a>
-                      ) : (
-                         <span className="text-muted-foreground text-xs">N/A</span>
-                      )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleSendEmail(member)}
-                            disabled={isSendingEmail === member.id}
-                            title={member.status === 'pending' ? 'Resend Invitation Email' : 'Send Edit Link Email'}
-                        >
-                            {isSendingEmail === member.id 
-                                ? <Loader2 className="h-4 w-4 animate-spin" /> 
-                                : member.status === 'pending' 
-                                    ? <Send className="h-4 w-4" /> 
-                                    : <Mail className="h-4 w-4" />
-                            }
-                        </Button>
-                        
-                         <Button asChild variant="outline" size="icon">
-                           <Link href={`/admin/team/edit/${member.id}`}>
-                               <Pencil className="h-4 w-4" />
-                               <span className="sr-only">Edit Member</span>
-                           </Link>
-                        </Button>
-                         <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="icon" disabled={isDeleting === member.id}>
-                                    {isDeleting === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                                    <span className="sr-only">Delete Member</span>
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the team member.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(member.id)} disabled={!!isDeleting}>
-                                    {isDeleting ? "Deleting..." : "Continue"}
-                                </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )
-            )
-          ) : (
+    <div className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+            <Button
+                variant="outline"
+                onClick={() => handleBulkSend('pending')}
+                disabled={isBulkSending === 'pending' || !hasPending}
+            >
+                {isBulkSending === 'pending' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MailWarning className="mr-2 h-4 w-4" />}
+                Mail All Pending
+            </Button>
+             <Button
+                variant="outline"
+                onClick={() => handleBulkSend('active')}
+                disabled={isBulkSending === 'active' || !hasActive}
+            >
+                {isBulkSending === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+                Mail All Active
+            </Button>
+        </div>
+        <div className="border rounded-md">
+        <Table>
+            <TableHeader>
             <TableRow>
-              <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
-                No team members found.
-              </TableCell>
+                <TableHead>Name</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Sub-Domain</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>LinkedIn</TableHead>
+                <TableHead>Actions</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+            {members.length > 0 ? (
+                members.map((member: any) => (
+                    <TableRow key={member.id}>
+                    <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                            {member.image ? (
+                                <Image src={member.image} alt={member.name} width={40} height={40} className="rounded-full object-cover" />
+                            ) : (
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                                    <MailWarning className="h-5 w-5"/>
+                                </div>
+                            )}
+                            <div>
+                                <span>{member.name}</span>
+                                <p className="text-xs text-muted-foreground">{member.email}</p>
+                            </div>
+                        </div>
+                    </TableCell>
+                    <TableCell>{member.role}</TableCell>
+                    <TableCell>{member.subDomain}</TableCell>
+                    <TableCell>
+                        <Badge variant={getStatusVariant(member.status)}>{member.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                        {member.linkedin ? (
+                            <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                                <LinkIcon className="h-4 w-4" />
+                            </a>
+                        ) : (
+                            <span className="text-muted-foreground text-xs">N/A</span>
+                        )}
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleSendEmail(member)}
+                                disabled={isSendingEmail === member.id}
+                                title={member.status === 'pending' ? 'Resend Invitation Email' : 'Send Edit Link Email'}
+                            >
+                                {isSendingEmail === member.id 
+                                    ? <Loader2 className="h-4 w-4 animate-spin" /> 
+                                    : member.status === 'pending' 
+                                        ? <Send className="h-4 w-4" /> 
+                                        : <Mail className="h-4 w-4" />
+                                }
+                            </Button>
+                            
+                            <Button asChild variant="outline" size="icon">
+                            <Link href={`/admin/team/edit/${member.id}`}>
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Edit Member</span>
+                            </Link>
+                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="icon" disabled={isDeleting === member.id}>
+                                        {isDeleting === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                        <span className="sr-only">Delete Member</span>
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete the team member.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDelete(member.id)} disabled={!!isDeleting}>
+                                        {isDeleting ? "Deleting..." : "Continue"}
+                                    </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </TableCell>
+                    </TableRow>
+                )
+                )
+            ) : (
+                <TableRow>
+                <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                    No team members found.
+                </TableCell>
+                </TableRow>
+            )}
+            </TableBody>
+        </Table>
+        </div>
     </div>
   );
 }

@@ -1365,6 +1365,74 @@ export async function sendProfileEditLink(memberId: string) {
     }
 }
 
+export async function bulkResendInvitations() {
+    try {
+        const q = query(collection(db, 'teamMembers'), where('status', '==', 'pending'));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            return { success: true, count: 0 };
+        }
+
+        const batch = writeBatch(db);
+        let count = 0;
+
+        for (const memberDoc of snapshot.docs) {
+            const member = memberDoc.data();
+            const onboardingToken = randomBytes(32).toString('hex');
+            const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+            batch.update(memberDoc.ref, {
+                onboardingToken,
+                tokenExpiresAt: tokenExpiresAt.toISOString(),
+            });
+
+            await sendInvitationEmail({
+                name: member.name,
+                email: member.email,
+                role: member.role,
+                onboardingToken,
+            });
+            count++;
+        }
+
+        await batch.commit();
+        return { success: true, count };
+    } catch (error) {
+        console.error("Error bulk resending invitations:", error);
+        return { error: "Failed to resend all invitations." };
+    }
+}
+
+export async function bulkSendProfileEditLinks() {
+    try {
+        const q = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            return { success: true, count: 0 };
+        }
+
+        let count = 0;
+        for (const memberDoc of snapshot.docs) {
+            const member = { id: memberDoc.id, ...memberDoc.data() };
+            await sendProfileConfirmationEmail({
+                name: member.name,
+                email: member.email,
+                memberId: member.id,
+                editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+            });
+            count++;
+        }
+        
+        return { success: true, count };
+    } catch (error) {
+        console.error("Error bulk sending edit links:", error);
+        return { error: "Failed to send all edit links." };
+    }
+}
+
+
 
 export async function updateTeamMember(id: string, formData: FormData) {
     const values = Object.fromEntries(formData.entries());
