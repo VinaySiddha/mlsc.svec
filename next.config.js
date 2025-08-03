@@ -18,6 +18,12 @@ const config = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'sves.org.in',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
