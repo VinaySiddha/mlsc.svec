@@ -41,8 +41,9 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
     verifyToken();
   }, [params.token]);
 
-  const handleOnboardingComplete = async (values: { image: string, linkedin: string }) => {
-    const result = await completeOnboarding({ token: params.token, ...values });
+  const handleOnboardingComplete = async (formData: FormData) => {
+    formData.append('token', params.token);
+    const result = await completeOnboarding(formData);
     if (result.error || !result.member) {
       setError(result.error || "Failed to activate profile.");
       setStep('error');
@@ -50,7 +51,7 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
       setMemberData(result.member);
       setStep('success');
     }
-    return result;
+    return { error: result.error };
   };
 
   if (step === 'loading') {

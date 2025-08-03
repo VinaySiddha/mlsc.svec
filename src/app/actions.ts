@@ -14,7 +14,7 @@ import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/a
 import {z} from 'zod';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { 
   collection, 
   addDoc, 
@@ -36,6 +36,7 @@ import {
   setDoc,
   deleteDoc,
 } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import papaparse from 'papaparse';
 import { randomBytes } from 'crypto';
 
@@ -131,14 +132,14 @@ const teamMemberSchema = z.object({
 });
 
 const teamMemberUpdateSchema = teamMemberSchema.extend({
-    image: z.string().url("A valid image URL is required.").or(z.literal('')),
+    image: z.any().optional(),
     linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
 });
 
 
 const completeOnboardingSchema = z.object({
     token: z.string(),
-    image: z.string().url("Image URL is required."),
+    image: z.any().optional(),
     linkedin: z.string().url("LinkedIn URL is required."),
 });
 
@@ -1353,6 +1354,7 @@ export async function sendProfileEditLink(memberId: string) {
         await sendProfileConfirmationEmail({
             name: member.name,
             email: member.email,
+            memberId: member.id,
             editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
         });
 
@@ -1364,11 +1366,26 @@ export async function sendProfileEditLink(memberId: string) {
 }
 
 
-export async function updateTeamMember(id: string, values: z.infer<typeof teamMemberUpdateSchema>) {
-    const parsed = teamMemberUpdateSchema.safeParse(values);
+export async function updateTeamMember(id: string, formData: FormData) {
+    const values = Object.fromEntries(formData.entries());
+    const imageFile = formData.get('image') as File | null;
+    
+    // Create a schema that makes image optional for validation, as we handle it separately
+    const updatePayloadSchema = teamMemberUpdateSchema.omit({ image: true });
+    const parsed = updatePayloadSchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data provided." };
+
     try {
-        await updateDoc(doc(db, "teamMembers", id), parsed.data as any);
+        const docRef = doc(db, "teamMembers", id);
+        const dataToUpdate: any = parsed.data;
+
+        if (imageFile && imageFile.size > 0) {
+            const storageRef = ref(storage, `profile-images/${id}`);
+            await uploadBytes(storageRef, imageFile);
+            dataToUpdate.image = await getDownloadURL(storageRef);
+        }
+
+        await updateDoc(docRef, dataToUpdate);
         return { success: true };
     } catch (error) {
         console.error("Error updating team member:", error)
@@ -1412,13 +1429,16 @@ export async function getTeamMemberByToken(token: string) {
     }
 }
 
-export async function completeOnboarding(values: z.infer<typeof completeOnboardingSchema>) {
-    const parsed = completeOnboardingSchema.safeParse(values);
+export async function completeOnboarding(formData: FormData) {
+    const values = Object.fromEntries(formData.entries());
+    const imageFile = formData.get('image') as File;
+
+    const parsed = completeOnboardingSchema.omit({ image: true }).safeParse(values);
     if (!parsed.success) {
         return { error: "Invalid data provided." };
     }
 
-    const { token, image, linkedin } = parsed.data;
+    const { token, linkedin } = parsed.data;
 
     try {
         const { member, error } = await getTeamMemberByToken(token);
@@ -1426,8 +1446,13 @@ export async function completeOnboarding(values: z.infer<typeof completeOnboardi
             return { error: error || "Failed to validate token." };
         }
 
+        // Upload image to Firebase Storage
+        const storageRef = ref(storage, `profile-images/${member.id}`);
+        await uploadBytes(storageRef, imageFile);
+        const imageUrl = await getDownloadURL(storageRef);
+
         const updatedMemberData = {
-            image,
+            image: imageUrl,
             linkedin,
             status: 'active',
             onboardingToken: '', // Clear the token after use
@@ -1444,6 +1469,7 @@ export async function completeOnboarding(values: z.infer<typeof completeOnboardi
                 const emailInput: ProfileConfirmationEmailInput = {
                     name: updatedMember.name,
                     email: updatedMember.email,
+                    memberId: member.id,
                     editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
                 };
                 await sendProfileConfirmationEmail(emailInput);
@@ -1516,6 +1542,16 @@ export async function getTeamMemberById(id: string) {
 
 export async function deleteTeamMember(id: string) {
     try {
+        // Delete image from storage first
+        const storageRef = ref(storage, `profile-images/${id}`);
+        try {
+            await deleteObject(storageRef);
+        } catch (storageError: any) {
+            // It's okay if the image doesn't exist, just log it.
+            if (storageError.code !== 'storage/object-not-found') {
+                console.warn(`Could not delete profile image for member ${id}:`, storageError);
+            }
+        }
         await deleteDoc(doc(db, 'teamMembers', id));
         return { success: true };
     } catch (e) {

@@ -11,11 +11,13 @@ import { Loader2 } from "lucide-react";
 import { inviteTeamMember, updateTeamMember } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const teamMemberInviteSchema = z.object({
   name: z.string().min(2, "Name is required."),
@@ -24,14 +26,21 @@ const teamMemberInviteSchema = z.object({
   categoryId: z.string({ required_error: "Please select a category." }),
 });
 
-const teamMemberUpdateSchema = z.object({
-    name: z.string().min(2, "Name is required."),
-    email: z.string().email("A valid email is required."),
-    role: z.string().min(2, "Role is required."),
-    categoryId: z.string({ required_error: "Please select a category." }),
-    image: z.string().url("A valid image URL is required.").or(z.literal('')),
+const teamMemberUpdateSchema = teamMemberInviteSchema.extend({
+    image: z.any().optional(), // Optional on update
     linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
+}).refine(data => {
+    // If image is a FileList, validate it. If it's a string (URL) or undefined, skip validation.
+    if (data.image instanceof FileList && data.image.length > 0) {
+        const file = data.image[0];
+        return ACCEPTED_IMAGE_TYPES.includes(file.type) && file.size <= MAX_FILE_SIZE;
+    }
+    return true;
+}, { 
+    message: `Invalid file. Accepted types: .jpg, .png, .webp. Max size: 5MB.`,
+    path: ['image'] 
 });
+
 
 type InviteFormValues = z.infer<typeof teamMemberInviteSchema>;
 type UpdateFormValues = z.infer<typeof teamMemberUpdateSchema>;
@@ -57,7 +66,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
         resolver: zodResolver(schema),
         defaultValues: isUpdateMode ? {
             ...member,
-            image: member.image || '',
+            image: undefined, // Clear image field on update form
             linkedin: member.linkedin || ''
         } : {
             name: "",
@@ -69,12 +78,22 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
 
     const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
+        const formData = new FormData();
+        
+        Object.entries(values).forEach(([key, value]) => {
+            if (key === 'image' && value instanceof FileList && value.length > 0) {
+                formData.append(key, value[0]);
+            } else if (key !== 'image' && value !== undefined && value !== null) {
+                formData.append(key, String(value));
+            }
+        });
+
         try {
             let result;
             const redirectUrl = isAdmin ? '/admin/team' : '/team';
 
             if (isUpdateMode) {
-                result = await updateTeamMember(member.id, values as UpdateFormValues);
+                result = await updateTeamMember(member.id, formData);
             } else {
                 result = await inviteTeamMember(values as InviteFormValues);
             }
@@ -128,7 +147,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin} />
+                                    <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin && isUpdateMode} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -176,15 +195,21 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                  {/* Fields for updating image and linkedin, only shown in update mode */}
                 {isUpdateMode && (
                     <div className="space-y-6">
-                        <FormField
+                         <FormField
                             control={form.control}
                             name="image"
-                            render={({ field }) => (
+                            render={({ field: { onChange, ...rest } }) => (
                                 <FormItem>
-                                    <FormLabel>Image URL</FormLabel>
+                                    <FormLabel>New Profile Image (Optional)</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://..." {...field as any} />
+                                        <Input 
+                                            type="file" 
+                                            accept="image/*"
+                                            onChange={(e) => onChange(e.target.files)}
+                                            {...rest}
+                                        />
                                     </FormControl>
+                                    <FormDescription>Upload a new image to replace the current one.</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
