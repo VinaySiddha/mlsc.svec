@@ -1570,5 +1570,3 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
-
-    
