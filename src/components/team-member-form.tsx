@@ -19,30 +19,20 @@ import { cn } from "@/lib/utils";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
-const teamMemberInviteSchema = z.object({
+const teamMemberSchema = z.object({
   name: z.string().min(2, "Name is required."),
-  email: z.string().email("A valid email is required to send the invite."),
+  email: z.string().email("A valid email is required."),
   role: z.string().min(2, "Role is required."),
   categoryId: z.string({ required_error: "Please select a category." }),
 });
 
-const teamMemberUpdateSchema = teamMemberInviteSchema.extend({
+const teamMemberUpdateSchema = teamMemberSchema.extend({
     image: z.any().optional(), // Optional on update
     linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
-}).refine(data => {
-    // If image is a FileList, validate it. If it's a string (URL) or undefined, skip validation.
-    if (data.image instanceof FileList && data.image.length > 0) {
-        const file = data.image[0];
-        return ACCEPTED_IMAGE_TYPES.includes(file.type) && file.size <= MAX_FILE_SIZE;
-    }
-    return true;
-}, { 
-    message: `Invalid file. Accepted types: .jpg, .png, .webp. Max size: 5MB.`,
-    path: ['image'] 
 });
 
 
-type InviteFormValues = z.infer<typeof teamMemberInviteSchema>;
+type InviteFormValues = z.infer<typeof teamMemberSchema>;
 type UpdateFormValues = z.infer<typeof teamMemberUpdateSchema>;
 
 
@@ -58,7 +48,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
     const { toast } = useToast();
 
     const isUpdateMode = !!member;
-    const schema = isUpdateMode ? teamMemberUpdateSchema : teamMemberInviteSchema;
+    const schema = isUpdateMode ? teamMemberUpdateSchema : teamMemberSchema;
     
     type FormValues = z.infer<typeof schema>;
 
@@ -78,8 +68,8 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
 
     const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
-        const formData = new FormData();
         
+        const formData = new FormData();
         Object.entries(values).forEach(([key, value]) => {
             if (key === 'image' && value instanceof FileList && value.length > 0) {
                 formData.append(key, value[0]);
@@ -134,7 +124,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode} />
+                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode && !member} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
