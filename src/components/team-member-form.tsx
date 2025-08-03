@@ -103,16 +103,11 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
         }
     };
     
-    // Fields that only an admin can edit
-    const adminOnlyFields = ["name", "email", "role", "categoryId"];
-    // Fields that a user can edit for themselves
-    const userEditableFields = ["image", "linkedin"];
-
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                  {/* Fields editable by admin or when creating new */}
-                <div className={cn(!isAdmin && "space-y-6")}>
+                <div className={cn("space-y-6")}>
                      <FormField
                         control={form.control}
                         name="name"
@@ -120,7 +115,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin} />
+                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
