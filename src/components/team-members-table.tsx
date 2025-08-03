@@ -29,8 +29,7 @@ interface TeamMembersTableProps {
 
 export function TeamMembersTable({ members }: TeamMembersTableProps) {
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
-    const [isResending, setIsResending] = useState<string | null>(null);
-    const [isSendingEdit, setIsSendingEdit] = useState<string | null>(null);
+    const [isSendingEmail, setIsSendingEmail] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
 
@@ -58,49 +57,36 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
         }
     }
 
-    const handleResend = async (memberId: string) => {
-        setIsResending(memberId);
+    const handleSendEmail = async (member: any) => {
+        setIsSendingEmail(member.id);
         try {
-            const result = await resendInvitation(memberId);
-            if (result.error) {
-                throw new Error(result.error);
-            }
-            toast({
-                title: "Invitation Sent",
-                description: "The onboarding invitation has been sent to the member's email.",
-            });
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            toast({
-                variant: 'destructive',
-                title: 'Failed to Send',
-                description: errorMessage,
-            });
-        } finally {
-            setIsResending(null);
-        }
-    }
+            let result;
+            let successMessage = "";
 
-    const handleSendEditLink = async (memberId: string) => {
-        setIsSendingEdit(memberId);
-        try {
-            const result = await sendProfileEditLink(memberId);
+            if (member.status === 'pending') {
+                result = await resendInvitation(member.id);
+                successMessage = "The onboarding invitation has been sent to the member's email.";
+            } else { // active
+                result = await sendProfileEditLink(member.id);
+                successMessage = "The profile edit link has been sent to the member's email.";
+            }
+
             if (result.error) {
                 throw new Error(result.error);
             }
             toast({
-                title: "Edit Link Sent",
-                description: "The profile edit link has been sent to the member's email.",
+                title: "Email Sent!",
+                description: successMessage,
             });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             toast({
                 variant: 'destructive',
-                title: 'Failed to Send',
+                title: 'Failed to Send Email',
                 description: errorMessage,
             });
         } finally {
-            setIsSendingEdit(null);
+            setIsSendingEmail(null);
         }
     }
 
@@ -157,27 +143,20 @@ export function TeamMembersTable({ members }: TeamMembersTableProps) {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                        {member.status === 'pending' ? (
-                             <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => handleResend(member.id)}
-                                disabled={isResending === member.id}
-                                title="Resend Invitation Email"
-                            >
-                                {isResending === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                            </Button>
-                        ) : (
-                             <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => handleSendEditLink(member.id)}
-                                disabled={isSendingEdit === member.id}
-                                title="Send Edit Link"
-                            >
-                                {isSendingEdit === member.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                            </Button>
-                        )}
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleSendEmail(member)}
+                            disabled={isSendingEmail === member.id}
+                            title={member.status === 'pending' ? 'Resend Invitation Email' : 'Send Edit Link Email'}
+                        >
+                            {isSendingEmail === member.id 
+                                ? <Loader2 className="h-4 w-4 animate-spin" /> 
+                                : member.status === 'pending' 
+                                    ? <Send className="h-4 w-4" /> 
+                                    : <Mail className="h-4 w-4" />
+                            }
+                        </Button>
                         
                          <Button asChild variant="outline" size="icon">
                            <Link href={`/admin/team/edit/${member.id}`}>
