@@ -127,7 +127,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode} />
+                                    <Input placeholder="e.g., John Doe" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
