@@ -104,10 +104,7 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <DigitalIdCard 
-                    name={memberData.name}
-                    referenceId={memberData.role}
-                />
+                <DigitalIdCard member={memberData} />
                  <Button asChild variant="secondary" className="w-full">
                     <Link href={`/profile/edit/${memberData.id}`}>Edit Your Profile</Link>
                  </Button>

@@ -40,10 +40,7 @@ export default async function MemberIdCardPage({ params }: { params: { id: strin
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <DigitalIdCard
-                            name={member.name}
-                            referenceId={member.role}
-                        />
+                        <DigitalIdCard member={member} />
                     </CardContent>
                 </Card>
             </main>
