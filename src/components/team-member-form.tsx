@@ -127,7 +127,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode && !!member} />
+                                    <Input placeholder="e.g., John Doe" {...field} disabled={!isAdmin && isUpdateMode} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -191,7 +191,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                          <FormField
                             control={form.control}
                             name="image"
-                            render={({ field: { onChange, ...rest } }) => (
+                            render={({ field: { onChange, value, ...rest } }) => (
                                 <FormItem>
                                     <FormLabel>New Profile Image (Optional)</FormLabel>
                                     <FormControl>
