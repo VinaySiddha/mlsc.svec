@@ -1369,11 +1369,14 @@ export async function sendProfileEditLink(memberId: string) {
 export async function updateTeamMember(id: string, formData: FormData) {
     const values = Object.fromEntries(formData.entries());
     const imageFile = formData.get('image') as File | null;
-    
-    // Create a schema that makes image optional for validation, as we handle it separately
+
     const updatePayloadSchema = teamMemberUpdateSchema.omit({ image: true });
     const parsed = updatePayloadSchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data provided." };
+
+    if (!parsed.success) {
+        console.error("Update validation error:", parsed.error.flatten().fieldErrors);
+        return { error: "Invalid data provided." };
+    }
 
     try {
         const docRef = doc(db, "teamMembers", id);
@@ -1381,20 +1384,22 @@ export async function updateTeamMember(id: string, formData: FormData) {
 
         if (imageFile && imageFile.size > 0) {
             const storageRef = ref(storage, `profile-images/${id}`);
-            await uploadBytes(storageRef, imageFile);
+            const imageBuffer = await imageFile.arrayBuffer();
+            await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
             dataToUpdate.image = await getDownloadURL(storageRef);
         }
 
         await updateDoc(docRef, dataToUpdate);
         return { success: true };
     } catch (error) {
-        console.error("Error updating team member:", error)
+        console.error("Error updating team member:", error);
         if (error instanceof Error) {
             return { error: `Failed to update team member: ${error.message}` };
         }
         return { error: "Failed to update team member." };
     }
 }
+
 
 export async function getTeamMemberByToken(token: string) {
     try {
@@ -1448,7 +1453,8 @@ export async function completeOnboarding(formData: FormData) {
 
         // Upload image to Firebase Storage
         const storageRef = ref(storage, `profile-images/${member.id}`);
-        await uploadBytes(storageRef, imageFile);
+        const imageBuffer = await imageFile.arrayBuffer();
+        await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
         const imageUrl = await getDownloadURL(storageRef);
 
         const updatedMemberData = {
@@ -1542,19 +1548,27 @@ export async function getTeamMemberById(id: string) {
 
 export async function deleteTeamMember(id: string) {
     try {
-        // Delete image from storage first
+        // First, try to delete the image from storage.
         const storageRef = ref(storage, `profile-images/${id}`);
         try {
             await deleteObject(storageRef);
         } catch (storageError: any) {
-            // It's okay if the image doesn't exist, just log it.
+            // It's okay if the image doesn't exist.
             if (storageError.code !== 'storage/object-not-found') {
                 console.warn(`Could not delete profile image for member ${id}:`, storageError);
             }
         }
+        
+        // Then, delete the member document from Firestore.
         await deleteDoc(doc(db, 'teamMembers', id));
         return { success: true };
     } catch (e) {
+        console.error("Error deleting team member:", e);
+        if (e instanceof Error) {
+            return { error: `Failed to delete team member: ${e.message}` };
+        }
         return { error: "Failed to delete team member." };
     }
 }
+
+    
