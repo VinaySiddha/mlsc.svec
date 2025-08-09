@@ -1,12 +1,11 @@
-
-import { NextRequest, NextResponse } from 'next/server';
-import * as jose from 'jose';
+import { NextRequest, NextResponse } from "next/server";
+import * as jose from "jose";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 async function verifyToken(token: string) {
   if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET is not set in environment variables.');
+    throw new Error("JWT_SECRET is not set in environment variables.");
   }
   const secret = new TextEncoder().encode(JWT_SECRET);
   try {
@@ -19,28 +18,30 @@ async function verifyToken(token: string) {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const sessionToken = req.cookies.get('session')?.value;
+  const sessionToken = req.cookies.get("session")?.value;
 
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith("/admin")) {
     if (!sessionToken) {
-      return NextResponse.redirect(new URL('/login', req.url));
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
     const payload = await verifyToken(sessionToken);
 
     if (!payload) {
       // Clear invalid cookie and redirect
-      const response = NextResponse.redirect(new URL('/login', req.url));
-      response.cookies.delete('session');
+      const response = NextResponse.redirect(new URL("/login", req.url));
+      response.cookies.delete("session");
       return response;
     }
-    
+
     // Add user info to headers to be accessed in Server Components
     const requestHeaders = new Headers(req.headers);
-    if (payload.role) requestHeaders.set('X-User-Role', payload.role as string);
-    if (payload.username) requestHeaders.set('X-User-Username', payload.username as string);
-    if (payload.domain) requestHeaders.set('X-Panel-Domain', payload.domain as string);
-    
+    if (payload.role) requestHeaders.set("X-User-Role", payload.role as string);
+    if (payload.username)
+      requestHeaders.set("X-User-Username", payload.username as string);
+    if (payload.domain)
+      requestHeaders.set("X-Panel-Domain", payload.domain as string);
+
     return NextResponse.next({
       request: {
         headers: requestHeaders,
@@ -48,12 +49,12 @@ export async function middleware(req: NextRequest) {
     });
   }
 
-  if (pathname === '/login') {
+  if (pathname === "/login") {
     if (sessionToken) {
-       const payload = await verifyToken(sessionToken);
-       if (payload) {
-         return NextResponse.redirect(new URL('/admin', req.url));
-       }
+      const payload = await verifyToken(sessionToken);
+      if (payload) {
+        return NextResponse.redirect(new URL("/admin", req.url));
+      }
     }
   }
 
@@ -61,5 +62,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login'],
+  matcher: ["/admin/:path*", "/login"],
 };

@@ -17,7 +17,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-       <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
+      <header className="py-4 px-4 sm:px-6 md:px-8 border-b">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-4">
             <MLSCLogo className="h-10 w-10 text-primary" />
@@ -26,7 +26,7 @@ export default async function Home() {
             </h1>
           </Link>
           <nav className="hidden sm:flex items-center gap-2">
-             <Button asChild variant="outline">
+            <Button asChild variant="outline">
               <Link href="/status">
                 <FileSearch />
                 <span>Check Status</span>
@@ -78,18 +78,18 @@ export default async function Home() {
                     We are looking for passionate individuals to join our team. Fill out the application below to start your journey with the Microsoft Learn Student Club.
                   </h2>
                 </div>
-                 {deadlineTimestamp && <CountdownTimer deadline={deadlineTimestamp} />}
+                {deadlineTimestamp && <CountdownTimer deadline={deadlineTimestamp} />}
               </div>
               <div className="w-full max-w-2xl mx-auto flex justify-center">
-                  <Image
-                    src="/logo.png"
-                    data-ai-hint="logo"
-                    width={400}
-                    height={400}
-                    alt="Microsoft Learn Student Club (MLSC) SVEC Logo - Join our team for the 3.0 hiring program"
-                    className="rounded-xl object-contain"
-                    priority
-                  />
+                <Image
+                  src="/logo.png"
+                  data-ai-hint="logo"
+                  width={400}
+                  height={400}
+                  alt="Microsoft Learn Student Club (MLSC) SVEC Logo - Join our team for the 3.0 hiring program"
+                  className="rounded-xl object-contain"
+                  priority
+                />
               </div>
             </div>
           </div>
@@ -107,15 +107,15 @@ export default async function Home() {
               </CardHeader>
               <CardContent>
                 {isClosed ? (
-                   <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
-                      <Clock className="h-16 w-16 text-primary mb-4" />
-                      <h3 className="text-xl font-semibold">Registrations are closed</h3>
-                      <p className="text-muted-foreground mt-2">
-                        We are no longer accepting applications. Follow us for future announcements.
-                      </p>
-                    </div>
+                  <div className="flex flex-col items-center justify-center text-center p-8 bg-muted rounded-lg">
+                    <Clock className="h-16 w-16 text-primary mb-4" />
+                    <h3 className="text-xl font-semibold">Registrations are closed</h3>
+                    <p className="text-muted-foreground mt-2">
+                      We are no longer accepting applications. Follow us for future announcements.
+                    </p>
+                  </div>
                 ) : (
-                   <ApplicationForm />
+                  <ApplicationForm />
                 )}
               </CardContent>
             </Card>

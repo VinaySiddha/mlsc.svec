@@ -1,0 +1,19 @@
+{
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "functions": {
+    "app/admin/page.tsx": {
+      "runtime": "nodejs18.x"
+    },
+    "app/page.tsx": {
+      "runtime": "nodejs18.x"
+    },
+    "app/api/auth/route.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

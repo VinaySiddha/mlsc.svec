@@ -1,0 +1,40 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "hiring-app"
+compatibility_date = "2024-08-21"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[env.production]
+name = "hiring-app"
+
+[env.staging]
+name = "hiring-app-staging"
+
+# Environment variables for edge runtime
+[vars]
+NODE_ENV = "production"
+
+# Static assets configuration for Next.js
+[[rules]]
+type = "Text"
+globs = ["**/*.html", "**/*.txt", "**/*.xml", "**/*.json"]
+
+[[rules]]  
+type = "Data"
+globs = ["**/*"]
+
+# Pages configuration for SSR
+[build]
+command = "npm run cf:build"
+cwd = "."
+watch_dir = "src"
+
+# Custom domains (uncomment and configure)
+# [env.production.routes]
+# patterns = ["hiring.yourdomain.com/*"]
+
+# KV storage for sessions/cache (optional)
+# [[kv_namespaces]]
+# binding = "SESSIONS" 
+# id = "your-kv-namespace-id"
+# preview_id = "your-preview-kv-namespace-id"

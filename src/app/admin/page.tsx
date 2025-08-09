@@ -92,7 +92,7 @@ export default async function AdminPage() {
               </Card>
             )}
           </div>
-          
+
           {userRole === 'admin' && (
             <DeadlineSetter />
           )}
@@ -104,11 +104,11 @@ export default async function AdminPage() {
             </div>
           )}
           {userRole === 'panel' && analyticsData && 'error' in analyticsData && (
-             <Card>
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-destructive" />
-                    Analytics Error
+                  <AlertCircle className="h-5 w-5 text-destructive" />
+                  Analytics Error
                 </CardTitle>
               </CardHeader>
               <CardContent>
