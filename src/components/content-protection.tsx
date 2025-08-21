@@ -16,11 +16,15 @@ export function ContentProtection() {
         // Note: This is a basic deterrent and will not prevent all screenshot methods.
         if (e.key === 'PrintScreen') {
             navigator.clipboard.writeText(''); // Clear clipboard to prevent pasting the image
+            document.body.classList.add('screenshot-blur');
             toast({
                 variant: 'destructive',
                 title: 'Screenshot Attempt Detected',
                 description: 'For security reasons, taking screenshots of this page is not allowed.',
             });
+            setTimeout(() => {
+              document.body.classList.remove('screenshot-blur');
+            }, 3000);
         }
     };
 
