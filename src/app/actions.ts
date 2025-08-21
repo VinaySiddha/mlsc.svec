@@ -13,7 +13,7 @@ import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/a
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import { db, storage } from '@/lib/firebase';
 import { 
   collection, 
@@ -602,6 +602,8 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   if (!JWT_SECRET) {
     throw new Error('JWT_SECRET is not set in environment variables.');
   }
+  
+  const secret = new TextEncoder().encode(JWT_SECRET);
 
   let userPayload: { role: string; domain?: string; username: string };
 
@@ -616,7 +618,11 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     }
   }
 
-  const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '1d' });
+  const token = await new jose.SignJWT(userPayload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('1d')
+    .sign(secret);
 
   cookies().set('session', token, {
     httpOnly: true,
@@ -1661,3 +1667,5 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
+
+    
