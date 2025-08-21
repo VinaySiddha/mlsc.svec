@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
 import { ContentProtection } from '@/components/content-protection';
+import { EntryWarningPopup } from '@/components/entry-warning-popup';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://mlscsvec.in'),
@@ -112,6 +113,7 @@ export default function RootLayout({
 
       <body className={cn('font-sans antialiased')}>
         <ContentProtection />
+        <EntryWarningPopup />
         <main className="min-h-screen">{children}</main>
         <Toaster />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>
