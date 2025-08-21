@@ -144,6 +144,51 @@ const completeOnboardingSchema = z.object({
 });
 
 
+const visitorSchema = z.object({
+  ip: z.string(),
+  userAgent: z.string(),
+  path: z.string(),
+});
+
+export async function logVisitor(data: z.infer<typeof visitorSchema>) {
+  const parsed = visitorSchema.safeParse(data);
+  if (!parsed.success) {
+    console.error("Invalid visitor data:", parsed.error);
+    return;
+  }
+  try {
+    await addDoc(collection(db, 'visitors'), {
+      ...parsed.data,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error logging visitor:", error);
+  }
+}
+
+export async function getVisitors() {
+    try {
+        const visitorsCol = collection(db, 'visitors');
+        const q = query(visitorsCol, orderBy('timestamp', 'desc'), limit(100)); // Limit to last 100 for performance
+        const visitorsSnapshot = await getDocs(q);
+        const visitorsList = visitorsSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                id: doc.id,
+            }
+        });
+        return { visitors: visitorsList as any[] };
+    } catch (error) {
+        console.error("Could not fetch visitors:", error);
+        if (error instanceof Error) {
+            return { error: `Failed to fetch visitors: ${error.message}` };
+        }
+        return { error: 'An unexpected error occurred while fetching visitors.' };
+    }
+}
+
+
 // Generate a unique, readable reference ID
 function generateReferenceId() {
   const prefix = "MLSC";

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as jose from "jose";
+import { logVisitor } from "./app/actions";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -19,6 +20,21 @@ async function verifyToken(token: string) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const sessionToken = req.cookies.get("session")?.value;
+
+  // Don't log visits for API routes, static files, or the admin area itself
+  const isLoggable = !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.startsWith('/admin');
+
+  if (isLoggable) {
+    const ip = req.ip ?? '127.0.0.1';
+    const userAgent = req.headers.get('user-agent') ?? 'unknown';
+    
+    // Fire-and-forget log action without awaiting it
+    logVisitor({
+      ip,
+      userAgent,
+      path: pathname,
+    }).catch(console.error);
+  }
 
   if (pathname.startsWith("/admin")) {
     if (!sessionToken) {
@@ -65,5 +81,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/admin/:path*", "/login", "/((?!api|_next/static|favicon.ico).*)"],
 };

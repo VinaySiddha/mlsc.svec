@@ -89,6 +89,7 @@ export default function PrivacyPolicyPage() {
                     <ul>
                         <li><strong>Personal Data:</strong> Personally identifiable information, such as your name, email address, roll number, and phone number, that you voluntarily give to us when you register for an event or submit a hiring application.</li>
                         <li><strong>Application Data:</strong> Information related to your academic and professional profile, such as your resume, CGPA, branch, and domain interests, collected through our application forms. All application data is stored securely in Firebase.</li>
+                        <li><strong>Visitor Data:</strong> For security and monitoring purposes, we automatically collect the IP address and user agent of every visitor to our website.</li>
                     </ul>
 
                     <h3 className="text-xl font-bold">3. Use of Your Information</h3>
@@ -97,7 +98,8 @@ export default function PrivacyPolicyPage() {
                         <li>Process your application for the MLSC Hiring Program.</li>
                         <li>Register you for events and workshops.</li>
                         <li>Send you email notifications regarding your application status or event details.</li>
-                        <li>Maintain the security and integrity of our website.</li>
+                        <li>Monitor site traffic and analyze usage to improve our services.</li>
+                        <li>Maintain the security and integrity of our website by monitoring for malicious activity and preventing unauthorized access.</li>
                     </ul>
 
                     <h3 className="text-xl font-bold">4. Content Protection and Site Security</h3>

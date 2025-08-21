@@ -3,7 +3,7 @@ import { getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, Group, UploadCloud } from "lucide-react";
+import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, Group, UploadCloud, Database } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
@@ -107,6 +107,9 @@ export default async function AdminPage() {
                       </MenubarItem>
                        <MenubarItem asChild inset>
                          <Link href="/admin/interview-analytics">Interview Analytics</Link>
+                      </MenubarItem>
+                       <MenubarItem asChild inset>
+                         <Link href="/admin/visitors">Visitor Logs</Link>
                       </MenubarItem>
                     </MenubarContent>
                   </MenubarMenu>
@@ -258,6 +261,22 @@ export default async function AdminPage() {
                   <CardContent>
                     <Button asChild variant="glass" size="sm">
                       <Link href="/admin/internal-registration">Register Candidate</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                <Card className="glass-card flex flex-col justify-between">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Database />
+                      Visitor Logs
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      View recent visitor IP addresses and activity.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild variant="glass" size="sm">
+                      <Link href="/admin/visitors">View Logs</Link>
                     </Button>
                   </CardContent>
                 </Card>
