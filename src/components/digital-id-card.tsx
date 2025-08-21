@@ -10,17 +10,22 @@ import { toPng } from 'html-to-image';
 import { Image } from './image';
 
 interface DigitalIdCardProps {
-  member: {
+  member?: {
     name: string;
     role: string;
     image?: string;
-  }
+  };
+  name?: string;
+  referenceId?: string;
 }
 
-export function DigitalIdCard({ member }: DigitalIdCardProps) {
+export function DigitalIdCard({ member, name, referenceId }: DigitalIdCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const { name, role, image } = member;
+  
+  const displayName = member?.name || name || 'Applicant';
+  const displayRole = member?.role || `Ref: ${referenceId}` || 'Applicant';
+  const displayImage = member?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D8ABC&color=fff&size=128`;
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -30,10 +35,10 @@ export function DigitalIdCard({ member }: DigitalIdCardProps) {
       const dataUrl = await toPng(cardRef.current, { 
           cacheBust: true, 
           quality: 1.0,
-          pixelRatio: 2, // Increase resolution
+          pixelRatio: 2,
       });
       const link = document.createElement('a');
-      link.download = `MLSC_ID_Card_${name.replace(/\s+/g, '_')}.png`;
+      link.download = `MLSC_ID_Card_${displayName.replace(/\s+/g, '_')}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -62,8 +67,8 @@ export function DigitalIdCard({ member }: DigitalIdCardProps) {
                     
                     <div className="relative mt-[-40px] border-4 border-blue-500/50 rounded-full p-1 shadow-lg">
                         <Image 
-                            src={image || 'https://placehold.co/128x128.png'} 
-                            alt={`Photo of ${name}`}
+                            src={displayImage} 
+                            alt={`Photo of ${displayName}`}
                             width={128}
                             height={128}
                             className="rounded-full object-cover bg-gray-700"
@@ -72,14 +77,14 @@ export function DigitalIdCard({ member }: DigitalIdCardProps) {
                     </div>
 
                     <div className="space-y-1">
-                        <p className="text-2xl font-bold tracking-wide">{name}</p>
-                        <p className="font-mono text-sm text-blue-300 bg-white/10 px-3 py-1 rounded-full">
-                            {role}
+                        <p className="text-2xl font-bold tracking-wide">{displayName}</p>
+                        <p className="font-mono text-sm text-blue-300 bg-white/10 px-3 py-1 rounded-full break-all">
+                            {displayRole}
                         </p>
                     </div>
                     
                     <div className="w-full pt-2 text-center">
-                        <p className="text-sm font-semibold text-blue-300">MLSC 3.0 TEAM MEMBER</p>
+                        <p className="text-sm font-semibold text-blue-300">MLSC 3.0 HIRING</p>
                     </div>
                 </div>
                 </CardContent>

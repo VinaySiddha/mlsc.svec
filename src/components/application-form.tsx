@@ -527,7 +527,7 @@ export function ApplicationForm() {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel>
-                    I agree to the terms and conditions *
+                    I agree to the <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank">terms and conditions</Link> *
                   </FormLabel>
                   <FormDescription>
                     By submitting this application, you agree to our data handling and privacy policies.

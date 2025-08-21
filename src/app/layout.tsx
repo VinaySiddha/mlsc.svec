@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import Script from 'next/script';
 import { ContentProtection } from '@/components/content-protection';
 import { EntryWarningPopup } from '@/components/entry-warning-popup';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://mlscsvec.in'),
@@ -115,6 +116,15 @@ export default function RootLayout({
         <ContentProtection />
         <EntryWarningPopup />
         <main className="min-h-screen">{children}</main>
+        <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
+          <div className="container mx-auto text-center text-sm text-muted-foreground">
+              <div className="flex justify-center gap-4 mb-2">
+                 <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+                 <Link href="/terms-and-conditions" className="hover:text-primary transition-colors">Terms & Conditions</Link>
+              </div>
+              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
+          </div>
+      </footer>
         <Toaster />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>
         <Script id="google-analytics">
