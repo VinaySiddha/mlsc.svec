@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://mlscsvec.in
+
+# Sitemaps
+Sitemap: https://mlscsvec.in/sitemap.xml

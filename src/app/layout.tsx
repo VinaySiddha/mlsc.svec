@@ -6,8 +6,12 @@ import { cn } from '@/lib/utils';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://mlscsvec.in'),
   title: 'MLSC X SVEC',
-  description: "The official website for the MLSC at Sri Vasavi Engineering College. We are looking for passionate students to join our team.",
+  description: "Welcome to the official site of Microsoft Learn Student Club SVEC — a vibrant community of student innovators, tech enthusiasts, and future leaders from Sri Vasavi Engineering College (SVEC)",
+  alternates: {
+    canonical: 'https://mlscsvec.in',
+  },
   keywords: [
     'MLSC 3.0',
     'MLSC SVEC',
@@ -23,7 +27,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'MLSC X SVEC',
-    description: 'We are hiring passionate students for technical and non-technical roles at MLSC SVEC. Apply now!',
+    description: "Welcome to the official site of Microsoft Learn Student Club SVEC — a vibrant community of student innovators, tech enthusiasts, and future leaders from Sri Vasavi Engineering College (SVEC)",
     url: 'https://mlscsvec.in',
     siteName: 'MLSC SVEC',
     images: [
@@ -52,11 +56,59 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
-        <meta property="og:site_name" content="MLSC SVEC" />
-        <meta name="google-adsense-account" content="ca-pub-3162461325924366"></meta>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" crossOrigin="anonymous"></script>
-        </head>
+  <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
+  <meta property="og:site_name" content="MLSC SVEC" />
+  <meta name="google-adsense-account" content="ca-pub-3162461325924366"></meta>
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "MLSC X SVEC",
+        "url": "https://mlscsvec.in",
+        "department": [
+          {
+            "@type": "WebPage",
+            "name": "Home",
+            "url": "https://mlscsvec.in/"
+          },
+          {
+            "@type": "WebPage",
+            "name": "About",
+            "url": "https://mlscsvec.in/about"
+          },
+          {
+            "@type": "WebPage",
+            "name": "Team",
+            "url": "https://mlscsvec.in/team"
+          },
+          {
+            "@type": "WebPage",
+            "name": "Events",
+            "url": "https://mlscsvec.in/events"
+          },
+          {
+            "@type": "WebPage",
+            "name": "Blog",
+            "url": "https://mlscsvec.in/blog"
+          },
+          {
+            "@type": "WebPage",
+            "name": "Projects",
+            "url": "https://mlscsvec.in/projects"
+          },
+        ]
+      })
+    }}
+  />
+  <script
+    async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
+    crossOrigin="anonymous"
+  ></script>
+</head>
+
       <body className={cn('font-sans antialiased')}>
         <main className="min-h-screen">{children}</main>
         <Toaster />
