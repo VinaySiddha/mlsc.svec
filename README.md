@@ -17,7 +17,7 @@
 13. [Utilities & Hooks](#utilities--hooks)
 14. [Configuration Files](#configuration-files)
 15. [How to Run Locally](#how-to-run-locally)
-16. [Deployment](#deployment)
+16. [Deployment & Environment Variables](#deployment--environment-variables)
 17. [Interactive Images & Icons](#interactive-images--icons)
 
 ---
@@ -174,28 +174,65 @@ hiring/
    ```sh
    npm install
    ```
-2. **Start development server:**
+2. **Setup Environment Variables:** Create a `.env` file in the root of the project and add the necessary variables from the section below.
+3. **Start development server:**
    ```sh
    npm run dev
    ```
-3. **Run Genkit AI dev server (optional, for AI features):**
+4. **Run Genkit AI dev server (optional, for AI features):**
    ```sh
    npm run genkit:dev
    ```
-4. **With Docker Compose (if using multi-service setup):**
+5. **With Docker Compose (if using multi-service setup):**
    ```sh
    docker-compose up --build
    ```
 
-## 16. Deployment
+## 16. Deployment & Environment Variables
 
-- **Kubernetes:**
-  - Use manifests in `bridge/` for deploying to a cluster (see overlays for LoadBalancer services).
-  - Nginx load balances traffic to multiple Next.js pods.
-- **Docker:**
-  - Build and run containers using Docker Compose or Kubernetes.
-- **Persistent Volumes:**
-  - Nginx config is mounted as a persistent volume for dynamic updates.
+For the application to work correctly when deployed, you **must** configure the following environment variables in your hosting provider's settings (e.g., Vercel, Netlify, Cloudflare Pages).
+
+### Required Environment Variables:
+
+- **`JWT_SECRET`**: A long, random, and secret string used for signing authentication tokens. You can generate one using `openssl rand -hex 32`. **The login will fail without this.**
+
+- **Firebase Configuration (Client-side)**: These are needed for the client to connect to Firebase.
+  - `NEXT_PUBLIC_FIREBASE_API_KEY`
+  - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+  - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+  - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+  - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+  - `NEXT_PUBLIC_FIREBASE_APP_ID`
+
+- **Google AI (Server-side)**:
+  - `GOOGLE_API_KEY`: Your API key for Google AI Studio (Gemini).
+
+- **Nodemailer/Email (Server-side)**: For sending emails.
+  - `GMAIL_USER`: Your Gmail address.
+  - `GMAIL_APP_PASSWORD`: An app password for your Gmail account.
+
+**Example `.env` file for local development:**
+
+```
+# Generate with `openssl rand -hex 32`
+JWT_SECRET="your_super_secret_jwt_string_here"
+
+# Firebase Public Keys
+NEXT_PUBLIC_FIREBASE_API_KEY="your_firebase_api_key"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your_project_id.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="your_project_id"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your_project_id.appspot.com"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your_sender_id"
+NEXT_PUBLIC_FIREBASE_APP_ID="your_app_id"
+
+# Google AI API Key
+GOOGLE_API_KEY="your_google_ai_api_key"
+
+# Email credentials
+GMAIL_USER="your.email@gmail.com"
+GMAIL_APP_PASSWORD="your_gmail_app_password"
+
+```
 
 ---
 
