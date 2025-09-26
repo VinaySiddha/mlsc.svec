@@ -59,59 +59,56 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-  <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
-  <meta property="og:site_name" content="MLSC SVEC" />
-  <meta name="google-adsense-account" content="ca-pub-3162461325924366"></meta>
-  <script
-    type="application/ld+json"
-    dangerouslySetInnerHTML={{
-      __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "MLSC X SVEC",
-        "url": "https://mlscsvec.in",
-        "department": [
-          {
-            "@type": "WebPage",
-            "name": "Home",
-            "url": "https://mlscsvec.in/"
-          },
-          {
-            "@type": "WebPage",
-            "name": "About",
-            "url": "https://mlscsvec.in/about"
-          },
-          {
-            "@type": "WebPage",
-            "name": "Team",
-            "url": "https://mlscsvec.in/team"
-          },
-          {
-            "@type": "WebPage",
-            "name": "Events",
-            "url": "https://mlscsvec.in/events"
-          },
-          {
-            "@type": "WebPage",
-            "name": "Blog",
-            "url": "https://mlscsvec.in/blog"
-          },
-          {
-            "@type": "WebPage",
-            "name": "Projects",
-            "url": "https://mlscsvec.in/projects"
-          },
-        ]
-      })
-    }}
-  />
-  <script
-    async
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
-    crossOrigin="anonymous"
-  ></script>
-</head>
+    <head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
+     crossOrigin="anonymous"></script>
+      <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
+      <meta property="og:site_name" content="MLSC SVEC" />
+      <meta name="google-adsense-account" content="ca-pub-4523569844866132"></meta>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "MLSC X SVEC",
+            "url": "https://mlscsvec.in",
+            "department": [
+              {
+                "@type": "WebPage",
+                "name": "Home",
+                "url": "https://mlscsvec.in/"
+              },
+              {
+                "@type": "WebPage",
+                "name": "About",
+                "url": "https://mlscsvec.in/about"
+              },
+              {
+                "@type": "WebPage",
+                "name": "Team",
+                "url": "https://mlscsvec.in/team"
+              },
+              {
+                "@type": "WebPage",
+                "name": "Events",
+                "url": "https://mlscsvec.in/events"
+              },
+              {
+                "@type": "WebPage",
+                "name": "Blog",
+                "url": "https://mlscsvec.in/blog"
+              },
+              {
+                "@type": "WebPage",
+                "name": "Projects",
+                "url": "https://mlscsvec.in/projects"
+              },
+            ]
+          })
+        }}
+      />
+    </head>
 
       <body className={cn('font-sans antialiased')}>
         <ContentProtection />
