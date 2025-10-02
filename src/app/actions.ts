@@ -164,7 +164,6 @@ export async function createUserProfile(user: User) {
         phone: user.phoneNumber,
     };
     // Use set with merge:true to create or update the document without overwriting existing fields
-    // This is a "non-blocking" call, meaning we don't wait for the promise to resolve
     await setDoc(userRef, userData, { merge: true });
 }
 
@@ -1801,21 +1800,26 @@ export async function completeOnboarding(formData: FormData) {
 
 export async function getTeamMembers() {
     try {
-        const teamMembersSnapshot = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'active')));
-        const teamMembers = !teamMembersSnapshot.empty ? teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) : [];
-        
-        const teamCategoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), orderBy('order')));
-        const teamCategoriesData = !teamCategoriesSnapshot.empty ? teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) : [];
-        
+        const teamMembersQuery = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
+        const teamMembersSnapshot = await getDocs(teamMembersQuery);
+        const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const teamCategoriesQuery = query(collection(db, 'teamCategories'), orderBy('order'));
+        const teamCategoriesSnapshot = await getDocs(teamCategoriesQuery);
+        const teamCategoriesData = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
         const membersByCategory = teamCategoriesData.map(category => ({
             ...category,
             members: teamMembers.filter(member => member.categoryId === category.id)
         }));
 
-        return { membersByCategory };
+        return { membersByCategory: membersByCategory as any[], error: null };
     } catch (e) {
-        console.error(e)
-        return { error: "Failed to fetch team members." };
+        console.error("Error fetching team members:", e);
+        if (e instanceof Error) {
+            return { error: `Failed to fetch team members: ${e.message}`, membersByCategory: [] };
+        }
+        return { error: 'An unexpected server error occurred.', membersByCategory: [] };
     }
 }
 
@@ -1876,5 +1880,3 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
-
-    

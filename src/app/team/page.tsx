@@ -47,8 +47,8 @@ const roleOrder: { [key: string]: number } = {
 
 const sortMembers = (members: TeamMember[]) => {
     return [...members].sort((a, b) => {
-        const aOrder = roleOrder[a.role] ?? (a.role.includes('Head') ? 7 : 99);
-        const bOrder = roleOrder[b.role] ?? (b.role.includes('Head') ? 7 : 99);
+        const aOrder = roleOrder[a.role] ?? (String(a.role).includes('Head') ? 7 : 99);
+        const bOrder = roleOrder[b.role] ?? (String(b.role).includes('Head') ? 7 : 99);
         
         if (aOrder !== bOrder) {
             return aOrder - bOrder;
@@ -58,18 +58,20 @@ const sortMembers = (members: TeamMember[]) => {
 };
 
 const renderMembers = (members: TeamMember[]) => {
-    if (members.length === 0) return null;
+    if (!members || members.length === 0) return null;
+    
+    const sorted = sortMembers(members);
     
     const containerClasses = cn(
         "gap-8",
-        members.length > 1 
+        sorted.length > 1 
           ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
           : "flex justify-center"
     );
 
     return (
          <div className={containerClasses}>
-            {sortMembers(members).map((member: any) => (
+            {sorted.map((member: any) => (
             <div key={member.id} className="glass-card p-4 flex flex-col items-center text-center group">
                 <Image 
                     src={member.image} 
@@ -91,7 +93,7 @@ const renderMembers = (members: TeamMember[]) => {
 }
 
 const renderTeamSection = (teams: TeamCategory[], title: string) => {
-  if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
+  if (!teams || teams.length === 0 || teams.every(team => !team.members || team.members.length === 0)) {
       return null;
   }
   
@@ -102,7 +104,7 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
               </div>
               {teams.map(category => {
-                  if (category.members.length === 0) return null;
+                  if (!category.members || category.members.length === 0) return null;
                   return (
                       <div key={category.id} className="w-full">
                           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
@@ -121,19 +123,21 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
 export default async function TeamPage() {
     const { membersByCategory, error } = await getTeamMembers();
 
-    if (error || !membersByCategory) {
+    if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-center">
-                <h2 className="text-2xl font-bold text-destructive">Failed to load team members</h2>
-                <p className="text-muted-foreground">{error || "An unknown error occurred."}</p>
-                <Button asChild variant="link" className="mt-4">
-                    <Link href="/">Return to Home</Link>
-                </Button>
+            <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+                <div className="glass-card p-8">
+                    <h2 className="text-2xl font-bold text-destructive">Failed to load team members</h2>
+                    <p className="text-muted-foreground mt-2">{error}</p>
+                    <Button asChild variant="link" className="mt-4">
+                        <Link href="/">Return to Home</Link>
+                    </Button>
+                </div>
             </div>
         );
     }
 
-    const allCategories = membersByCategory as TeamCategory[];
+    const allCategories = membersByCategory || [];
     const teamData = {
         coreTeam: allCategories.filter(c => c.name === 'Core Team'),
         technicalTeam: allCategories.filter(c => c.name === 'Technical Team'),
@@ -225,3 +229,4 @@ export default async function TeamPage() {
     </div>
   );
 }
+
