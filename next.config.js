@@ -20,13 +20,13 @@ const config = {
       },
       {
         protocol: 'https',
-        hostname: 'sves.org.in',
+        hostname: 'svec.org.in',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'drive.googlee.com',
+        hostname: 'drive.google.com',
         port: '',
         pathname: '/**',
       },

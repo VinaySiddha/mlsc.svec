@@ -7,7 +7,7 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ImageIcon, Mic, List, Clock } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ImageIcon, Mic, List, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Image } from "@/components/image";
 import { format } from "date-fns";
@@ -142,45 +142,14 @@ export default function EventsPage() {
                                 <div className="p-6 flex flex-col flex-1 lg:w-2/3">
                                     <p className="text-sm text-primary font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
                                     <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
-                                    <p className="text-muted-foreground mt-2 flex-1">{event.description}</p>
+                                    <p className="text-muted-foreground mt-2 flex-1 line-clamp-3">{event.description}</p>
                                     
-                                    {event.speakers && (
-                                        <div className="mt-4">
-                                            <h4 className="font-semibold flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</h4>
-                                            <p className="text-muted-foreground">{event.speakers}</p>
-                                        </div>
-                                    )}
-
-                                    {event.timeline && (
-                                        <div className="mt-4">
-                                            <h4 className="font-semibold flex items-center gap-2"><List className="h-5 w-5"/> Timeline</h4>
-                                            <ul className="text-muted-foreground list-disc pl-5 mt-2 space-y-1">
-                                              {event.timeline.split('\n').map((item: string, index: number) => (
-                                                item.trim() && <li key={index}>{item}</li>
-                                              ))}
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    {event.highlightImages && event.highlightImages.length > 0 && (
-                                        <div className="mt-4">
-                                            <h4 className="font-semibold flex items-center gap-2"><ImageIcon className="h-5 w-5"/> Highlights</h4>
-                                            <Carousel className="w-full max-w-xs sm:max-w-sm md:max-w-md mt-2" opts={{loop: true}}>
-                                              <CarouselContent>
-                                                {event.highlightImages.map((img: string, index: number) => (
-                                                  <CarouselItem key={index}>
-                                                      <Image src={img} alt={`Highlight ${index + 1}`} width={400} height={300} className="rounded-lg object-cover" data-ai-hint="event highlight"/>
-                                                  </CarouselItem>
-                                                ))}
-                                              </CarouselContent>
-                                              <CarouselPrevious />
-                                              <CarouselNext />
-                                            </Carousel>
-                                        </div>
-                                    )}
-
                                     <div className="mt-auto pt-6">
-                                       <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
+                                       <Button asChild>
+                                            <Link href={`/events/${event.id}`}>
+                                                View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                            </Link>
+                                       </Button>
                                     </div>
                                 </div>
                             </Card>
