@@ -3,7 +3,7 @@ import { getEventById } from "@/app/actions";
 import { EventRegistrationForm } from "@/components/event-registration-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ArrowLeft, Mic, List, Clock, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
