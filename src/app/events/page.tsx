@@ -1,21 +1,14 @@
 
 import { getEvents } from "@/app/actions";
-import { EventRegistrationForm } from "@/components/event-registration-form";
+import { EventDetailsDialog } from "@/components/event-details-dialog";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ImageIcon, Mic } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code } from "lucide-react";
 import Link from "next/link";
 import { Image } from "@/components/image";
 import { format } from "date-fns";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -120,58 +113,22 @@ export default async function EventsPage() {
                         </div>
                     </div>
                     {events.length > 0 ? (
-                        <div className="grid gap-8 lg:gap-12">
+                        <div className="grid gap-8 lg:gap-12 grid-cols-1 md:grid-cols-2">
                             {events.map((event: any) => (
-                            <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
-                                <div className="lg:w-1/3">
+                            <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
                                 <Image 
                                     src={event.image} 
                                     alt={event.title} 
                                     width={600} 
-                                    height={400} 
-                                    className="rounded-t-lg lg:rounded-l-lg lg:rounded-t-none object-cover h-full w-full" 
+                                    height={300} 
+                                    className="object-cover h-48 w-full"
                                     data-ai-hint="event photo"
                                 />
-                                </div>
-                                <div className="p-6 flex flex-col flex-1 lg:w-2/3">
+                                <div className="p-6 flex flex-col flex-1">
                                     <p className="text-sm text-primary font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
-                                    <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
-                                    <p className="text-muted-foreground mt-2 flex-1">{event.description}</p>
-                                    
-                                    {event.bannerLink && (
-                                        <div className="mt-4">
-                                             <Button asChild variant="secondary">
-                                                <a href={event.bannerLink} target="_blank" rel="noopener noreferrer">View Event Banner</a>
-                                             </Button>
-                                        </div>
-                                    )}
-
-                                    {event.speakers && (
-                                        <div className="mt-4">
-                                            <h4 className="font-semibold flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</h4>
-                                            <p className="text-muted-foreground">{event.speakers}</p>
-                                        </div>
-                                    )}
-
-                                    {event.highlightImages && event.highlightImages.length > 0 && (
-                                        <div className="mt-4">
-                                            <h4 className="font-semibold flex items-center gap-2"><ImageIcon className="h-5 w-5"/> Highlights</h4>
-                                            <Carousel className="w-full max-w-xs sm:max-w-sm md:max-w-md mt-2" opts={{loop: true}}>
-                                              <CarouselContent>
-                                                {event.highlightImages.map((img: string, index: number) => (
-                                                  <CarouselItem key={index}>
-                                                      <Image src={img} alt={`Highlight ${index + 1}`} width={400} height={300} className="rounded-lg object-cover" data-ai-hint="event highlight"/>
-                                                  </CarouselItem>
-                                                ))}
-                                              </CarouselContent>
-                                              <CarouselPrevious />
-                                              <CarouselNext />
-                                            </Carousel>
-                                        </div>
-                                    )}
-
-                                    <div className="mt-6">
-                                       <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
+                                    <CardTitle className="pt-2 text-xl flex-1">{event.title}</CardTitle>
+                                    <div className="mt-4">
+                                       <EventDetailsDialog event={event} />
                                     </div>
                                 </div>
                             </Card>
