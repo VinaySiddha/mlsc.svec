@@ -13,6 +13,7 @@ import { notFound } from "next/navigation";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { CountdownTimer } from "@/components/countdown-timer";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
