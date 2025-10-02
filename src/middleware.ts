@@ -65,13 +65,6 @@ export async function middleware(req: NextRequest) {
     });
   }
 
-  if (pathname === "/login" && sessionToken) {
-    const payload = verifyToken(sessionToken);
-    if (payload) {
-      return NextResponse.redirect(new URL("/admin", req.url));
-    }
-  }
-
   return NextResponse.next();
 }
 
