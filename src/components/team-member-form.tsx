@@ -119,7 +119,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                  {/* Fields editable by admin or when creating new */}
-                <div className={cn("space-y-6")}>
+                <div className={cn("space-y-6", !isAdmin && "pointer-events-none opacity-50")}>
                      <FormField
                         control={form.control}
                         name="name"
@@ -140,7 +140,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input type="email" placeholder="john.doe@example.com" {...field} disabled={!isAdmin} />
+                                    <Input type="email" placeholder="john.doe@example.com" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -153,7 +153,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             <FormItem>
                                 <FormLabel>Role</FormLabel>
                                  <FormControl>
-                                     <Input placeholder="e.g., Club Lead" {...field} disabled={!isAdmin}/>
+                                     <Input placeholder="e.g., Club Lead" {...field} />
                                  </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -165,7 +165,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Category</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!isAdmin}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select a category" />

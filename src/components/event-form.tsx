@@ -26,17 +26,18 @@ const eventFormSchema = z.object({
   date: z.date({
     required_error: "A date for the event is required.",
   }),
-  image: z.string().url("Please enter a valid image URL."),
+  image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
-  bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
   speakers: z.string().optional(),
-  highlightImages: z.string().optional(),
+  timeline: z.string().optional(),
+  highlightImages: z.any().optional(),
 });
+
 
 type FormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
-    event?: (FormValues & { id: string });
+    event?: (Omit<FormValues, 'image'|'highlightImages'|'date'> & { id: string; date: string; image?: string; highlightImages?: string[] });
 }
 
 export function EventForm({ event }: EventFormProps) {
@@ -50,22 +51,42 @@ export function EventForm({ event }: EventFormProps) {
             title: event?.title || "",
             description: event?.description || "",
             date: event?.date ? new Date(event.date) : new Date(),
-            image: event?.image || "",
+            image: undefined,
             registrationOpen: event?.registrationOpen || false,
-            bannerLink: event?.bannerLink || "",
             speakers: event?.speakers || "",
-            highlightImages: event?.highlightImages || "",
+            timeline: event?.timeline || "",
+            highlightImages: undefined,
         },
     });
 
     const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
+        const formData = new FormData();
+        
+        Object.entries(values).forEach(([key, value]) => {
+            if (key === 'image' && value && value.length > 0) {
+                formData.append(key, value[0]);
+            } else if (key === 'highlightImages' && value) {
+                for(let i = 0; i < value.length; i++) {
+                    formData.append(key, value[i]);
+                }
+            }
+            else if (key === 'date' && value instanceof Date) {
+                 formData.append(key, value.toISOString());
+            } else if (key === 'registrationOpen') {
+                if (value) formData.append(key, 'on');
+            }
+             else if (value) {
+                formData.append(key, value as string);
+            }
+        });
+
         try {
             let result;
             if (event) {
-                result = await updateEvent(event.id, values);
+                result = await updateEvent(event.id, formData);
             } else {
-                result = await createEvent(values);
+                result = await createEvent(formData);
             }
 
             if (result.error) {
@@ -129,27 +150,13 @@ export function EventForm({ event }: EventFormProps) {
                 <FormField
                     control={form.control}
                     name="image"
-                    render={({ field }) => (
+                    render={({ field: { onChange, value, ...rest }}) => (
                         <FormItem>
-                            <FormLabel>Cover Image URL</FormLabel>
+                            <FormLabel>Cover Image</FormLabel>
                             <FormControl>
-                                <Input placeholder="https://placehold.co/600x400.png" {...field} />
+                               <Input type="file" accept="image/*" onChange={e => onChange(e.target.files)} {...rest}/>
                             </FormControl>
-                            <FormDescription>This is the main image shown on the events list.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="bannerLink"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Event Banner Link (Optional)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Google Drive link to the banner image" {...field} />
-                            </FormControl>
+                            <FormDescription>This is the main image shown on the events list. {event?.image && "Leave blank to keep the current image."}</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -169,21 +176,36 @@ export function EventForm({ event }: EventFormProps) {
                         </FormItem>
                     )}
                 />
-
+                
                 <FormField
                     control={form.control}
-                    name="highlightImages"
+                    name="timeline"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Highlight Images (Optional)</FormLabel>
+                            <FormLabel>Event Timeline (Optional)</FormLabel>
                             <FormControl>
                                 <Textarea
-                                    placeholder="Enter one Google Drive image link per line."
+                                    placeholder="10:00 AM - Welcome Note&#x0a;10:30 AM - Session 1..."
                                     className="resize-y"
                                     {...field}
                                 />
                             </FormControl>
-                            <FormDescription>These images will be displayed in a carousel on the event page.</FormDescription>
+                            <FormDescription>Enter each timeline item on a new line. This will be displayed on the event details page.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="highlightImages"
+                    render={({ field: { onChange, value, ...rest } }) => (
+                        <FormItem>
+                            <FormLabel>Highlight Images (Optional)</FormLabel>
+                             <FormControl>
+                               <Input type="file" accept="image/*" multiple onChange={e => onChange(e.target.files)} {...rest}/>
+                            </FormControl>
+                            <FormDescription>These images will be displayed in a gallery. You can select multiple images. {event?.highlightImages && "New images will be added to the existing ones."}</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}

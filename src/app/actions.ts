@@ -9,6 +9,7 @@ import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
+import { sendRsvpConfirmationEmail, RsvpConfirmationEmailInput } from '@/ai/flows/send-rsvp-confirmation-email';
 
 
 import {z} from 'zod';
@@ -102,11 +103,11 @@ const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
   date: z.date(),
-  image: z.string().url("Please enter a valid image URL."),
+  image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
-  bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
   speakers: z.string().optional(),
-  highlightImages: z.string().optional(),
+  timeline: z.string().optional(),
+  highlightImages: z.any().optional(),
 });
 
 const registrationSchema = z.object({
@@ -1079,40 +1080,113 @@ export async function getDeadline() {
 }
 
 
-export async function createEvent(values: z.infer<typeof eventFormSchema>) {
-    const parsed = eventFormSchema.safeParse(values);
+export async function createEvent(formData: FormData) {
+    const values = Object.fromEntries(formData.entries());
+    const imageFile = formData.get('image') as File | null;
+    const highlightImageFiles = formData.getAll('highlightImages') as File[];
+
+    // Manually parse date string
+    if (values.date) {
+        values.date = new Date(values.date as string);
+    }
+    if (values.registrationOpen) {
+        values.registrationOpen = values.registrationOpen === 'on';
+    }
+
+
+    const parsed = eventFormSchema.omit({ image: true, highlightImages: true }).safeParse(values);
     if (!parsed.success) {
+        console.error("Validation error:", parsed.error);
         return { error: 'Invalid event data.' };
     }
+    
     try {
-        const dataToSave = {
-            ...parsed.data,
-            highlightImages: parsed.data.highlightImages?.split('\n').filter(link => link.trim() !== '') || [],
-        };
-        const docRef = await addDoc(collection(db, 'events'), dataToSave);
-        return { success: true, id: docRef.id };
+        const docRef = await addDoc(collection(db, 'events'), parsed.data);
+        const eventId = docRef.id;
+        
+        let imageUrl = "";
+        if (imageFile && imageFile.size > 0) {
+            const storageRef = ref(storage, `event-images/${eventId}/cover`);
+            await uploadBytes(storageRef, imageFile);
+            imageUrl = await getDownloadURL(storageRef);
+        }
+
+        const highlightImageUrls: string[] = [];
+        if (highlightImageFiles.length > 0) {
+            for (let i = 0; i < highlightImageFiles.length; i++) {
+                const file = highlightImageFiles[i];
+                if (file.size > 0) {
+                    const storageRef = ref(storage, `event-images/${eventId}/highlight_${i}`);
+                    await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(storageRef);
+                    highlightImageUrls.push(url);
+                }
+            }
+        }
+        
+        await updateDoc(docRef, {
+            image: imageUrl,
+            highlightImages: highlightImageUrls,
+        });
+
+        return { success: true, id: eventId };
     } catch (error) {
+        console.error("Error creating event", error);
         return { error: 'Failed to create event.' };
     }
 }
 
-export async function updateEvent(id: string, values: z.infer<typeof eventFormSchema>) {
-    const parsed = eventFormSchema.safeParse(values);
+export async function updateEvent(id: string, formData: FormData) {
+     const values = Object.fromEntries(formData.entries());
+    const imageFile = formData.get('image') as File | null;
+    const highlightImageFiles = formData.getAll('highlightImages') as File[];
+
+    if (values.date) {
+        values.date = new Date(values.date as string);
+    }
+    if (values.registrationOpen) {
+        values.registrationOpen = values.registrationOpen === 'on';
+    }
+
+    const parsed = eventFormSchema.omit({ image: true, highlightImages: true }).safeParse(values);
+
     if (!parsed.success) {
+        console.log(parsed.error.flatten().fieldErrors)
         return { error: 'Invalid event data.' };
     }
     try {
-        const dataToUpdate = {
-            ...parsed.data,
-            highlightImages: parsed.data.highlightImages?.split('\n').filter(link => link.trim() !== '') || [],
-        };
         const eventDoc = doc(db, 'events', id);
-        await updateDoc(eventDoc, dataToUpdate as any);
+        const dataToUpdate: any = { ...parsed.data };
+        
+        if (imageFile && imageFile.size > 0) {
+            const storageRef = ref(storage, `event-images/${id}/cover`);
+            await uploadBytes(storageRef, imageFile);
+            dataToUpdate.image = await getDownloadURL(storageRef);
+        }
+        
+        if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
+            const highlightImageUrls: string[] = [];
+            for (let i = 0; i < highlightImageFiles.length; i++) {
+                const file = highlightImageFiles[i];
+                const storageRef = ref(storage, `event-images/${id}/highlight_${Date.now()}_${i}`);
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                highlightImageUrls.push(url);
+            }
+            // Append to existing images if needed, or replace. Here we replace.
+            const currentEventSnap = await getDoc(eventDoc);
+            const currentEventData = currentEventSnap.data();
+            dataToUpdate.highlightImages = [...(currentEventData?.highlightImages || []), ...highlightImageUrls];
+        }
+
+        await updateDoc(eventDoc, dataToUpdate);
         return { success: true };
     } catch (error) {
+        console.error(error);
         return { error: 'Failed to update event.' };
     }
 }
+
 
 export async function deleteEvent(id: string) {
     try {
@@ -1160,7 +1234,6 @@ export async function getEventById(id: string) {
             ...data,
             id: eventDoc.id,
             date: data.date.toDate().toISOString(),
-            highlightImages: Array.isArray(data.highlightImages) ? data.highlightImages.join('\n') : '',
         };
         return { event: eventData as any };
     } catch (error) {
@@ -1179,7 +1252,13 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
         const eventRef = doc(db, 'events', eventId);
         const eventSnap = await getDoc(eventRef);
 
-        if (!eventSnap.exists() || !eventSnap.data().registrationOpen) {
+        if (!eventSnap.exists()) {
+             return { error: 'Event not found.' };
+        }
+        
+        const eventData = eventSnap.data();
+
+        if (!eventData.registrationOpen) {
             return { error: 'Registrations for this event are closed.' };
         }
         
@@ -1197,6 +1276,21 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
             registeredAt: new Date().toISOString(),
         });
         
+         // Send confirmation email in background
+        (async () => {
+            try {
+                const emailInput: RsvpConfirmationEmailInput = { 
+                    name: parsed.data.name,
+                    email: parsed.data.email,
+                    eventName: eventData.title,
+                    eventDate: eventData.date.toDate().toISOString(),
+                };
+                await sendRsvpConfirmationEmail(emailInput);
+            } catch (emailError) {
+                console.error(`RSVP Email sending failed for ${parsed.data.email}:`, emailError);
+            }
+        })();
+
         return { success: true };
 
     } catch (error) {
@@ -1220,6 +1314,30 @@ export async function getEventRegistrations(eventId: string) {
         return { error: 'Could not fetch event registrations.' };
     }
 }
+
+export async function exportRegistrationsToCsv(eventId: string) {
+    try {
+        const { registrations, error } = await getEventRegistrations(eventId);
+        if (error) {
+            throw new Error(error);
+        }
+
+        if (registrations.length === 0) {
+            return { error: 'No registrations found to export.' };
+        }
+
+        const csv = papaparse.unparse(registrations);
+        return { success: true, csvData: csv };
+
+    } catch (error) {
+        console.error('Error exporting registrations:', error);
+        if (error instanceof Error) {
+            return { error: `Export failed: ${error.message}` };
+        }
+        return { error: 'An unexpected error occurred during export.' };
+    }
+}
+
 
 // Team Category Actions
 export async function createTeamCategory(values: z.infer<typeof teamCategorySchema>) {
@@ -1667,5 +1785,3 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
-
-    

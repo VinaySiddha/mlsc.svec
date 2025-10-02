@@ -1,14 +1,16 @@
 
-import { getEventRegistrations, getEventById } from "@/app/actions";
+import { getEventRegistrations, getEventById, exportRegistrationsToCsv } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileDown, Loader2 } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { format } from "date-fns";
+import { useState } from "react";
+import { RegistrationsTable } from "@/components/registrations-table";
 
 export default async function EventRegistrationsPage({ params }: { params: { id: string } }) {
     const headersList = headers();
@@ -55,11 +57,14 @@ export default async function EventRegistrationsPage({ params }: { params: { id:
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container mx-auto space-y-8">
                     <Card className="glass-card">
-                        <CardHeader>
-                            <CardTitle>Registered Users ({registrations.length})</CardTitle>
-                            <CardDescription>
-                                List of users who have registered for this event.
-                            </CardDescription>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>Registered Users ({registrations.length})</CardTitle>
+                                <CardDescription>
+                                    List of users who have registered for this event.
+                                </CardDescription>
+                            </div>
+                           <RegistrationsTable registrations={registrations} eventId={eventId} />
                         </CardHeader>
                         <CardContent>
                             <div className="border rounded-md">
