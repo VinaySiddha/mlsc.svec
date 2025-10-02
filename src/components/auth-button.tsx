@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useUser } from "@/firebase";
@@ -21,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { createUserProfile } from "@/app/actions";
 import { useAuth } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { FirebaseError } from "firebase/app";
 
 export default function AuthButton() {
   const { user, isUserLoading } = useUser();
@@ -37,6 +39,10 @@ export default function AuthButton() {
         description: `Welcome, ${result.user.displayName}!`,
       });
     } catch (error) {
+      // Don't show an error toast if the user simply closes the popup
+      if (error instanceof FirebaseError && error.code === 'auth/popup-closed-by-user') {
+        return;
+      }
       console.error("Authentication error:", error);
       toast({
         variant: "destructive",
