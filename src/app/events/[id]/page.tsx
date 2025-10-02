@@ -13,7 +13,6 @@ import { notFound } from "next/navigation";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { CountdownTimer } from "@/components/countdown-timer";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -153,7 +152,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                             <CarouselContent>
                                                 {event.highlightImages.map((img: string, index: number) => (
                                                 <CarouselItem key={index}>
-                                                    <Image src={img} alt={`Event highlight ${index+1}`} width={800} height={450} className="rounded-lg object-cover w-full aspect-video" data-ai-hint="event photo" />
+                                                    <Image src={img} alt={`Event highlight ${'${index+1}'}`} width={800} height={450} className="rounded-lg object-cover w-full aspect-video" data-ai-hint="event photo" />
                                                 </CarouselItem>
                                                 ))}
                                             </CarouselContent>
