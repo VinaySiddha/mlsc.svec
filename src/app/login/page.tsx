@@ -53,8 +53,8 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: "Redirecting to your dashboard...",
         });
-        // Refresh the current route to allow middleware to redirect
-        router.refresh();
+        // Explicitly navigate to the admin dashboard after success.
+        router.push('/admin');
       } else {
         throw new Error(result.error || 'Invalid credentials.');
       }
