@@ -165,7 +165,7 @@ export async function createUserProfile(user: User) {
     };
     // Use set with merge:true to create or update the document without overwriting existing fields
     // This is a "non-blocking" call, meaning we don't wait for the promise to resolve
-    setDoc(userRef, userData, { merge: true });
+    await setDoc(userRef, userData, { merge: true });
 }
 
 export async function updateUserProfile(userId: string, data: z.infer<typeof userProfileUpdateSchema>) {
@@ -1802,12 +1802,11 @@ export async function completeOnboarding(formData: FormData) {
 export async function getTeamMembers() {
     try {
         const teamMembersSnapshot = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'active')));
-        const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const teamMembers = !teamMembersSnapshot.empty ? teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) : [];
         
         const teamCategoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), orderBy('order')));
-        const teamCategoriesData = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const teamCategoriesData = !teamCategoriesSnapshot.empty ? teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) : [];
         
-        // This function needs to return a more structured format for the page
         const membersByCategory = teamCategoriesData.map(category => ({
             ...category,
             members: teamMembers.filter(member => member.categoryId === category.id)
@@ -1877,3 +1876,5 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
+
+    
