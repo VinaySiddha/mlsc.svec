@@ -1661,5 +1661,50 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
+async function addInitialEvents() {
+    const eventsCol = collection(db, 'events');
+    const snapshot = await getDocs(eventsCol);
+    if (snapshot.empty) {
+        const initialEvents = [
+            {
+                title: "Intro to MLSC",
+                description: "Join us for an introduction to the Microsoft Learn Student Club, our goals, and how you can get involved.",
+                date: new Date("2024-09-10T18:00:00Z"),
+                image: "/azure.jpg",
+                registrationOpen: true
+            },
+            {
+                title: 'Blue Day',
+                description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
+                date: new Date('2025-01-25T00:00:00Z'),
+                image: '/blueday.png',
+                registrationOpen: false,
+            },
+            {
+                title: 'The Flask Edition',
+                description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
+                date: new Date('2025-02-06T00:00:00Z'),
+                image: '/flask.png',
+                registrationOpen: false,
+            },
+            {
+                title: 'Web development BootCamp',
+                description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
+                date: new Date('2024-03-14T00:00:00Z'),
+                image: '/web.jpg',
+                registrationOpen: false,
+            },
+        ];
 
+        const batch = writeBatch(db);
+        initialEvents.forEach(event => {
+            const docRef = doc(eventsCol); // Automatically generate new doc ID
+            batch.set(docRef, event);
+        });
+        await batch.commit();
+        console.log("Added initial events to the database.");
+    }
+}
+
+addInitialEvents().catch(console.error);
     

@@ -1,6 +1,5 @@
 
-'use client'
-
+import { getEvents } from "@/app/actions";
 import { EventRegistrationForm } from "@/components/event-registration-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -26,44 +25,21 @@ const navLinks = [
     { href: "/blog", label: "Blog", icon: Book },
 ];
 
-const staticEvents = [
-    {
-        id: '3',
-        title: 'Blue Day',
-        description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
-        date: new Date('2025-01-25T00:00:00Z').toISOString(),
-        image: '/blueday.png',
-        registrationOpen: false,
-    },
-    {
-        id: '4',
-        title: 'The Flask Edition',
-        description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
-        date: new Date('2025-02-06T00:00:00Z').toISOString(),
-        image: '/flask.png',
-        registrationOpen: false,
-    },
-    {
-        id: '2',
-        title: 'Web development BootCamp',
-        description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
-        date: new Date('2024-03-14T00:00:00Z').toISOString(),
-        image: '/web.jpg',
-        registrationOpen: false,
-    },
-    {
-        id: '1',
-        title: 'Azure Cloud Workshop',
-        description: 'Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.',
-        date: new Date('2023-10-18T00:00:00Z').toISOString(),
-        image: '/azure.jpg',
-        registrationOpen: false,
-    },
-];
 
-export default function EventsPage() {
+export default async function EventsPage() {
+    const { events, error } = await getEvents();
     
-    const events = staticEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    if (error) {
+        return (
+             <div className="flex flex-col items-center justify-center min-h-screen text-center">
+                <h2 className="text-2xl font-bold text-destructive">Failed to load events</h2>
+                <p className="text-muted-foreground">{error || "An unknown error occurred."}</p>
+                <Button asChild variant="link" className="mt-4">
+                    <Link href="/">Return to Home</Link>
+                </Button>
+            </div>
+        )
+    }
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-foreground">
