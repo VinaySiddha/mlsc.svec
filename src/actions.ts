@@ -1374,6 +1374,7 @@ export async function getAllTeamMembersWithCategory() {
             subDomain: categoryMap.get(member.categoryId)?.subDomain || 'N/A',
         }));
         
+        
         return { members: membersWithCategoryName };
     } catch (e) {
         return { error: "Failed to fetch team members." };
