@@ -1,4 +1,5 @@
 
+
 import { getEventById } from "@/app/actions";
 import { EventRegistrationForm } from "@/components/event-registration-form";
 import { MLSCLogo } from "@/components/icons";
@@ -11,6 +12,8 @@ import { Image } from "@/components/image";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { CountdownTimer } from "@/components/countdown-timer";
+import { cn } from "@/lib/utils";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -26,6 +29,8 @@ export default async function EventDetailPage({ params }: { params: { id: string
     if (error || !event) {
         notFound();
     }
+    
+    const timelineItems = event.timeline?.split('\n').filter((item: string) => item.trim() !== '') || [];
 
     return (
         <div className="flex flex-col min-h-screen bg-transparent text-foreground">
@@ -91,6 +96,15 @@ export default async function EventDetailPage({ params }: { params: { id: string
                         <p className="text-lg text-primary mt-2">{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
                     </div>
                 </section>
+                
+                {event.registrationOpen && (
+                    <section className="py-8 bg-background/50">
+                        <div className="container mx-auto px-4 md:px-6">
+                            <CountdownTimer deadline={event.date} />
+                        </div>
+                    </section>
+                )}
+
 
                 {/* Event Details Section */}
                 <section className="py-12">
@@ -101,32 +115,51 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     <CardTitle>About this Event</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">{event.description}</p>
+                                    <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
                                 </CardContent>
                             </Card>
                             
-                            {event.speakers && (
+                            {event.speakers && event.speakers.length > 0 && (
                                 <Card className="glass-card">
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</CardTitle>
                                     </CardHeader>
-                                    <CardContent>
-                                        <p className="text-muted-foreground">{event.speakers}</p>
+                                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        {event.speakers.map((speaker: any, index: number) => (
+                                            <div key={index} className="flex items-center gap-4">
+                                                <Image src={speaker.image || '/placeholder.jpg'} alt={speaker.name} width={80} height={80} className="rounded-full object-cover w-20 h-20" data-ai-hint="speaker portrait" />
+                                                <div>
+                                                    <h4 className="font-semibold">{speaker.name}</h4>
+                                                    <p className="text-sm text-muted-foreground">{speaker.title}</p>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </CardContent>
                                 </Card>
                             )}
                             
-                             {event.timeline && (
+                             {timelineItems.length > 0 && (
                                 <Card className="glass-card">
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Timeline</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <ul className="text-muted-foreground list-disc pl-5 space-y-2">
-                                        {event.timeline.split('\n').map((item: string, index: number) => (
-                                            item.trim() && <li key={index}>{item}</li>
-                                        ))}
-                                        </ul>
+                                        <div className="relative pl-6">
+                                            <div className="absolute left-9 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
+                                            {timelineItems.map((item: string, index: number) => {
+                                                const [time, ...textParts] = item.split('-');
+                                                const text = textParts.join('-').trim();
+                                                return (
+                                                    <div key={index} className="relative mb-8 pl-6">
+                                                         <div className={cn("absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(50%_+_1px)] w-4 h-4 rounded-full",
+                                                            index === 0 ? "bg-primary" : "bg-muted"
+                                                         )}></div>
+                                                         <p className="font-bold text-primary">{time.trim()}</p>
+                                                         <p className="text-muted-foreground">{text}</p>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     </CardContent>
                                 </Card>
                             )}

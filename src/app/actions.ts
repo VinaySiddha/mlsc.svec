@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -104,7 +105,11 @@ const eventFormSchema = z.object({
   date: z.date(),
   image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
-  speakers: z.string().optional(),
+  speakers: z.array(z.object({
+    name: z.string().min(1, "Speaker name is required."),
+    title: z.string().min(1, "Speaker title is required."),
+    image: z.any().optional(),
+  })).optional(),
   timeline: z.string().optional(),
   highlightImages: z.any().optional(),
 });
@@ -1083,24 +1088,36 @@ export async function createEvent(formData: FormData) {
     const values = Object.fromEntries(formData.entries());
     const imageFile = formData.get('image') as File | null;
     const highlightImageFiles = formData.getAll('highlightImages') as File[];
+    const speakerImageFiles = formData.getAll('speakerImage') as File[];
 
-    // Manually parse date string
-    if (values.date) {
-        values.date = new Date(values.date as string);
-    }
-    if (values.registrationOpen) {
-        values.registrationOpen = values.registrationOpen === 'on';
-    }
+    if (values.date) values.date = new Date(values.date as string);
+    if (values.registrationOpen) values.registrationOpen = values.registrationOpen === 'on';
 
+    const speakers = [];
+    const speakerNames = formData.getAll('speakerName');
+    const speakerTitles = formData.getAll('speakerTitle');
+    for (let i = 0; i < speakerNames.length; i++) {
+        if (speakerNames[i]) {
+            speakers.push({
+                name: speakerNames[i] as string,
+                title: speakerTitles[i] as string,
+                image: speakerImageFiles[i] || null
+            });
+        }
+    }
+    values.speakers = speakers as any;
 
     const parsed = eventFormSchema.omit({ image: true, highlightImages: true }).safeParse(values);
     if (!parsed.success) {
-        console.error("Validation error:", parsed.error);
+        console.error("Validation error:", parsed.error.flatten());
         return { error: 'Invalid event data.' };
     }
     
     try {
-        const docRef = await addDoc(collection(db, 'events'), parsed.data);
+        const docRef = await addDoc(collection(db, 'events'), {
+            ...parsed.data,
+            speakers: [], // Temp clear
+        });
         const eventId = docRef.id;
         
         let imageUrl = "";
@@ -1111,21 +1128,32 @@ export async function createEvent(formData: FormData) {
         }
 
         const highlightImageUrls: string[] = [];
-        if (highlightImageFiles.length > 0) {
-            for (let i = 0; i < highlightImageFiles.length; i++) {
-                const file = highlightImageFiles[i];
-                if (file.size > 0) {
-                    const storageRef = ref(storage, `event-images/${eventId}/highlight_${i}`);
-                    await uploadBytes(storageRef, file);
-                    const url = await getDownloadURL(storageRef);
-                    highlightImageUrls.push(url);
-                }
+        for (let i = 0; i < highlightImageFiles.length; i++) {
+            const file = highlightImageFiles[i];
+            if (file.size > 0) {
+                const storageRef = ref(storage, `event-images/${eventId}/highlight_${i}`);
+                await uploadBytes(storageRef, file);
+                highlightImageUrls.push(await getDownloadURL(storageRef));
             }
         }
+        
+        const speakersWithImageUrls = await Promise.all(
+            (parsed.data.speakers || []).map(async (speaker, index) => {
+                const file = speaker.image as File | null;
+                let speakerImageUrl = '';
+                if (file && file.size > 0) {
+                    const storageRef = ref(storage, `event-images/${eventId}/speaker_${index}`);
+                    await uploadBytes(storageRef, file);
+                    speakerImageUrl = await getDownloadURL(storageRef);
+                }
+                return { name: speaker.name, title: speaker.title, image: speakerImageUrl };
+            })
+        );
         
         await updateDoc(docRef, {
             image: imageUrl,
             highlightImages: highlightImageUrls,
+            speakers: speakersWithImageUrls,
         });
 
         return { success: true, id: eventId };
@@ -1135,17 +1163,29 @@ export async function createEvent(formData: FormData) {
     }
 }
 
+
 export async function updateEvent(id: string, formData: FormData) {
      const values = Object.fromEntries(formData.entries());
     const imageFile = formData.get('image') as File | null;
     const highlightImageFiles = formData.getAll('highlightImages') as File[];
+    const speakerImageFiles = formData.getAll('speakerImage') as File[];
 
-    if (values.date) {
-        values.date = new Date(values.date as string);
+    if (values.date) values.date = new Date(values.date as string);
+    if (values.registrationOpen) values.registrationOpen = values.registrationOpen === 'on';
+
+    const speakers = [];
+    const speakerNames = formData.getAll('speakerName');
+    const speakerTitles = formData.getAll('speakerTitle');
+    for (let i = 0; i < speakerNames.length; i++) {
+        if (speakerNames[i]) {
+            speakers.push({
+                name: speakerNames[i] as string,
+                title: speakerTitles[i] as string,
+                image: speakerImageFiles[i] || null
+            });
+        }
     }
-    if (values.registrationOpen) {
-        values.registrationOpen = values.registrationOpen === 'on';
-    }
+    values.speakers = speakers as any;
 
     const parsed = eventFormSchema.omit({ image: true, highlightImages: true }).safeParse(values);
 
@@ -1154,7 +1194,10 @@ export async function updateEvent(id: string, formData: FormData) {
         return { error: 'Invalid event data.' };
     }
     try {
-        const eventDoc = doc(db, 'events', id);
+        const eventDocRef = doc(db, 'events', id);
+        const currentEventSnap = await getDoc(eventDocRef);
+        const currentEventData = currentEventSnap.data();
+
         const dataToUpdate: any = { ...parsed.data };
         
         if (imageFile && imageFile.size > 0) {
@@ -1169,16 +1212,28 @@ export async function updateEvent(id: string, formData: FormData) {
                 const file = highlightImageFiles[i];
                 const storageRef = ref(storage, `event-images/${id}/highlight_${Date.now()}_${i}`);
                 await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                highlightImageUrls.push(url);
+                highlightImageUrls.push(await getDownloadURL(storageRef));
             }
-            // Append to existing images if needed, or replace. Here we replace.
-            const currentEventSnap = await getDoc(eventDoc);
-            const currentEventData = currentEventSnap.data();
             dataToUpdate.highlightImages = [...(currentEventData?.highlightImages || []), ...highlightImageUrls];
         }
 
-        await updateDoc(eventDoc, dataToUpdate);
+         const speakersWithImageUrls = await Promise.all(
+            (parsed.data.speakers || []).map(async (speaker, index) => {
+                const file = speaker.image as File | null;
+                const existingSpeaker = (currentEventData?.speakers || [])[index];
+                let speakerImageUrl = existingSpeaker?.image || '';
+
+                if (file && file.size > 0) {
+                    const storageRef = ref(storage, `event-images/${id}/speaker_${index}`);
+                    await uploadBytes(storageRef, file);
+                    speakerImageUrl = await getDownloadURL(storageRef);
+                }
+                return { name: speaker.name, title: speaker.title, image: speakerImageUrl };
+            })
+        );
+        dataToUpdate.speakers = speakersWithImageUrls;
+
+        await updateDoc(eventDocRef, dataToUpdate);
         return { success: true };
     } catch (error) {
         console.error(error);

@@ -2,13 +2,13 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
 
 import { createEvent, updateEvent } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { Switch } from "./ui/switch";
 
+const speakerSchema = z.object({
+  name: z.string().min(1, "Speaker name is required."),
+  title: z.string().min(1, "Speaker title is required."),
+  image: z.any().optional(),
+});
+
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
@@ -28,7 +34,7 @@ const eventFormSchema = z.object({
   }),
   image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
-  speakers: z.string().optional(),
+  speakers: z.array(speakerSchema).optional(),
   timeline: z.string().optional(),
   highlightImages: z.any().optional(),
 });
@@ -37,7 +43,13 @@ const eventFormSchema = z.object({
 type FormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
-    event?: (Omit<FormValues, 'image'|'highlightImages'|'date'> & { id: string; date: string; image?: string; highlightImages?: string[] });
+    event?: (Omit<FormValues, 'image'|'highlightImages'|'date'|'speakers'> & { 
+        id: string; 
+        date: string; 
+        image?: string; 
+        highlightImages?: string[];
+        speakers?: { name: string; title: string; image?: string }[];
+    });
 }
 
 export function EventForm({ event }: EventFormProps) {
@@ -53,31 +65,40 @@ export function EventForm({ event }: EventFormProps) {
             date: event?.date ? new Date(event.date) : new Date(),
             image: undefined,
             registrationOpen: event?.registrationOpen || false,
-            speakers: event?.speakers || "",
+            speakers: event?.speakers || [],
             timeline: event?.timeline || "",
             highlightImages: undefined,
         },
+    });
+
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "speakers",
     });
 
     const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
         const formData = new FormData();
         
-        Object.entries(values).forEach(([key, value]) => {
-            if (key === 'image' && value && value.length > 0) {
-                formData.append(key, value[0]);
-            } else if (key === 'highlightImages' && value) {
-                for(let i = 0; i < value.length; i++) {
-                    formData.append(key, value[i]);
-                }
+        formData.append('title', values.title);
+        formData.append('description', values.description);
+        formData.append('date', values.date.toISOString());
+        if (values.registrationOpen) formData.append('registrationOpen', 'on');
+        if (values.timeline) formData.append('timeline', values.timeline);
+
+        if (values.image && values.image.length > 0) {
+            formData.append('image', values.image[0]);
+        }
+        if (values.highlightImages) {
+            for(let i = 0; i < values.highlightImages.length; i++) {
+                formData.append('highlightImages', values.highlightImages[i]);
             }
-            else if (key === 'date' && value instanceof Date) {
-                 formData.append(key, value.toISOString());
-            } else if (key === 'registrationOpen') {
-                if (value) formData.append(key, 'on');
-            }
-             else if (value) {
-                formData.append(key, value as string);
+        }
+        values.speakers?.forEach((speaker, index) => {
+            formData.append(`speakerName`, speaker.name);
+            formData.append(`speakerTitle`, speaker.title);
+            if (speaker.image && speaker.image.length > 0) {
+                formData.append(`speakerImage`, speaker.image[0]);
             }
         });
 
@@ -162,20 +183,56 @@ export function EventForm({ event }: EventFormProps) {
                     )}
                 />
 
-                <FormField
-                    control={form.control}
-                    name="speakers"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Speakers (Optional)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., John Doe, Jane Smith" {...field} />
-                            </FormControl>
-                            <FormDescription>Comma-separated list of speaker names.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                <div>
+                    <FormLabel>Speakers</FormLabel>
+                    <div className="space-y-4 mt-2">
+                        {fields.map((field, index) => (
+                             <div key={field.id} className="flex gap-4 items-start border p-4 rounded-md">
+                                <div className="flex-1 space-y-2">
+                                     <FormField
+                                        control={form.control}
+                                        name={`speakers.${index}.name`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl><Input placeholder="Speaker Name" {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name={`speakers.${index}.title`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl><Input placeholder="Speaker Title (e.g., MLSA)" {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                     <FormField
+                                        control={form.control}
+                                        name={`speakers.${index}.image`}
+                                        render={({ field: { onChange, ...rest } }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                   <Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} />
+                                                </FormControl>
+                                                <FormDescription>Leave blank to keep existing image.</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                                    <Trash2 className="h-4 w-4"/>
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                    <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => append({name: "", title: "", image: undefined })}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Speaker
+                    </Button>
+                </div>
                 
                 <FormField
                     control={form.control}
@@ -190,7 +247,7 @@ export function EventForm({ event }: EventFormProps) {
                                     {...field}
                                 />
                             </FormControl>
-                            <FormDescription>Enter each timeline item on a new line. This will be displayed on the event details page.</FormDescription>
+                            <FormDescription>Enter each timeline item on a new line. Format: TIME - DESCRIPTION</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
