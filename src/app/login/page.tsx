@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -54,8 +53,8 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: "Redirecting to your dashboard...",
         });
-        // Force a full page reload to ensure cookie is set before navigation
-        window.location.href = '/admin';
+        // Refresh the current route to allow middleware to redirect
+        router.refresh();
       } else {
         throw new Error(result.error || 'Invalid credentials.');
       }
