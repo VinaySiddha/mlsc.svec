@@ -22,11 +22,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { createUserProfile } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { FirebaseError } from "firebase/app";
+import { useRouter } from "next/navigation";
 
 export default function AuthButton() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSignIn = async () => {
     if (!auth) {
@@ -46,6 +48,8 @@ export default function AuthButton() {
         title: "Signed In",
         description: `Welcome, ${result.user.displayName}!`,
       });
+      router.push('/profile');
+      router.refresh();
     } catch (error) {
       // Don't show an error toast if the user simply closes the popup
       if (error instanceof FirebaseError && error.code === 'auth/popup-closed-by-user') {
@@ -76,6 +80,8 @@ export default function AuthButton() {
         title: "Signed Out",
         description: "You have been successfully signed out.",
       });
+      router.push('/');
+      router.refresh();
     } catch (error) {
        console.error("Sign out error:", error);
        toast({
