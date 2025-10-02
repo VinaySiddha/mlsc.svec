@@ -80,28 +80,31 @@ export default async function EventDetailPage({ params }: { params: { id: string
             </header>
 
             <main className="flex-1">
-                <div className="container mx-auto max-w-6xl py-8 px-4">
-                    {/* Banner Image */}
-                    {event.image && (
-                        <div className="w-full h-72 relative mb-8">
-                             <Image
-                                src={event.image}
-                                alt={`${event.title} banner`}
-                                layout="fill"
-                                objectFit="cover"
-                                className="rounded-lg shadow-lg"
-                                data-ai-hint="event banner"
-                            />
+                {/* Full-width Banner Section */}
+                {event.image && (
+                    <section className="relative w-full h-[40vh] md:h-[50vh] bg-black">
+                        <Image
+                            src={event.image}
+                            alt={`${event.title} banner`}
+                            layout="fill"
+                            objectFit="cover"
+                            className="opacity-50"
+                            data-ai-hint="event banner"
+                        />
+                        <div className="absolute inset-0 flex items-end p-4 md:p-8">
+                           <div className="glass-card p-4 md:p-6 max-w-4xl">
+                                <h1 className="text-3xl md:text-5xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]">{event.title}</h1>
+                                <p className="text-lg md:text-xl text-primary/80 mt-2 [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)]">
+                                     {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
+                                </p>
+                            </div>
                         </div>
-                    )}
-                    
-                    {/* Event Title Section */}
+                    </section>
+                )}
+
+                <div className="container mx-auto max-w-6xl py-8 px-4">
                     <div className="text-center mb-8">
-                        <h1 className="text-4xl font-bold">{event.title}</h1>
-                        <p className="text-lg text-muted-foreground mt-2">
-                             {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
-                        </p>
-                        <CountdownTimer deadline={event.date} />
+                         <CountdownTimer deadline={event.date} />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
