@@ -44,9 +44,14 @@ const config = {
       }
     ],
   },
-  webpack(config) {
+  webpack(config, { isServer }) {
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
-    config.externals = [...config.externals, 'jose'];
+    
+    // Mark `jose` as an external dependency for the server-side build.
+    if (isServer) {
+        config.externals.push('jose');
+    }
+
     return config;
   },
 };
