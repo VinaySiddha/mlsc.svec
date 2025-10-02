@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useUser } from "@/firebase";
+import { useUser, useAuth } from "@/firebase";
 import {
   signInWithPopup,
   GoogleAuthProvider,
@@ -20,7 +20,6 @@ import {
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { createUserProfile } from "@/app/actions";
-import { useAuth } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { FirebaseError } from "firebase/app";
 
@@ -30,6 +29,14 @@ export default function AuthButton() {
   const { toast } = useToast();
 
   const handleSignIn = async () => {
+    if (!auth) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Not Ready",
+            description: "Firebase auth service is not available. Please try again in a moment.",
+        });
+        return;
+    }
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -54,6 +61,14 @@ export default function AuthButton() {
   };
 
   const handleSignOut = async () => {
+     if (!auth) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Not Ready",
+            description: "Firebase auth service is not available.",
+        });
+        return;
+    }
     try {
       await signOut(auth);
       toast({
