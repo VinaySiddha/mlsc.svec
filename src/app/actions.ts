@@ -16,27 +16,7 @@ import {z} from 'zod';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
 import { adminDb, adminStorage } from '@/lib/firebase-admin';
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy,
-  limit,
-  startAfter,
-  writeBatch,
-  Query,
-  DocumentData,
-  QueryConstraint,
-  runTransaction,
-  setDoc,
-  deleteDoc,
-  getCountFromServer
-} from 'firebase-admin/firestore';
+import type { Query } from 'firebase-admin/firestore';
 import { getDownloadURL } from 'firebase-admin/storage';
 import papaparse from 'papaparse';
 import { randomBytes } from 'crypto';
@@ -151,7 +131,7 @@ const completeOnboardingSchema = z.object({
 export async function getVisitors() {
     try {
         const visitorsCol = adminDb.collection('visitors');
-        const q = query(visitorsCol, orderBy('timestamp', 'desc'), limit(100)); // Limit to last 100 for performance
+        const q = visitorsCol.orderBy('timestamp', 'desc').limit(100); // Limit to last 100 for performance
         const visitorsSnapshot = await q.get();
         const visitorsList = visitorsSnapshot.docs.map(doc => {
             const data = doc.data();
@@ -202,14 +182,14 @@ export async function submitApplication(formData: FormData) {
     const name_lowercase = applicationData.name.toLowerCase();
 
     // Check for existing email
-    const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
+    const emailQuery = applicationsRef.where("email", "==", applicationData.email);
     const emailSnapshot = await emailQuery.get();
     if (!emailSnapshot.empty) {
       return { error: 'An application with this email address already exists.' };
     }
 
     // Check for existing roll number
-    const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNo_lowercase));
+    const rollNoQuery = applicationsRef.where("rollNo_lowercase", "==", rollNo_lowercase);
     const rollNoSnapshot = await rollNoQuery.get();
     if (!rollNoSnapshot.empty) {
       return { error: 'An application with this roll number already exists.' };
@@ -314,14 +294,14 @@ export async function internalRegister(values: z.infer<typeof internalApplicatio
     const name_lowercase = applicationData.name.toLowerCase();
 
     // Check for existing email
-    const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
+    const emailQuery = applicationsRef.where("email", "==", applicationData.email);
     const emailSnapshot = await emailQuery.get();
     if (!emailSnapshot.empty) {
       return { error: 'An application with this email address already exists.' };
     }
 
     // Check for existing roll number
-    const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNo_lowercase));
+    const rollNoQuery = applicationsRef.where("rollNo_lowercase", "==", rollNo_lowercase);
     const rollNoSnapshot = await rollNoQuery.get();
     if (!rollNoSnapshot.empty) {
       return { error: 'An application with this roll number already exists.' };
@@ -483,7 +463,7 @@ export async function getApplications(params: {
 
 
 export async function getApplicationById(id: string) {
-    const q = query(adminDb.collection('applications'), where('id', '==', id), limit(1));
+    const q = adminDb.collection('applications').where('id', '==', id).limit(1);
     const querySnapshot = await q.get();
     if (querySnapshot.empty) {
         return null;
@@ -517,7 +497,7 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     let applicantInfo: { name: string; email: string; } | null = null;
     
     await adminDb.runTransaction(async (transaction) => {
-      const applicationQueryResult = await transaction.get(query(adminDb.collection('applications'), where('id', '==', id), limit(1)));
+      const applicationQueryResult = await transaction.get(adminDb.collection('applications').where('id', '==', id).limit(1));
       if (applicationQueryResult.empty) {
         throw new Error('Application not found.');
       }
@@ -722,7 +702,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
     const membersToInvite: { email: string, name: string, role: string, categoryId: string }[] = [];
     
     const categoriesRef = adminDb.collection('teamCategories');
-    const q = query(categoriesRef, where('name', '==', 'Technical Team'), limit(1));
+    const q = categoriesRef.where('name', '==', 'Technical Team').limit(1);
     const categorySnapshot = await q.get();
     const defaultCategoryId = !categorySnapshot.empty ? categorySnapshot.docs[0].id : null;
 
@@ -792,7 +772,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
 
 export async function exportHiredToCsv() {
     try {
-        const q = query(adminDb.collection('applications'), where('status', '==', 'Hired'));
+        const q = adminDb.collection('applications').where('status', '==', 'Hired');
         const querySnapshot = await q.get();
 
         if (querySnapshot.empty) {
@@ -840,11 +820,11 @@ export async function getAnalyticsData(panelDomain?: string) {
       baseQuery = baseQuery.where('technicalDomain', '==', panelDomain);
     }
     
-    const totalSnapshot = await getCountFromServer(baseQuery);
+    const totalSnapshot = await baseQuery.count().get();
     const totalApplications = totalSnapshot.data().count;
 
     const attendedQuery = baseQuery.where('interviewAttended', '==', true);
-    const attendedSnapshot = await getCountFromServer(attendedQuery);
+    const attendedSnapshot = await attendedQuery.count().get();
     const attendedCount = attendedSnapshot.data().count;
     
     const allApplicationsSnapshot = await baseQuery.get();
@@ -927,7 +907,7 @@ export async function getInterviewAnalyticsData() {
   try {
     const baseQuery = adminDb.collection('applications').where('interviewAttended', '==', true);
 
-    const totalSnapshot = await getCountFromServer(baseQuery);
+    const totalSnapshot = await baseQuery.count().get();
     const totalApplications = totalSnapshot.data().count;
     
     const allApplicationsSnapshot = await baseQuery.get();
@@ -1221,7 +1201,7 @@ export async function deleteEvent(id: string) {
 export async function getEvents() {
     try {
         const eventsCol = adminDb.collection('events');
-        const q = query(eventsCol, orderBy('date', 'desc'));
+        const q = eventsCol.orderBy('date', 'desc');
         const eventSnapshot = await q.get();
         const eventList = eventSnapshot.docs.map(doc => {
             const data = doc.data();
@@ -1283,7 +1263,7 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
         
         const registrationsRef = adminDb.collection('events').doc(eventId).collection('registrations');
 
-        const emailQuery = query(registrationsRef, where("email", "==", parsed.data.email));
+        const emailQuery = registrationsRef.where("email", "==", parsed.data.email);
         const emailSnapshot = await emailQuery.get();
         if (!emailSnapshot.empty) {
             return { error: 'This email is already registered for this event.' };
@@ -1319,7 +1299,7 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
 export async function getEventRegistrations(eventId: string) {
     try {
         const registrationsCol = adminDb.collection('events').doc(eventId).collection('registrations');
-        const q = query(registrationsCol, orderBy('registeredAt', 'desc'));
+        const q = registrationsCol.orderBy('registeredAt', 'desc');
         const registrationSnapshot = await q.get();
         const registrationList = registrationSnapshot.docs.map(doc => ({
             ...doc.data(),
@@ -1370,7 +1350,7 @@ export async function createTeamCategory(values: z.infer<typeof teamCategorySche
 
 export async function getTeamCategories() {
     try {
-        const q = query(adminDb.collection('teamCategories'), orderBy('order'));
+        const q = adminDb.collection('teamCategories').orderBy('order');
         const snapshot = await q.get();
         const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return { categories };
@@ -1418,7 +1398,7 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
     const { email, name, role, categoryId } = parsed.data;
 
     try {
-        const q = query(adminDb.collection('teamMembers'), where('email', '==', email));
+        const q = adminDb.collection('teamMembers').where('email', '==', email);
         const existing = await q.get();
         if (!existing.empty) {
             return { error: "A team member with this email already exists." };
@@ -1525,7 +1505,7 @@ export async function sendProfileEditLink(memberId: string) {
 
 export async function bulkResendInvitations() {
     try {
-        const q = query(adminDb.collection('teamMembers'), where('status', '==', 'pending'));
+        const q = adminDb.collection('teamMembers').where('status', '==', 'pending');
         const snapshot = await q.get();
 
         if (snapshot.empty) {
@@ -1564,7 +1544,7 @@ export async function bulkResendInvitations() {
 
 export async function bulkSendProfileEditLinks() {
     try {
-        const q = query(adminDb.collection('teamMembers'), where('status', '==', 'active'));
+        const q = adminDb.collection('teamMembers').where('status', '==', 'active');
         const snapshot = await q.get();
 
         if (snapshot.empty) {
@@ -1631,10 +1611,7 @@ export async function updateTeamMember(id: string, formData: FormData) {
 
 export async function getTeamMemberByToken(token: string) {
     try {
-        const q = query(
-            adminDb.collection('teamMembers'),
-            where('onboardingToken', '==', token)
-        );
+        const q = adminDb.collection('teamMembers').where('onboardingToken', '==', token);
         const snapshot = await q.get();
 
         if (snapshot.empty) {
@@ -1722,8 +1699,8 @@ export async function completeOnboarding(formData: FormData) {
 
 export async function getTeamMembers() {
     try {
-        const teamMembersQuery = query(adminDb.collection('teamMembers'), where('status', '==', 'active'));
-        const teamCategoriesQuery = query(adminDb.collection('teamCategories'), orderBy('order'));
+        const teamMembersQuery = adminDb.collection('teamMembers').where('status', '==', 'active');
+        const teamCategoriesQuery = adminDb.collection('teamCategories').orderBy('order');
         
         const [teamMembersSnapshot, teamCategoriesSnapshot] = await Promise.all([
             teamMembersQuery.get(),
@@ -1801,4 +1778,45 @@ export async function deleteTeamMember(id: string) {
         }
         return { error: "Failed to delete team member." };
     }
+}
+
+// Add this function to your `src/app/actions.ts` file
+export async function updateUserProfile(userId: string, data: { previousRepresentations?: string; receiveEmailUpdates?: boolean; }) {
+  try {
+    const userRef = adminDb.collection('users').doc(userId);
+    await userRef.set(data, { merge: true });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    if (error instanceof Error) {
+      return { error: `Failed to update profile: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred.' };
+  }
+}
+
+// Add this function to your `src/app/actions.ts` file
+export async function createUserProfile(user: { uid: string, email?: string | null, displayName?: string | null, photoURL?: string | null }) {
+  try {
+    const userRef = adminDb.collection('users').doc(user.uid);
+    const doc = await userRef.get();
+    
+    // Only create the document if it doesn't already exist
+    if (!doc.exists) {
+      await userRef.set({
+        email: user.email,
+        name: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: new Date().toISOString(),
+      }, { merge: true });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error creating user profile:', error);
+    if (error instanceof Error) {
+      return { error: `Failed to create profile: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred.' };
+  }
 }
