@@ -40,6 +40,7 @@ import {
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import papaparse from 'papaparse';
 import { randomBytes } from 'crypto';
+import type { User } from 'firebase/auth';
 
 
 const applicationSchema = z.object({
@@ -147,6 +148,42 @@ const completeOnboardingSchema = z.object({
     image: z.any().optional(),
     linkedin: z.string().url("LinkedIn URL is required."),
 });
+
+const userProfileUpdateSchema = z.object({
+    previousRepresentations: z.string().optional(),
+    receiveEmailUpdates: z.boolean().default(false),
+});
+
+
+export async function createUserProfile(user: User) {
+    const userRef = doc(db, 'users', user.uid);
+    const userData = {
+        id: user.uid,
+        email: user.email,
+        name: user.displayName,
+        phone: user.phoneNumber,
+    };
+    // Use set with merge:true to create or update the document without overwriting existing fields
+    // This is a "non-blocking" call, meaning we don't wait for the promise to resolve
+    setDoc(userRef, userData, { merge: true });
+}
+
+export async function updateUserProfile(userId: string, data: z.infer<typeof userProfileUpdateSchema>) {
+    const parsed = userProfileUpdateSchema.safeParse(data);
+    if (!parsed.success) {
+        return { error: 'Invalid profile data.' };
+    }
+    const userRef = doc(db, 'users', userId);
+    try {
+        await updateDoc(userRef, parsed.data);
+        return { success: true };
+    } catch (e) {
+        if (e instanceof Error) {
+            return { error: e.message };
+        }
+        return { error: 'An unknown error occurred while updating the profile.' };
+    }
+}
 
 
 export async function getVisitors() {

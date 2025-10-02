@@ -40,6 +40,7 @@ export default function AuthButton() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+      // After successful sign-in, call the server action to create/update the profile
       await createUserProfile(result.user);
       toast({
         title: "Signed In",
