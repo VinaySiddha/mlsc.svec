@@ -1668,37 +1668,51 @@ async function addInitialEvents() {
         const initialEvents = [
             {
                 title: "Intro to MLSC",
-                description: "Join us for an introduction to the Microsoft Learn Student Club, our goals, and how you can get involved.",
+                description: "Join us for an introduction to the Microsoft Learn Student Club, our goals, and how you can get involved in the exciting world of technology.",
                 date: new Date("2024-09-10T18:00:00Z"),
                 image: "/azure.jpg",
                 registrationOpen: true
             },
             {
-                title: 'Blue Day',
-                description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
+                title: 'Blue Day Celebration',
+                description: 'A special day celebrating our club\'s identity and community spirit. MLSC Day is a chance to connect, share, and look forward to the future.',
                 date: new Date('2025-01-25T00:00:00Z'),
                 image: '/blueday.png',
                 registrationOpen: false,
             },
             {
-                title: 'The Flask Edition',
-                description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
+                title: 'The Flask Edition: Web App Workshop',
+                description: 'An in-depth event focused on the Flask web framework, exploring its capabilities for building powerful and scalable web applications from scratch.',
                 date: new Date('2025-02-06T00:00:00Z'),
                 image: '/flask.png',
                 registrationOpen: false,
             },
             {
-                title: 'Web development BootCamp',
-                description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
+                title: 'Web Development Bootcamp',
+                description: 'We are organizing an engaging Web Development workshop, providing students with hands-on experience in modern web technologies. Participants delved into the diverse functionalities of HTML, CSS, and JavaScript, gaining valuable insights into web technology. The workshop equipped attendees with practical skills and a mini-project to add to their portfolio.',
                 date: new Date('2024-03-14T00:00:00Z'),
                 image: '/web.jpg',
                 registrationOpen: false,
             },
+            {
+                title: 'Azure Cloud Workshop',
+                description: 'Successfully conducted a hands-on event on the Azure Cloud Platform with more than 300 attendees, empowering numerous skilled peers in their cloud journey.',
+                date: new Date("2023-10-18T18:00:00Z"),
+                image: "/g2.jpg",
+                registrationOpen: false
+            },
+            {
+                title: 'Inauguration Ceremony',
+                description: 'The inauguration of the Microsoft Learn Student Club marked a momentous occasion, fostering a dynamic hub for technology enthusiasts empowered by the Microsoft Learn ecosystem.',
+                date: new Date("2023-10-16T18:00:00Z"),
+                image: "/team1.jpg",
+                registrationOpen: false
+            }
         ];
 
         const batch = writeBatch(db);
         initialEvents.forEach(event => {
-            const docRef = doc(eventsCol); // Automatically generate new doc ID
+            const docRef = doc(collection(db, 'events'));
             batch.set(docRef, event);
         });
         await batch.commit();
