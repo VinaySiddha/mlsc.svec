@@ -119,7 +119,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                 </CardContent>
                             </Card>
                             
-                            {event.speakers && event.speakers.length > 0 && (
+                            {Array.isArray(event.speakers) && event.speakers.length > 0 && (
                                 <Card className="glass-card">
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</CardTitle>

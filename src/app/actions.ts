@@ -1168,7 +1168,6 @@ export async function updateEvent(id: string, formData: FormData) {
      const values = Object.fromEntries(formData.entries());
     const imageFile = formData.get('image') as File | null;
     const highlightImageFiles = formData.getAll('highlightImages') as File[];
-    const speakerImageFiles = formData.getAll('speakerImage') as File[];
 
     if (values.date) values.date = new Date(values.date as string);
     if (values.registrationOpen) values.registrationOpen = values.registrationOpen === 'on';
@@ -1176,6 +1175,8 @@ export async function updateEvent(id: string, formData: FormData) {
     const speakers = [];
     const speakerNames = formData.getAll('speakerName');
     const speakerTitles = formData.getAll('speakerTitle');
+    const speakerImageFiles = formData.getAll('speakerImage');
+
     for (let i = 0; i < speakerNames.length; i++) {
         if (speakerNames[i]) {
             speakers.push({
