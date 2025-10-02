@@ -23,7 +23,7 @@ export async function middleware(req: NextRequest) {
   const sessionToken = req.cookies.get("session")?.value;
 
   // Don't log visits for API routes, static files, or the admin area itself
-  const isLoggable = !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.startsWith('/admin') && !pathname.endsWith('.png') && !pathname.endsWith('.jpg') && !pathname.endsWith('.ico');
+  const isLoggable = !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.endsWith('.png') && !pathname.endsWith('.jpg') && !pathname.endsWith('.ico');
 
   if (isLoggable) {
     const ip = req.ip ?? '127.0.0.1';
