@@ -1,161 +1,125 @@
 /**
- * @file Firestore Security Rules
- * @description This ruleset enforces a strict user-ownership model for user profiles and shared access with role-based access control for applications.
+ * @fileoverview Firestore Security Rules for MLSC Hub application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user profiles,
+ * allows public read access to club roles and applications, and restricts
+ * administrative actions to designated admin users.
  *
  * Data Structure:
- * - /users/{userId}: Stores user profile information, accessible only to the user themselves.
- * - /club_roles/{clubRoleId}: Stores club role definitions, publicly readable but create, update and delete only by admins.
- * - /applications/{applicationId}: Stores application data, accessible by the user who created the application and admins.
- * - /roles_admin/{userId}: Documents in this collection indicate admin privileges for the corresponding user.
+ * - User profiles are stored under `/users/{userId}`, ensuring private data.
+ * - Club roles are stored in the `/club_roles` collection.
+ * - Applications are stored in the `/applications` collection.
+ * - Admin status is determined by the existence of a document in the `/roles_admin/{userId}` collection.
  *
  * Key Security Decisions:
- * - User profiles are private and only accessible to the owning user.
- * - Club roles are publicly readable but only modifiable by admins.
- * - Applications are accessible by the user who created them, plus admins.
- * - Admin privileges are determined by presence in the `roles_admin` collection.
- * - List operations are generally restricted to owners or admins where appropriate.
- *
- * Denormalization for Authorization:
- * - The `applications` collection denormalizes `userProfileId` and `clubRoleId` to avoid costly `get()` calls for authorization.
- * - Admin status is determined by the existence of a document in the `roles_admin` collection, avoiding complex role lookups.
- *
- * Structural Segregation:
- * - User profiles are stored in a dedicated user-scoped collection (`/users/{userId}`), ensuring private access and efficient list operations.
+ * - User profiles are only accessible and modifiable by the owning user.
+ * - Club roles and applications are publicly readable but only modifiable.
+ * - Admin privileges are granted based on presence in `/roles_admin/{userId}`.
+ * - Listing of users is disallowed.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces that only the authenticated user can read and write their own profile.
+     * @description Checks if the request is made by a signed-in user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the user ID matches the authenticated user's ID.
+     * @param {string} userId The user ID to check against.
+     * @return {boolean} True if the user ID matches the authenticated user's ID, false otherwise.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the user ID matches the authenticated user's ID and the resource exists.
+     * @param {string} userId The user ID to check against.
+     * @return {boolean} True if the user ID matches the authenticated user's ID and the resource exists.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Checks if the user is an admin by verifying the existence of a document in /roles_admin/{userId}.
+     * @return {boolean} True if the user is an admin, false otherwise.
+     */
+     function isAdmin() {
+        return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+     }
+
+    /**
+     * @description Security rules for user profiles.
      * @path /users/{userId}
-     * @allow (create) User with UID 'user123' can create their profile with userProfile.id == 'user123'.
-     * @allow (get) User with UID 'user123' can read their profile at /users/user123.
-     * @allow (update) User with UID 'user123' can update their profile at /users/user123.
-     * @allow (delete) User with UID 'user123' can delete their profile at /users/user123.
-     * @deny (create) User with UID 'user456' cannot create a profile at /users/user123.
-     * @deny (get) User with UID 'user456' cannot read the profile at /users/user123.
-     * @deny (update) User with UID 'user456' cannot update the profile at /users/user123.
-     * @deny (delete) User with UID 'user456' cannot delete the profile at /users/user123.
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) - Authenticated user can create their own profile with matching user ID.
+     * @allow (get, update, delete) - Authenticated user can get, update, and delete their own profile.
+     * @deny (create) - If the user ID in the request does not match the authenticated user's ID.
+     * @deny (get, update, delete) - If the user is not the owner of the profile.
+     * @principle Enforces document ownership for user profiles.
      */
     match /users/{userId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow list: if false; // Listing users is not allowed.
       allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows anyone to read club roles, but only admins can create, update, or delete them.
+     * @description Security rules for club roles.
      * @path /club_roles/{clubRoleId}
-     * @allow (get) Any user can read any club role.
-     * @allow (list) Any user can list club roles.
-     * @allow (create) An admin can create a new club role.
-     * @allow (update) An admin can update an existing club role.
-     * @allow (delete) An admin can delete an existing club role.
-     * @deny (create) A non-admin user cannot create a club role.
-     * @deny (update) A non-admin user cannot update a club role.
-     * @deny (delete) A non-admin user cannot delete a club role.
-     * @principle Enforces public read access with admin-only write access.
+     * @allow (get, list) - All users can read club roles.
+     * @allow (create, update, delete) - Only admins can create, update, and delete club roles.
+     * @deny (create, update, delete) - Non-admins cannot modify club roles.
+     * @principle Restricts modification of club roles to admins.
      */
     match /club_roles/{clubRoleId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isAdmin() {
-        return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
-      }
-       function isExistingAdmin() {
-        return isAdmin() && resource != null;
-      }
-
       allow get, list: if true;
       allow create: if isAdmin();
-      allow update: if isExistingAdmin();
-      allow delete: if isExistingAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
     }
 
     /**
-     * @description Allows the owner of an application and admins to read, update, and delete it.  Only admins can create applications.
+     * @description Security rules for applications.
      * @path /applications/{applicationId}
-     * @allow (get) The owner of the application can read it.
-     * @allow (list) The owner of the application can list them.
-     * @allow (create) An admin can create an application.
-     * @allow (update) The owner of the application or an admin can update it.
-     * @allow (delete) The owner of the application or an admin can delete it.
-     * @deny (get) A non-owner cannot read the application.
-     * @deny (update) A non-owner cannot update the application.
-     * @deny (delete) A non-owner cannot delete the application.
-     * @principle Enforces ownership for basic access and role-based access for modifications.
+     * @allow (get, list) - All users can read applications.
+     * @allow (create) - Authenticated users can create applications.
+     * @allow (update, delete) - Only admins can update and delete applications.
+     * @deny (create) - Unauthenticated users cannot create applications.
+     * @deny (update, delete) - Non-admins cannot modify applications.
+     * @principle Restricts modification of applications to admins.
      */
     match /applications/{applicationId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isAdmin() {
-        return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
-      }
-
-      function isOwner(userProfileId) {
-        return request.auth.uid == userProfileId;
-      }
-
-      function isExistingOwner(userProfileId) {
-          return isOwner(userProfileId) && resource != null;
-      }
-
-      // NOTE: The `userProfileId` cannot be reliably extracted from the document for list operations, so listing is disabled.
-      allow get: if isOwner(resource.data.userProfileId) || isAdmin();
-      allow list: if false;
-      allow create: if isAdmin();
-      allow update: if isExistingOwner(resource.data.userProfileId) || isAdmin();
-      allow delete: if isExistingOwner(resource.data.userProfileId) || isAdmin();
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.userProfileId == request.auth.uid;
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
     }
 
-      /**
-       * @description Determines admin privileges based on the existence of a document in this collection.
-       * @path /roles_admin/{userId}
-       * @allow (get) Anyone can check if a user is an admin.
-       * @allow (list) Only admins can list other admins.
-       * @allow (create) Anyone can make themselves an admin (for prototyping purposes).
-       * @allow (update) No one can update an admin role document.
-       * @allow (delete) Anyone can remove their own admin role (for prototyping purposes).
-       * @deny (create) Non-signed-in users cannot become admins.
-       * @deny (update) Attempts to modify admin roles are denied.
-       * @principle Role-based access control using document existence.
-       */
-      match /roles_admin/{userId} {
-        function isSignedIn() {
-          return request.auth != null;
-        }
-          function isOwner(userId) {
-              return request.auth.uid == userId;
-          }
-          function isExistingOwner(userId) {
-              return isOwner(userId) && resource != null;
-          }
-
-        allow get: if true;
-        allow list: if isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
-        allow create: if isSignedIn() && isOwner(userId);
-        allow update: if false;
-        allow delete: if isExistingOwner(userId);
-      }
+    /**
+     * @description Security rules for admin roles.
+     * @path /roles_admin/{userId}
+     * @allow (get) - Only the admin user can get their own admin role.
+     * @allow (create) - Only signed-in users can create an admin record for themselves
+     * @allow (delete) - Only signed-in users can delete their own admin role.
+     * @deny (get) - If the user is not the owner of the admin role.
+     * @deny (create, delete) - Unauthenticated users cannot create or delete admin roles.
+     * @principle Enforces document ownership for admin roles and requires authentication.
+     */
+    match /roles_admin/{userId} {
+          allow get: if isOwner(userId);
+          allow list: if false;
+          allow create: if isSignedIn() && isOwner(userId);
+          allow update: if false;
+          allow delete: if isSignedIn() && isOwner(userId);
+    }
   }
 }

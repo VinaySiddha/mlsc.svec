@@ -204,6 +204,12 @@ For the application to work correctly when deployed, you **must** configure the 
   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
   - `NEXT_PUBLIC_FIREBASE_APP_ID`
 
+- **Firebase Admin (Server-side)**:
+  - `FIREBASE_PROJECT_ID`: Your Firebase project ID.
+  - `FIREBASE_CLIENT_EMAIL`: The client email from your Firebase service account JSON file.
+  - `FIREBASE_PRIVATE_KEY`: The private key from your Firebase service account JSON file. Make sure to format it correctly (e.g., replace `\n` with actual newlines if required by your hosting provider).
+
+
 - **Google AI (Server-side)**:
   - `GOOGLE_API_KEY`: Your API key for Google AI Studio (Gemini).
 
@@ -224,6 +230,11 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID="your_project_id"
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your_project_id.appspot.com"
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your_sender_id"
 NEXT_PUBLIC_FIREBASE_APP_ID="your_app_id"
+
+# Firebase Admin SDK credentials
+FIREBASE_PROJECT_ID="your_project_id"
+FIREBASE_CLIENT_EMAIL="firebase-adminsdk-xxxxx@your_project_id.iam.gserviceaccount.com"
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n ...your_private_key... \n-----END PRIVATE KEY-----\n"
 
 # Google AI API Key
 GOOGLE_API_KEY="your_google_ai_api_key"

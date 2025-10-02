@@ -15,7 +15,7 @@ import { sendRsvpConfirmationEmail, RsvpConfirmationEmailInput } from '@/ai/flow
 import {z} from 'zod';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
-import { db, storage } from '@/lib/firebase';
+import { adminDb, adminStorage } from '@/lib/firebase-admin';
 import { 
   collection, 
   addDoc, 
@@ -28,7 +28,6 @@ import {
   orderBy,
   limit,
   startAfter,
-  getCountFromServer,
   writeBatch,
   Query,
   DocumentData,
@@ -36,8 +35,9 @@ import {
   runTransaction,
   setDoc,
   deleteDoc,
-} from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+  getCountFromServer
+} from 'firebase-admin/firestore';
+import { getDownloadURL } from 'firebase-admin/storage';
 import papaparse from 'papaparse';
 import { randomBytes } from 'crypto';
 
@@ -150,9 +150,9 @@ const completeOnboardingSchema = z.object({
 
 export async function getVisitors() {
     try {
-        const visitorsCol = collection(db, 'visitors');
+        const visitorsCol = adminDb.collection('visitors');
         const q = query(visitorsCol, orderBy('timestamp', 'desc'), limit(100)); // Limit to last 100 for performance
-        const visitorsSnapshot = await getDocs(q);
+        const visitorsSnapshot = await q.get();
         const visitorsList = visitorsSnapshot.docs.map(doc => {
             const data = doc.data();
             return {
@@ -197,20 +197,20 @@ export async function submitApplication(formData: FormData) {
   let docRef;
 
   try {
-    const applicationsRef = collection(db, "applications");
+    const applicationsRef = adminDb.collection("applications");
     const rollNo_lowercase = applicationData.rollNo.toLowerCase();
     const name_lowercase = applicationData.name.toLowerCase();
 
     // Check for existing email
     const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
-    const emailSnapshot = await getDocs(emailQuery);
+    const emailSnapshot = await emailQuery.get();
     if (!emailSnapshot.empty) {
       return { error: 'An application with this email address already exists.' };
     }
 
     // Check for existing roll number
     const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNo_lowercase));
-    const rollNoSnapshot = await getDocs(rollNoQuery);
+    const rollNoSnapshot = await rollNoQuery.get();
     if (!rollNoSnapshot.empty) {
       return { error: 'An application with this roll number already exists.' };
     }
@@ -242,8 +242,8 @@ export async function submitApplication(formData: FormData) {
     };
     
     // 1. Immediately save the application to get a reference ID for the user
-    docRef = await addDoc(applicationsRef, { ...newApplication });
-    await updateDoc(docRef, { firestoreId: docRef.id });
+    docRef = await applicationsRef.add({ ...newApplication });
+    await docRef.update({ firestoreId: docRef.id });
 
     // Send confirmation email in background
      (async () => {
@@ -271,7 +271,7 @@ export async function submitApplication(formData: FormData) {
         const result = await summarizeResume(summarizationInput);
         
         if (docRef) {
-            await updateDoc(docRef, { resumeSummary: result.summary });
+            await docRef.update({ resumeSummary: result.summary });
             summaryResult = result.summary;
             console.log(`Successfully generated summary for ${referenceId}`);
         }
@@ -279,7 +279,7 @@ export async function submitApplication(formData: FormData) {
           console.error(`AI summarization failed for ${referenceId}:`, aiError);
           summaryResult = "AI summary generation failed. We'll process your resume manually.";
           if (docRef) {
-              await updateDoc(docRef, { resumeSummary: "AI summary failed." });
+              await docRef.update({ resumeSummary: "AI summary failed." });
           }
       }
     }
@@ -309,20 +309,20 @@ export async function internalRegister(values: z.infer<typeof internalApplicatio
   const referenceId = generateReferenceId();
 
   try {
-    const applicationsRef = collection(db, "applications");
+    const applicationsRef = adminDb.collection("applications");
     const rollNo_lowercase = applicationData.rollNo.toLowerCase();
     const name_lowercase = applicationData.name.toLowerCase();
 
     // Check for existing email
     const emailQuery = query(applicationsRef, where("email", "==", applicationData.email));
-    const emailSnapshot = await getDocs(emailQuery);
+    const emailSnapshot = await emailQuery.get();
     if (!emailSnapshot.empty) {
       return { error: 'An application with this email address already exists.' };
     }
 
     // Check for existing roll number
     const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNo_lowercase));
-    const rollNoSnapshot = await getDocs(rollNoQuery);
+    const rollNoSnapshot = await rollNoQuery.get();
     if (!rollNoSnapshot.empty) {
       return { error: 'An application with this roll number already exists.' };
     }
@@ -356,8 +356,8 @@ export async function internalRegister(values: z.infer<typeof internalApplicatio
       anythingElse: '',
     };
     
-    const docRef = await addDoc(applicationsRef, { ...newApplication });
-    await updateDoc(docRef, { firestoreId: docRef.id });
+    const docRef = await applicationsRef.add({ ...newApplication });
+    await docRef.update({ firestoreId: docRef.id });
 
     return { referenceId };
   } catch (error) {
@@ -384,36 +384,28 @@ function buildFilteredQuery(params: {
   sortByRecommended?: string; // Add sortByRecommended here
 }) {
   const { panelDomain, search, searchBy, status, year, branch, domain, attendedOnly, sortByRecommended } = params;
-  let q: Query<DocumentData> = collection(db, 'applications');
-  const constraints: QueryConstraint[] = [];
+  let q: Query = adminDb.collection('applications');
 
-  // Panel admin is locked to their domain
   if (panelDomain) {
-    constraints.push(where('technicalDomain', '==', panelDomain));
+    q = q.where('technicalDomain', '==', panelDomain);
   } else if (domain) {
-    constraints.push(where('technicalDomain', '==', domain));
+    q = q.where('technicalDomain', '==', domain);
   }
   
   if (status && status !== 'all') {
-    constraints.push(where('status', '==', status));
+    q = q.where('status', '==', status);
   }
-  if (year) constraints.push(where('yearOfStudy', '==', year));
-  if (branch) constraints.push(where('branch', '==', branch));
-  if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
+  if (year) q = q.where('yearOfStudy', '==', year);
+  if (branch) q = q.where('branch', '==', branch);
+  if (attendedOnly) q = q.where('interviewAttended', '==', true);
   if (sortByRecommended === 'true') {
-    constraints.push(where('isRecommended', '==', true));
+    q = q.where('isRecommended', '==', true);
   }
   
   if (search) {
       const searchTermLower = search.toLowerCase();
       const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
-      // Use exact match for searching
-      constraints.push(where(searchField, '==', searchTermLower));
-  }
-
-
-  if (constraints.length > 0) {
-    q = query(q, ...constraints);
+      q = q.where(searchField, '==', searchTermLower);
   }
 
   return q;
@@ -441,25 +433,20 @@ export async function getApplications(params: {
   const limitNumber = parseInt(limitStr, 10);
   
   let baseQuery = buildFilteredQuery(params);
-  let finalQuery: Query<DocumentData>;
-
-  const sortConstraints: QueryConstraint[] = [];
 
   // Apply sorting logic
   if (sortByRecommended === 'true') {
-    sortConstraints.push(orderBy('ratings.overall', 'desc'));
+    baseQuery = baseQuery.orderBy('ratings.overall', 'desc');
   } else if (sortByPerformance === 'true') {
-    sortConstraints.push(orderBy('ratings.overall', 'desc'));
+    baseQuery = baseQuery.orderBy('ratings.overall', 'desc');
   } else {
     // Default sort order when no specific sort is applied
-    sortConstraints.push(orderBy('submittedAt', 'desc'));
+    baseQuery = baseQuery.orderBy('submittedAt', 'desc');
   }
-
-  finalQuery = query(baseQuery, ...sortConstraints);
 
   // If fetchAll is true, bypass pagination and get all documents
   if (fetchAll) {
-    const querySnapshot = await getDocs(finalQuery);
+    const querySnapshot = await baseQuery.get();
     const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
     return {
       applications,
@@ -469,22 +456,20 @@ export async function getApplications(params: {
     };
   }
   
-  // For pagination, we fetch one more than the limit to see if there's a next page
-  const paginatedQuery = query(finalQuery, limit(limitNumber + 1));
+  let paginatedQuery = baseQuery.limit(limitNumber + 1);
   let queryWithCursor = paginatedQuery;
 
   if (page && parseInt(page, 10) > 1 && lastVisibleId) {
-      const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
-      if (lastVisibleDoc.exists()) {
-        queryWithCursor = query(paginatedQuery, startAfter(lastVisibleDoc));
+      const lastVisibleDoc = await adminDb.collection('applications').doc(lastVisibleId).get();
+      if (lastVisibleDoc.exists) {
+        queryWithCursor = paginatedQuery.startAfter(lastVisibleDoc);
       }
   }
 
-  const querySnapshot = await getDocs(queryWithCursor);
+  const querySnapshot = await queryWithCursor.get();
   const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
 
   const hasNextPage = applications.length > limitNumber;
-  // Remove the extra document we fetched for the check
   if (hasNextPage) {
     applications.pop();
   }
@@ -498,8 +483,8 @@ export async function getApplications(params: {
 
 
 export async function getApplicationById(id: string) {
-    const q = query(collection(db, 'applications'), where('id', '==', id), limit(1));
-    const querySnapshot = await getDocs(q);
+    const q = query(adminDb.collection('applications'), where('id', '==', id), limit(1));
+    const querySnapshot = await q.get();
     if (querySnapshot.empty) {
         return null;
     }
@@ -509,8 +494,8 @@ export async function getApplicationById(id: string) {
 
 export async function getPanels() {
   try {
-    const panelsCol = collection(db, 'panels');
-    const panelSnapshot = await getDocs(panelsCol);
+    const panelsCol = adminDb.collection('panels');
+    const panelSnapshot = await panelsCol.get();
     const panelList = panelSnapshot.docs.map(doc => doc.data());
     return panelList;
   } catch (error) {
@@ -531,8 +516,8 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     let originalStatus = '';
     let applicantInfo: { name: string; email: string; } | null = null;
     
-    await runTransaction(db, async (transaction) => {
-      const applicationQueryResult = await getDocs(query(collection(db, 'applications'), where('id', '==', id), limit(1)));
+    await adminDb.runTransaction(async (transaction) => {
+      const applicationQueryResult = await transaction.get(query(adminDb.collection('applications'), where('id', '==', id), limit(1)));
       if (applicationQueryResult.empty) {
         throw new Error('Application not found.');
       }
@@ -543,7 +528,6 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
       originalStatus = appData.status;
       applicantInfo = { name: appData.name, email: appData.email };
 
-      // Automated status update logic
       if (reviewData.isRecommended) {
         reviewData.status = 'Recommended';
       }
@@ -557,9 +541,7 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
       });
     });
 
-    // Send email only if the status has changed
     if (applicantInfo && reviewData.status !== originalStatus) {
-      // Do not await this, let it run in the background
       sendStatusUpdateEmail({
         name: applicantInfo.name,
         email: applicantInfo.email,
@@ -647,8 +629,8 @@ export async function logoutAction() {
 
 export async function updateAttendance(firestoreId: string, attended: boolean) {
   try {
-    const appDocRef = doc(db, 'applications', firestoreId);
-    await updateDoc(appDocRef, {
+    const appDocRef = adminDb.collection('applications').doc(firestoreId);
+    await appDocRef.update({
       interviewAttended: attended,
     });
     return { success: true };
@@ -677,13 +659,13 @@ export async function bulkUpdateStatus(filters: {
   
   try {
     let q = buildFilteredQuery(filters);
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await q.get();
     
     if (querySnapshot.empty) {
       return { success: true, updatedCount: 0, sentEmailCount: 0 };
     }
 
-    const batch = writeBatch(db);
+    const batch = adminDb.batch();
     const applicantsToEmail: StatusUpdateEmailInput[] = [];
 
     querySnapshot.docs.forEach(documentSnapshot => {
@@ -701,8 +683,6 @@ export async function bulkUpdateStatus(filters: {
     
     await batch.commit();
 
-    // After successfully committing the batch, send emails in the background.
-    // Do not await this so the UI returns immediately.
     (async () => {
       let sentCount = 0;
       for (const applicant of applicantsToEmail) {
@@ -734,17 +714,16 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
   const hiredRollNos = new Set(hiredCandidates.map(c => c.rollNo.toLowerCase()));
   
   try {
-    const applicationsRef = collection(db, 'applications');
-    const allApplicationsSnapshot = await getDocs(applicationsRef);
+    const applicationsRef = adminDb.collection('applications');
+    const allApplicationsSnapshot = await applicationsRef.get();
     
-    const batch = writeBatch(db);
+    const batch = adminDb.batch();
     const applicantsToEmail: StatusUpdateEmailInput[] = [];
     const membersToInvite: { email: string, name: string, role: string, categoryId: string }[] = [];
     
-    // Find the default "Technical Team" category
-    const categoriesRef = collection(db, 'teamCategories');
+    const categoriesRef = adminDb.collection('teamCategories');
     const q = query(categoriesRef, where('name', '==', 'Technical Team'), limit(1));
-    const categorySnapshot = await getDocs(q);
+    const categorySnapshot = await q.get();
     const defaultCategoryId = !categorySnapshot.empty ? categorySnapshot.docs[0].id : null;
 
     if (!defaultCategoryId) {
@@ -782,9 +761,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
 
     await batch.commit();
 
-    // Send emails in the background
     (async () => {
-      // Invite Hired Members
       for (const member of membersToInvite) {
         try {
           await inviteTeamMember(member);
@@ -793,7 +770,6 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
         }
       }
       
-      // Notify Rejected Applicants
       for (const applicant of applicantsToEmail) {
         try {
           await sendStatusUpdateEmail(applicant);
@@ -816,8 +792,8 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
 
 export async function exportHiredToCsv() {
     try {
-        const q = query(collection(db, 'applications'), where('status', '==', 'Hired'));
-        const querySnapshot = await getDocs(q);
+        const q = query(adminDb.collection('applications'), where('status', '==', 'Hired'));
+        const querySnapshot = await q.get();
 
         if (querySnapshot.empty) {
             return { error: 'No hired candidates found to export.' };
@@ -825,7 +801,6 @@ export async function exportHiredToCsv() {
 
         const hiredData = querySnapshot.docs.map(doc => {
             const data = doc.data();
-            // Flatten nested objects for easier CSV export
             return {
                 referenceId: data.id,
                 name: data.name,
@@ -860,28 +835,21 @@ export async function exportHiredToCsv() {
 
 export async function getAnalyticsData(panelDomain?: string) {
   try {
-    const constraints: QueryConstraint[] = [];
+    let baseQuery: Query = adminDb.collection('applications');
     if (panelDomain) {
-      constraints.push(where('technicalDomain', '==', panelDomain));
+      baseQuery = baseQuery.where('technicalDomain', '==', panelDomain);
     }
     
-    const applicationsRef = collection(db, 'applications');
-    const baseQuery = query(applicationsRef, ...constraints);
-
-    // 1. Get total applications count for the scope
     const totalSnapshot = await getCountFromServer(baseQuery);
     const totalApplications = totalSnapshot.data().count;
 
-    // 2. Get attended interviews count for the scope
-    const attendedQuery = query(baseQuery, where('interviewAttended', '==', true));
+    const attendedQuery = baseQuery.where('interviewAttended', '==', true);
     const attendedSnapshot = await getCountFromServer(attendedQuery);
     const attendedCount = attendedSnapshot.data().count;
     
-    // 3. Get all applications within the scope to aggregate various counts
-    const allApplicationsSnapshot = await getDocs(baseQuery);
+    const allApplicationsSnapshot = await baseQuery.get();
     const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
 
-    // 4. Calculate various counts
     const techDomainCounts: { [key: string]: number } = {};
     const nonTechDomainCounts: { [key: string]: number } = {};
     const statusCounts: { [key: string]: number } = {};
@@ -905,30 +873,25 @@ export async function getAnalyticsData(panelDomain?: string) {
     };
 
     applications.forEach(app => {
-      // Status
       const status = app.status || 'Received';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
       if (status === 'Hired') hiredCount++;
       if (status === 'Rejected') rejectedCount++;
 
-      // Technical Domain
       const techDomainKey = app.technicalDomain;
       const techDomainName = techDomainLabels[techDomainKey] || techDomainKey;
       if (techDomainName) {
         techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
       }
       
-      // Non-Technical Domain
       const nonTechDomainKey = app.nonTechnicalDomain;
       const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
       if (nonTechDomainName) {
           nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
       }
 
-      // Branch
       const branch = app.branch || 'Unknown';
       branchCounts[branch] = (branchCounts[branch] || 0) + 1;
-      // Year
       const year = app.yearOfStudy || 'Unknown';
       yearCounts[year] = (yearCounts[year] || 0) + 1;
     });
@@ -962,19 +925,14 @@ export async function getAnalyticsData(panelDomain?: string) {
 
 export async function getInterviewAnalyticsData() {
   try {
-    const applicationsRef = collection(db, 'applications');
-    // Base query is now filtered for attended interviews
-    const baseQuery = query(applicationsRef, where('interviewAttended', '==', true));
+    const baseQuery = adminDb.collection('applications').where('interviewAttended', '==', true);
 
-    // 1. Get total applications count for the scope (which is already attended)
     const totalSnapshot = await getCountFromServer(baseQuery);
-    const totalApplications = totalSnapshot.data().count; // This is the total number of attended interviews
+    const totalApplications = totalSnapshot.data().count;
     
-    // 2. Get all applications within the scope to aggregate various counts
-    const allApplicationsSnapshot = await getDocs(baseQuery);
+    const allApplicationsSnapshot = await baseQuery.get();
     const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
 
-    // 3. Calculate various counts
     const techDomainCounts: { [key: string]: number } = {};
     const nonTechDomainCounts: { [key: string]: number } = {};
     const statusCounts: { [key: string]: number } = {};
@@ -998,30 +956,25 @@ export async function getInterviewAnalyticsData() {
     };
 
     applications.forEach(app => {
-      // Status
       const status = app.status || 'Received';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
       if (status === 'Hired') hiredCount++;
       if (status === 'Rejected') rejectedCount++;
 
-      // Technical Domain
       const techDomainKey = app.technicalDomain;
       const techDomainName = techDomainLabels[techDomainKey] || techDomainKey;
       if (techDomainName) {
         techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
       }
       
-      // Non-Technical Domain
       const nonTechDomainKey = app.nonTechnicalDomain;
       const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
       if (nonTechDomainName) {
           nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
       }
 
-      // Branch
       const branch = app.branch || 'Unknown';
       branchCounts[branch] = (branchCounts[branch] || 0) + 1;
-      // Year
       const year = app.yearOfStudy || 'Unknown';
       yearCounts[year] = (yearCounts[year] || 0) + 1;
     });
@@ -1033,8 +986,8 @@ export async function getInterviewAnalyticsData() {
     const yearData = Object.entries(yearCounts).map(([name, count]) => ({ name, count }));
 
     return {
-      totalApplications, // This now represents attended interviews
-      attendedCount: totalApplications, // attendedCount is the same as total in this context
+      totalApplications,
+      attendedCount: totalApplications,
       hiredCount,
       rejectedCount,
       techDomainData,
@@ -1055,8 +1008,8 @@ export async function getInterviewAnalyticsData() {
 
 export async function setDeadline(deadline: Date) {
   try {
-    const settingsRef = doc(db, 'settings', 'deadline');
-    await setDoc(settingsRef, { deadlineTimestamp: deadline.toISOString() });
+    const settingsRef = adminDb.collection('settings').doc('deadline');
+    await settingsRef.set({ deadlineTimestamp: deadline.toISOString() });
     return { success: true };
   } catch (error) {
     console.error('Error setting deadline:', error);
@@ -1069,11 +1022,11 @@ export async function setDeadline(deadline: Date) {
 
 export async function getDeadline() {
   try {
-    const settingsRef = doc(db, 'settings', 'deadline');
-    const docSnap = await getDoc(settingsRef);
+    const settingsRef = adminDb.collection('settings').doc('deadline');
+    const docSnap = await settingsRef.get();
 
-    if (docSnap.exists()) {
-      return { deadlineTimestamp: docSnap.data().deadlineTimestamp };
+    if (docSnap.exists) {
+      return { deadlineTimestamp: docSnap.data()?.deadlineTimestamp };
     }
     return { deadlineTimestamp: null };
   } catch (error) {
@@ -1113,26 +1066,31 @@ export async function createEvent(formData: FormData) {
     }
     
     try {
-        const docRef = await addDoc(collection(db, 'events'), {
+        const docRef = await adminDb.collection('events').add({
             ...parsed.data,
-            speakers: [], // Temp clear
+            speakers: [],
         });
         const eventId = docRef.id;
+        const bucket = adminStorage.bucket();
         
         let imageUrl = "";
         if (imageFile && imageFile.size > 0) {
-            const storageRef = ref(storage, `event-images/${eventId}/cover`);
-            await uploadBytes(storageRef, imageFile);
-            imageUrl = await getDownloadURL(storageRef);
+            const buffer = Buffer.from(await imageFile.arrayBuffer());
+            const filePath = `event-images/${eventId}/cover`;
+            const file = bucket.file(filePath);
+            await file.save(buffer, { contentType: imageFile.type });
+            imageUrl = await getDownloadURL(file);
         }
 
         const highlightImageUrls: string[] = [];
         for (let i = 0; i < highlightImageFiles.length; i++) {
             const file = highlightImageFiles[i];
             if (file.size > 0) {
-                const storageRef = ref(storage, `event-images/${eventId}/highlight_${i}`);
-                await uploadBytes(storageRef, file);
-                highlightImageUrls.push(await getDownloadURL(storageRef));
+                const buffer = Buffer.from(await file.arrayBuffer());
+                const filePath = `event-images/${eventId}/highlight_${i}`;
+                const fileRef = bucket.file(filePath);
+                await fileRef.save(buffer, { contentType: file.type });
+                highlightImageUrls.push(await getDownloadURL(fileRef));
             }
         }
         
@@ -1141,15 +1099,17 @@ export async function createEvent(formData: FormData) {
                 const file = speaker.image as File | null;
                 let speakerImageUrl = '';
                 if (file && file.size > 0) {
-                    const storageRef = ref(storage, `event-images/${eventId}/speaker_${index}`);
-                    await uploadBytes(storageRef, file);
-                    speakerImageUrl = await getDownloadURL(storageRef);
+                    const buffer = Buffer.from(await file.arrayBuffer());
+                    const filePath = `event-images/${eventId}/speaker_${index}`;
+                    const fileRef = bucket.file(filePath);
+                    await fileRef.save(buffer, { contentType: file.type });
+                    speakerImageUrl = await getDownloadURL(fileRef);
                 }
                 return { name: speaker.name, title: speaker.title, image: speakerImageUrl };
             })
         );
         
-        await updateDoc(docRef, {
+        await docRef.update({
             image: imageUrl,
             highlightImages: highlightImageUrls,
             speakers: speakersWithImageUrls,
@@ -1194,25 +1154,30 @@ export async function updateEvent(id: string, formData: FormData) {
         return { error: 'Invalid event data.' };
     }
     try {
-        const eventDocRef = doc(db, 'events', id);
-        const currentEventSnap = await getDoc(eventDocRef);
+        const eventDocRef = adminDb.collection('events').doc(id);
+        const currentEventSnap = await eventDocRef.get();
         const currentEventData = currentEventSnap.data();
+        const bucket = adminStorage.bucket();
 
         const dataToUpdate: any = { ...parsed.data };
         
         if (imageFile && imageFile.size > 0) {
-            const storageRef = ref(storage, `event-images/${id}/cover`);
-            await uploadBytes(storageRef, imageFile);
-            dataToUpdate.image = await getDownloadURL(storageRef);
+            const buffer = Buffer.from(await imageFile.arrayBuffer());
+            const filePath = `event-images/${id}/cover`;
+            const file = bucket.file(filePath);
+            await file.save(buffer, { contentType: imageFile.type });
+            dataToUpdate.image = await getDownloadURL(file);
         }
         
         if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
             const highlightImageUrls: string[] = [];
             for (let i = 0; i < highlightImageFiles.length; i++) {
                 const file = highlightImageFiles[i];
-                const storageRef = ref(storage, `event-images/${id}/highlight_${Date.now()}_${i}`);
-                await uploadBytes(storageRef, file);
-                highlightImageUrls.push(await getDownloadURL(storageRef));
+                const buffer = Buffer.from(await file.arrayBuffer());
+                const filePath = `event-images/${id}/highlight_${Date.now()}_${i}`;
+                const fileRef = bucket.file(filePath);
+                await fileRef.save(buffer, { contentType: file.type });
+                highlightImageUrls.push(await getDownloadURL(fileRef));
             }
             dataToUpdate.highlightImages = [...(currentEventData?.highlightImages || []), ...highlightImageUrls];
         }
@@ -1224,16 +1189,18 @@ export async function updateEvent(id: string, formData: FormData) {
                 let speakerImageUrl = existingSpeaker?.image || '';
 
                 if (file && file.size > 0) {
-                    const storageRef = ref(storage, `event-images/${id}/speaker_${index}`);
-                    await uploadBytes(storageRef, file);
-                    speakerImageUrl = await getDownloadURL(storageRef);
+                    const buffer = Buffer.from(await file.arrayBuffer());
+                    const filePath = `event-images/${id}/speaker_${index}`;
+                    const fileRef = bucket.file(filePath);
+                    await fileRef.save(buffer, { contentType: file.type });
+                    speakerImageUrl = await getDownloadURL(fileRef);
                 }
                 return { name: speaker.name, title: speaker.title, image: speakerImageUrl };
             })
         );
         dataToUpdate.speakers = speakersWithImageUrls;
 
-        await updateDoc(eventDocRef, dataToUpdate);
+        await eventDocRef.update(dataToUpdate);
         return { success: true };
     } catch (error) {
         console.error(error);
@@ -1244,9 +1211,7 @@ export async function updateEvent(id: string, formData: FormData) {
 
 export async function deleteEvent(id: string) {
     try {
-        await deleteDoc(doc(db, 'events', id));
-        // Note: Does not delete subcollections like registrations. 
-        // For a production app, a Cloud Function would be needed to handle this.
+        await adminDb.collection('events').doc(id).delete();
         return { success: true };
     } catch (error) {
         return { error: 'Failed to delete event.' };
@@ -1255,15 +1220,15 @@ export async function deleteEvent(id: string) {
 
 export async function getEvents() {
     try {
-        const eventsCol = collection(db, 'events');
+        const eventsCol = adminDb.collection('events');
         const q = query(eventsCol, orderBy('date', 'desc'));
-        const eventSnapshot = await getDocs(q);
+        const eventSnapshot = await q.get();
         const eventList = eventSnapshot.docs.map(doc => {
             const data = doc.data();
             return {
                 ...data,
                 id: doc.id,
-                date: data.date.toDate().toISOString(),
+                date: new Date(data.date.toDate()).toISOString(),
             }
         });
         return { events: eventList as any[], error: null };
@@ -1279,15 +1244,15 @@ export async function getEvents() {
 
 export async function getEventById(id: string) {
     try {
-        const eventDoc = await getDoc(doc(db, 'events', id));
-        if (!eventDoc.exists()) {
+        const eventDoc = await adminDb.collection('events').doc(id).get();
+        if (!eventDoc.exists) {
             return { error: 'Event not found.' };
         }
-        const data = eventDoc.data();
+        const data = eventDoc.data()!;
         const eventData = { 
             ...data,
             id: eventDoc.id,
-            date: data.date.toDate().toISOString(),
+            date: new Date(data.date.toDate()).toISOString(),
         };
         return { event: eventData as any };
     } catch (error) {
@@ -1303,41 +1268,39 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
     }
     
     try {
-        const eventRef = doc(db, 'events', eventId);
-        const eventSnap = await getDoc(eventRef);
+        const eventRef = adminDb.collection('events').doc(eventId);
+        const eventSnap = await eventRef.get();
 
-        if (!eventSnap.exists()) {
+        if (!eventSnap.exists) {
              return { error: 'Event not found.' };
         }
         
-        const eventData = eventSnap.data();
+        const eventData = eventSnap.data()!;
 
         if (!eventData.registrationOpen) {
             return { error: 'Registrations for this event are closed.' };
         }
         
-        const registrationsRef = collection(db, 'events', eventId, 'registrations');
+        const registrationsRef = adminDb.collection('events').doc(eventId).collection('registrations');
 
-        // Check for existing email in this event's registrations
         const emailQuery = query(registrationsRef, where("email", "==", parsed.data.email));
-        const emailSnapshot = await getDocs(emailQuery);
+        const emailSnapshot = await emailQuery.get();
         if (!emailSnapshot.empty) {
             return { error: 'This email is already registered for this event.' };
         }
 
-        await addDoc(registrationsRef, {
+        await registrationsRef.add({
             ...parsed.data,
             registeredAt: new Date().toISOString(),
         });
         
-         // Send confirmation email in background
         (async () => {
             try {
                 const emailInput: RsvpConfirmationEmailInput = { 
                     name: parsed.data.name,
                     email: parsed.data.email,
                     eventName: eventData.title,
-                    eventDate: eventData.date.toDate().toISOString(),
+                    eventDate: new Date(eventData.date.toDate()).toISOString(),
                 };
                 await sendRsvpConfirmationEmail(emailInput);
             } catch (emailError) {
@@ -1355,9 +1318,9 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
 
 export async function getEventRegistrations(eventId: string) {
     try {
-        const registrationsCol = collection(db, 'events', eventId, 'registrations');
+        const registrationsCol = adminDb.collection('events').doc(eventId).collection('registrations');
         const q = query(registrationsCol, orderBy('registeredAt', 'desc'));
-        const registrationSnapshot = await getDocs(q);
+        const registrationSnapshot = await q.get();
         const registrationList = registrationSnapshot.docs.map(doc => ({
             ...doc.data(),
             id: doc.id,
@@ -1398,7 +1361,7 @@ export async function createTeamCategory(values: z.infer<typeof teamCategorySche
     const parsed = teamCategorySchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data." };
     try {
-        await addDoc(collection(db, 'teamCategories'), parsed.data);
+        await adminDb.collection('teamCategories').add(parsed.data);
         return { success: true };
     } catch (e) {
         return { error: "Failed to create category." };
@@ -1407,8 +1370,8 @@ export async function createTeamCategory(values: z.infer<typeof teamCategorySche
 
 export async function getTeamCategories() {
     try {
-        const q = query(collection(db, 'teamCategories'), orderBy('order'));
-        const snapshot = await getDocs(q);
+        const q = query(adminDb.collection('teamCategories'), orderBy('order'));
+        const snapshot = await q.get();
         const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return { categories };
     } catch (e) {
@@ -1418,9 +1381,9 @@ export async function getTeamCategories() {
 
 export async function getTeamCategoryById(id: string) {
     try {
-        const docRef = doc(db, 'teamCategories', id);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) return { error: 'Category not found.' };
+        const docRef = adminDb.collection('teamCategories').doc(id);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) return { error: 'Category not found.' };
         return { category: { id: docSnap.id, ...docSnap.data() } };
     } catch (e) {
         return { error: 'Failed to fetch category.' };
@@ -1431,7 +1394,7 @@ export async function updateTeamCategory(id: string, values: z.infer<typeof team
     const parsed = teamCategorySchema.safeParse(values);
     if (!parsed.success) return { error: "Invalid data." };
     try {
-        await updateDoc(doc(db, 'teamCategories', id), parsed.data as any);
+        await adminDb.collection('teamCategories').doc(id).update(parsed.data as any);
         return { success: true };
     } catch (e) {
         return { error: "Failed to update category." };
@@ -1440,8 +1403,7 @@ export async function updateTeamCategory(id: string, values: z.infer<typeof team
 
 export async function deleteTeamCategory(id: string) {
     try {
-        // You might want to check if any team members are using this category first
-        await deleteDoc(doc(db, 'teamCategories', id));
+        await adminDb.collection('teamCategories').doc(id).delete();
         return { success: true };
     } catch (e) {
         return { error: "Failed to delete category." };
@@ -1456,9 +1418,8 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
     const { email, name, role, categoryId } = parsed.data;
 
     try {
-        // Check if member with this email already exists
-        const q = query(collection(db, 'teamMembers'), where('email', '==', email));
-        const existing = await getDocs(q);
+        const q = query(adminDb.collection('teamMembers'), where('email', '==', email));
+        const existing = await q.get();
         if (!existing.empty) {
             return { error: "A team member with this email already exists." };
         }
@@ -1475,9 +1436,8 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
             linkedin: '', // To be filled by the user
         };
 
-        await addDoc(collection(db, 'teamMembers'), newMemberData);
+        await adminDb.collection('teamMembers').add(newMemberData);
 
-        // Send invitation email
         (async () => {
             try {
                 const emailInput: InvitationEmailInput = {
@@ -1489,7 +1449,6 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
                 await sendInvitationEmail(emailInput);
             } catch (emailError) {
                 console.error(`Invitation email sending failed for ${email}:`, emailError);
-                // Even if email fails, the member is in the DB. This could be handled with a retry queue.
             }
         })();
         
@@ -1502,12 +1461,12 @@ export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>)
 
 export async function resendInvitation(memberId: string) {
     try {
-        const memberDocRef = doc(db, 'teamMembers', memberId);
-        const memberDoc = await getDoc(memberDocRef);
-        if (!memberDoc.exists()) {
+        const memberDocRef = adminDb.collection('teamMembers').doc(memberId);
+        const memberDoc = await memberDocRef.get();
+        if (!memberDoc.exists) {
             return { error: "Team member not found." };
         }
-        const member = memberDoc.data();
+        const member = memberDoc.data()!;
 
         if (member.status !== 'pending') {
             return { error: "This member is already active. Use the 'Send Edit Link' option instead." };
@@ -1516,13 +1475,12 @@ export async function resendInvitation(memberId: string) {
         const onboardingToken = randomBytes(32).toString('hex');
         const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-        await updateDoc(memberDocRef, {
+        await memberDocRef.update({
             onboardingToken,
             tokenExpiresAt: tokenExpiresAt.toISOString(),
             status: 'pending',
         });
 
-        // Send invitation email with the new token
         await sendInvitationEmail({
             name: member.name,
             email: member.email,
@@ -1539,19 +1497,18 @@ export async function resendInvitation(memberId: string) {
 
 export async function sendProfileEditLink(memberId: string) {
     try {
-        const memberDocRef = doc(db, 'teamMembers', memberId);
-        const memberDoc = await getDoc(memberDocRef);
+        const memberDocRef = adminDb.collection('teamMembers').doc(memberId);
+        const memberDoc = await memberDocRef.get();
 
-        if (!memberDoc.exists()) {
+        if (!memberDoc.exists) {
             return { error: "Team member not found." };
         }
-        const member = { id: memberDoc.id, ...memberDoc.data() };
+        const member = { id: memberDoc.id, ...memberDoc.data()! };
 
         if (member.status !== 'active') {
              return { error: "Cannot send edit link to a pending member. Please resend their invitation instead." };
         }
 
-        // Send profile confirmation/edit email
         await sendProfileConfirmationEmail({
             name: member.name,
             email: member.email,
@@ -1568,14 +1525,14 @@ export async function sendProfileEditLink(memberId: string) {
 
 export async function bulkResendInvitations() {
     try {
-        const q = query(collection(db, 'teamMembers'), where('status', '==', 'pending'));
-        const snapshot = await getDocs(q);
+        const q = query(adminDb.collection('teamMembers'), where('status', '==', 'pending'));
+        const snapshot = await q.get();
 
         if (snapshot.empty) {
             return { success: true, count: 0 };
         }
 
-        const batch = writeBatch(db);
+        const batch = adminDb.batch();
         let count = 0;
 
         for (const memberDoc of snapshot.docs) {
@@ -1607,8 +1564,8 @@ export async function bulkResendInvitations() {
 
 export async function bulkSendProfileEditLinks() {
     try {
-        const q = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
-        const snapshot = await getDocs(q);
+        const q = query(adminDb.collection('teamMembers'), where('status', '==', 'active'));
+        const snapshot = await q.get();
 
         if (snapshot.empty) {
             return { success: true, count: 0 };
@@ -1648,17 +1605,19 @@ export async function updateTeamMember(id: string, formData: FormData) {
     }
 
     try {
-        const docRef = doc(db, "teamMembers", id);
+        const docRef = adminDb.collection("teamMembers").doc(id);
         const dataToUpdate: any = parsed.data;
+        const bucket = adminStorage.bucket();
 
         if (imageFile && imageFile.size > 0) {
-            const storageRef = ref(storage, `profile-images/${id}`);
-            const imageBuffer = await imageFile.arrayBuffer();
-            await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-            dataToUpdate.image = await getDownloadURL(storageRef);
+            const buffer = Buffer.from(await imageFile.arrayBuffer());
+            const filePath = `profile-images/${id}`;
+            const file = bucket.file(filePath);
+            await file.save(buffer, { contentType: imageFile.type });
+            dataToUpdate.image = await getDownloadURL(file);
         }
 
-        await updateDoc(docRef, dataToUpdate);
+        await docRef.update(dataToUpdate);
         return { success: true };
     } catch (error) {
         console.error("Error updating team member:", error);
@@ -1673,10 +1632,10 @@ export async function updateTeamMember(id: string, formData: FormData) {
 export async function getTeamMemberByToken(token: string) {
     try {
         const q = query(
-            collection(db, 'teamMembers'),
+            adminDb.collection('teamMembers'),
             where('onboardingToken', '==', token)
         );
-        const snapshot = await getDocs(q);
+        const snapshot = await q.get();
 
         if (snapshot.empty) {
             return { error: "Invalid onboarding link." };
@@ -1720,25 +1679,25 @@ export async function completeOnboarding(formData: FormData) {
             return { error: error || "Failed to validate token." };
         }
 
-        // Upload image to Firebase Storage
-        const storageRef = ref(storage, `profile-images/${member.id}`);
-        const imageBuffer = await imageFile.arrayBuffer();
-        await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-        const imageUrl = await getDownloadURL(storageRef);
+        const bucket = adminStorage.bucket();
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        const filePath = `profile-images/${member.id}`;
+        const file = bucket.file(filePath);
+        await file.save(buffer, { contentType: imageFile.type });
+        const imageUrl = await getDownloadURL(file);
 
         const updatedMemberData = {
             image: imageUrl,
             linkedin,
             status: 'active',
-            onboardingToken: '', // Clear the token after use
+            onboardingToken: '',
             tokenExpiresAt: '',
         };
 
-        await updateDoc(doc(db, 'teamMembers', member.id), updatedMemberData);
+        await adminDb.collection('teamMembers').doc(member.id).update(updatedMemberData);
 
         const updatedMember = { ...member, ...updatedMemberData };
 
-        // Send confirmation email with edit link
         (async () => {
             try {
                 const emailInput: ProfileConfirmationEmailInput = {
@@ -1763,12 +1722,12 @@ export async function completeOnboarding(formData: FormData) {
 
 export async function getTeamMembers() {
     try {
-        const teamMembersQuery = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
-        const teamCategoriesQuery = query(collection(db, 'teamCategories'), orderBy('order'));
+        const teamMembersQuery = query(adminDb.collection('teamMembers'), where('status', '==', 'active'));
+        const teamCategoriesQuery = query(adminDb.collection('teamCategories'), orderBy('order'));
         
         const [teamMembersSnapshot, teamCategoriesSnapshot] = await Promise.all([
-            getDocs(teamMembersQuery),
-            getDocs(teamCategoriesQuery)
+            teamMembersQuery.get(),
+            teamCategoriesQuery.get()
         ]);
 
         const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1792,10 +1751,10 @@ export async function getTeamMembers() {
 
 export async function getAllTeamMembersWithCategory() {
     try {
-        const membersSnapshot = await getDocs(collection(db, "teamMembers"));
+        const membersSnapshot = await adminDb.collection("teamMembers").get();
         const members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        const categoriesSnapshot = await getDocs(collection(db, "teamCategories"));
+        const categoriesSnapshot = await adminDb.collection("teamCategories").get();
         const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, subDomain: doc.data().subDomain }));
         const categoryMap = new Map(categories.map(c => [c.id, {name: c.name, subDomain: c.subDomain}]));
 
@@ -1813,10 +1772,10 @@ export async function getAllTeamMembersWithCategory() {
 
 export async function getTeamMemberById(id: string) {
     try {
-        const docRef = doc(db, 'teamMembers', id);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) return { error: 'Team member not found.' };
-        return { member: { id: docSnap.id, ...docSnap.data() } };
+        const docRef = adminDb.collection('teamMembers').doc(id);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) return { error: 'Team member not found.' };
+        return { member: { id: docSnap.id, ...docSnap.data()! } };
     } catch (e) {
         return { error: 'Failed to fetch team member.' };
     }
@@ -1825,19 +1784,15 @@ export async function getTeamMemberById(id: string) {
 
 export async function deleteTeamMember(id: string) {
     try {
-        // First, try to delete the image from storage.
-        const storageRef = ref(storage, `profile-images/${id}`);
-        try {
-            await deleteObject(storageRef);
-        } catch (storageError: any) {
-            // It's okay if the image doesn't exist.
-            if (storageError.code !== 'storage/object-not-found') {
-                console.warn(`Could not delete profile image for member ${id}:`, storageError);
-            }
+        const bucket = adminStorage.bucket();
+        const filePath = `profile-images/${id}`;
+        const file = bucket.file(filePath);
+        const [exists] = await file.exists();
+        if (exists) {
+            await file.delete();
         }
         
-        // Then, delete the member document from Firestore.
-        await deleteDoc(doc(db, 'teamMembers', id));
+        await adminDb.collection('teamMembers').doc(id).delete();
         return { success: true };
     } catch (e) {
         console.error("Error deleting team member:", e);
