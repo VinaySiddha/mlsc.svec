@@ -1764,25 +1764,29 @@ export async function completeOnboarding(formData: FormData) {
 export async function getTeamMembers() {
     try {
         const teamMembersQuery = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
-        const teamMembersSnapshot = await getDocs(teamMembersQuery);
-        const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
         const teamCategoriesQuery = query(collection(db, 'teamCategories'), orderBy('order'));
-        const teamCategoriesSnapshot = await getDocs(teamCategoriesQuery);
+        
+        const [teamMembersSnapshot, teamCategoriesSnapshot] = await Promise.all([
+            getDocs(teamMembersQuery),
+            getDocs(teamCategoriesQuery)
+        ]);
+
+        const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const teamCategoriesData = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        const membersByCategory = teamCategoriesData.map(category => ({
-            ...category,
-            members: teamMembers.filter(member => member.categoryId === category.id)
-        }));
+        if (teamCategoriesData.length === 0) {
+            return { membersByCategory: [], error: null };
+        }
+
+        const membersByCategory = teamCategoriesData.map(category => {
+            const members = teamMembers.filter(member => member.categoryId === category.id);
+            return { ...category, members };
+        });
 
         return { membersByCategory: membersByCategory as any[], error: null };
-    } catch (e) {
+    } catch (e: any) {
         console.error("Error fetching team members:", e);
-        if (e instanceof Error) {
-            return { error: `Failed to fetch team members: ${e.message}`, membersByCategory: [] };
-        }
-        return { error: 'An unexpected server error occurred.', membersByCategory: [] };
+        return { error: `Failed to fetch team members: ${e.message}`, membersByCategory: [] };
     }
 }
 
