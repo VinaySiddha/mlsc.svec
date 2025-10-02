@@ -3,7 +3,7 @@
 
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
-import { logoutAction } from "@/app/actions";
+import { logoutAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
