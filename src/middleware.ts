@@ -68,10 +68,7 @@ export async function middleware(req: NextRequest) {
     if (sessionToken) {
        const payload = verifyToken(sessionToken);
        if (payload) {
-         const url = req.nextUrl.clone()
-         url.pathname = '/admin'
-         url.search = '' // Clear query params
-         return NextResponse.rewrite(url);
+         return NextResponse.redirect(new URL("/admin", req.url));
        }
     }
   }
