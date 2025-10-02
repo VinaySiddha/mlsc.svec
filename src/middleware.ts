@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as jose from "jose";
+import jwt from "jsonwebtoken";
 import { logVisitor } from "./app/middleware-actions";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-async function verifyToken(token: string) {
+function verifyToken(token: string) {
   if (!JWT_SECRET) {
     throw new Error("JWT_SECRET is not set in environment variables.");
   }
-  const secret = new TextEncoder().encode(JWT_SECRET);
   try {
-    const { payload } = await jose.jwtVerify(token, secret);
+    const payload = jwt.verify(token, JWT_SECRET);
     return payload;
   } catch (error) {
     return null;
@@ -41,7 +40,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    const payload = await verifyToken(sessionToken);
+    const payload = verifyToken(sessionToken) as any;
 
     if (!payload) {
       // Clear invalid cookie and redirect
@@ -67,7 +66,7 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === "/login") {
     if (sessionToken) {
-       const payload = await verifyToken(sessionToken);
+       const payload = verifyToken(sessionToken);
        if (payload) {
          const url = req.nextUrl.clone()
          url.pathname = '/admin'
