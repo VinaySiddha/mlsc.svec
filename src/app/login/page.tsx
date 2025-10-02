@@ -52,10 +52,10 @@ export default function LoginPage() {
       if (result.success) {
         toast({
           title: 'Login Successful',
-          description: "You've been logged in.",
+          description: "Redirecting to your dashboard...",
         });
-        router.push('/admin');
-        router.refresh();
+        // Force a full page reload to ensure cookie is set before navigation
+        window.location.href = '/admin';
       } else {
         throw new Error(result.error || 'Invalid credentials.');
       }
