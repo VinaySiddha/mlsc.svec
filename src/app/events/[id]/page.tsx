@@ -70,6 +70,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                         </Link>
                                     </SheetClose>
                                 </nav>
+                                </div>
                             </SheetContent>
                     </Sheet>
                     </div>

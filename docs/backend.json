@@ -1,0 +1,201 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user profile in the MLSC Hub application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "phone": {
+          "type": "string",
+          "description": "User's phone number."
+        },
+        "resumeUrl": {
+          "type": "string",
+          "description": "URL of the user's resume stored in Firebase Storage.",
+          "format": "uri"
+        },
+        "skills": {
+          "type": "array",
+          "description": "List of user's skills.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "whyJoin": {
+          "type": "string",
+          "description": "User's statement on why they want to join MLSC."
+        },
+        "previousRepresentations": {
+          "type": "string",
+          "description": "Any previous representations of the user."
+        },
+        "receiveEmailUpdates": {
+          "type": "boolean",
+          "description": "Indicates whether the user wants to receive email updates."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name"
+      ]
+    },
+    "ClubRole": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ClubRole",
+      "type": "object",
+      "description": "Represents a club member role.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the club role."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the club role."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the club role."
+        },
+        "requirements": {
+          "type": "string",
+          "description": "Requirements for the club role."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "requirements"
+      ]
+    },
+    "Application": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Application",
+      "type": "object",
+      "description": "Represents an application submitted by a user for a specific role.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the application."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Application)"
+        },
+        "clubRoleId": {
+          "type": "string",
+          "description": "Reference to ClubRole. (Relationship: ClubRole 1:N Application)"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the application (Applied, Shortlisted, Rejected, Selected)."
+        },
+        "adminNotes": {
+          "type": "string",
+          "description": "Private review notes added by the admin."
+        },
+        "rating": {
+          "type": "number",
+          "description": "Rating given to the candidate by the admin (1-5 stars)."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "clubRoleId",
+        "status"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Path-based ownership is used for private data. Includes fields for email updates preference and previous representations.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, obtained from Firebase Authentication."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/club_roles/{clubRoleId}",
+        "definition": {
+          "entityName": "ClubRole",
+          "schema": {
+            "$ref": "#/backend/entities/ClubRole"
+          },
+          "description": "Stores club role definitions created by admins.",
+          "params": [
+            {
+              "name": "clubRoleId",
+              "description": "The unique identifier for the club role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/applications/{applicationId}",
+        "definition": {
+          "entityName": "Application",
+          "schema": {
+            "$ref": "#/backend/entities/Application"
+          },
+          "description": "Stores application data. Includes `userProfileId` and `clubRoleId` as foreign keys.  The 'status' field enables tracking the application lifecycle. The 'adminNotes' and 'rating' are for internal use by administrators. ",
+          "params": [
+            {
+              "name": "applicationId",
+              "description": "The unique identifier for the application."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "admin",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Marks a user as admin. Existence in this collection grants admin privileges. Existence over content is preferred here.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the admin user, matching the Firebase Authentication UID."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure prioritizes authorization independence and simplifies security rules. User profiles are stored under `/users/{userId}`. Club roles are stored in a separate collection, `/club_roles`. Applications are stored under `/applications/{applicationId}`, containing denormalized `userProfileId` and `clubRoleId`. A dedicated collection, `/roles_admin/{uid}`, determines admin privileges.  This design ensures clear ownership, avoids complex `get()` calls in security rules, and enables atomic operations. Segregation of data into collections based on access control needs supports secure list operations (QAPs). Resume files are stored in Firebase Storage, referenced by a URL in the `UserProfile`."
+  }
+}
