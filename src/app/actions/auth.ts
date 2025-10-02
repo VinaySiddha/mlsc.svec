@@ -2,7 +2,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import * as jose from 'jose';
+import jwt from 'jsonwebtoken';
 import * as z from 'zod';
 
 const loginSchema = z.object({
@@ -33,8 +33,6 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   if (!JWT_SECRET) {
     throw new Error('JWT_SECRET is not set in environment variables.');
   }
-  
-  const secret = new TextEncoder().encode(JWT_SECRET);
 
   let userPayload: { role: string; domain?: string; username: string };
 
@@ -49,11 +47,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     }
   }
 
-  const token = await new jose.SignJWT(userPayload)
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('1d')
-    .sign(secret);
+  const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '1d' });
 
   cookies().set('session', token, {
     httpOnly: true,
