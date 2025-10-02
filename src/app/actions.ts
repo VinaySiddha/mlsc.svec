@@ -1758,4 +1758,3 @@ async function addInitialEvents() {
 }
 
 addInitialEvents().catch(console.error);
-    

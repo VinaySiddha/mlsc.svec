@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { logVisitor } from "./app/middleware-actions";
@@ -64,12 +65,10 @@ export async function middleware(req: NextRequest) {
     });
   }
 
-  if (pathname === "/login") {
-    if (sessionToken) {
-       const payload = verifyToken(sessionToken);
-       if (payload) {
-         return NextResponse.redirect(new URL("/admin", req.url));
-       }
+  if (pathname === "/login" && sessionToken) {
+    const payload = verifyToken(sessionToken);
+    if (payload) {
+      return NextResponse.redirect(new URL("/admin", req.url));
     }
   }
 
