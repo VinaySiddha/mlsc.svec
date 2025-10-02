@@ -21,21 +21,9 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const sessionToken = req.cookies.get("session")?.value;
 
-  // If the user is logged in and tries to access the login page, redirect them to admin
-  if (pathname === '/login') {
-    if (sessionToken) {
-      const payload = verifyToken(sessionToken);
-      if (payload) {
-        return NextResponse.redirect(new URL('/admin', req.url));
-      }
-    }
-    return NextResponse.next();
-  }
-  
-  // Don't log visits for API routes, static files, or the admin area itself
   const isLoggable = !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.endsWith('.png') && !pathname.endsWith('.jpg') && !pathname.endsWith('.ico');
 
-  if (isLoggable) {
+  if (isLoggable && !pathname.startsWith('/admin')) {
     const ip = req.ip ?? '127.0.0.1';
     const userAgent = req.headers.get('user-agent') ?? 'unknown';
     
@@ -47,6 +35,7 @@ export async function middleware(req: NextRequest) {
     }).catch(console.error);
   }
 
+  // Handle /admin routes
   if (pathname.startsWith("/admin")) {
     if (!sessionToken) {
       return NextResponse.redirect(new URL("/login", req.url));
@@ -76,9 +65,20 @@ export async function middleware(req: NextRequest) {
     });
   }
 
+  // Handle /login route
+  if (pathname === '/login') {
+    if (sessionToken) {
+      const payload = verifyToken(sessionToken);
+      if (payload) {
+        return NextResponse.redirect(new URL('/admin', req.url));
+      }
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login", "/((?!api|_next/static|favicon.ico).*)"],
+  // Apply middleware only to admin and login paths.
+  matcher: ["/admin/:path*", "/login"],
 };
