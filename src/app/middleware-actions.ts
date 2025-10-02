@@ -2,8 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 
 const visitorSchema = z.object({
   ip: z.string(),
@@ -18,7 +17,7 @@ export async function logVisitor(data: z.infer<typeof visitorSchema>) {
     return;
   }
   try {
-    await addDoc(collection(db, 'visitors'), {
+    await adminDb.collection('visitors').add({
       ...parsed.data,
       timestamp: new Date().toISOString(),
     });

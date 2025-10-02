@@ -31,7 +31,7 @@ const config = {
         pathname: '/**',
       },
       {
-        protocol: 'https',
+        protocol: 'httpshttps',
         hostname: 'firebasestorage.googleapis.com',
         port: '',
         pathname: '/**',
@@ -43,6 +43,10 @@ const config = {
         pathname: '/**',
       }
     ],
+  },
+  webpack(config) {
+    config.experiments = { ...config.experiments, asyncWebAssembly: true };
+    return config;
   },
 };
 
