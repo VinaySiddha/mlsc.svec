@@ -1,6 +1,6 @@
 
+
 import { getEvents } from "@/app/actions";
-import { EventDetailsDialog } from "@/components/event-details-dialog";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -128,7 +128,9 @@ export default async function EventsPage() {
                                     <p className="text-sm text-primary font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
                                     <CardTitle className="pt-2 text-xl flex-1">{event.title}</CardTitle>
                                     <div className="mt-4">
-                                       <EventDetailsDialog event={event} />
+                                       <Button asChild variant="secondary" className="w-full">
+                                          <Link href={`/events/${event.id}`}>View Details</Link>
+                                       </Button>
                                     </div>
                                 </div>
                             </Card>
