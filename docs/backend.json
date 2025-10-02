@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -38,14 +39,6 @@
         "whyJoin": {
           "type": "string",
           "description": "User's statement on why they want to join MLSC."
-        },
-        "previousRepresentations": {
-          "type": "string",
-          "description": "Details about any previous representations or roles the user has held."
-        },
-        "receiveEmailUpdates": {
-          "type": "boolean",
-          "description": "Indicates whether the user wants to receive email updates about club activities."
         }
       },
       "required": [
@@ -126,8 +119,7 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous",
-      "google.com"
+      "anonymous"
     ]
   },
   "firestore": {
@@ -139,7 +131,7 @@
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores user profile information. Path-based ownership is used for private data. Includes fields for email updates preference and previous representations.",
+          "description": "Stores user profile information. Path-based ownership is used for private data.",
           "params": [
             {
               "name": "userId",
