@@ -7,7 +7,12 @@ import { cn } from '@/lib/utils';
 
 export const Image = (props: ImageProps) => {
   const { src, className, ...rest } = props;
-  const isCloudLink = typeof src === 'string' && (src.includes('drive.google.com') || src.includes('1drv.ms'));
+  
+  if (!src) {
+    return <NextImage src="/placeholder.jpg" className={cn(className)} {...rest} />;
+  }
+
+  const isCloudLink = typeof src === 'string' && (src.includes('drive.google.com') || src.includes('1drv.ms') || src.includes('ibb.co'));
 
   let finalSrc = src;
 
