@@ -74,7 +74,27 @@ const staticEvents = [
 
 export default function EventsPage() {
     const [events, setEvents] = useState<any[]>(staticEvents);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchEvents = async () => {
+        try {
+          const dynamicEventsResult = await getEvents();
+          if (dynamicEventsResult.events) {
+            // Combine dynamic and static events, with dynamic ones first
+            setEvents([...dynamicEventsResult.events, ...staticEvents]);
+          }
+        } catch (error) {
+          console.error("Failed to fetch dynamic events:", error);
+          // Keep static events on error
+          setEvents(staticEvents);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchEvents();
+    }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-foreground">
@@ -178,9 +198,10 @@ export default function EventsPage() {
                                     <p className="text-muted-foreground mt-2 flex-1 line-clamp-3">{event.description}</p>
                                     
                                     <div className="mt-auto pt-6">
-                                       <Button disabled>
-                                          <Clock className="mr-2 h-4 w-4" />
-                                          Registrations Closed
+                                       <Button asChild variant="secondary">
+                                          <Link href={`/events/${event.id}`}>
+                                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                                          </Link>
                                        </Button>
                                     </div>
                                 </div>
