@@ -28,6 +28,7 @@ const eventFormSchema = z.object({
   }),
   image: z.string().url("Please enter a valid image URL."),
   registrationOpen: z.boolean().default(false),
+  participantLimit: z.coerce.number().min(0, "Participant limit must be a positive number.").default(0),
   bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
   speakers: z.string().optional(),
   highlightImages: z.string().optional(),
@@ -52,6 +53,7 @@ export function EventForm({ event }: EventFormProps) {
             date: event?.date ? new Date(event.date) : new Date(),
             image: event?.image || "",
             registrationOpen: event?.registrationOpen || false,
+            participantLimit: event?.participantLimit || 0,
             bannerLink: event?.bannerLink || "",
             speakers: event?.speakers || "",
             highlightImages: event?.highlightImages || "",
@@ -136,6 +138,22 @@ export function EventForm({ event }: EventFormProps) {
                                 <Input placeholder="https://placehold.co/600x400.png" {...field} />
                             </FormControl>
                             <FormDescription>This is the main image shown on the events list.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="participantLimit"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Participant Limit</FormLabel>
+                            <FormControl>
+                                <Input type="number" {...field} />
+                            </FormControl>
+                            <FormDescription>
+                                Set the maximum number of registrations. Set to 0 for unlimited.
+                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}

@@ -9,6 +9,7 @@ import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
+import { sendEventConfirmationEmail, EventConfirmationEmailInput } from '@/ai/flows/send-event-confirmation-email';
 
 
 import {z} from 'zod';
@@ -104,6 +105,7 @@ const eventFormSchema = z.object({
   date: z.date(),
   image: z.string().url("Please enter a valid image URL."),
   registrationOpen: z.boolean().default(false),
+  participantLimit: z.coerce.number().min(0, "Participant limit must be a positive number.").default(0),
   bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
   speakers: z.string().optional(),
   highlightImages: z.string().optional(),
@@ -1173,8 +1175,14 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
         const eventRef = doc(db, 'events', eventId);
         const eventSnap = await getDoc(eventRef);
 
-        if (!eventSnap.exists() || !eventSnap.data().registrationOpen) {
-            return { error: 'Registrations for this event are closed.' };
+        if (!eventSnap.exists()) {
+            return { error: 'Event not found.' };
+        }
+
+        const eventData = eventSnap.data();
+
+        if (!eventData.registrationOpen) {
+             return { error: 'Registrations for this event are closed.' };
         }
         
         const registrationsRef = collection(db, 'events', eventId, 'registrations');
@@ -1186,10 +1194,39 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
             return { error: 'This email is already registered for this event.' };
         }
 
+        // Check participant limit
+        if (eventData.participantLimit > 0) {
+            const registrationsCountSnapshot = await getCountFromServer(registrationsRef);
+            const currentRegistrations = registrationsCountSnapshot.data().count;
+
+            if (currentRegistrations >= eventData.participantLimit) {
+                // Limit reached, close registrations
+                await updateDoc(eventRef, { registrationOpen: false });
+                return { error: 'Sorry, this event is now full. Registrations are closed.' };
+            }
+        }
+        
+        const registrationId = randomBytes(16).toString('hex');
         await addDoc(registrationsRef, {
             ...parsed.data,
+            registrationId,
             registeredAt: new Date().toISOString(),
         });
+        
+        // Send confirmation email
+        (async () => {
+            try {
+                await sendEventConfirmationEmail({
+                    name: parsed.data.name,
+                    email: parsed.data.email,
+                    eventName: eventData.title,
+                    eventDate: eventData.date.toDate().toISOString(),
+                    registrationId,
+                });
+            } catch (emailError) {
+                console.error(`Event confirmation email sending failed for ${parsed.data.email}:`, emailError);
+            }
+        })();
         
         return { success: true };
 

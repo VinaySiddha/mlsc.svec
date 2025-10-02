@@ -10,3 +10,4 @@ import '@/ai/flows/send-confirmation-email';
 import '@/ai/flows/send-status-update-email';
 import '@/ai/flows/send-invitation-email';
 import '@/ai/flows/send-profile-confirmation-email';
+import '@/ai/flows/send-event-confirmation-email';
