@@ -92,7 +92,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                             data-ai-hint="event banner"
                         />
                         <div className="absolute inset-0 flex items-end p-4 md:p-8">
-                           <div className="glass-card p-4 md:p-6 max-w-4xl">
+                           <div className="max-w-4xl">
                                 <h1 className="text-3xl md:text-5xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]">{event.title}</h1>
                                 <p className="text-lg md:text-xl text-primary/80 mt-2 [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)]">
                                      {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
