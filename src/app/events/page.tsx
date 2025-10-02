@@ -28,20 +28,53 @@ const navLinks = [
     { href: "/blog", label: "Blog", icon: Book },
 ];
 
-export default function EventsPage() {
-    const [events, setEvents] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+const staticEvents = [
+    {
+        id: "1",
+        title: "The Flask Edition",
+        date: "2025-02-06",
+        description: "An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.",
+        image: "/flask.png",
+        registrationOpen: false,
+    },
+    {
+        id: "2",
+        title: "Blue Day",
+        date: "2025-01-25",
+        description: "A special day celebrating our club's identity and community spirit, declared as MLSC Day.",
+        image: "/blue-day.png",
+        registrationOpen: false,
+    },
+    {
+        id: "3",
+        title: "Web development BootCamp",
+        date: "2024-03-14",
+        description: "We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure",
+        image: "/web-bootcamp.png",
+        registrationOpen: false,
+    },
+    {
+        id: "4",
+        title: "Azure Cloud Workshop",
+        date: "2023-10-18",
+        description: "Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.",
+        image: "/azure-workshop.png",
+        registrationOpen: false,
+    },
+    {
+        id: "5",
+        title: "A Dive into Azure Ocean Challenge",
+        date: "2023-12-16",
+        description: "Start Date: December 16, 2023, End Date: December 24, 2023. Incredible prizes await! Register soon!!!",
+        image: "/azure-ocean-challenge.png",
+        registrationOpen: false,
+    }
+]
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            const { events: fetchedEvents, error } = await getEvents();
-            if (!error) {
-                setEvents(fetchedEvents);
-            }
-            setLoading(false);
-        };
-        fetchEvents();
-    }, []);
+
+export default function EventsPage() {
+    const [events, setEvents] = useState<any[]>(staticEvents);
+    const [loading, setLoading] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-foreground">
@@ -128,27 +161,26 @@ export default function EventsPage() {
                     ) : events.length > 0 ? (
                         <div className="grid gap-8 lg:gap-12">
                             {events.map((event: any) => (
-                            <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
-                                <div className="lg:w-1/3">
+                            <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col md:flex-row">
+                                <div className="md:w-1/3">
                                 <Image 
                                     src={event.image || '/placeholder.jpg'} 
                                     alt={event.title} 
                                     width={600} 
                                     height={400} 
-                                    className="rounded-t-lg lg:rounded-l-lg lg:rounded-t-none object-cover h-full w-full" 
+                                    className="rounded-t-lg md:rounded-l-lg md:rounded-t-none object-cover h-full w-full" 
                                     data-ai-hint="event photo"
                                 />
                                 </div>
-                                <div className="p-6 flex flex-col flex-1 lg:w-2/3">
+                                <div className="p-6 flex flex-col flex-1 md:w-2/3">
                                     <p className="text-sm text-primary font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
                                     <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
                                     <p className="text-muted-foreground mt-2 flex-1 line-clamp-3">{event.description}</p>
                                     
                                     <div className="mt-auto pt-6">
-                                       <Button asChild>
-                                            <Link href={`/events/${event.id}`}>
-                                                View Details <ArrowRight className="ml-2 h-4 w-4" />
-                                            </Link>
+                                       <Button disabled>
+                                          <Clock className="mr-2 h-4 w-4" />
+                                          Registrations Closed
                                        </Button>
                                     </div>
                                 </div>
