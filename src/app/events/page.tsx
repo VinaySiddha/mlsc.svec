@@ -1,12 +1,13 @@
 
 'use client'
 
+import { getEvents } from "@/app/actions";
 import { EventRegistrationForm } from "@/components/event-registration-form";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ImageIcon, Mic } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ImageIcon, Mic, List, Clock } from "lucide-react";
 import Link from "next/link";
 import { Image } from "@/components/image";
 import { format } from "date-fns";
@@ -17,6 +18,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { useEffect, useState } from "react";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -26,44 +28,20 @@ const navLinks = [
     { href: "/blog", label: "Blog", icon: Book },
 ];
 
-const staticEvents = [
-    {
-        id: '3',
-        title: 'Blue Day',
-        description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
-        date: new Date('2025-01-25T00:00:00Z').toISOString(),
-        image: '/blueday.png',
-        registrationOpen: false,
-    },
-    {
-        id: '4',
-        title: 'The Flask Edition',
-        description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
-        date: new Date('2025-02-06T00:00:00Z').toISOString(),
-        image: '/flask.png',
-        registrationOpen: false,
-    },
-    {
-        id: '2',
-        title: 'Web development BootCamp',
-        description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
-        date: new Date('2024-03-14T00:00:00Z').toISOString(),
-        image: '/web.jpg',
-        registrationOpen: false,
-    },
-    {
-        id: '1',
-        title: 'Azure Cloud Workshop',
-        description: 'Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.',
-        date: new Date('2023-10-18T00:00:00Z').toISOString(),
-        image: '/azure.jpg',
-        registrationOpen: false,
-    },
-];
-
 export default function EventsPage() {
-    
-    const events = staticEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const [events, setEvents] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            const { events: fetchedEvents, error } = await getEvents();
+            if (!error) {
+                setEvents(fetchedEvents);
+            }
+            setLoading(false);
+        };
+        fetchEvents();
+    }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-foreground">
@@ -143,13 +121,17 @@ export default function EventsPage() {
                             </div>
                         </div>
                     </div>
-                    {events.length > 0 ? (
+                    {loading ? (
+                         <div className="text-center text-muted-foreground glass-card p-8">
+                            <p>Loading events...</p>
+                        </div>
+                    ) : events.length > 0 ? (
                         <div className="grid gap-8 lg:gap-12">
                             {events.map((event: any) => (
                             <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
                                 <div className="lg:w-1/3">
                                 <Image 
-                                    src={event.image} 
+                                    src={event.image || '/placeholder.jpg'} 
                                     alt={event.title} 
                                     width={600} 
                                     height={400} 
@@ -162,18 +144,21 @@ export default function EventsPage() {
                                     <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
                                     <p className="text-muted-foreground mt-2 flex-1">{event.description}</p>
                                     
-                                    {event.bannerLink && (
-                                        <div className="mt-4">
-                                             <Button asChild variant="secondary">
-                                                <a href={event.bannerLink} target="_blank" rel="noopener noreferrer">View Event Banner</a>
-                                             </Button>
-                                        </div>
-                                    )}
-
                                     {event.speakers && (
                                         <div className="mt-4">
                                             <h4 className="font-semibold flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</h4>
                                             <p className="text-muted-foreground">{event.speakers}</p>
+                                        </div>
+                                    )}
+
+                                    {event.timeline && (
+                                        <div className="mt-4">
+                                            <h4 className="font-semibold flex items-center gap-2"><List className="h-5 w-5"/> Timeline</h4>
+                                            <ul className="text-muted-foreground list-disc pl-5 mt-2 space-y-1">
+                                              {event.timeline.split('\n').map((item: string, index: number) => (
+                                                item.trim() && <li key={index}>{item}</li>
+                                              ))}
+                                            </ul>
                                         </div>
                                     )}
 
@@ -194,7 +179,7 @@ export default function EventsPage() {
                                         </div>
                                     )}
 
-                                    <div className="mt-6">
+                                    <div className="mt-auto pt-6">
                                        <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
                                     </div>
                                 </div>
