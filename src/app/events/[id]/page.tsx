@@ -138,24 +138,25 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                 </Card>
                             )}
                             
-                             {timelineItems.length > 0 && (
+                            {timelineItems.length > 0 && (
                                 <Card className="glass-card">
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Timeline</CardTitle>
+                                        <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Event Timeline</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="relative pl-6">
-                                            <div className="absolute left-9 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
+                                        <div className="relative">
+                                            <div className="absolute left-1/2 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
                                             {timelineItems.map((item: string, index: number) => {
                                                 const [time, ...textParts] = item.split('-');
                                                 const text = textParts.join('-').trim();
+                                                const isLeft = index % 2 === 0;
                                                 return (
-                                                    <div key={index} className="relative mb-8 pl-6">
-                                                         <div className={cn("absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(50%_+_1px)] w-4 h-4 rounded-full",
-                                                            index === 0 ? "bg-primary" : "bg-muted"
-                                                         )}></div>
-                                                         <p className="font-bold text-primary">{time.trim()}</p>
-                                                         <p className="text-muted-foreground">{text}</p>
+                                                    <div key={index} className={cn("relative mb-12 flex w-full items-center", isLeft ? "justify-start" : "justify-end")}>
+                                                        <div className={cn("relative w-1/2 p-4 glass-card", isLeft ? "pr-8" : "pl-8 text-right")}>
+                                                          <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-primary ring-4 ring-background"></div>
+                                                          <p className="font-bold text-primary">{time.trim()}</p>
+                                                          <p className="text-muted-foreground">{text}</p>
+                                                        </div>
                                                     </div>
                                                 );
                                             })}
@@ -163,6 +164,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     </CardContent>
                                 </Card>
                             )}
+
 
                              {event.highlightImages && event.highlightImages.length > 0 && (
                                 <Card className="glass-card">
