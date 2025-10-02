@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Home, Users, Calendar, LogIn, Menu, Send, Group, Book, Code } from 'lucide-react';
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import AuthButton from '@/components/auth-button';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required.'),
@@ -88,9 +89,9 @@ export default function LoginPage() {
              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
           </nav>
           <div className="flex items-center gap-4">
-             <Button asChild variant="glass" size="sm" className="hidden lg:flex">
-                <Link href="/login"><LogIn/> Login</Link>
-            </Button>
+             <div className="hidden lg:flex">
+                <AuthButton />
+             </div>
             <div className="lg:hidden">
               <Sheet>
                   <SheetTrigger asChild>
@@ -120,9 +121,9 @@ export default function LoginPage() {
                                   </Link>
                               </SheetClose>
                               <SheetClose asChild>
-                                <Link href="/login" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                  <LogIn className="h-5 w-5" /> Login
-                                </Link>
+                                <div className="p-2">
+                                    <AuthButton />
+                                </div>
                               </SheetClose>
                           </nav>
                       </div>

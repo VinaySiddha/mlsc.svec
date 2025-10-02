@@ -41,11 +41,11 @@
         },
         "previousRepresentations": {
           "type": "string",
-          "description": "Any previous representations of the user."
+          "description": "Details about any previous representations or roles the user has held."
         },
         "receiveEmailUpdates": {
           "type": "boolean",
-          "description": "Indicates whether the user wants to receive email updates."
+          "description": "Indicates whether the user wants to receive email updates about club activities."
         }
       },
       "required": [
@@ -126,7 +126,8 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com"
     ]
   },
   "firestore": {

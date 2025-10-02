@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Image } from "@/components/image";
 import { ImageSlider } from "@/components/image-slider";
 import { NotificationTicker } from "@/components/notification-ticker";
+import AuthButton from "@/components/auth-button";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -63,9 +64,9 @@ export default function Home() {
              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Button asChild variant="glass" size="sm" className="hidden lg:flex">
-              <Link href="/login"><LogIn /> Login</Link>
-            </Button>
+            <div className="hidden lg:flex">
+              <AuthButton />
+            </div>
             <div className="lg:hidden">
                 <Sheet>
                     <SheetTrigger asChild>
@@ -95,9 +96,9 @@ export default function Home() {
                                     </Link>
                                 </SheetClose>
                                 <SheetClose asChild>
-                                  <Link href="/login" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                    <LogIn className="h-5 w-5" /> Login
-                                  </Link>
+                                  <div className="p-2">
+                                    <AuthButton />
+                                  </div>
                                 </SheetClose>
                             </nav>
                         </div>
