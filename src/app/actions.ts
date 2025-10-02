@@ -16,7 +16,7 @@ import { UserPayload, signToken, setSessionCookie, clearSessionCookie } from '@/
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import { redirect } from 'next/navigation';
 import { db, storage } from '@/lib/firebase';
 import { 
   collection, 
@@ -584,6 +584,7 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
 }
 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
+  'use server';
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
     return { error: 'Invalid input.' };
@@ -614,23 +615,20 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     }
   }
 
-  const token = signToken(userPayload);
-  console.log('Login successful for user:', userPayload);
-  console.log('Generated token length:', token.length);
-
   try {
+    const token = signToken(userPayload);
     setSessionCookie(token);
-    console.log('Session cookie set successfully');
-    return { success: true };
   } catch (e) {
-    console.error('Failed to set cookie:', e);
-    return { error: 'Failed to set session cookie.' };
+    console.error('Login action failed:', e);
+    return { error: 'Failed to set session.' };
   }
+  
+  redirect('/admin');
 }
 
 export async function logoutAction() {
   clearSessionCookie();
-  return { success: true };
+  redirect('/login');
 }
 
 export async function updateAttendance(firestoreId: string, attended: boolean) {
@@ -1754,4 +1752,3 @@ async function addInitialEvents() {
 }
 
 addInitialEvents().catch(console.error);
-
