@@ -71,8 +71,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                         </Link>
                                     </SheetClose>
                                 </nav>
-                            </div>
-                        </SheetContent>
+                            </SheetContent>
                     </Sheet>
                     </div>
                 </div>
@@ -91,6 +90,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                             className="opacity-50"
                             data-ai-hint="event banner"
                         />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
                         <div className="absolute inset-0 flex items-end p-4 md:p-8">
                            <div className="max-w-4xl">
                                 <h1 className="text-3xl md:text-5xl font-bold text-white [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]">{event.title}</h1>
