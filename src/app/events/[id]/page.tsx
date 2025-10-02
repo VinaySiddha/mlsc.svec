@@ -5,7 +5,7 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ArrowLeft, Mic, List, Clock, Image as ImageIcon, Linkedin, Globe, Twitter, Link as LinkIcon } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, ArrowLeft, Mic, List, Clock, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { Image } from "@/components/image";
 import { format } from "date-fns";
@@ -80,10 +80,10 @@ export default async function EventDetailPage({ params }: { params: { id: string
             </header>
 
             <main className="flex-1">
-                <div className="container mx-auto max-w-5xl py-8 px-4">
+                <div className="container mx-auto max-w-6xl py-8 px-4">
                     {/* Banner Image */}
                     {event.image && (
-                        <div className="w-full h-64 relative mb-6">
+                        <div className="w-full h-72 relative mb-8">
                              <Image
                                 src={event.image}
                                 alt={`${event.title} banner`}
@@ -96,83 +96,80 @@ export default async function EventDetailPage({ params }: { params: { id: string
                     )}
                     
                     {/* Event Title Section */}
-                    <div className="glass-card p-6 mb-8">
+                    <div className="text-center mb-8">
                         <h1 className="text-4xl font-bold">{event.title}</h1>
-                        <p className="text-md text-muted-foreground mt-2">
-                             GDG On-Campus Sri Vasavi Engineering College - Tadepalligudem, India
+                        <p className="text-lg text-muted-foreground mt-2">
+                             {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
                         </p>
-                        <p className="text-md text-muted-foreground mt-2">
-                             Join us for our very first GDG OnCampus SVEC Info Session, a dynamic 1-hour event that marks the beginning of an exciting...
-                        </p>
-                        <div className="flex items-center space-x-2 mt-4">
-                            <Button variant="outline" size="icon" asChild>
-                                <a href="#" target="_blank" rel="noopener noreferrer"><Globe className="h-5 w-5"/></a>
-                            </Button>
-                             <Button variant="outline" size="icon" asChild>
-                                <a href="#" target="_blank" rel="noopener noreferrer"><Twitter className="h-5 w-5"/></a>
-                            </Button>
-                             <Button variant="outline" size="icon" asChild>
-                                <a href="#" target="_blank" rel="noopener noreferrer"><Linkedin className="h-5 w-5"/></a>
-                            </Button>
-                              <Button variant="outline" size="icon" asChild>
-                                <a href="#" target="_blank" rel="noopener noreferrer"><LinkIcon className="h-5 w-5"/></a>
-                            </Button>
-                        </div>
-                    </div>
-                    
-                    {/* Date and RSVP Info */}
-                    <div className="border-y border-border/50 py-4 mb-8">
-                        <p className="text-foreground font-semibold">{format(new Date(event.date), "MMM d, h:mm a")} (GMT+5:30) &middot; {event.registrationOpen ? "Open" : "Closed"}</p>
+                        <CountdownTimer deadline={event.date} />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* Main Content */}
                         <div className="md:col-span-2 space-y-8">
-                            <div className="glass-card p-6">
-                                <h3 className="text-sm font-semibold text-muted-foreground mb-2">KEY THEMES</h3>
-                                <Badge variant="outline">Community Building</Badge>
-                            </div>
-                            
-                            <div className="glass-card p-6">
-                                <h2 className="text-2xl font-bold mb-4">About this event</h2>
-                                <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
-                            </div>
+                            <Card className="glass-card">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><List className="h-5 w-5" /> About this event</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
+                                </CardContent>
+                            </Card>
 
                              {timelineItems.length > 0 && (
-                                <div className="glass-card p-6">
-                                    <h2 className="text-2xl font-bold mb-6">What&apos;s Happening</h2>
-                                    <div className="relative pl-6">
-                                        <div className="absolute left-0 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
-                                        {timelineItems.map((item: string, index: number) => {
-                                            const [time, ...textParts] = item.split('-');
-                                            const text = textParts.join('-').trim();
-                                            return (
-                                                <div key={index} className="relative pl-8 mb-8 last:mb-0">
-                                                    <div className="absolute -left-2.5 top-1 h-5 w-5 rounded-full bg-primary border-4 border-background"></div>
-                                                    <p className="font-semibold text-primary">{time.trim()}</p>
-                                                    <p className="text-muted-foreground">{text}</p>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Event Timeline</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="relative pl-6">
+                                            <div className="absolute left-0 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
+                                            {timelineItems.map((item: string, index: number) => {
+                                                const [time, ...textParts] = item.split('-');
+                                                const text = textParts.join('-').trim();
+                                                return (
+                                                    <div key={index} className="relative pl-8 mb-8 last:mb-0">
+                                                        <div className="absolute -left-2.5 top-1 h-5 w-5 rounded-full bg-primary border-4 border-background"></div>
+                                                        <p className="font-semibold text-primary">{time.trim()}</p>
+                                                        <p className="text-muted-foreground">{text}</p>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             )}
 
-                             <div className="glass-card p-6">
-                                <h2 className="text-2xl font-bold mb-4">Discussions</h2>
-                                <div className="border rounded-lg p-6 text-center bg-background/50">
-                                    <p className="text-muted-foreground">No discussions are currently posted</p>
-                                    <Button variant="outline" className="mt-4">Login to add discussion</Button>
-                                </div>
-                            </div>
+                            {Array.isArray(event.highlightImages) && event.highlightImages.length > 0 && (
+                                <Card className="glass-card">
+                                     <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Event Gallery</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Carousel className="w-full">
+                                            <CarouselContent>
+                                                {event.highlightImages.map((img: string, index: number) => (
+                                                <CarouselItem key={index}>
+                                                    <Image src={img} alt={`Event highlight ${index+1}`} width={800} height={450} className="rounded-lg object-cover w-full aspect-video" data-ai-hint="event photo" />
+                                                </CarouselItem>
+                                                ))}
+                                            </CarouselContent>
+                                            <CarouselPrevious />
+                                            <CarouselNext />
+                                        </Carousel>
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
                         
                         {/* Right Sidebar */}
                         <div className="md:col-span-1 space-y-8">
                            {Array.isArray(event.speakers) && event.speakers.length > 0 && (
-                                <div className="glass-card p-6">
-                                    <h2 className="text-2xl font-bold mb-4">Organizers</h2>
-                                    <div className="space-y-4">
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
                                         {event.speakers.map((speaker: any, index: number) => (
                                             <div key={index} className="flex items-center gap-4">
                                                 <Image src={speaker.image || '/placeholder.jpg'} alt={speaker.name} width={48} height={48} className="rounded-full object-cover w-12 h-12" data-ai-hint="speaker portrait" />
@@ -182,8 +179,8 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                                 </div>
                                             </div>
                                         ))}
-                                    </div>
-                                </div>
+                                    </CardContent>
+                                </Card>
                             )}
                             
                             <div className="sticky top-24 glass-card p-6">
@@ -196,5 +193,3 @@ export default async function EventDetailPage({ params }: { params: { id: string
         </div>
     );
 }
-
-    
