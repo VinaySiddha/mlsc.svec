@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -53,8 +54,9 @@ export default function LoginPage() {
           title: 'Login Successful',
           description: "Redirecting to your dashboard...",
         });
-        // Explicitly navigate to the admin dashboard after success.
+        // This forces a full page reload and navigation
         router.push('/admin');
+        router.refresh(); // Ensures client cache is cleared and middleware is re-run
       } else {
         throw new Error(result.error || 'Invalid credentials.');
       }

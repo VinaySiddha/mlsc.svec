@@ -1,58 +1,47 @@
+
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { verifyToken } from "@/lib/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-function verifyToken(token: string) {
-  if (!JWT_SECRET) {
-    // This should not happen in a configured environment
-    console.error("JWT_SECRET is not set.");
-    return null;
-  }
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return null;
-  }
-}
+// 1. Specify protected and public routes
+const protectedRoutes = ['/admin'];
+const publicRoutes = ['/login', '/apply', '/status', '/'];
 
 export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-  const sessionToken = req.cookies.get("session")?.value;
-  const isAuthenticated = sessionToken ? verifyToken(sessionToken) : null;
+  const path = req.nextUrl.pathname;
+  const isProtectedRoute = protectedRoutes.some((prefix) => path.startsWith(prefix));
 
-  // If user is on the login page
-  if (pathname.startsWith('/login')) {
-    // If they are already authenticated, redirect them to the admin dashboard
-    if (isAuthenticated) {
-      return NextResponse.redirect(new URL('/admin', req.url));
-    }
-    // Otherwise, allow them to see the login page
-    return NextResponse.next();
-  }
+  // 2. Check for session cookie
+  const sessionToken = req.cookies.get('session')?.value;
+  const payload = sessionToken ? verifyToken(sessionToken) : null;
 
-  // For any other page covered by the matcher (i.e., /admin), check for authentication
-  if (!isAuthenticated) {
-    // If not authenticated, redirect to the login page
+  // 3. Redirect to /login if not authenticated and trying to access a protected route
+  if (isProtectedRoute && !payload) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  // If authenticated, add user info to headers and allow access
-  const requestHeaders = new Headers(req.headers);
-  const payload = isAuthenticated as any;
-  
-  if (payload.role) requestHeaders.set("X-User-Role", payload.role as string);
-  if (payload.username) requestHeaders.set("X-User-Username", payload.username as string);
-  if (payload.domain) requestHeaders.set("X-Panel-Domain", payload.domain as string);
+  // 4. If authenticated, add user info to headers for Server Components
+  if (payload) {
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('X-User-Payload', JSON.stringify(payload));
 
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+    // 5. If authenticated user tries to access /login, redirect to /admin
+    if (path === '/login') {
+      return NextResponse.redirect(new URL('/admin', req.url));
+    }
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
+
+  return NextResponse.next();
 }
 
+// Match all routes except for static files and API routes
 export const config = {
-  // Apply middleware only to admin and login paths.
-  matcher: ['/admin/:path*', '/login'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|.*\\.png$|.*\\.jpg$|.*\\.ico$|.*\\.ttf$|.*\\.svg$).*)',
+  ],
 };

@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import {
@@ -10,6 +11,7 @@ import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-s
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
 import { sendEventConfirmationEmail, EventConfirmationEmailInput } from '@/ai/flows/send-event-confirmation-email';
+import { UserPayload, signToken, setSessionCookie, clearSessionCookie } from '@/lib/auth';
 
 
 import {z} from 'zod';
@@ -599,13 +601,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
       { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
   ];
 
-  const JWT_SECRET = process.env.JWT_SECRET;
-
-  if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET is not set in environment variables.');
-  }
-
-  let userPayload: { role: string; domain?: string; username: string };
+  let userPayload: Omit<UserPayload, 'exp'>;
 
   if (username === SUPER_ADMIN_USERNAME && password === SUPER_ADMIN_PASSWORD) {
     userPayload = { role: 'admin', username };
@@ -618,22 +614,22 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     }
   }
 
-  const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '1d' });
+  const token = signToken(userPayload);
+  console.log('Login successful for user:', userPayload);
+  console.log('Generated token length:', token.length);
 
-  cookies().set('session', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24, // 1 day
-    path: '/',
-    sameSite: 'strict',
-    priority: 'high',
-  });
-
-  return { success: true };
+  try {
+    setSessionCookie(token);
+    console.log('Session cookie set successfully');
+    return { success: true };
+  } catch (e) {
+    console.error('Failed to set cookie:', e);
+    return { error: 'Failed to set session cookie.' };
+  }
 }
 
 export async function logoutAction() {
-  cookies().delete('session');
+  clearSessionCookie();
   return { success: true };
 }
 
@@ -1758,3 +1754,4 @@ async function addInitialEvents() {
 }
 
 addInitialEvents().catch(console.error);
+
