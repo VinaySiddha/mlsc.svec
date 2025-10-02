@@ -52,7 +52,6 @@ export default function LoginPage() {
       if (result?.error) {
         throw new Error(result.error);
       }
-      
     } catch (error) {
       // The redirect in the server action will throw an error, which is expected.
       // We only want to show an error toast if it's a specific login failure message.
@@ -65,7 +64,7 @@ export default function LoginPage() {
         });
         setIsSubmitting(false);
       }
-    } 
+    }
   };
 
   return (
