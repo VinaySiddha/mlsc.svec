@@ -20,12 +20,52 @@ const navLinks = [
     { href: "/blog", label: "Blog", icon: Book },
 ];
 
-export default async function EventDetailPage({ params }: { params: { id: string } }) {
-    const { event, error } = await getEventById(params.id);
+const staticEventsData: {[key: string]: any} = {
+    'static-1': {
+        title: 'Azure Cloud Workshop',
+        description: 'An archived event about Azure Cloud.',
+        date: new Date('2023-10-18T00:00:00Z'),
+        bannerImage: '/azure.jpg',
+    },
+    'static-2': {
+        title: 'Web development BootCamp',
+        description: 'An archived event about Web Development.',
+        date: new Date('2024-03-14T00:00:00Z'),
+        bannerImage: '/web.jpg',
+    },
+    'static-3': {
+        title: 'Blue Day',
+        description: 'An archived event: Blue Day.',
+        date: new Date('2025-01-25T00:00:00Z'),
+        bannerImage: '/blueday.png',
+    },
+    'static-4': {
+        title: 'The Flask Edition',
+        description: 'An archived event about Flask.',
+        date: new Date('2025-02-06T00:00:00Z'),
+        bannerImage: '/flask.png',
+    }
+};
 
-    if (error || !event) {
+export default async function EventDetailPage({ params }: { params: { id: string } }) {
+    let event: any;
+    let isStatic = false;
+
+    if (params.id.startsWith('static-')) {
+        isStatic = true;
+        event = staticEventsData[params.id];
+    } else {
+        const { event: dynamicEvent, error } = await getEventById(params.id);
+        if (error || !dynamicEvent) {
+            notFound();
+        }
+        event = dynamicEvent;
+    }
+    
+    if (!event) {
         notFound();
     }
+
 
     return (
         <div className="flex flex-col min-h-screen bg-transparent text-foreground">
@@ -92,14 +132,24 @@ export default async function EventDetailPage({ params }: { params: { id: string
 
             <main className="flex-1">
                 <section className="relative w-full h-[50vh] min-h-[300px] text-white">
-                    <Image src={event.bannerImage} alt={event.title} layout="fill" objectFit="cover" className="brightness-50" data-ai-hint="event banner" />
+                    <Image src={event.bannerImage || event.listImage} alt={event.title} layout="fill" objectFit="cover" className="brightness-50" data-ai-hint="event banner" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div className="relative h-full flex flex-col justify-end p-4 md:p-8 container mx-auto">
                         <h1 className="text-4xl md:text-6xl font-bold [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]">{event.title}</h1>
                     </div>
                 </section>
                 
-                <div className="container mx-auto p-4 -mt-8 relative z-10">
+                <div className="container mx-auto p-4 -mt-16 md:-mt-24 relative z-10">
+                    {isStatic ? (
+                        <Card className="glass-card">
+                            <CardHeader>
+                                <CardTitle>Archived Event</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-muted-foreground">This event has passed. Check out our current events for more opportunities!</p>
+                            </CardContent>
+                        </Card>
+                    ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-8">
                              <Card className="glass-card">
@@ -150,7 +200,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         {event.highlightImages.map((imgSrc: string, index: number) => (
                                             <div key={index} className="aspect-video relative rounded-lg overflow-hidden">
-                                                <Image src={imgSrc} alt={`Event highlight ${index + 1}`} layout="fill" objectFit="cover" className="hover:scale-110 transition-transform duration-300" />
+                                                <Image src={imgSrc} alt={`Event highlight ${index + 1}`} layout="fill" objectFit="cover" className="hover:scale-105 transition-transform duration-300" />
                                             </div>
                                         ))}
                                      </div>
@@ -202,8 +252,8 @@ export default async function EventDetailPage({ params }: { params: { id: string
                             </div>
                         </div>
                     </div>
+                    )}
                 </div>
-
             </main>
         </div>
     );
