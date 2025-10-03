@@ -633,61 +633,61 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
-    return { error: "Invalid input." };
+    return { error: 'Invalid input.' };
   }
 
   const { username, password } = parsed.data;
 
-  const SUPER_ADMIN_USERNAME = "vinaysiddha";
-  const SUPER_ADMIN_PASSWORD = "Vinay@15";
-
+  const SUPER_ADMIN_USERNAME = 'vinaysiddha';
+  const SUPER_ADMIN_PASSWORD = 'Vinay@15';
+  
   const panelCredentials = [
-    { username: "gen_ai_panel", password: "panel@genai", domain: "gen_ai" },
-    { username: "ds_ml_panel", password: "panel@ds", domain: "ds_ml" },
-    { username: "azure_panel", password: "panel@azure", domain: "azure" },
-    { username: "web_app_panel", password: "panel@web", domain: "web_app" },
+      { username: 'gen_ai_panel', password: 'panel@genai', domain: 'gen_ai' },
+      { username: 'ds_ml_panel', password: 'panel@ds', domain: 'ds_ml' },
+      { username: 'azure_panel', password: 'panel@azure', domain: 'azure' },
+      { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
   ];
 
   const JWT_SECRET = process.env.JWT_SECRET;
+
   if (!JWT_SECRET) {
-    console.error("JWT_SECRET is not set in environment variables.");
-    return { error: "Authentication configuration error." };
+    console.error('JWT_SECRET is not set in environment variables.');
+    return { error: 'Authentication configuration error.' };
   }
-
-  let userPayload: { role: string; domain?: string; username: string } | null =
-    null;
-
+  
+  let userPayload: { role: string; domain?: string; username: string } | null = null;
+  
   if (username === SUPER_ADMIN_USERNAME && password === SUPER_ADMIN_PASSWORD) {
-    userPayload = { role: "admin", username };
+    userPayload = { role: 'admin', username };
   } else {
     const panel = panelCredentials.find(
       (p) => p.username === username && p.password === password
     );
     if (panel) {
-      userPayload = { role: "panel", domain: panel.domain, username };
+      userPayload = { role: 'panel', domain: panel.domain, username };
     }
   }
 
   if (userPayload) {
     const secret = new TextEncoder().encode(JWT_SECRET);
     const token = await new jose.SignJWT(userPayload)
-      .setProtectedHeader({ alg: "HS256" })
+      .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime("1d")
+      .setExpirationTime('1d')
       .sign(secret);
-
-    cookies().set("session", token, {
+      
+    cookies().set('session', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24, // 1 day
-      path: "/",
-      sameSite: "strict",
-      priority: "high",
+      path: '/',
+      sameSite: 'strict',
+      priority: 'high',
     });
-
+    
     return { success: true };
   } else {
-    return { error: "Invalid username or password." };
+    return { error: 'Invalid username or password.' };
   }
 }
 
@@ -1501,6 +1501,28 @@ export async function getEventRegistrations(eventId: string) {
         return { error: 'Could not fetch event registrations.' };
     }
 }
+
+export async function exportEventRegistrationsToCsv(eventId: string) {
+    try {
+        const { registrations, error } = await getEventRegistrations(eventId);
+        if (error) throw new Error(error);
+        
+        if (!registrations || registrations.length === 0) {
+            return { csvData: null };
+        }
+
+        const csv = papaparse.unparse(registrations);
+        return { success: true, csvData: csv };
+
+    } catch (error) {
+        console.error('Error exporting event registrations:', error);
+        if (error instanceof Error) {
+            return { error: `Export failed: ${error.message}` };
+        }
+        return { error: 'An unexpected error occurred during export.' };
+    }
+}
+
 
 // Team Category Actions
 export async function createTeamCategory(values: z.infer<typeof teamCategorySchema>) {

@@ -1,13 +1,13 @@
 
 'use client';
 
-import { getEventRegistrations, getEventById, sendReminderEmails } from "@/app/actions";
+import { getEventRegistrations, getEventById, sendReminderEmails, sendFeedbackEmails, exportEventRegistrationsToCsv } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send } from "lucide-react";
+import { ArrowLeft, Loader2, Send, FileDown, MessageSquareQuote } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
@@ -27,6 +27,7 @@ interface Registration {
 interface EventData {
     id: string;
     title: string;
+    feedbackLink?: string;
     [key: string]: any;
 }
 
@@ -36,6 +37,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSending, startTransition] = useTransition();
+    const [actionType, setActionType] = useState<'reminders' | 'feedback' | 'export' | null>(null);
     const { toast } = useToast();
     
     const eventId = params.id;
@@ -66,6 +68,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
     }, [eventId]);
 
     const handleSendReminders = () => {
+        setActionType('reminders');
         startTransition(async () => {
             try {
                 const result = await sendReminderEmails(eventId);
@@ -80,9 +83,82 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                     title: "Failed to Send Reminders",
                     description: e.message || "An unknown error occurred."
                 });
+            } finally {
+                setActionType(null);
             }
         });
     }
+
+    const handleSendFeedback = () => {
+        if (!event?.feedbackLink) {
+            toast({
+                variant: 'destructive',
+                title: "No Feedback Link",
+                description: "Please add a feedback link to the event before sending emails."
+            });
+            return;
+        }
+        setActionType('feedback');
+        startTransition(async () => {
+            try {
+                const result = await sendFeedbackEmails(eventId);
+                if (result.error) throw new Error(result.error);
+                toast({
+                    title: "Feedback Emails Sent!",
+                    description: `Feedback request emails have been sent to ${result.count} participant(s).`
+                });
+            } catch (e: any) {
+                toast({
+                    variant: 'destructive',
+                    title: "Failed to Send Feedback Emails",
+                    description: e.message || "An unknown error occurred."
+                });
+            } finally {
+                setActionType(null);
+            }
+        });
+    }
+
+    const handleExportCsv = () => {
+        setActionType('export');
+        startTransition(async () => {
+            try {
+                const result = await exportEventRegistrationsToCsv(eventId);
+                if (result.error) throw new Error(result.error);
+
+                if (result.csvData) {
+                    const blob = new Blob([result.csvData], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `${event?.title.replace(/\s+/g, '_')}_registrations.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                     toast({
+                        title: "Export Successful",
+                        description: "The registrations list has been downloaded as a CSV file."
+                    });
+                } else {
+                     toast({
+                        variant: 'destructive',
+                        title: "No Data",
+                        description: "There are no registrations to export."
+                    });
+                }
+            } catch (e: any) {
+                 toast({
+                    variant: 'destructive',
+                    title: "Export Failed",
+                    description: e.message || "An unknown error occurred."
+                });
+            } finally {
+                setActionType(null);
+            }
+        });
+    }
+
 
     if (isLoading) {
         return (
@@ -112,8 +188,16 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                     </div>
                      <div className="flex items-center gap-2">
                         <Button onClick={handleSendReminders} variant="outline" disabled={isSending}>
-                            {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                            {isSending && actionType === 'reminders' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Send Reminders
+                        </Button>
+                        <Button onClick={handleSendFeedback} variant="outline" disabled={isSending || !event?.feedbackLink}>
+                            {isSending && actionType === 'feedback' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuote className="mr-2 h-4 w-4" />}
+                            Send Feedback Forms
+                        </Button>
+                         <Button onClick={handleExportCsv} variant="outline" disabled={isSending}>
+                            {isSending && actionType === 'export' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
+                            Export to CSV
                         </Button>
                         <Button asChild variant="glass">
                             <Link href="/admin/events">
