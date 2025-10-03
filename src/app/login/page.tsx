@@ -48,17 +48,14 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setIsSubmitting(true);
     try {
-      const result = await loginAction(values);
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      if (result.success) {
-        toast({
-            title: 'Login Successful',
-            description: "You are being redirected to the admin dashboard.",
-        });
-        router.push('/admin');
-      }
+      await loginAction(values);
+      // The redirect is handled by the server action.
+      // We can show a toast and then redirect on the client as a fallback/indicator.
+      toast({
+          title: 'Login Successful',
+          description: "Redirecting to the admin dashboard...",
+      });
+      router.push('/admin');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       toast({
@@ -66,8 +63,7 @@ export default function LoginPage() {
         title: 'Login Failed',
         description: errorMessage,
       });
-    } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -179,3 +175,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

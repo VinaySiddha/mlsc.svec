@@ -585,7 +585,7 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
-    return { error: 'Invalid input.' };
+    throw new Error('Invalid username or password.');
   }
 
   const { username, password } = parsed.data;
@@ -609,7 +609,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     if (panel) {
       userPayload = { role: 'panel', domain: panel.domain, username };
     } else {
-      return { error: 'Invalid username or password.' };
+      throw new Error('Invalid username or password.');
     }
   }
 
@@ -619,7 +619,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     return { success: true };
   } catch (e) {
     console.error('Login action failed:', e);
-    return { error: 'Failed to set session.' };
+    throw new Error('Failed to set session.');
   }
 }
 
@@ -1750,3 +1750,4 @@ async function addInitialEvents() {
 
 addInitialEvents().catch(console.error);
 
+    
