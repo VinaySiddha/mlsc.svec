@@ -9,8 +9,8 @@ import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
-import { sendEventConfirmationEmail, EventConfirmationEmailInput } from '@/ai/flows/send-event-confirmation-email';
-import { sendEventReminderEmail, EventReminderEmailInput } from '@/ai/flows/send-event-reminder-email';
+import { sendEventConfirmationEmail } from '@/ai/flows/send-event-confirmation-email';
+import { sendEventReminderEmail } from '@/ai/flows/send-event-reminder-email';
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -40,6 +40,27 @@ import {
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import papaparse from 'papaparse';
 import { randomBytes } from 'crypto';
+
+// Schemas that were causing the build error are now defined here and not exported.
+const EventConfirmationEmailInputSchema = z.object({
+  name: z.string().describe("The user's name."),
+  email: z.string().email().describe("The user's email address."),
+  eventName: z.string().describe("The name of the event."),
+  eventDate: z.string().describe("The date of the event."),
+  eventLink: z.string().url().optional().describe("An optional link for the event (e.g., meeting or WhatsApp group)."),
+});
+type EventConfirmationEmailInput = z.infer<typeof EventConfirmationEmailInputSchema>;
+
+const EventReminderEmailInputSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  eventName: z.string(),
+  eventDate: z.string(),
+  eventTime: z.string(),
+  eventVenue: z.string(),
+  eventLink: z.string().url().optional(),
+});
+type EventReminderEmailInput = z.infer<typeof EventReminderEmailInputSchema>;
 
 
 const applicationSchema = z.object({
@@ -100,12 +121,15 @@ export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema
 
 
 const speakerSchema = z.object({
+    id: z.string().optional(),
     name: z.string().min(2, "Speaker name is required."),
     title: z.string().min(2, "Speaker title is required."),
     image: z.any().optional(),
+    existingImageUrl: z.string().optional(),
 });
 
 const timelineEntrySchema = z.object({
+    id: z.string().optional(),
     time: z.string().min(1, "Time is required."),
     description: z.string().min(3, "Description is required."),
 });
@@ -113,8 +137,8 @@ const timelineEntrySchema = z.object({
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  date: z.date(),
-  time: z.string().min(1, "Time is required."),
+  date: z.date({ required_error: "An event date is required." }),
+  time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
   venue: z.string().min(3, "Venue is required."),
   bannerImage: z.any().optional(),
   listImage: z.any().optional(),
@@ -1303,13 +1327,14 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
 
         // Send confirmation email
         const eventData = eventSnap.data();
-        await sendEventConfirmationEmail({
+        const emailInput: EventConfirmationEmailInput = {
             name: parsed.data.name,
             email: parsed.data.email,
             eventName: eventData.title,
             eventDate: eventData.date.toDate().toLocaleDateString(),
             eventLink: eventData.eventLink || '',
-        });
+        };
+        await sendEventConfirmationEmail(emailInput);
         
         return { success: true };
 
@@ -1340,7 +1365,7 @@ export async function sendReminderEmails(eventId: string) {
         for (const registrationDoc of registrationsSnapshot.docs) {
             const registration = registrationDoc.data();
             try {
-                await sendEventReminderEmail({
+                const emailInput: EventReminderEmailInput = {
                     name: registration.name,
                     email: registration.email,
                     eventName: eventData.title,
@@ -1348,7 +1373,8 @@ export async function sendReminderEmails(eventId: string) {
                     eventTime: eventData.time,
                     eventVenue: eventData.venue,
                     eventLink: eventData.eventLink || '',
-                });
+                };
+                await sendEventReminderEmail(emailInput);
                 sentCount++;
             } catch (emailError) {
                 console.error(`Failed to send reminder to ${registration.email}:`, emailError);

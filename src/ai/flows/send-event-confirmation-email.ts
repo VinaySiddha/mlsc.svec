@@ -1,24 +1,22 @@
 
 'use server';
 
-import {z} from 'zod';
 import nodemailer from 'nodemailer';
 
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Event emails will not be sent.");
 }
 
-export const EventConfirmationEmailInputSchema = z.object({
-  name: z.string().describe("The user's name."),
-  email: z.string().email().describe("The user's email address."),
-  eventName: z.string().describe("The name of the event."),
-  eventDate: z.string().describe("The date of the event."),
-  eventLink: z.string().url().optional().describe("An optional link for the event (e.g., meeting or WhatsApp group)."),
-});
-export type EventConfirmationEmailInput = z.infer<typeof EventConfirmationEmailInputSchema>;
+interface EventConfirmationEmailInput {
+  name: string;
+  email: string;
+  eventName: string;
+  eventDate: string;
+  eventLink?: string;
+}
 
 export async function sendEventConfirmationEmail(input: EventConfirmationEmailInput): Promise<void> {
-  const { name, email, eventName, eventDate, eventLink } = EventConfirmationEmailInputSchema.parse(input);
+  const { name, email, eventName, eventDate, eventLink } = input;
 
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.log(`Skipping event confirmation email to ${email} because GMAIL credentials are not configured.`);
