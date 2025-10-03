@@ -102,12 +102,13 @@ const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
   date: z.date(),
-  image: z.string().url("Please enter a valid image URL."),
+  time: z.string().min(1, "Time is required."),
+  venue: z.string().min(3, "Venue is required."),
+  image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
-  bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
-  speakers: z.string().optional(),
-  highlightImages: z.string().optional(),
+  speakers: z.string().optional(), // JSON string of speakers
 });
+
 
 const registrationSchema = z.object({
     name: z.string().min(2, 'Name is required.'),
@@ -1079,37 +1080,94 @@ export async function getDeadline() {
 }
 
 
-export async function createEvent(values: z.infer<typeof eventFormSchema>) {
-    const parsed = eventFormSchema.safeParse(values);
+async function uploadFile(file: File, path: string): Promise<string> {
+    const storageRef = ref(storage, path);
+    const buffer = await file.arrayBuffer();
+    await uploadBytes(storageRef, buffer, { contentType: file.type });
+    return getDownloadURL(storageRef);
+}
+
+export async function createEvent(formData: FormData) {
+    const values = Object.fromEntries(formData.entries());
+    const imageFile = formData.get('image') as File | null;
+    
+    const parsed = eventFormSchema.omit({ image: true }).safeParse({
+        ...values,
+        date: new Date(values.date as string),
+        registrationOpen: values.registrationOpen === 'true',
+    });
+
     if (!parsed.success) {
+        console.error("Event form validation failed:", parsed.error.flatten().fieldErrors);
         return { error: 'Invalid event data.' };
     }
+
     try {
+        const docId = new Date().getTime().toString(); // Simple unique ID
+        let imageUrl = '';
+        if (imageFile && imageFile.size > 0) {
+            imageUrl = await uploadFile(imageFile, `events/${docId}/banner`);
+        }
+
+        const speakersData = JSON.parse(parsed.data.speakers || '[]');
+        for (let i = 0; i < speakersData.length; i++) {
+            const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+            if (speakerImageFile && speakerImageFile.size > 0) {
+                speakersData[i].image = await uploadFile(speakerImageFile, `events/${docId}/speaker_${i}`);
+            }
+        }
+
         const dataToSave = {
             ...parsed.data,
-            highlightImages: parsed.data.highlightImages?.split('\n').filter(link => link.trim() !== '') || [],
+            speakers: speakersData,
+            image: imageUrl,
         };
+
         const docRef = await addDoc(collection(db, 'events'), dataToSave);
         return { success: true, id: docRef.id };
     } catch (error) {
+        console.error("Failed to create event:", error);
         return { error: 'Failed to create event.' };
     }
 }
 
-export async function updateEvent(id: string, values: z.infer<typeof eventFormSchema>) {
-    const parsed = eventFormSchema.safeParse(values);
+
+export async function updateEvent(id: string, formData: FormData) {
+    const values = Object.fromEntries(formData.entries());
+    const imageFile = formData.get('image') as File | null;
+
+    const parsed = eventFormSchema.omit({ image: true }).safeParse({
+        ...values,
+        date: new Date(values.date as string),
+        registrationOpen: values.registrationOpen === 'true',
+    });
+
     if (!parsed.success) {
         return { error: 'Invalid event data.' };
     }
+
     try {
-        const dataToUpdate = {
-            ...parsed.data,
-            highlightImages: parsed.data.highlightImages?.split('\n').filter(link => link.trim() !== '') || [],
-        };
+        const dataToUpdate: any = { ...parsed.data };
+        
+        if (imageFile && imageFile.size > 0) {
+            dataToUpdate.image = await uploadFile(imageFile, `events/${id}/banner`);
+        }
+        
+        const speakersData = JSON.parse(parsed.data.speakers || '[]');
+        for (let i = 0; i < speakersData.length; i++) {
+            const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+            if (speakerImageFile && speakerImageFile.size > 0) {
+                 speakersData[i].image = await uploadFile(speakerImageFile, `events/${id}/speaker_${i}`);
+            }
+        }
+        dataToUpdate.speakers = speakersData;
+
+
         const eventDoc = doc(db, 'events', id);
-        await updateDoc(eventDoc, dataToUpdate as any);
+        await updateDoc(eventDoc, dataToUpdate);
         return { success: true };
     } catch (error) {
+        console.error("Failed to update event:", error);
         return { error: 'Failed to update event.' };
     }
 }
@@ -1117,13 +1175,14 @@ export async function updateEvent(id: string, values: z.infer<typeof eventFormSc
 export async function deleteEvent(id: string) {
     try {
         await deleteDoc(doc(db, 'events', id));
-        // Note: Does not delete subcollections like registrations. 
+        // Note: Does not delete images from storage or subcollections like registrations. 
         // For a production app, a Cloud Function would be needed to handle this.
         return { success: true };
     } catch (error) {
         return { error: 'Failed to delete event.' };
     }
 }
+
 
 export async function getEvents() {
     try {
@@ -1160,7 +1219,6 @@ export async function getEventById(id: string) {
             ...data,
             id: eventDoc.id,
             date: data.date.toDate().toISOString(),
-            highlightImages: Array.isArray(data.highlightImages) ? data.highlightImages.join('\n') : '',
         };
         return { event: eventData as any };
     } catch (error) {
@@ -1667,5 +1725,3 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
-
-    

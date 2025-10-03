@@ -1,14 +1,14 @@
 
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useId } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, Trash2, PlusCircle, User } from "lucide-react";
 
 import { createEvent, updateEvent } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -19,30 +19,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { Switch } from "./ui/switch";
+import { Card, CardContent } from "./ui/card";
+import { Image } from "./image";
+
+const speakerSchema = z.object({
+    id: z.string().optional(),
+    name: z.string().min(2, "Speaker name is required."),
+    image: z.any().optional(),
+    // Store URL for existing images to avoid re-uploading
+    existingImageUrl: z.string().optional(),
+});
 
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  date: z.date({
-    required_error: "A date for the event is required.",
-  }),
-  image: z.string().url("Please enter a valid image URL."),
+  date: z.date({ required_error: "A date for the event is required." }),
+  time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
+  venue: z.string().min(3, "Venue is required."),
+  image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
-  bannerLink: z.string().url("Please enter a valid Google Drive link.").optional().or(z.literal('')),
-  speakers: z.string().optional(),
-  highlightImages: z.string().optional(),
+  speakers: z.array(speakerSchema).optional(),
 });
 
 type FormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
-    event?: (FormValues & { id: string });
+    event?: (Omit<FormValues, 'speakers'> & { id: string, speakers?: {name: string, image: string}[] });
 }
 
 export function EventForm({ event }: EventFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const uniqueId = useId();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(eventFormSchema),
@@ -50,23 +59,49 @@ export function EventForm({ event }: EventFormProps) {
             title: event?.title || "",
             description: event?.description || "",
             date: event?.date ? new Date(event.date) : new Date(),
-            image: event?.image || "",
+            time: event?.time || "",
+            venue: event?.venue || "",
+            image: undefined,
             registrationOpen: event?.registrationOpen || false,
-            bannerLink: event?.bannerLink || "",
-            speakers: event?.speakers || "",
-            highlightImages: event?.highlightImages || "",
+            speakers: event?.speakers?.map((s, i) => ({ id: `${uniqueId}-${i}`, name: s.name, image: undefined, existingImageUrl: s.image })) || [],
         },
+    });
+
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "speakers",
     });
 
     const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
-        try {
-            let result;
-            if (event) {
-                result = await updateEvent(event.id, values);
-            } else {
-                result = await createEvent(values);
+        const formData = new FormData();
+        
+        // Append main form data
+        formData.append('title', values.title);
+        formData.append('description', values.description);
+        formData.append('date', values.date.toISOString());
+        formData.append('time', values.time);
+        formData.append('venue', values.venue);
+        formData.append('registrationOpen', String(values.registrationOpen));
+        
+        if (values.image && values.image.length > 0) {
+            formData.append('image', values.image[0]);
+        }
+        
+        // Handle speakers
+        const speakersToSave = values.speakers?.map((s, index) => {
+            if (s.image && s.image.length > 0) {
+                formData.append(`speaker_image_${index}`, s.image[0]);
+                // Return speaker data without the FileList for JSON
+                return { name: s.name, image: '' }; 
             }
+            // Keep existing image URL if no new image is uploaded
+            return { name: s.name, image: s.existingImageUrl || '' };
+        }) || [];
+        formData.append('speakers', JSON.stringify(speakersToSave));
+
+        try {
+            const result = event ? await updateEvent(event.id, formData) : await createEvent(formData);
 
             if (result.error) {
                 throw new Error(result.error);
@@ -74,7 +109,7 @@ export function EventForm({ event }: EventFormProps) {
 
             toast({
                 title: event ? "Event Updated!" : "Event Created!",
-                description: `The event "${values.title}" has been saved successfully.`,
+                description: `The event "${values.title}" has been saved.`,
             });
             router.push('/admin/events');
             router.refresh();
@@ -83,7 +118,7 @@ export function EventForm({ event }: EventFormProps) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
             toast({
                 variant: "destructive",
-                title: "Oh no! Something went wrong.",
+                title: "Something went wrong.",
                 description: errorMessage,
             });
         } finally {
@@ -94,7 +129,7 @@ export function EventForm({ event }: EventFormProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField
+                 <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
@@ -125,69 +160,94 @@ export function EventForm({ event }: EventFormProps) {
                         </FormItem>
                     )}
                 />
-
-                <FormField
+                 <FormField
                     control={form.control}
                     name="image"
-                    render={({ field }) => (
+                    render={({ field: { onChange, value, ...rest } }) => (
                         <FormItem>
-                            <FormLabel>Cover Image URL</FormLabel>
+                            <FormLabel>Cover Image</FormLabel>
                             <FormControl>
-                                <Input placeholder="https://placehold.co/600x400.png" {...field} />
+                                <Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} />
                             </FormControl>
-                            <FormDescription>This is the main image shown on the events list.</FormDescription>
+                            <FormDescription>
+                                {event?.image && <span className="text-xs">Current image is set. Upload a new one to replace it.</span>}
+                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-
-                <FormField
-                    control={form.control}
-                    name="bannerLink"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Event Banner Link (Optional)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Google Drive link to the banner image" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="speakers"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Speakers (Optional)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., John Doe, Jane Smith" {...field} />
-                            </FormControl>
-                            <FormDescription>Comma-separated list of speaker names.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="highlightImages"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Highlight Images (Optional)</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    placeholder="Enter one Google Drive image link per line."
-                                    className="resize-y"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormDescription>These images will be displayed in a carousel on the event page.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="venue"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Venue / Location</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., SVEC Auditorium" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="time"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Time</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., 10:00 AM - 1:00 PM" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                
+                 <div className="space-y-4">
+                    <FormLabel>Speakers</FormLabel>
+                    <div className="space-y-4">
+                        {fields.map((item, index) => (
+                            <Card key={item.id} className="p-4 relative">
+                                <CardContent className="p-0 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                                    <FormField
+                                        control={form.control}
+                                        name={`speakers.${index}.name`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Speaker Name</FormLabel>
+                                                <FormControl><Input {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name={`speakers.${index}.image`}
+                                        render={({ field: { onChange, value, ...rest }}) => (
+                                            <FormItem>
+                                                <FormLabel>Speaker Image</FormLabel>
+                                                <div className="flex items-center gap-2">
+                                                    {item.existingImageUrl && !value?.[0] && <Image src={item.existingImageUrl} alt="Current speaker image" width={40} height={40} className="rounded-full object-cover" />}
+                                                    <FormControl><Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} /></FormControl>
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                    <Button type="button" variant="outline" onClick={() => append({ name: '', image: undefined, id: `${uniqueId}-${fields.length}` })}>
+                        <PlusCircle className="mr-2 h-4 w-4"/> Add Speaker
+                    </Button>
+                </div>
 
 
                 <div className="flex flex-col sm:flex-row gap-4">

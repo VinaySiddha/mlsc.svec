@@ -5,10 +5,9 @@ import { MLSCLogo } from "@/components/icons";
 import { Image } from "@/components/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { format } from "date-fns";
-import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, ImageIcon, LogIn, Menu, Mic, Send, Users } from "lucide-react";
+import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -21,9 +20,6 @@ const navLinks = [
 ];
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
-    
-    // In a real app, you would fetch the event by ID.
-    // For now, we use a placeholder. The static events will have to be migrated to the DB to be viewable.
     const { event, error } = await getEventById(params.id);
 
     if (error || !event) {
@@ -93,47 +89,80 @@ export default async function EventDetailPage({ params }: { params: { id: string
                 </div>
             </header>
 
-            <main className="flex-1 py-12 md:py-16">
-                <div className="container mx-auto px-4">
-                    <Card className="glass-card max-w-4xl mx-auto overflow-hidden">
-                        <Image src={event.image} alt={event.title} width={1200} height={400} className="w-full h-64 object-cover" data-ai-hint="event banner" />
-                        <CardHeader>
-                            <p className="text-sm text-primary font-medium">{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
-                            <CardTitle className="text-3xl md:text-4xl">{event.title}</CardTitle>
-                            <CardDescription>{event.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-8">
-                             {event.speakers && (
-                                <div>
-                                    <h3 className="font-semibold flex items-center gap-2 text-lg"><Mic className="h-5 w-5"/> Speakers</h3>
-                                    <p className="text-muted-foreground mt-2">{event.speakers}</p>
-                                </div>
-                            )}
-
-                            {event.highlightImages && Array.isArray(event.highlightImages) && event.highlightImages.length > 0 && (
-                                <div>
-                                    <h3 className="font-semibold flex items-center gap-2 text-lg"><ImageIcon className="h-5 w-5"/> Highlights</h3>
-                                    <Carousel className="w-full max-w-2xl mx-auto mt-4" opts={{loop: true}}>
-                                        <CarouselContent>
-                                        {event.highlightImages.map((img: string, index: number) => (
-                                            <CarouselItem key={index}>
-                                                <Image src={img} alt={`Highlight ${index + 1}`} width={800} height={450} className="rounded-lg object-cover" data-ai-hint="event highlight"/>
-                                            </CarouselItem>
+            <main className="flex-1">
+                <section className="relative w-full h-[50vh] min-h-[300px] text-white">
+                    <Image src={event.image} alt={event.title} layout="fill" objectFit="cover" className="brightness-50" data-ai-hint="event banner" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="relative h-full flex flex-col justify-end p-4 md:p-8 container mx-auto">
+                        <h1 className="text-4xl md:text-6xl font-bold [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]">{event.title}</h1>
+                    </div>
+                </section>
+                
+                <div className="container mx-auto -mt-16 relative z-10 p-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2">
+                             <Card className="glass-card">
+                                <CardHeader>
+                                    <CardTitle>About this event</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
+                                </CardContent>
+                            </Card>
+                             {event.speakers && event.speakers.length > 0 && (
+                                <div className="mt-8">
+                                    <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Mic /> Speakers</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                                        {event.speakers.map((speaker: any, index: number) => (
+                                            <Card key={index} className="glass-card text-center p-4">
+                                                <Image src={speaker.image} alt={speaker.name} width={100} height={100} className="rounded-full mx-auto mb-3 object-cover" data-ai-hint="speaker portrait"/>
+                                                <p className="font-semibold">{speaker.name}</p>
+                                            </Card>
                                         ))}
-                                        </CarouselContent>
-                                        <CarouselPrevious />
-                                        <CarouselNext />
-                                    </Carousel>
+                                    </div>
                                 </div>
                             )}
+                        </div>
 
-                            <div className="pt-6 border-t border-border/50">
-                                <h3 className="font-semibold text-xl mb-4 text-center">Register for this Event</h3>
-                                <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
+                        <div className="lg:col-span-1 space-y-6">
+                            <Card className="glass-card">
+                                <CardHeader>
+                                    <CardTitle>Date and Time</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                     <div className="flex items-center gap-2">
+                                        <Calendar className="h-5 w-5 text-primary"/>
+                                        <p>{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
+                                     </div>
+                                     <div className="flex items-center gap-2">
+                                        <Clock className="h-5 w-5 text-primary"/>
+                                        <p>{event.time}</p>
+                                     </div>
+                                </CardContent>
+                            </Card>
+                            <Card className="glass-card">
+                                <CardHeader>
+                                    <CardTitle>Location</CardTitle>
+                                </CardHeader>
+                                <CardContent className="flex items-center gap-2">
+                                    <MapPin className="h-5 w-5 text-primary"/>
+                                    <p>{event.venue}</p>
+                                </CardContent>
+                            </Card>
+                             <div className="sticky top-20">
+                                <Card className="glass-card">
+                                     <CardHeader>
+                                        <CardTitle>RSVP</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
+                                    </CardContent>
+                                </Card>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
+
             </main>
         </div>
     );
