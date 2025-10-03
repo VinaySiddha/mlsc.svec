@@ -25,6 +25,7 @@ import { Image } from "./image";
 const speakerSchema = z.object({
     id: z.string().optional(),
     name: z.string().min(2, "Speaker name is required."),
+    title: z.string().min(2, "Speaker title is required."),
     image: z.any().optional(),
     existingImageUrl: z.string().optional(),
 });
@@ -38,11 +39,13 @@ const timelineEntrySchema = z.object({
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  date: z.date({ required_error: "A date for the event is required." }),
+  date: z.date({ required_error: "An event date is required." }),
   time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
   venue: z.string().min(3, "Venue is required."),
-  image: z.any().optional(),
+  bannerImage: z.any().optional(),
+  listImage: z.any().optional(),
   registrationOpen: z.boolean().default(false),
+  registrationDeadline: z.date().optional(),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -50,7 +53,13 @@ const eventFormSchema = z.object({
 type FormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
-    event?: (Omit<FormValues, 'speakers' | 'timeline'> & { id: string, speakers?: {name: string, image: string}[], timeline?: {time: string, description: string}[] });
+    event?: (Omit<FormValues, 'speakers' | 'timeline' | 'bannerImage' | 'listImage'> & { 
+        id: string, 
+        speakers?: {name: string, title: string, image: string}[], 
+        timeline?: {time: string, description: string}[],
+        bannerImage?: string,
+        listImage?: string
+    });
 }
 
 export function EventForm({ event }: EventFormProps) {
@@ -63,7 +72,8 @@ export function EventForm({ event }: EventFormProps) {
         if (event && Array.isArray(event.speakers)) {
             return event.speakers.map((s, i) => ({ 
                 id: `${uniqueId}-speaker-${i}`, 
-                name: s.name, 
+                name: s.name,
+                title: s.title,
                 image: undefined, 
                 existingImageUrl: s.image 
             }));
@@ -90,8 +100,10 @@ export function EventForm({ event }: EventFormProps) {
             date: event?.date ? new Date(event.date) : new Date(),
             time: event?.time || "",
             venue: event?.venue || "",
-            image: undefined,
+            bannerImage: undefined,
+            listImage: undefined,
             registrationOpen: event?.registrationOpen || false,
+            registrationDeadline: event?.registrationDeadline ? new Date(event.registrationDeadline) : undefined,
             speakers: getInitialSpeakers(),
             timeline: getInitialTimeline(),
         },
@@ -117,17 +129,23 @@ export function EventForm({ event }: EventFormProps) {
         formData.append('time', values.time);
         formData.append('venue', values.venue);
         formData.append('registrationOpen', String(values.registrationOpen));
+        if (values.registrationDeadline) {
+            formData.append('registrationDeadline', values.registrationDeadline.toISOString());
+        }
         
-        if (values.image && values.image.length > 0) {
-            formData.append('image', values.image[0]);
+        if (values.bannerImage && values.bannerImage.length > 0) {
+            formData.append('bannerImage', values.bannerImage[0]);
+        }
+        if (values.listImage && values.listImage.length > 0) {
+            formData.append('listImage', values.listImage[0]);
         }
         
         const speakersToSave = values.speakers?.map((s, index) => {
             if (s.image && s.image.length > 0) {
                 formData.append(`speaker_image_${index}`, s.image[0]);
-                return { name: s.name, image: '' }; 
+                return { name: s.name, title: s.title, image: '' }; 
             }
-            return { name: s.name, image: s.existingImageUrl || '' };
+            return { name: s.name, title: s.title, image: s.existingImageUrl || '' };
         }) || [];
         formData.append('speakers', JSON.stringify(speakersToSave));
         
@@ -194,22 +212,41 @@ export function EventForm({ event }: EventFormProps) {
                         </FormItem>
                     )}
                 />
-                 <FormField
-                    control={form.control}
-                    name="image"
-                    render={({ field: { onChange, value, ...rest } }) => (
-                        <FormItem>
-                            <FormLabel>Cover Image</FormLabel>
-                            <FormControl>
-                                <Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} />
-                            </FormControl>
-                            <FormDescription>
-                                {event?.image && <span className="text-xs">Current image is set. Upload a new one to replace it.</span>}
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="listImage"
+                        render={({ field: { onChange, value, ...rest } }) => (
+                            <FormItem>
+                                <FormLabel>List Image (4:3 aspect ratio)</FormLabel>
+                                <FormControl>
+                                    <Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} />
+                                </FormControl>
+                                <FormDescription>
+                                    {event?.listImage && <span className="text-xs">Current list image is set. Upload a new one to replace it.</span>}
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="bannerImage"
+                        render={({ field: { onChange, value, ...rest } }) => (
+                            <FormItem>
+                                <FormLabel>Banner Image (16:9 aspect ratio)</FormLabel>
+                                <FormControl>
+                                    <Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} />
+                                </FormControl>
+                                <FormDescription>
+                                    {event?.bannerImage && <span className="text-xs">Current banner image is set. Upload a new one to replace it.</span>}
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
@@ -287,7 +324,7 @@ export function EventForm({ event }: EventFormProps) {
                     <div className="space-y-4">
                         {speakerFields.map((item, index) => (
                             <Card key={item.id} className="p-4 relative">
-                                <CardContent className="p-0 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                                <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                                     <FormField
                                         control={form.control}
                                         name={`speakers.${index}.name`}
@@ -295,6 +332,17 @@ export function EventForm({ event }: EventFormProps) {
                                             <FormItem>
                                                 <FormLabel>Speaker Name</FormLabel>
                                                 <FormControl><Input {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                     <FormField
+                                        control={form.control}
+                                        name={`speakers.${index}.title`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Speaker Title</FormLabel>
+                                                <FormControl><Input placeholder="e.g. Host" {...field} /></FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -320,13 +368,13 @@ export function EventForm({ event }: EventFormProps) {
                             </Card>
                         ))}
                     </div>
-                    <Button type="button" variant="outline" onClick={() => appendSpeaker({ name: '', image: undefined, id: `${uniqueId}-speaker-${speakerFields.length}` })}>
+                    <Button type="button" variant="outline" onClick={() => appendSpeaker({ name: '', title: '', image: undefined, id: `${uniqueId}-speaker-${speakerFields.length}` })}>
                         <PlusCircle className="mr-2 h-4 w-4"/> Add Speaker
                     </Button>
                 </div>
 
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
                     <FormField
                         control={form.control}
                         name="date"
@@ -347,6 +395,44 @@ export function EventForm({ event }: EventFormProps) {
                                     format(field.value, "PPP")
                                     ) : (
                                     <span>Pick a date</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                                />
+                            </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="registrationDeadline"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Registration Deadline (Optional)</FormLabel>
+                            <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                    "w-full sm:w-[240px] pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                    )}
+                                >
+                                    {field.value ? (
+                                    format(field.value, "PPP")
+                                    ) : (
+                                    <span>Pick a deadline</span>
                                     )}
                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
@@ -401,3 +487,5 @@ export function EventForm({ event }: EventFormProps) {
         </Form>
     );
 }
+
+    

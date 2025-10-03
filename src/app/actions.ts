@@ -100,6 +100,7 @@ export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema
 
 const speakerSchema = z.object({
     name: z.string().min(2, "Speaker name is required."),
+    title: z.string().min(2, "Speaker title is required."),
     image: z.any().optional(),
 });
 
@@ -114,8 +115,10 @@ const eventFormSchema = z.object({
   date: z.date(),
   time: z.string().min(1, "Time is required."),
   venue: z.string().min(3, "Venue is required."),
-  image: z.any().optional(),
+  bannerImage: z.any().optional(),
+  listImage: z.any().optional(),
   registrationOpen: z.boolean().default(false),
+  registrationDeadline: z.date().optional(),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -1100,11 +1103,13 @@ async function uploadFile(file: File, path: string): Promise<string> {
 
 export async function createEvent(formData: FormData) {
     const values = Object.fromEntries(formData.entries());
-    const imageFile = formData.get('image') as File | null;
+    const bannerImageFile = formData.get('bannerImage') as File | null;
+    const listImageFile = formData.get('listImage') as File | null;
     
-    const parsed = eventFormSchema.omit({ image: true, speakers: true, timeline: true }).safeParse({
+    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, speakers: true, timeline: true }).safeParse({
         ...values,
         date: new Date(values.date as string),
+        registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
         registrationOpen: values.registrationOpen === 'true',
     });
 
@@ -1114,10 +1119,14 @@ export async function createEvent(formData: FormData) {
     }
 
     try {
-        const docId = new Date().getTime().toString(); // Simple unique ID
-        let imageUrl = '';
-        if (imageFile && imageFile.size > 0) {
-            imageUrl = await uploadFile(imageFile, `events/${docId}/banner`);
+        const docId = doc(collection(db, 'events')).id; // Generate ID upfront
+        let bannerImageUrl = '';
+        if (bannerImageFile && bannerImageFile.size > 0) {
+            bannerImageUrl = await uploadFile(bannerImageFile, `events/${docId}/banner`);
+        }
+        let listImageUrl = '';
+        if (listImageFile && listImageFile.size > 0) {
+            listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
         }
 
         const speakersData = JSON.parse(values.speakers as string || '[]');
@@ -1134,11 +1143,12 @@ export async function createEvent(formData: FormData) {
             ...parsed.data,
             speakers: speakersData,
             timeline: timelineData,
-            image: imageUrl,
+            bannerImage: bannerImageUrl,
+            listImage: listImageUrl,
         };
 
-        const docRef = await addDoc(collection(db, 'events'), dataToSave);
-        return { success: true, id: docRef.id };
+        await setDoc(doc(db, 'events', docId), dataToSave);
+        return { success: true, id: docId };
     } catch (error) {
         console.error("Failed to create event:", error);
         return { error: 'Failed to create event.' };
@@ -1148,11 +1158,13 @@ export async function createEvent(formData: FormData) {
 
 export async function updateEvent(id: string, formData: FormData) {
     const values = Object.fromEntries(formData.entries());
-    const imageFile = formData.get('image') as File | null;
+    const bannerImageFile = formData.get('bannerImage') as File | null;
+    const listImageFile = formData.get('listImage') as File | null;
 
-    const parsed = eventFormSchema.omit({ image: true, speakers: true, timeline: true }).safeParse({
+    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, speakers: true, timeline: true }).safeParse({
         ...values,
         date: new Date(values.date as string),
+        registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
         registrationOpen: values.registrationOpen === 'true',
     });
 
@@ -1163,8 +1175,11 @@ export async function updateEvent(id: string, formData: FormData) {
     try {
         const dataToUpdate: any = { ...parsed.data };
         
-        if (imageFile && imageFile.size > 0) {
-            dataToUpdate.image = await uploadFile(imageFile, `events/${id}/banner`);
+        if (bannerImageFile && bannerImageFile.size > 0) {
+            dataToUpdate.bannerImage = await uploadFile(bannerImageFile, `events/${id}/banner`);
+        }
+        if (listImageFile && listImageFile.size > 0) {
+            dataToUpdate.listImage = await uploadFile(listImageFile, `events/${id}/list`);
         }
         
         const speakersData = JSON.parse(values.speakers as string || '[]');
@@ -1210,6 +1225,7 @@ export async function getEvents() {
                 ...data,
                 id: doc.id,
                 date: data.date.toDate().toISOString(),
+                registrationDeadline: data.registrationDeadline?.toDate().toISOString() || null,
             }
         });
         return { events: eventList as any[], error: null };
@@ -1229,14 +1245,22 @@ export async function getEventById(id: string) {
         if (!eventDoc.exists()) {
             return { error: 'Event not found.' };
         }
+        
+        const registrationsRef = collection(db, 'events', id, 'registrations');
+        const registrationsSnapshot = await getCountFromServer(registrationsRef);
+        const registrationCount = registrationsSnapshot.data().count;
+
         const data = eventDoc.data();
         const eventData = { 
             ...data,
             id: eventDoc.id,
             date: data.date.toDate().toISOString(),
+            registrationDeadline: data.registrationDeadline?.toDate().toISOString() || null,
+            registrationCount,
         };
         return { event: eventData as any };
     } catch (error) {
+        console.error("Error fetching event by ID:", error);
         return { error: 'Failed to fetch event.' };
     }
 }
@@ -1254,6 +1278,11 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
 
         if (!eventSnap.exists() || !eventSnap.data().registrationOpen) {
             return { error: 'Registrations for this event are closed.' };
+        }
+
+        const deadline = eventSnap.data().registrationDeadline?.toDate();
+        if (deadline && new Date() > deadline) {
+             return { error: 'The registration deadline for this event has passed.' };
         }
         
         const registrationsRef = collection(db, 'events', eventId, 'registrations');
@@ -1740,3 +1769,6 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
+
+
+    

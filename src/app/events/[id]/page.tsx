@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { format } from "date-fns";
-import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks } from "lucide-react";
+import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CountdownTimer } from "@/components/countdown-timer";
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
@@ -91,7 +92,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
 
             <main className="flex-1">
                 <section className="relative w-full h-[50vh] min-h-[300px] text-white">
-                    <Image src={event.image} alt={event.title} layout="fill" objectFit="cover" className="brightness-50" data-ai-hint="event banner" />
+                    <Image src={event.bannerImage} alt={event.title} layout="fill" objectFit="cover" className="brightness-50" data-ai-hint="event banner" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div className="relative h-full flex flex-col justify-end p-4 md:p-8 container mx-auto">
                         <h1 className="text-4xl md:text-6xl font-bold [text-shadow:_0_2px_4px_rgb(0_0_0_/_60%)]">{event.title}</h1>
@@ -136,6 +137,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                             <Card key={index} className="glass-card text-center p-4">
                                                 <Image src={speaker.image} alt={speaker.name} width={100} height={100} className="rounded-full mx-auto mb-3 object-cover" data-ai-hint="speaker portrait"/>
                                                 <p className="font-semibold">{speaker.name}</p>
+                                                <p className="text-sm text-primary">{speaker.title}</p>
                                             </Card>
                                         ))}
                                     </div>
@@ -147,34 +149,35 @@ export default async function EventDetailPage({ params }: { params: { id: string
                             <div className="sticky top-20 space-y-6">
                                 <Card className="glass-card">
                                     <CardHeader>
-                                        <CardTitle>Date and Time</CardTitle>
+                                        <CardTitle>Event Details</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-2">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="h-5 w-5 text-primary"/>
+                                    <CardContent className="space-y-3">
+                                        <div className="flex items-start gap-3">
+                                            <Calendar className="h-5 w-5 text-primary mt-0.5"/>
                                             <p>{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <Clock className="h-5 w-5 text-primary"/>
+                                        <div className="flex items-start gap-3">
+                                            <Clock className="h-5 w-5 text-primary mt-0.5"/>
                                             <p>{event.time}</p>
+                                        </div>
+                                         <div className="flex items-start gap-3">
+                                            <MapPin className="h-5 w-5 text-primary mt-0.5"/>
+                                            <p>{event.venue}</p>
+                                        </div>
+                                         <div className="flex items-start gap-3">
+                                            <UserCheck className="h-5 w-5 text-primary mt-0.5"/>
+                                            <p>{event.registrationCount} registered</p>
                                         </div>
                                     </CardContent>
                                 </Card>
-                                <Card className="glass-card">
-                                    <CardHeader>
-                                        <CardTitle>Location</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="flex items-center gap-2">
-                                        <MapPin className="h-5 w-5 text-primary"/>
-                                        <p>{event.venue}</p>
-                                    </CardContent>
-                                </Card>
+                                
                                 <Card className="glass-card">
                                     <CardHeader>
                                         <CardTitle>RSVP</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
+                                        {event.registrationDeadline && <CountdownTimer deadline={event.registrationDeadline} />}
+                                        <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} deadline={event.registrationDeadline} />
                                     </CardContent>
                                 </Card>
                             </div>
@@ -186,3 +189,5 @@ export default async function EventDetailPage({ params }: { params: { id: string
         </div>
     );
 }
+
+    

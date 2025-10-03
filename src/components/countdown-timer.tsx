@@ -17,6 +17,7 @@ interface TimeLeft {
 }
 
 const calculateTimeLeft = (deadline: string): TimeLeft | null => {
+  if (!deadline) return null;
   const difference = +new Date(deadline) - +new Date();
   if (difference > 0) {
     return {
@@ -36,10 +37,8 @@ export function CountdownTimer({ deadline }: CountdownTimerProps) {
   useEffect(() => {
     setIsClient(true);
     
-    // Set initial time left
     setTimeLeft(calculateTimeLeft(deadline));
 
-    // Update time left every second
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(deadline));
     }, 1000);
@@ -47,47 +46,37 @@ export function CountdownTimer({ deadline }: CountdownTimerProps) {
     return () => clearInterval(timer);
   }, [deadline]);
 
-  // Don't render the timer on the server or during the initial client render
   if (!isClient) {
     return null;
   }
   
   if (!timeLeft) {
-    return (
-       <Card className="mt-4 bg-destructive/10 border-destructive/30">
-        <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2">
-                <Clock className="h-5 w-5 text-destructive" />
-                <p className="font-semibold text-destructive">The application deadline has passed.</p>
-            </div>
-        </CardContent>
-       </Card>
-    );
+    return null; // Don't show anything if deadline has passed
   }
 
   return (
-    <Card className="mt-4">
-        <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-                <div className="flex items-center gap-2 text-primary">
-                    <Clock className="h-5 w-5" />
-                    <p className="font-semibold">Application Deadline:</p>
+    <Card className="mb-4 bg-background/50">
+        <CardContent className="p-3">
+            <div className="flex flex-col items-center justify-center gap-2 text-center">
+                <div className="flex items-center gap-2 text-primary text-sm">
+                    <Clock className="h-4 w-4" />
+                    <p className="font-semibold">Registration closes in:</p>
                 </div>
                 <div className="flex items-baseline gap-2 font-mono text-foreground">
                     <div>
-                        <span className="text-2xl font-bold">{String(timeLeft.days).padStart(2, '0')}</span>
+                        <span className="text-xl font-bold">{String(timeLeft.days).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">d</span>
                     </div>
                     <div>
-                        <span className="text-2xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</span>
+                        <span className="text-xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">h</span>
                     </div>
                     <div>
-                        <span className="text-2xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                        <span className="text-xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">m</span>
                     </div>
                     <div>
-                        <span className="text-2xl font-bold">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                        <span className="text-xl font-bold">{String(timeLeft.seconds).padStart(2, '0')}</span>
                         <span className="text-xs text-muted-foreground">s</span>
                     </div>
                 </div>
@@ -96,3 +85,5 @@ export function CountdownTimer({ deadline }: CountdownTimerProps) {
     </Card>
   );
 }
+
+    

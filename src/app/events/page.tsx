@@ -26,7 +26,7 @@ const staticEvents = [
         title: 'Blue Day',
         description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
         date: new Date('2025-01-25T00:00:00Z').toISOString(),
-        image: '/blueday.png',
+        listImage: '/blueday.png',
         registrationOpen: false,
     },
     {
@@ -34,7 +34,7 @@ const staticEvents = [
         title: 'The Flask Edition',
         description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
         date: new Date('2025-02-06T00:00:00Z').toISOString(),
-        image: '/flask.png',
+        listImage: '/flask.png',
         registrationOpen: false,
     },
     {
@@ -42,7 +42,7 @@ const staticEvents = [
         title: 'Web development BootCamp',
         description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
         date: new Date('2024-03-14T00:00:00Z').toISOString(),
-        image: '/web.jpg',
+        listImage: '/web.jpg',
         registrationOpen: false,
     },
     {
@@ -50,7 +50,7 @@ const staticEvents = [
         title: 'Azure Cloud Workshop',
         description: 'Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.',
         date: new Date('2023-10-18T00:00:00Z').toISOString(),
-        image: '/azure.jpg',
+        listImage: '/azure.jpg',
         registrationOpen: false,
     },
 ];
@@ -168,7 +168,7 @@ export default function EventsPage() {
                             <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
                                 <div className="lg:w-1/3">
                                 <Image 
-                                    src={event.image} 
+                                    src={event.listImage || event.bannerImage} 
                                     alt={event.title} 
                                     width={600} 
                                     height={400} 
@@ -205,3 +205,5 @@ export default function EventsPage() {
     </div>
   );
 }
+
+    

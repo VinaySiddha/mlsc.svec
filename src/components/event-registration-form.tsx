@@ -4,7 +4,7 @@
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -32,12 +32,27 @@ type RegistrationFormValues = z.infer<typeof registrationSchema>;
 interface EventRegistrationFormProps {
     eventId: string;
     registrationOpen: boolean;
+    deadline?: string | null;
 }
 
-export function EventRegistrationForm({ eventId, registrationOpen }: EventRegistrationFormProps) {
+export function EventRegistrationForm({ eventId, registrationOpen, deadline }: EventRegistrationFormProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+
+    useEffect(() => {
+        if (deadline) {
+            const checkDeadline = () => {
+                if (new Date() > new Date(deadline)) {
+                    setIsDeadlinePassed(true);
+                }
+            };
+            checkDeadline();
+            const interval = setInterval(checkDeadline, 1000); // Check every second
+            return () => clearInterval(interval);
+        }
+    }, [deadline]);
 
     const form = useForm<RegistrationFormValues>({
         resolver: zodResolver(registrationSchema),
@@ -69,7 +84,7 @@ export function EventRegistrationForm({ eventId, registrationOpen }: EventRegist
         }
     };
     
-    if (!registrationOpen) {
+    if (!registrationOpen || isDeadlinePassed) {
         return (
             <Button disabled className="w-full">
                 <Clock className="mr-2 h-4 w-4" />
@@ -203,3 +218,5 @@ export function EventRegistrationForm({ eventId, registrationOpen }: EventRegist
         </Dialog>
     );
 }
+
+    
