@@ -111,9 +111,6 @@ export default async function AdminPage() {
                        <MenubarItem asChild inset>
                          <Link href="/admin/interview-analytics">Interview Analytics</Link>
                       </MenubarItem>
-                       <MenubarItem asChild inset>
-                         <Link href="/admin/visitors">Visitor Logs</Link>
-                      </MenubarItem>
                     </MenubarContent>
                   </MenubarMenu>
                    <MenubarMenu>
@@ -267,22 +264,6 @@ export default async function AdminPage() {
                     </Button>
                   </CardContent>
                 </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Database />
-                      Visitor Logs
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      View recent visitor IP addresses and activity.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/visitors">View Logs</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
                  <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -320,5 +301,3 @@ export default async function AdminPage() {
     </div>
   );
 }
-
-    
