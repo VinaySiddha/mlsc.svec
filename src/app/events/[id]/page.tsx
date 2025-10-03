@@ -118,64 +118,16 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
                                 </CardContent>
                             </Card>
-
-                             {timelineItems.length > 0 && (
-                                <Card className="glass-card">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Event Timeline</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="relative pl-6">
-                                            <div className="absolute left-0 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
-                                            {timelineItems.map((item: string, index: number) => {
-                                                const [time, ...textParts] = item.split('-');
-                                                const text = textParts.join('-').trim();
-                                                return (
-                                                    <div key={index} className="relative pl-8 mb-8 last:mb-0">
-                                                        <div className="absolute -left-2.5 top-1 h-5 w-5 rounded-full bg-primary border-4 border-background"></div>
-                                                        <p className="font-semibold text-primary">{time.trim()}</p>
-                                                        <p className="text-muted-foreground">{text}</p>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
-
-                            {Array.isArray(event.highlightImages) && event.highlightImages.length > 0 && (
-                                <Card className="glass-card">
-                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Event Gallery</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <Carousel className="w-full">
-                                            <CarouselContent>
-                                                {event.highlightImages.map((img: string, index: number) => (
-                                                <CarouselItem key={index}>
-                                                    <Image src={img} alt={`Event highlight ${'${index+1}'}`} width={800} height={450} className="rounded-lg object-cover w-full aspect-video" data-ai-hint="event photo" />
-                                                </CarouselItem>
-                                                ))}
-                                            </CarouselContent>
-                                            <CarouselPrevious />
-                                            <CarouselNext />
-                                        </Carousel>
-                                    </CardContent>
-                                </Card>
-                            )}
-                        </div>
-                        
-                        {/* Right Sidebar */}
-                        <div className="md:col-span-1 space-y-8">
-                           {Array.isArray(event.speakers) && event.speakers.length > 0 && (
+                            
+                            {Array.isArray(event.speakers) && event.speakers.length > 0 && (
                                 <Card className="glass-card">
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2"><Mic className="h-5 w-5"/> Speakers</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-4">
+                                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         {event.speakers.map((speaker: any, index: number) => (
                                             <div key={index} className="flex items-center gap-4">
-                                                <Image src={speaker.image || '/placeholder.jpg'} alt={speaker.name} width={48} height={48} className="rounded-full object-cover w-12 h-12" data-ai-hint="speaker portrait" />
+                                                <Image src={speaker.image || '/placeholder.jpg'} alt={speaker.name} width={80} height={80} className="rounded-full object-cover w-20 h-20" data-ai-hint="speaker portrait" />
                                                 <div>
                                                     <h4 className="font-semibold">{speaker.name}</h4>
                                                     <p className="text-sm text-muted-foreground">{speaker.title}</p>
@@ -186,9 +138,64 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                 </Card>
                             )}
                             
-                            <div className="sticky top-24 glass-card p-6">
-                                <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
-                            </div>
+                             {timelineItems.length > 0 && (
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Timeline</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="relative pl-6">
+                                            <div className="absolute left-9 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
+                                            {timelineItems.map((item: string, index: number) => {
+                                                const [time, ...textParts] = item.split('-');
+                                                const text = textParts.join('-').trim();
+                                                return (
+                                                    <div key={index} className="relative mb-8 pl-6">
+                                                         <div className={cn("absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[calc(50%_+_1px)] w-4 h-4 rounded-full",
+                                                            index === 0 ? "bg-primary" : "bg-muted"
+                                                         )}></div>
+                                                         <p className="font-bold text-primary">{time.trim()}</p>
+                                                         <p className="text-muted-foreground">{text}</p>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                             {event.highlightImages && event.highlightImages.length > 0 && (
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5"/> Gallery</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="flex justify-center">
+                                        <Carousel className="w-full max-w-lg" opts={{loop: true}}>
+                                            <CarouselContent>
+                                                {event.highlightImages.map((img: string, index: number) => (
+                                                <CarouselItem key={index}>
+                                                    <Image src={img} alt={`Highlight ${index + 1}`} width={800} height={600} className="rounded-lg object-cover" data-ai-hint="event highlight"/>
+                                                </CarouselItem>
+                                                ))}
+                                            </CarouselContent>
+                                            <CarouselPrevious />
+                                            <CarouselNext />
+                                        </Carousel>
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                        </div>
+
+                        <div className="md:col-span-1">
+                            <Card className="glass-card sticky top-24">
+                                <CardHeader>
+                                    <CardTitle>Register for this Event</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} />
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
                 </div>
