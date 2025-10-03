@@ -12,3 +12,5 @@ import '@/ai/flows/send-invitation-email';
 import '@/ai/flows/send-profile-confirmation-email';
 import '@/ai/flows/send-event-confirmation-email';
 import '@/ai/flows/send-event-reminder-email';
+import '@/ai/flows/send-feedback-email';
+

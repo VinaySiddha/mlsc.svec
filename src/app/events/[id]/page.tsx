@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { format } from "date-fns";
-import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks, UserCheck } from "lucide-react";
+import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks, UserCheck, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CountdownTimer } from "@/components/countdown-timer";
@@ -143,6 +143,19 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     </div>
                                 </div>
                             )}
+
+                             {Array.isArray(event.highlightImages) && event.highlightImages.length > 0 && (
+                                <div>
+                                    <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><ImageIcon /> Event Gallery</h2>
+                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                        {event.highlightImages.map((imgSrc: string, index: number) => (
+                                            <div key={index} className="aspect-video relative rounded-lg overflow-hidden">
+                                                <Image src={imgSrc} alt={`Event highlight ${index + 1}`} layout="fill" objectFit="cover" className="hover:scale-110 transition-transform duration-300" />
+                                            </div>
+                                        ))}
+                                     </div>
+                                </div>
+                             )}
                         </div>
 
                         <div className="lg:col-span-1 space-y-6">
@@ -166,7 +179,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                         </div>
                                          <div className="flex items-start gap-3">
                                             <UserCheck className="h-5 w-5 text-primary mt-0.5"/>
-                                            <p>{event.registrationCount} registered</p>
+                                            <p>{event.registrationCount} registered {event.registrationLimit > 0 && `/ ${event.registrationLimit}`}</p>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -177,7 +190,13 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     </CardHeader>
                                     <CardContent>
                                         {event.registrationDeadline && <CountdownTimer deadline={event.registrationDeadline} />}
-                                        <EventRegistrationForm eventId={event.id} registrationOpen={event.registrationOpen} deadline={event.registrationDeadline} />
+                                        <EventRegistrationForm 
+                                            eventId={event.id}
+                                            registrationOpen={event.registrationOpen}
+                                            deadline={event.registrationDeadline}
+                                            limit={event.registrationLimit}
+                                            currentCount={event.registrationCount}
+                                        />
                                     </CardContent>
                                 </Card>
                             </div>

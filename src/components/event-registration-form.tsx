@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { registerForEvent } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Clock } from 'lucide-react';
+import { Loader2, Clock, Users } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const branches = ["AIML", "CAI", "CSE", "CST", "ECE", "Others"];
@@ -33,13 +33,17 @@ interface EventRegistrationFormProps {
     eventId: string;
     registrationOpen: boolean;
     deadline?: string | null;
+    limit?: number;
+    currentCount?: number;
 }
 
-export function EventRegistrationForm({ eventId, registrationOpen, deadline }: EventRegistrationFormProps) {
+export function EventRegistrationForm({ eventId, registrationOpen, deadline, limit, currentCount }: EventRegistrationFormProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
     const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+    
+    const isLimitReached = (limit && currentCount != null) ? currentCount >= limit : false;
 
     useEffect(() => {
         if (deadline) {
@@ -84,6 +88,15 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline }: E
         }
     };
     
+    if (isLimitReached) {
+        return (
+             <Button disabled className="w-full">
+                <Users className="mr-2 h-4 w-4" />
+                Registrations Full
+            </Button>
+        )
+    }
+
     if (!registrationOpen || isDeadlinePassed) {
         return (
             <Button disabled className="w-full">
@@ -218,5 +231,3 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline }: E
         </Dialog>
     );
 }
-
-    

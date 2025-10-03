@@ -9,8 +9,10 @@ import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
-import { sendEventConfirmationEmail, EventConfirmationEmailInput } from '@/ai/flows/send-event-confirmation-email';
-import { sendEventReminderEmail, EventReminderEmailInput } from '@/ai/flows/send-event-reminder-email';
+import { sendEventConfirmationEmail } from '@/ai/flows/send-event-confirmation-email';
+import { sendEventReminderEmail } from '@/ai/flows/send-event-reminder-email';
+import { sendFeedbackEmail } from '@/ai/flows/send-feedback-email';
+
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -120,11 +122,14 @@ const eventFormSchema = z.object({
   date: z.date({ required_error: "An event date is required." }),
   time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
   venue: z.string().min(3, "Venue is required."),
-  eventLink: z.string().url("Please enter a valid URL.").optional().or(z.literal("")),
+  eventLink: z.string().url("A valid URL is required for the event link.").optional().or(z.literal("")),
+  feedbackLink: z.string().url("A valid URL is required for the feedback link.").optional().or(z.literal("")),
   bannerImage: z.any().optional(),
   listImage: z.any().optional(),
+  highlightImages: z.any().optional(),
   registrationOpen: z.boolean().default(false),
   registrationDeadline: z.date().optional(),
+  registrationLimit: z.coerce.number().min(0, "Registration limit must be a positive number.").optional(),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -163,6 +168,31 @@ const completeOnboardingSchema = z.object({
     image: z.any().optional(),
     linkedin: z.string().url("LinkedIn URL is required."),
 });
+
+export interface EventConfirmationEmailInput {
+  name: string;
+  email: string;
+  eventName: string;
+  eventDate: string;
+  eventLink?: string;
+}
+
+export interface EventReminderEmailInput {
+  name: string;
+  email: string;
+  eventName: string;
+  eventDate: string;
+  eventTime: string;
+  eventVenue: string;
+  eventLink?: string;
+}
+
+export interface EventFeedbackEmailInput {
+  name: string;
+  email: string;
+  eventName: string;
+  feedbackLink: string;
+}
 
 
 export async function getVisitors() {
@@ -1115,12 +1145,14 @@ export async function createEvent(formData: FormData) {
     const values = Object.fromEntries(formData.entries());
     const bannerImageFile = formData.get('bannerImage') as File | null;
     const listImageFile = formData.get('listImage') as File | null;
+    const highlightImageFiles = formData.getAll('highlightImages') as File[];
     
-    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, speakers: true, timeline: true }).safeParse({
+    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
         ...values,
         date: new Date(values.date as string),
         registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
         registrationOpen: values.registrationOpen === 'true',
+        registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
     });
 
     if (!parsed.success) {
@@ -1138,6 +1170,10 @@ export async function createEvent(formData: FormData) {
         if (listImageFile && listImageFile.size > 0) {
             listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
         }
+        
+        const highlightImageUrls = await Promise.all(
+            highlightImageFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
+        );
 
         const speakersData = JSON.parse(values.speakers as string || '[]');
         for (let i = 0; i < speakersData.length; i++) {
@@ -1155,6 +1191,7 @@ export async function createEvent(formData: FormData) {
             timeline: timelineData,
             bannerImage: bannerImageUrl,
             listImage: listImageUrl,
+            highlightImages: highlightImageUrls,
         };
 
         await setDoc(doc(db, 'events', docId), dataToSave);
@@ -1170,12 +1207,14 @@ export async function updateEvent(id: string, formData: FormData) {
     const values = Object.fromEntries(formData.entries());
     const bannerImageFile = formData.get('bannerImage') as File | null;
     const listImageFile = formData.get('listImage') as File | null;
+    const highlightImageFiles = formData.getAll('highlightImages') as File[];
 
-    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, speakers: true, timeline: true }).safeParse({
+    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
         ...values,
         date: new Date(values.date as string),
         registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
         registrationOpen: values.registrationOpen === 'true',
+        registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
     });
 
     if (!parsed.success) {
@@ -1183,6 +1222,10 @@ export async function updateEvent(id: string, formData: FormData) {
     }
 
     try {
+        const eventDocRef = doc(db, 'events', id);
+        const existingEvent = await getDoc(eventDocRef);
+        const existingData = existingEvent.data();
+
         const dataToUpdate: any = { ...parsed.data };
         
         if (bannerImageFile && bannerImageFile.size > 0) {
@@ -1192,19 +1235,26 @@ export async function updateEvent(id: string, formData: FormData) {
             dataToUpdate.listImage = await uploadFile(listImageFile, `events/${id}/list`);
         }
         
+        if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
+            dataToUpdate.highlightImages = await Promise.all(
+                highlightImageFiles.map((file, i) => uploadFile(file, `events/${id}/highlight_${i}`))
+            );
+        }
+        
         const speakersData = JSON.parse(values.speakers as string || '[]');
         for (let i = 0; i < speakersData.length; i++) {
             const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
             if (speakerImageFile && speakerImageFile.size > 0) {
                  speakersData[i].image = await uploadFile(speakerImageFile, `events/${id}/speaker_${i}`);
+            } else {
+                 speakersData[i].image = speakersData[i].existingImageUrl;
             }
+            delete speakersData[i].existingImageUrl;
         }
         dataToUpdate.speakers = speakersData;
         dataToUpdate.timeline = JSON.parse(values.timeline as string || '[]');
 
-
-        const eventDoc = doc(db, 'events', id);
-        await updateDoc(eventDoc, dataToUpdate);
+        await updateDoc(eventDocRef, dataToUpdate);
         return { success: true };
     } catch (error) {
         console.error("Failed to update event:", error);
@@ -1286,16 +1336,29 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
         const eventRef = doc(db, 'events', eventId);
         const eventSnap = await getDoc(eventRef);
 
-        if (!eventSnap.exists() || !eventSnap.data().registrationOpen) {
-            return { error: 'Registrations for this event are closed.' };
+        if (!eventSnap.exists()) {
+            return { error: 'Event not found.' };
         }
-
-        const deadline = eventSnap.data().registrationDeadline?.toDate();
+        
+        const eventData = eventSnap.data();
+        
+        if (!eventData.registrationOpen) {
+            return { error: 'Registrations for this event are currently closed.' };
+        }
+        
+        const deadline = eventData.registrationDeadline?.toDate();
         if (deadline && new Date() > deadline) {
              return { error: 'The registration deadline for this event has passed.' };
         }
         
         const registrationsRef = collection(db, 'events', eventId, 'registrations');
+        
+        if (eventData.registrationLimit && eventData.registrationLimit > 0) {
+            const registrationsSnapshot = await getCountFromServer(registrationsRef);
+            if (registrationsSnapshot.data().count >= eventData.registrationLimit) {
+                return { error: 'Sorry, this event has reached its registration limit.' };
+            }
+        }
 
         // Check for existing email in this event's registrations
         const emailQuery = query(registrationsRef, where("email", "==", parsed.data.email));
@@ -1310,7 +1373,6 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
         });
 
         // Send confirmation email
-        const eventData = eventSnap.data();
         const emailInput: EventConfirmationEmailInput = {
             name: parsed.data.name,
             email: parsed.data.email,
@@ -1370,6 +1432,54 @@ export async function sendReminderEmails(eventId: string) {
         console.error("Error sending reminder emails:", error);
         if (error instanceof Error) {
             return { error: `Failed to send reminders: ${error.message}` };
+        }
+        return { error: "An unexpected error occurred." };
+    }
+}
+
+export async function sendFeedbackEmails(eventId: string) {
+    try {
+        const eventRef = doc(db, 'events', eventId);
+        const eventSnap = await getDoc(eventRef);
+
+        if (!eventSnap.exists()) {
+            return { error: "Event not found." };
+        }
+
+        const eventData = eventSnap.data();
+        if (!eventData.feedbackLink) {
+            return { error: "No feedback link is set for this event." };
+        }
+
+        const registrationsRef = collection(db, 'events', eventId, 'registrations');
+        const registrationsSnapshot = await getDocs(registrationsRef);
+
+        if (registrationsSnapshot.empty) {
+            return { success: true, count: 0 };
+        }
+
+        let sentCount = 0;
+        for (const registrationDoc of registrationsSnapshot.docs) {
+            const registration = registrationDoc.data();
+            try {
+                const emailInput: EventFeedbackEmailInput = {
+                    name: registration.name,
+                    email: registration.email,
+                    eventName: eventData.title,
+                    feedbackLink: eventData.feedbackLink,
+                };
+                await sendFeedbackEmail(emailInput);
+                sentCount++;
+            } catch (emailError) {
+                console.error(`Failed to send feedback email to ${registration.email}:`, emailError);
+            }
+        }
+        
+        return { success: true, count: sentCount };
+    } catch (error) {
+        console.error("Error sending feedback emails:", error);
+        if (error instanceof Error) {
+            return { error: `Failed to send feedback emails: ${error.message}` };
         }
         return { error: "An unexpected error occurred." };
     }
@@ -1884,5 +1994,3 @@ export async function deleteNotification(id: string) {
         return { error: "Failed to delete notification." };
     }
 }
-
-    
