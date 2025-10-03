@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import {
@@ -584,7 +583,6 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
 }
 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
-  'use server';
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
     return { error: 'Invalid input.' };
@@ -616,7 +614,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   }
 
   try {
-    const token = await signToken(userPayload);
+    const token = signToken(userPayload);
     setSessionCookie(token);
     return { success: true };
   } catch (e) {
@@ -1751,3 +1749,4 @@ async function addInitialEvents() {
 }
 
 addInitialEvents().catch(console.error);
+

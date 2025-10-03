@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth";
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const sessionToken = req.cookies.get('session')?.value;
-  const payload = sessionToken ? await verifyToken(sessionToken) : null;
+  const payload = sessionToken ? verifyToken(sessionToken) : null;
 
   // If trying to access admin routes without a valid token, redirect to login
   if (path.startsWith('/admin') && !payload) {
