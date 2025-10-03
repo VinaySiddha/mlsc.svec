@@ -109,7 +109,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
                                 </CardContent>
                             </Card>
-                             {event.speakers && event.speakers.length > 0 && (
+                             {Array.isArray(event.speakers) && event.speakers.length > 0 && (
                                 <div className="mt-8">
                                     <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Mic /> Speakers</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
