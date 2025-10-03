@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { format } from "date-fns";
-import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin } from "lucide-react";
+import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -98,7 +98,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                     </div>
                 </section>
                 
-                <div className="container mx-auto -mt-16 relative z-10 p-4">
+                <div className="container mx-auto p-4 -mt-16 md:-mt-8 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-8">
                              <Card className="glass-card">
@@ -109,6 +109,25 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
                                 </CardContent>
                             </Card>
+
+                             {Array.isArray(event.timeline) && event.timeline.length > 0 && (
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><ListChecks /> Timeline</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-4">
+                                            {event.timeline.map((item: any, index: number) => (
+                                                <div key={index} className="flex gap-4">
+                                                    <div className="font-semibold text-primary w-24 shrink-0">{item.time}</div>
+                                                    <div className="text-muted-foreground">{item.description}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+
                              {Array.isArray(event.speakers) && event.speakers.length > 0 && (
                                 <div>
                                     <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Mic /> Speakers</h2>

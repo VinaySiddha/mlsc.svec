@@ -61,6 +61,6 @@
 
 @layer components {
     .glass-card {
-        @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg rounded-2xl transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:scale-[1.01];
+        @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg rounded-2xl;
     }
 }

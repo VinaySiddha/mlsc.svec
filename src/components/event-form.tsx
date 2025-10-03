@@ -8,7 +8,7 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Calendar as CalendarIcon, Loader2, Trash2, PlusCircle, User } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, Trash2, PlusCircle, User, Clock } from "lucide-react";
 
 import { createEvent, updateEvent } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -26,8 +26,13 @@ const speakerSchema = z.object({
     id: z.string().optional(),
     name: z.string().min(2, "Speaker name is required."),
     image: z.any().optional(),
-    // Store URL for existing images to avoid re-uploading
     existingImageUrl: z.string().optional(),
+});
+
+const timelineEntrySchema = z.object({
+    id: z.string().optional(),
+    time: z.string().min(1, "Time is required."),
+    description: z.string().min(3, "Description is required."),
 });
 
 const eventFormSchema = z.object({
@@ -39,12 +44,13 @@ const eventFormSchema = z.object({
   image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
   speakers: z.array(speakerSchema).optional(),
+  timeline: z.array(timelineEntrySchema).optional(),
 });
 
 type FormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
-    event?: (Omit<FormValues, 'speakers'> & { id: string, speakers?: {name: string, image: string}[] });
+    event?: (Omit<FormValues, 'speakers' | 'timeline'> & { id: string, speakers?: {name: string, image: string}[], timeline?: {time: string, description: string}[] });
 }
 
 export function EventForm({ event }: EventFormProps) {
@@ -56,7 +62,7 @@ export function EventForm({ event }: EventFormProps) {
     const getInitialSpeakers = () => {
         if (event && Array.isArray(event.speakers)) {
             return event.speakers.map((s, i) => ({ 
-                id: `${uniqueId}-${i}`, 
+                id: `${uniqueId}-speaker-${i}`, 
                 name: s.name, 
                 image: undefined, 
                 existingImageUrl: s.image 
@@ -64,6 +70,17 @@ export function EventForm({ event }: EventFormProps) {
         }
         return [];
     };
+
+    const getInitialTimeline = () => {
+        if (event && Array.isArray(event.timeline)) {
+            return event.timeline.map((t, i) => ({
+                id: `${uniqueId}-timeline-${i}`,
+                time: t.time,
+                description: t.description,
+            }));
+        }
+        return [];
+    }
 
     const form = useForm<FormValues>({
         resolver: zodResolver(eventFormSchema),
@@ -76,19 +93,24 @@ export function EventForm({ event }: EventFormProps) {
             image: undefined,
             registrationOpen: event?.registrationOpen || false,
             speakers: getInitialSpeakers(),
+            timeline: getInitialTimeline(),
         },
     });
 
-    const { fields, append, remove } = useFieldArray({
+    const { fields: speakerFields, append: appendSpeaker, remove: removeSpeaker } = useFieldArray({
         control: form.control,
         name: "speakers",
+    });
+
+    const { fields: timelineFields, append: appendTimeline, remove: removeTimeline } = useFieldArray({
+        control: form.control,
+        name: "timeline",
     });
 
     const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
         const formData = new FormData();
         
-        // Append main form data
         formData.append('title', values.title);
         formData.append('description', values.description);
         formData.append('date', values.date.toISOString());
@@ -100,17 +122,17 @@ export function EventForm({ event }: EventFormProps) {
             formData.append('image', values.image[0]);
         }
         
-        // Handle speakers
         const speakersToSave = values.speakers?.map((s, index) => {
             if (s.image && s.image.length > 0) {
                 formData.append(`speaker_image_${index}`, s.image[0]);
-                // Return speaker data without the FileList for JSON
                 return { name: s.name, image: '' }; 
             }
-            // Keep existing image URL if no new image is uploaded
             return { name: s.name, image: s.existingImageUrl || '' };
         }) || [];
         formData.append('speakers', JSON.stringify(speakersToSave));
+        
+        const timelineToSave = values.timeline?.map(t => ({ time: t.time, description: t.description })) || [];
+        formData.append('timeline', JSON.stringify(timelineToSave));
 
         try {
             const result = event ? await updateEvent(event.id, formData) : await createEvent(formData);
@@ -217,11 +239,53 @@ export function EventForm({ event }: EventFormProps) {
                         )}
                     />
                 </div>
+
+                <div className="space-y-4">
+                    <FormLabel>Timeline</FormLabel>
+                     <div className="space-y-4">
+                        {timelineFields.map((item, index) => (
+                            <Card key={item.id} className="p-4 relative">
+                                <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                    <FormField
+                                        control={form.control}
+                                        name={`timeline.${index}.time`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Time</FormLabel>
+                                                <FormControl><Input placeholder="e.g. 10:00 AM" {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div className="md:col-span-2">
+                                        <FormField
+                                            control={form.control}
+                                            name={`timeline.${index}.description`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Description</FormLabel>
+                                                    <FormControl><Input placeholder="e.g. Keynote Speech" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </CardContent>
+                                <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => removeTimeline(index)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </Card>
+                        ))}
+                    </div>
+                     <Button type="button" variant="outline" onClick={() => appendTimeline({ time: '', description: '' })}>
+                        <Clock className="mr-2 h-4 w-4"/> Add Timeline Entry
+                    </Button>
+                </div>
                 
                  <div className="space-y-4">
                     <FormLabel>Speakers</FormLabel>
                     <div className="space-y-4">
-                        {fields.map((item, index) => (
+                        {speakerFields.map((item, index) => (
                             <Card key={item.id} className="p-4 relative">
                                 <CardContent className="p-0 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                                     <FormField
@@ -249,14 +313,14 @@ export function EventForm({ event }: EventFormProps) {
                                             </FormItem>
                                         )}
                                     />
-                                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}>
+                                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => removeSpeaker(index)}>
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </CardContent>
                             </Card>
                         ))}
                     </div>
-                    <Button type="button" variant="outline" onClick={() => append({ name: '', image: undefined, id: `${uniqueId}-${fields.length}` })}>
+                    <Button type="button" variant="outline" onClick={() => appendSpeaker({ name: '', image: undefined, id: `${uniqueId}-speaker-${speakerFields.length}` })}>
                         <PlusCircle className="mr-2 h-4 w-4"/> Add Speaker
                     </Button>
                 </div>

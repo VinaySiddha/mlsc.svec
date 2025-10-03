@@ -98,6 +98,16 @@ const ConfirmationEmailInputSchema = z.object({
 export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
 
 
+const speakerSchema = z.object({
+    name: z.string().min(2, "Speaker name is required."),
+    image: z.any().optional(),
+});
+
+const timelineEntrySchema = z.object({
+    time: z.string().min(1, "Time is required."),
+    description: z.string().min(3, "Description is required."),
+});
+
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
@@ -106,7 +116,8 @@ const eventFormSchema = z.object({
   venue: z.string().min(3, "Venue is required."),
   image: z.any().optional(),
   registrationOpen: z.boolean().default(false),
-  speakers: z.string().optional(), // JSON string of speakers
+  speakers: z.array(speakerSchema).optional(),
+  timeline: z.array(timelineEntrySchema).optional(),
 });
 
 
@@ -1091,7 +1102,7 @@ export async function createEvent(formData: FormData) {
     const values = Object.fromEntries(formData.entries());
     const imageFile = formData.get('image') as File | null;
     
-    const parsed = eventFormSchema.omit({ image: true }).safeParse({
+    const parsed = eventFormSchema.omit({ image: true, speakers: true, timeline: true }).safeParse({
         ...values,
         date: new Date(values.date as string),
         registrationOpen: values.registrationOpen === 'true',
@@ -1109,17 +1120,20 @@ export async function createEvent(formData: FormData) {
             imageUrl = await uploadFile(imageFile, `events/${docId}/banner`);
         }
 
-        const speakersData = JSON.parse(parsed.data.speakers || '[]');
+        const speakersData = JSON.parse(values.speakers as string || '[]');
         for (let i = 0; i < speakersData.length; i++) {
             const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
             if (speakerImageFile && speakerImageFile.size > 0) {
                 speakersData[i].image = await uploadFile(speakerImageFile, `events/${docId}/speaker_${i}`);
             }
         }
+        
+        const timelineData = JSON.parse(values.timeline as string || '[]');
 
         const dataToSave = {
             ...parsed.data,
             speakers: speakersData,
+            timeline: timelineData,
             image: imageUrl,
         };
 
@@ -1136,7 +1150,7 @@ export async function updateEvent(id: string, formData: FormData) {
     const values = Object.fromEntries(formData.entries());
     const imageFile = formData.get('image') as File | null;
 
-    const parsed = eventFormSchema.omit({ image: true }).safeParse({
+    const parsed = eventFormSchema.omit({ image: true, speakers: true, timeline: true }).safeParse({
         ...values,
         date: new Date(values.date as string),
         registrationOpen: values.registrationOpen === 'true',
@@ -1153,7 +1167,7 @@ export async function updateEvent(id: string, formData: FormData) {
             dataToUpdate.image = await uploadFile(imageFile, `events/${id}/banner`);
         }
         
-        const speakersData = JSON.parse(parsed.data.speakers || '[]');
+        const speakersData = JSON.parse(values.speakers as string || '[]');
         for (let i = 0; i < speakersData.length; i++) {
             const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
             if (speakerImageFile && speakerImageFile.size > 0) {
@@ -1161,6 +1175,7 @@ export async function updateEvent(id: string, formData: FormData) {
             }
         }
         dataToUpdate.speakers = speakersData;
+        dataToUpdate.timeline = JSON.parse(values.timeline as string || '[]');
 
 
         const eventDoc = doc(db, 'events', id);
