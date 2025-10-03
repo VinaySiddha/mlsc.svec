@@ -100,7 +100,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                 
                 <div className="container mx-auto -mt-16 relative z-10 p-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-2">
+                        <div className="lg:col-span-2 space-y-8">
                              <Card className="glass-card">
                                 <CardHeader>
                                     <CardTitle>About this event</CardTitle>
@@ -110,7 +110,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                 </CardContent>
                             </Card>
                              {Array.isArray(event.speakers) && event.speakers.length > 0 && (
-                                <div className="mt-8">
+                                <div>
                                     <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Mic /> Speakers</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                                         {event.speakers.map((speaker: any, index: number) => (
@@ -125,33 +125,33 @@ export default async function EventDetailPage({ params }: { params: { id: string
                         </div>
 
                         <div className="lg:col-span-1 space-y-6">
-                            <Card className="glass-card">
-                                <CardHeader>
-                                    <CardTitle>Date and Time</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-2">
-                                     <div className="flex items-center gap-2">
-                                        <Calendar className="h-5 w-5 text-primary"/>
-                                        <p>{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
-                                     </div>
-                                     <div className="flex items-center gap-2">
-                                        <Clock className="h-5 w-5 text-primary"/>
-                                        <p>{event.time}</p>
-                                     </div>
-                                </CardContent>
-                            </Card>
-                            <Card className="glass-card">
-                                <CardHeader>
-                                    <CardTitle>Location</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex items-center gap-2">
-                                    <MapPin className="h-5 w-5 text-primary"/>
-                                    <p>{event.venue}</p>
-                                </CardContent>
-                            </Card>
-                             <div className="sticky top-20">
+                            <div className="sticky top-20 space-y-6">
                                 <Card className="glass-card">
-                                     <CardHeader>
+                                    <CardHeader>
+                                        <CardTitle>Date and Time</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="h-5 w-5 text-primary"/>
+                                            <p>{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="h-5 w-5 text-primary"/>
+                                            <p>{event.time}</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <CardTitle>Location</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="flex items-center gap-2">
+                                        <MapPin className="h-5 w-5 text-primary"/>
+                                        <p>{event.venue}</p>
+                                    </CardContent>
+                                </Card>
+                                <Card className="glass-card">
+                                    <CardHeader>
                                         <CardTitle>RSVP</CardTitle>
                                     </CardHeader>
                                     <CardContent>

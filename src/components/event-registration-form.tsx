@@ -81,9 +81,9 @@ export function EventRegistrationForm({ eventId, registrationOpen }: EventRegist
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full">Register</Button>
+                <Button className="w-full">Register for this Event</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-md md:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Register for Event</DialogTitle>
                     <DialogDescription>
@@ -92,98 +92,100 @@ export function EventRegistrationForm({ eventId, registrationOpen }: EventRegist
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="John Doe" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="john.doe@example.com" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="rollNo"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Roll No</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., 22A91A4201" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Phone Number</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="10-digit number" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="branch"
+                                render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Full Name</FormLabel>
+                                    <FormLabel>Branch</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
-                                        <Input placeholder="John Doe" {...field} />
+                                        <SelectTrigger>
+                                        <SelectValue placeholder="Select your branch" />
+                                        </SelectTrigger>
                                     </FormControl>
+                                    <SelectContent>
+                                        {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="yearOfStudy"
+                                render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel>Year of Study</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
-                                        <Input placeholder="john.doe@example.com" {...field} />
+                                        <SelectTrigger>
+                                        <SelectValue placeholder="Select your year" />
+                                        </SelectTrigger>
                                     </FormControl>
+                                    <SelectContent>
+                                        {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="rollNo"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Roll No</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., 22A91A4201" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Phone Number</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="10-digit number" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="branch"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Branch</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                    <SelectValue placeholder="Select your branch" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
-                                </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="yearOfStudy"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Year of Study</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                    <SelectValue placeholder="Select your year" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
-                                </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
+                                )}
+                            />
+                        </div>
                          <DialogFooter>
                             <DialogClose asChild>
                                 <Button type="button" variant="secondary">

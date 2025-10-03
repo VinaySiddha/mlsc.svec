@@ -53,6 +53,18 @@ export function EventForm({ event }: EventFormProps) {
     const { toast } = useToast();
     const uniqueId = useId();
 
+    const getInitialSpeakers = () => {
+        if (event && Array.isArray(event.speakers)) {
+            return event.speakers.map((s, i) => ({ 
+                id: `${uniqueId}-${i}`, 
+                name: s.name, 
+                image: undefined, 
+                existingImageUrl: s.image 
+            }));
+        }
+        return [];
+    };
+
     const form = useForm<FormValues>({
         resolver: zodResolver(eventFormSchema),
         defaultValues: {
@@ -63,7 +75,7 @@ export function EventForm({ event }: EventFormProps) {
             venue: event?.venue || "",
             image: undefined,
             registrationOpen: event?.registrationOpen || false,
-            speakers: event?.speakers?.map((s, i) => ({ id: `${uniqueId}-${i}`, name: s.name, image: undefined, existingImageUrl: s.image })) || [],
+            speakers: getInitialSpeakers(),
         },
     });
 
