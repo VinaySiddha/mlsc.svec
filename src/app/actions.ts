@@ -616,14 +616,13 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   }
 
   try {
-    const token = signToken(userPayload);
+    const token = await signToken(userPayload);
     setSessionCookie(token);
+    return { success: true };
   } catch (e) {
     console.error('Login action failed:', e);
     return { error: 'Failed to set session.' };
   }
-  
-  redirect('/admin');
 }
 
 export async function logoutAction() {

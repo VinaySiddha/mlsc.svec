@@ -49,21 +49,25 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       const result = await loginAction(values);
-      if (result?.error) {
+      if (result.error) {
         throw new Error(result.error);
       }
-    } catch (error) {
-      // The redirect in the server action will throw an error, which is expected.
-      // We only want to show an error toast if it's a specific login failure message.
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      if (!errorMessage.includes('NEXT_REDIRECT')) {
+      if (result.success) {
         toast({
-          variant: 'destructive',
-          title: 'Login Failed',
-          description: errorMessage,
+            title: 'Login Successful',
+            description: "You are being redirected to the admin dashboard.",
         });
-        setIsSubmitting(false);
+        router.push('/admin');
       }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: errorMessage,
+      });
+    } finally {
+        setIsSubmitting(false);
     }
   };
 

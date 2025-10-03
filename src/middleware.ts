@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth";
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const sessionToken = req.cookies.get('session')?.value;
-  const payload = sessionToken ? verifyToken(sessionToken) : null;
+  const payload = sessionToken ? await verifyToken(sessionToken) : null;
 
   // If trying to access admin routes without a valid token, redirect to login
   if (path.startsWith('/admin') && !payload) {
@@ -17,8 +17,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/admin', req.url));
   }
 
-  // If authenticated, attach user info to headers for Server Components
-  if (payload) {
+  // If authenticated on an admin route, attach user info to headers for Server Components
+  if (payload && path.startsWith('/admin')) {
     const requestHeaders = new Headers(req.headers);
     if(payload.role) requestHeaders.set("X-User-Role", payload.role);
     if(payload.username) requestHeaders.set("X-User-Username", payload.username);
