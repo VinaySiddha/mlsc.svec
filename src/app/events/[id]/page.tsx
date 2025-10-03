@@ -99,7 +99,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                     </div>
                 </section>
                 
-                <div className="container mx-auto p-4 -mt-16 md:-mt-8 relative z-10">
+                <div className="container mx-auto p-4 -mt-8 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-8">
                              <Card className="glass-card">
