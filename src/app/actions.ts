@@ -9,8 +9,8 @@ import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
-import { sendEventConfirmationEmail } from '@/ai/flows/send-event-confirmation-email';
-import { sendEventReminderEmail } from '@/ai/flows/send-event-reminder-email';
+import { sendEventConfirmationEmail, EventConfirmationEmailInput } from '@/ai/flows/send-event-confirmation-email';
+import { sendEventReminderEmail, EventReminderEmailInput } from '@/ai/flows/send-event-reminder-email';
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -36,31 +36,11 @@ import {
   runTransaction,
   setDoc,
   deleteDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import papaparse from 'papaparse';
 import { randomBytes } from 'crypto';
-
-// Schemas that were causing the build error are now defined here and not exported.
-const EventConfirmationEmailInputSchema = z.object({
-  name: z.string().describe("The user's name."),
-  email: z.string().email().describe("The user's email address."),
-  eventName: z.string().describe("The name of the event."),
-  eventDate: z.string().describe("The date of the event."),
-  eventLink: z.string().url().optional().describe("An optional link for the event (e.g., meeting or WhatsApp group)."),
-});
-type EventConfirmationEmailInput = z.infer<typeof EventConfirmationEmailInputSchema>;
-
-const EventReminderEmailInputSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  eventName: z.string(),
-  eventDate: z.string(),
-  eventTime: z.string(),
-  eventVenue: z.string(),
-  eventLink: z.string().url().optional(),
-});
-type EventReminderEmailInput = z.infer<typeof EventReminderEmailInputSchema>;
 
 
 const applicationSchema = z.object({
@@ -140,11 +120,11 @@ const eventFormSchema = z.object({
   date: z.date({ required_error: "An event date is required." }),
   time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
   venue: z.string().min(3, "Venue is required."),
+  eventLink: z.string().url("Please enter a valid URL.").optional().or(z.literal("")),
   bannerImage: z.any().optional(),
   listImage: z.any().optional(),
   registrationOpen: z.boolean().default(false),
   registrationDeadline: z.date().optional(),
-  eventLink: z.string().url("Please enter a valid URL for the event link.").optional().or(z.literal('')),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -623,58 +603,62 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
 export async function loginAction(values: z.infer<typeof loginSchema>) {
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
-    return { error: 'Invalid input.' };
+    return { error: "Invalid input." };
   }
 
   const { username, password } = parsed.data;
 
-  const SUPER_ADMIN_USERNAME = 'vinaysiddha';
-  const SUPER_ADMIN_PASSWORD = 'Vinay@15';
-  
+  const SUPER_ADMIN_USERNAME = "vinaysiddha";
+  const SUPER_ADMIN_PASSWORD = "Vinay@15";
+
   const panelCredentials = [
-      { username: 'gen_ai_panel', password: 'panel@genai', domain: 'gen_ai' },
-      { username: 'ds_ml_panel', password: 'panel@ds', domain: 'ds_ml' },
-      { username: 'azure_panel', password: 'panel@azure', domain: 'azure' },
-      { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
+    { username: "gen_ai_panel", password: "panel@genai", domain: "gen_ai" },
+    { username: "ds_ml_panel", password: "panel@ds", domain: "ds_ml" },
+    { username: "azure_panel", password: "panel@azure", domain: "azure" },
+    { username: "web_app_panel", password: "panel@web", domain: "web_app" },
   ];
 
   const JWT_SECRET = process.env.JWT_SECRET;
-
   if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET is not set in environment variables.');
+    console.error("JWT_SECRET is not set in environment variables.");
+    return { error: "Authentication configuration error." };
   }
-  
-  const secret = new TextEncoder().encode(JWT_SECRET);
 
-  let userPayload: { role: string; domain?: string; username: string };
+  let userPayload: { role: string; domain?: string; username: string } | null =
+    null;
 
   if (username === SUPER_ADMIN_USERNAME && password === SUPER_ADMIN_PASSWORD) {
-    userPayload = { role: 'admin', username };
+    userPayload = { role: "admin", username };
   } else {
-    const panel = panelCredentials.find(p => p.username === username && p.password === password);
+    const panel = panelCredentials.find(
+      (p) => p.username === username && p.password === password
+    );
     if (panel) {
-      userPayload = { role: 'panel', domain: panel.domain, username };
-    } else {
-      return { error: 'Invalid username or password.' };
+      userPayload = { role: "panel", domain: panel.domain, username };
     }
   }
 
-  const token = await new jose.SignJWT(userPayload)
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('1d')
-    .sign(secret);
+  if (userPayload) {
+    const secret = new TextEncoder().encode(JWT_SECRET);
+    const token = await new jose.SignJWT(userPayload)
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("1d")
+      .sign(secret);
 
-  cookies().set('session', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24, // 1 day
-    path: '/',
-    sameSite: 'strict',
-    priority: 'high',
-  });
+    cookies().set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+      sameSite: "strict",
+      priority: "high",
+    });
 
-  return { success: true };
+    return { success: true };
+  } else {
+    return { error: "Invalid username or password." };
+  }
 }
 
 export async function logoutAction() {
@@ -1332,7 +1316,7 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
             email: parsed.data.email,
             eventName: eventData.title,
             eventDate: eventData.date.toDate().toLocaleDateString(),
-            eventLink: eventData.eventLink || '',
+            eventLink: eventData.eventLink || undefined,
         };
         await sendEventConfirmationEmail(emailInput);
         
@@ -1372,7 +1356,7 @@ export async function sendReminderEmails(eventId: string) {
                     eventDate: eventData.date.toDate().toLocaleDateString(),
                     eventTime: eventData.time,
                     eventVenue: eventData.venue,
-                    eventLink: eventData.eventLink || '',
+                    eventLink: eventData.eventLink || undefined,
                 };
                 await sendEventReminderEmail(emailInput);
                 sentCount++;
@@ -1854,3 +1838,51 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
+
+// Notification Actions
+export async function getNotifications() {
+    try {
+        const notificationsCol = collection(db, 'notifications');
+        const q = query(notificationsCol, orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return { notifications: notifications as {id: string, message: string}[] };
+    } catch (e) {
+        console.error("Error fetching notifications:", e);
+        return { error: "Failed to fetch notifications." };
+    }
+}
+
+const notificationSchema = z.object({
+  message: z.string().min(1, "Notification message cannot be empty."),
+});
+
+export async function addNotification(values: z.infer<typeof notificationSchema>) {
+    const parsed = notificationSchema.safeParse(values);
+    if (!parsed.success) {
+        return { error: "Invalid notification data." };
+    }
+
+    try {
+        await addDoc(collection(db, 'notifications'), {
+            message: parsed.data.message,
+            createdAt: serverTimestamp(),
+        });
+        return { success: true };
+    } catch (e) {
+        console.error("Error adding notification:", e);
+        return { error: "Failed to add notification." };
+    }
+}
+
+export async function deleteNotification(id: string) {
+    try {
+        await deleteDoc(doc(db, 'notifications', id));
+        return { success: true };
+    } catch (e) {
+        console.error("Error deleting notification:", e);
+        return { error: "Failed to delete notification." };
+    }
+}
+
+    

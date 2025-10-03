@@ -1,4 +1,5 @@
 
+import { getNotifications } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
@@ -35,10 +36,8 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
-export default function Home() {
-  const notifications = [
-    "MLSC 3.0 results have been declared! Congratulations to all the new members.",
-  ];
+export default async function Home() {
+  const { notifications } = await getNotifications();
 
   const galleryImages = [
     { src: "/team1.jpg", alt: "MLSC Team at an event", hint: "group photo" },
@@ -110,7 +109,7 @@ export default function Home() {
       
       <main className="flex-1">
         {/* Notification Scroller */}
-        <NotificationTicker notifications={notifications} />
+        <NotificationTicker notifications={notifications?.map(n => n.message) || []} />
 
         {/* Hero Section */}
         <section 
@@ -267,3 +266,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
