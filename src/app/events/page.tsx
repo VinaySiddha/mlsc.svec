@@ -24,7 +24,7 @@ const staticEvents = [
     {
         id: 'static-3',
         title: 'Blue Day',
-        description: 'A special day celebrating our club\'s identity and community spirit, declared as MLSC Day.',
+        description: 'Blue Day',
         date: new Date('2025-01-25T00:00:00Z').toISOString(),
         listImage: '/blueday.png',
         registrationOpen: false,
@@ -32,7 +32,7 @@ const staticEvents = [
     {
         id: 'static-4',
         title: 'The Flask Edition',
-        description: 'An event focused on the Flask web framework, exploring its capabilities for building powerful web applications.',
+        description: 'The Flask Edition',
         date: new Date('2025-02-06T00:00:00Z').toISOString(),
         listImage: '/flask.png',
         registrationOpen: false,
@@ -40,7 +40,7 @@ const staticEvents = [
     {
         id: 'static-2',
         title: 'Web development BootCamp',
-        description: 'We are going organize an engaging Web Development workshop, providing students with hands-on experience in Basic Web technologies. Participants delved into the diverse functionalities of HTML,CSS and JavaScript, gaining valuable insights into Web technology. The workshop equipped attendees with practical skills and a mini project knowledge essential for the evolving landscape of modern IT infrastructure',
+        description: 'Web development BootCamp',
         date: new Date('2024-03-14T00:00:00Z').toISOString(),
         listImage: '/web.jpg',
         registrationOpen: false,
@@ -48,7 +48,7 @@ const staticEvents = [
     {
         id: 'static-1',
         title: 'Azure Cloud Workshop',
-        description: 'Our college recently organized an engaging Azure workshop, providing students with hands-on experience in cloud computing. Participants delved into the diverse functionalities of Azure services, gaining valuable insights into cloud technology. The workshop equipped attendees with practical skills essential for the evolving landscape of modern IT infrastructure.',
+        description: 'Azure Cloud Workshop',
         date: new Date('2023-10-18T00:00:00Z').toISOString(),
         listImage: '/azure.jpg',
         registrationOpen: false,
