@@ -48,14 +48,17 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setIsSubmitting(true);
     try {
-      await loginAction(values);
-      // The redirect is handled by the server action.
-      // We can show a toast and then redirect on the client as a fallback/indicator.
-      toast({
-          title: 'Login Successful',
-          description: "Redirecting to the admin dashboard...",
-      });
-      router.push('/admin');
+      const result = await loginAction(values);
+      if (result?.success) {
+        toast({
+            title: 'Login Successful',
+            description: "Redirecting to the admin dashboard...",
+        });
+        router.push('/admin');
+        router.refresh();
+      } else {
+        throw new Error(result?.error || 'An unknown error occurred.');
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       toast({
@@ -63,6 +66,7 @@ export default function LoginPage() {
         title: 'Login Failed',
         description: errorMessage,
       });
+    } finally {
       setIsSubmitting(false);
     }
   };

@@ -10,11 +10,10 @@ import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-s
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
 import { sendEventConfirmationEmail, EventConfirmationEmailInput } from '@/ai/flows/send-event-confirmation-email';
-import { UserPayload, signToken, setSessionCookie, clearSessionCookie } from '@/lib/auth';
+import { UserPayload, signToken, setSessionCookie } from '@/lib/auth';
 
 
 import {z} from 'zod';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { db, storage } from '@/lib/firebase';
 import { 
@@ -1749,5 +1748,7 @@ async function addInitialEvents() {
 }
 
 addInitialEvents().catch(console.error);
+
+    
 
     
