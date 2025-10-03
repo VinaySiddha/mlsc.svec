@@ -2,19 +2,11 @@
 'use server';
 
 import nodemailer from 'nodemailer';
+import type { EventReminderEmailInput } from '@/app/actions';
+
 
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Event reminder emails will not be sent.");
-}
-
-interface EventReminderEmailInput {
-  name: string;
-  email: string;
-  eventName: string;
-  eventDate: string;
-  eventTime: string;
-  eventVenue: string;
-  eventLink?: string;
 }
 
 export async function sendEventReminderEmail(input: EventReminderEmailInput): Promise<void> {

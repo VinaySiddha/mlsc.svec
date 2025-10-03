@@ -42,10 +42,14 @@ const eventFormSchema = z.object({
   date: z.date({ required_error: "An event date is required." }),
   time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
   venue: z.string().min(3, "Venue is required."),
+  eventLink: z.string().url("A valid URL is required for the event link.").optional().or(z.literal("")),
+  feedbackLink: z.string().url("A valid URL is required for the feedback link.").optional().or(z.literal("")),
   bannerImage: z.any().optional(),
   listImage: z.any().optional(),
+  highlightImages: z.any().optional(),
   registrationOpen: z.boolean().default(false),
   registrationDeadline: z.date().optional(),
+  registrationLimit: z.coerce.number().min(0, "Registration limit must be a positive number.").optional(),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -53,12 +57,13 @@ const eventFormSchema = z.object({
 type FormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
-    event?: (Omit<FormValues, 'speakers' | 'timeline' | 'bannerImage' | 'listImage'> & { 
+    event?: (Omit<FormValues, 'speakers' | 'timeline' | 'bannerImage' | 'listImage' | 'highlightImages'> & { 
         id: string, 
         speakers?: {name: string, title: string, image: string}[], 
         timeline?: {time: string, description: string}[],
         bannerImage?: string,
-        listImage?: string
+        listImage?: string,
+        highlightImages?: string[]
     });
 }
 
@@ -100,10 +105,14 @@ export function EventForm({ event }: EventFormProps) {
             date: event?.date ? new Date(event.date) : new Date(),
             time: event?.time || "",
             venue: event?.venue || "",
+            eventLink: event?.eventLink || "",
+            feedbackLink: event?.feedbackLink || "",
             bannerImage: undefined,
             listImage: undefined,
+            highlightImages: undefined,
             registrationOpen: event?.registrationOpen || false,
             registrationDeadline: event?.registrationDeadline ? new Date(event.registrationDeadline) : undefined,
+            registrationLimit: event?.registrationLimit || 0,
             speakers: getInitialSpeakers(),
             timeline: getInitialTimeline(),
         },
@@ -123,29 +132,32 @@ export function EventForm({ event }: EventFormProps) {
         setIsSubmitting(true);
         const formData = new FormData();
         
-        formData.append('title', values.title);
-        formData.append('description', values.description);
-        formData.append('date', values.date.toISOString());
-        formData.append('time', values.time);
-        formData.append('venue', values.venue);
-        formData.append('registrationOpen', String(values.registrationOpen));
-        if (values.registrationDeadline) {
-            formData.append('registrationDeadline', values.registrationDeadline.toISOString());
-        }
+        // Append all simple key-value pairs
+        Object.entries(values).forEach(([key, value]) => {
+            if (key === 'date' || key === 'registrationDeadline') {
+                if (value) formData.append(key, (value as Date).toISOString());
+            } else if (!['speakers', 'timeline', 'bannerImage', 'listImage', 'highlightImages'].includes(key)) {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, String(value));
+                }
+            }
+        });
         
-        if (values.bannerImage && values.bannerImage.length > 0) {
-            formData.append('bannerImage', values.bannerImage[0]);
-        }
-        if (values.listImage && values.listImage.length > 0) {
-            formData.append('listImage', values.listImage[0]);
+        // Handle file uploads
+        if (values.bannerImage && values.bannerImage.length > 0) formData.append('bannerImage', values.bannerImage[0]);
+        if (values.listImage && values.listImage.length > 0) formData.append('listImage', values.listImage[0]);
+        if (values.highlightImages) {
+            for (let i = 0; i < values.highlightImages.length; i++) {
+                formData.append('highlightImages', values.highlightImages[i]);
+            }
         }
         
         const speakersToSave = values.speakers?.map((s, index) => {
             if (s.image && s.image.length > 0) {
                 formData.append(`speaker_image_${index}`, s.image[0]);
-                return { name: s.name, title: s.title, image: '' }; 
             }
-            return { name: s.name, title: s.title, image: s.existingImageUrl || '' };
+            // The existing image URL is handled on the server side
+            return { name: s.name, title: s.title, existingImageUrl: s.existingImageUrl };
         }) || [];
         formData.append('speakers', JSON.stringify(speakersToSave));
         
@@ -372,7 +384,55 @@ export function EventForm({ event }: EventFormProps) {
                         <PlusCircle className="mr-2 h-4 w-4"/> Add Speaker
                     </Button>
                 </div>
+                
+                 <div className="space-y-4">
+                    <FormLabel>Event Links</FormLabel>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="eventLink"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Event Link</FormLabel>
+                                    <FormControl><Input placeholder="e.g., WhatsApp/Meet link" {...field} /></FormControl>
+                                    <FormDescription>This link is sent in confirmation/reminder emails.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="feedbackLink"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Feedback Link</FormLabel>
+                                    <FormControl><Input placeholder="e.g., Google Form link" {...field} /></FormControl>
+                                    <FormDescription>This link is sent in post-event feedback emails.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
 
+                <div className="space-y-4">
+                     <FormLabel>Event Gallery</FormLabel>
+                     <FormField
+                        control={form.control}
+                        name="highlightImages"
+                        render={({ field: { onChange, value, ...rest } }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <Input type="file" accept="image/*" multiple onChange={(e) => onChange(e.target.files)} {...rest} />
+                                </FormControl>
+                                <FormDescription>
+                                    {event?.highlightImages && event.highlightImages.length > 0 && <span className="text-xs">Current gallery has {event.highlightImages.length} images. Uploading new images will replace them.</span>}
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
                     <FormField
@@ -451,6 +511,18 @@ export function EventForm({ event }: EventFormProps) {
                         </FormItem>
                         )}
                     />
+                     <FormField
+                        control={form.control}
+                        name="registrationLimit"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Registration Limit (Optional)</FormLabel>
+                                <FormControl><Input type="number" placeholder="e.g., 100" {...field} /></FormControl>
+                                <FormDescription>Set to 0 for unlimited registrations.</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="registrationOpen"
@@ -487,5 +559,3 @@ export function EventForm({ event }: EventFormProps) {
         </Form>
     );
 }
-
-    

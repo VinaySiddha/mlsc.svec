@@ -81,13 +81,6 @@ export async function sendInvitationEmail(input: InvitationEmailInput): Promise<
                 Complete Your Profile
             </a>
         </div>
-
-        <!-- WhatsApp Group -->
-        <div style="text-align: center; margin: 30px 0;">
-            <p style="font-size: 16px; font-weight: 500;">📢 Stay Updated!</p>
-            <p style="font-size: 15px; font-weight: 400;">Join our WhatsApp group to receive important announcements and updates directly.</p>
-            <a href="https://chat.whatsapp.com/K5uNcrJjW892QN7QnInZmX?mode=ac_t" target="_blank" style="display: inline-block; background-color: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Join WhatsApp Group</a>
-        </div>
         
         <p style="font-size: 16px; font-weight: 400;">We can't wait for you to join us and start building the future of tech together.</p>
         <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>The MLSC Hiring Team</strong></p>

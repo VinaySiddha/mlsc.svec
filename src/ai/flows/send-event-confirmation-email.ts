@@ -2,17 +2,11 @@
 'use server';
 
 import nodemailer from 'nodemailer';
+import type { EventConfirmationEmailInput } from '@/app/actions';
+
 
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Event emails will not be sent.");
-}
-
-interface EventConfirmationEmailInput {
-  name: string;
-  email: string;
-  eventName: string;
-  eventDate: string;
-  eventLink?: string;
 }
 
 export async function sendEventConfirmationEmail(input: EventConfirmationEmailInput): Promise<void> {

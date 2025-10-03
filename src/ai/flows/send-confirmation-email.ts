@@ -76,13 +76,6 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
         Our team is currently reviewing applications. If you are shortlisted, you will receive further communication with instructions for the next stage.
       </p>
 
-      <!-- WhatsApp Group -->
-      <div style="text-align: center; margin: 30px 0;">
-        <p style="font-size: 16px; font-weight: 500;">📢 Stay Updated!</p>
-        <p style="font-size: 15px; font-weight: 400;">Join our WhatsApp group to receive important announcements and updates directly.</p>
-        <a href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank" style="display: inline-block; background-color: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Join WhatsApp Group</a>
-      </div>
-
       <p style="font-size: 16px; font-weight: 400;">We appreciate your interest in becoming part of MLSC.</p>
       <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>MLSC Hiring Team</strong></p>
     </div>
@@ -93,7 +86,6 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
       <ul style="padding-left: 20px; margin: 0;">
         <li>This email is intended for the recipient only. Do not share or forward without permission.</li>
         <li>Your data is protected in compliance with our privacy policies.</li>
-        <li>Be sure to follow updates in whatsapp group for any changes or announcements.</li>
         <li>Please save your Reference ID for tracking application status.</li>
         <li>All communications will be sent via the registered email address.</li>
         <li>Ensure to check your spam/junk folder for any missed communications.</li>

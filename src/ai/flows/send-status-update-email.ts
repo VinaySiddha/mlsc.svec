@@ -104,7 +104,6 @@ function getEmailContent(status: string, name: string, referenceId: string): { s
             <ul style="padding-left: 20px; margin: 0;">
                 <li>This email is intended for the recipient only. Do not share or forward without permission.</li>
                 <li>Your data is protected in compliance with our privacy policies.</li>
-                <li>Follow WhatsApp group updates for any changes or announcements.</li>
                 <li>Please save your Reference ID for tracking application status.</li>
                 <li>All communications will be sent via the registered email address.</li>
                 <li>Check your spam/junk folder for missed communications.</li>
