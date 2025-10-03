@@ -9,7 +9,8 @@ import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
-
+import { sendEventConfirmationEmail, EventConfirmationEmailInput } from '@/ai/flows/send-event-confirmation-email';
+import { sendEventReminderEmail, EventReminderEmailInput } from '@/ai/flows/send-event-reminder-email';
 
 import {z} from 'zod';
 import { cookies } from 'next/headers';
@@ -119,6 +120,7 @@ const eventFormSchema = z.object({
   listImage: z.any().optional(),
   registrationOpen: z.boolean().default(false),
   registrationDeadline: z.date().optional(),
+  eventLink: z.string().url("Please enter a valid URL for the event link.").optional().or(z.literal('')),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -1298,6 +1300,16 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
             ...parsed.data,
             registeredAt: new Date().toISOString(),
         });
+
+        // Send confirmation email
+        const eventData = eventSnap.data();
+        await sendEventConfirmationEmail({
+            name: parsed.data.name,
+            email: parsed.data.email,
+            eventName: eventData.title,
+            eventDate: eventData.date.toDate().toLocaleDateString(),
+            eventLink: eventData.eventLink || '',
+        });
         
         return { success: true };
 
@@ -1306,6 +1318,53 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
         return { error: 'An unexpected error occurred during registration.' };
     }
 }
+
+export async function sendReminderEmails(eventId: string) {
+    try {
+        const eventRef = doc(db, 'events', eventId);
+        const eventSnap = await getDoc(eventRef);
+
+        if (!eventSnap.exists()) {
+            return { error: "Event not found." };
+        }
+
+        const eventData = eventSnap.data();
+        const registrationsRef = collection(db, 'events', eventId, 'registrations');
+        const registrationsSnapshot = await getDocs(registrationsRef);
+
+        if (registrationsSnapshot.empty) {
+            return { success: true, count: 0 };
+        }
+
+        let sentCount = 0;
+        for (const registrationDoc of registrationsSnapshot.docs) {
+            const registration = registrationDoc.data();
+            try {
+                await sendEventReminderEmail({
+                    name: registration.name,
+                    email: registration.email,
+                    eventName: eventData.title,
+                    eventDate: eventData.date.toDate().toLocaleDateString(),
+                    eventTime: eventData.time,
+                    eventVenue: eventData.venue,
+                    eventLink: eventData.eventLink || '',
+                });
+                sentCount++;
+            } catch (emailError) {
+                console.error(`Failed to send reminder to ${registration.email}:`, emailError);
+            }
+        }
+        
+        return { success: true, count: sentCount };
+    } catch (error) {
+        console.error("Error sending reminder emails:", error);
+        if (error instanceof Error) {
+            return { error: `Failed to send reminders: ${error.message}` };
+        }
+        return { error: "An unexpected error occurred." };
+    }
+}
+
 
 export async function getEventRegistrations(eventId: string) {
     try {
@@ -1769,6 +1828,3 @@ export async function deleteTeamMember(id: string) {
         return { error: "Failed to delete team member." };
     }
 }
-
-
-    

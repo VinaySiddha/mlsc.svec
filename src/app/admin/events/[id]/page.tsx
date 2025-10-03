@@ -1,34 +1,100 @@
 
-import { getEventRegistrations, getEventById } from "@/app/actions";
+'use client';
+
+import { getEventRegistrations, getEventById, sendReminderEmails } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
-import { headers } from "next/headers";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Loader2, Send } from "lucide-react";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { format } from "date-fns";
+import { useEffect, useState, useTransition } from "react";
 
-export default async function EventRegistrationsPage({ params }: { params: { id: string } }) {
-    const headersList = headers();
-    const userRole = headersList.get('X-User-Role');
+interface Registration {
+    id: string;
+    name: string;
+    email: string;
+    rollNo: string;
+    phone: string;
+    branch: string;
+    yearOfStudy: string;
+    registeredAt: string;
+}
 
-    if (userRole !== 'admin') {
-        redirect('/admin');
-    }
+interface EventData {
+    id: string;
+    title: string;
+    [key: string]: any;
+}
+
+export default function EventRegistrationsPage({ params }: { params: { id: string } }) {
+    const [event, setEvent] = useState<EventData | null>(null);
+    const [registrations, setRegistrations] = useState<Registration[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSending, startTransition] = useTransition();
+    const { toast } = useToast();
     
     const eventId = params.id;
-    const eventData = await getEventById(eventId);
-    
-    if (!eventData || !eventData.event) {
-        notFound();
+
+    useEffect(() => {
+        async function loadData() {
+            setIsLoading(true);
+            try {
+                const eventResult = await getEventById(eventId);
+                if (eventResult.error || !eventResult.event) {
+                    throw new Error(eventResult.error || "Event not found");
+                }
+                setEvent(eventResult.event);
+
+                const registrationsResult = await getEventRegistrations(eventId);
+                if (registrationsResult.error) {
+                    throw new Error(registrationsResult.error);
+                }
+                setRegistrations(registrationsResult.registrations);
+
+            } catch (e: any) {
+                setError(e.message);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        loadData();
+    }, [eventId]);
+
+    const handleSendReminders = () => {
+        startTransition(async () => {
+            try {
+                const result = await sendReminderEmails(eventId);
+                if (result.error) throw new Error(result.error);
+                toast({
+                    title: "Emails Sent!",
+                    description: `Reminder emails have been sent to ${result.count} participant(s).`
+                });
+            } catch (e: any) {
+                toast({
+                    variant: 'destructive',
+                    title: "Failed to Send Reminders",
+                    description: e.message || "An unknown error occurred."
+                });
+            }
+        });
     }
-    
-    const { registrations, error } = await getEventRegistrations(eventId);
+
+    if (isLoading) {
+        return (
+             <div className="flex flex-col min-h-screen items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <p className="text-muted-foreground mt-2">Loading registrations...</p>
+             </div>
+        )
+    }
 
     if (error) {
-        return <div>Error loading registrations: {error}</div>
+        notFound();
     }
 
     return (
@@ -41,15 +107,21 @@ export default async function EventRegistrationsPage({ params }: { params: { id:
                             <h1 className="text-2xl font-bold tracking-tight text-foreground">
                                 Event Registrations
                             </h1>
-                            <p className="text-sm text-muted-foreground">{eventData.event.title}</p>
+                            <p className="text-sm text-muted-foreground">{event?.title}</p>
                         </div>
                     </div>
-                     <Button asChild variant="glass">
-                        <Link href="/admin/events">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Events
-                        </Link>
-                    </Button>
+                     <div className="flex items-center gap-2">
+                        <Button onClick={handleSendReminders} variant="outline" disabled={isSending}>
+                            {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                            Send Reminders
+                        </Button>
+                        <Button asChild variant="glass">
+                            <Link href="/admin/events">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back to Events
+                            </Link>
+                        </Button>
+                     </div>
                 </div>
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">

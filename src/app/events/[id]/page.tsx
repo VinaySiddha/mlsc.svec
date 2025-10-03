@@ -189,5 +189,3 @@ export default async function EventDetailPage({ params }: { params: { id: string
         </div>
     );
 }
-
-    
