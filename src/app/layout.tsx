@@ -121,7 +121,7 @@ export default function RootLayout({
                  <Link href="/terms-and-conditions" className="hover:text-primary transition-colors">Terms & Conditions</Link>
                  <a href="https://stats.uptimerobot.com/uM9ROqrUmD" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Status</a>
               </div>
-              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
+              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved.</p>
           </div>
       </footer>
         <Toaster />
