@@ -119,7 +119,7 @@ export default function RootLayout({
               <div className="flex justify-center gap-4 mb-2">
                  <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                  <Link href="/terms-and-conditions" className="hover:text-primary transition-colors">Terms & Conditions</Link>
-                 <Link href="/status" className="hover:text-primary transition-colors">Status</Link>
+                 <a href="https://stats.uptimerobot.com/uM9ROqrUmD" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Status</a>
               </div>
               <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved. Developed by Vinay Siddha.</p>
           </div>
