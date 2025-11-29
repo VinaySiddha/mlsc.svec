@@ -12,10 +12,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SummarizeResumeInputSchema = z.object({
-  resumeDataUri: z
+  resumeDataURI: z
     .string()
     .describe(
-      'A resume document, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Corrected typo here
+      "A resume document, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type SummarizeResumeInput = z.infer<typeof SummarizeResumeInputSchema>;
@@ -39,7 +39,7 @@ You will be provided with a resume in data URI format.
 
 Your goal is to summarize the resume, extracting the key skills, experiences and qualifications of the candidate.
 
-Resume: {{media url=resumeDataUri}}`,
+Resume: {{media url=resumeDataURI}}`,
 });
 
 const summarizeResumeFlow = ai.defineFlow(
