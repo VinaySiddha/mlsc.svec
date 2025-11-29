@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import {
@@ -2072,7 +2073,15 @@ export async function fetchAndCacheJobs() {
         // Always fetch from Firestore to return data
         const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
         const jobsSnapshot = await getDocs(jobsQuery);
-        const jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const jobs = jobsSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return { 
+                id: doc.id, 
+                ...data,
+                // Ensure posted_on is a string for client-side rendering
+                posted_on: data.posted_on.toDate().toISOString(),
+            };
+        });
         
         return { jobs: jobs as any[] };
 
@@ -2084,7 +2093,14 @@ export async function fetchAndCacheJobs() {
             const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
             const jobsSnapshot = await getDocs(jobsQuery);
             if (!jobsSnapshot.empty) {
-                const jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const jobs = jobsSnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        posted_on: data.posted_on.toDate().toISOString(),
+                    };
+                });
                 return { jobs: jobs as any[], error: `Could not refresh job listings: ${errorMessage}. Displaying cached data.` };
             }
         } catch (cacheError) {
@@ -2094,5 +2110,3 @@ export async function fetchAndCacheJobs() {
          return { jobs: [], error: errorMessage };
     }
 }
-
-    
