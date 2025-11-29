@@ -39,6 +39,7 @@ import {
   setDoc,
   deleteDoc,
   serverTimestamp,
+  Timestamp,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import papaparse from 'papaparse';
@@ -1990,5 +1991,106 @@ export async function deleteNotification(id: string) {
     } catch (e) {
         console.error("Error deleting notification:", e);
         return { error: "Failed to delete notification." };
+    }
+}
+
+// Job Listings Actions
+const CACHE_DURATION_HOURS = 6;
+
+async function fetchFromJSearchAPI() {
+    const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
+    if (!JSEARCH_API_KEY) {
+        throw new Error("JSearch API key is not configured.");
+    }
+    const url = 'https://jsearch.p.rapidapi.com/search?query=developer&country=IN&num_pages=1';
+    const options = {
+        method: 'GET',
+        headers: {
+            'X-RapidAPI-Key': JSEARCH_API_KEY,
+            'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
+        }
+    };
+
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        console.error("JSearch API error:", await response.text());
+        throw new Error("Failed to fetch data from the job API.");
+    }
+    const result = await response.json();
+    return result.data;
+}
+
+export async function fetchAndCacheJobs() {
+    try {
+        const metaRef = doc(db, 'jobs_meta', 'lastFetch');
+        const metaDoc = await getDoc(metaRef);
+        const now = new Date();
+        
+        let shouldFetch = true;
+        if (metaDoc.exists()) {
+            const lastFetch = metaDoc.data().timestamp.toDate();
+            const hoursSinceLastFetch = (now.getTime() - lastFetch.getTime()) / (1000 * 60 * 60);
+            if (hoursSinceLastFetch < CACHE_DURATION_HOURS) {
+                shouldFetch = false;
+            }
+        }
+        
+        if (shouldFetch) {
+            console.log("Cache is stale or empty. Fetching new jobs from API...");
+            const newJobsData = await fetchFromJSearchAPI();
+            const jobsRef = collection(db, "jobs");
+            const batch = writeBatch(db);
+
+            // Fetch existing job links to avoid duplicates
+            const existingJobsSnapshot = await getDocs(query(jobsRef, orderBy('created_at', 'desc'), limit(200)));
+            const existingLinks = new Set(existingJobsSnapshot.docs.map(d => d.data().apply_link));
+
+            let addedCount = 0;
+            for (const job of newJobsData) {
+                if (job.job_apply_link && !existingLinks.has(job.job_apply_link)) {
+                    const newJobRef = doc(jobsRef); // auto-generate ID
+                    batch.set(newJobRef, {
+                        title: job.job_title || "N/A",
+                        company: job.employer_name || "N/A",
+                        location: job.job_city || "N/A",
+                        type: job.job_employment_type || "Full-time",
+                        description: job.job_description || "No description provided.",
+                        skills: job.job_required_skills || [],
+                        apply_link: job.job_apply_link,
+                        posted_on: new Date(job.job_posted_at_timestamp * 1000),
+                        created_at: serverTimestamp()
+                    });
+                    addedCount++;
+                }
+            }
+            
+            await batch.commit();
+            await setDoc(metaRef, { timestamp: Timestamp.fromDate(now) });
+            console.log(`Successfully added ${addedCount} new jobs.`);
+        }
+
+        // Always fetch from Firestore to return data
+        const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
+        const jobsSnapshot = await getDocs(jobsQuery);
+        const jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        return { jobs: jobs as any[] };
+
+    } catch (error) {
+        console.error("Error in fetchAndCacheJobs:", error);
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while fetching jobs.";
+        // Fallback: try to read from cache even if API fails
+        try {
+            const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
+            const jobsSnapshot = await getDocs(jobsQuery);
+            if (!jobsSnapshot.empty) {
+                const jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                return { jobs: jobs as any[], error: `Could not refresh job listings: ${errorMessage}. Displaying cached data.` };
+            }
+        } catch (cacheError) {
+             // If both API and cache fail
+            return { jobs: [], error: errorMessage };
+        }
+         return { jobs: [], error: errorMessage };
     }
 }
