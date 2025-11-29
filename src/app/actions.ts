@@ -291,7 +291,7 @@ export async function submitApplication(formData: FormData) {
         const base64 = Buffer.from(buffer).toString('base64');
         const resumeDataUri = `data:${file.type};base64,${base64}`;
 
-        const summarizationInput: SummarizeResumeInput = {resumeDataUri};
+        const summarizationInput: SummarizeResumeInput = {resumeDataURI : resumeDataUri};
         const result = await summarizeResume(summarizationInput);
         
         if (docRef) {
@@ -2000,7 +2000,7 @@ const CACHE_DURATION_HOURS = 6;
 async function fetchFromJSearchAPI() {
     const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
     if (!JSEARCH_API_KEY) {
-        throw new Error("JSearch API key is not configured.");
+        throw new Error("JSearch API key is not configured. Please set the JSEARCH_API_KEY environment variable.");
     }
     const url = 'https://jsearch.p.rapidapi.com/search?query=developer&country=IN&num_pages=1';
     const options = {
@@ -2094,3 +2094,5 @@ export async function fetchAndCacheJobs() {
          return { jobs: [], error: errorMessage };
     }
 }
+
+    
