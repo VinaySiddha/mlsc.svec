@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Home, Users, Calendar, LogIn, Menu, Send, Group, Book, Code } from 'lucide-react';
+import { Loader2, Home, Users, Calendar, LogIn, Menu, Send, Group, Book, Code, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
@@ -86,6 +86,7 @@ export default function LoginPage() {
                  <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
              ))}
              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+             <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">Status</a>
           </nav>
           <div className="flex items-center gap-4">
              <Button asChild variant="glass" size="sm" className="hidden lg:flex">
@@ -113,6 +114,11 @@ export default function LoginPage() {
                                   <Link href="/projects" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
                                       <Code className="h-5 w-5" /> Projects
                                   </Link>
+                              </SheetClose>
+                              <SheetClose asChild>
+                                  <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
+                                      <Activity className="h-5 w-5" /> Status
+                                  </a>
                               </SheetClose>
                                <SheetClose asChild>
                                   <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { format } from "date-fns";
-import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks, UserCheck, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks, UserCheck, Image as ImageIcon, Activity } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CountdownTimer } from "@/components/countdown-timer";
@@ -83,6 +83,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                         <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
                     ))}
                     <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+                    <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">Status</a>
                 </nav>
                 <div className="flex items-center gap-4">
                     <Button asChild variant="glass" size="sm" className="hidden lg:flex">
@@ -111,6 +112,11 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                             <Code className="h-5 w-5" /> Projects
                                         </Link>
                                     </SheetClose>
+                                     <SheetClose asChild>
+                                          <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
+                                              <Activity className="h-5 w-5" /> Status
+                                          </a>
+                                      </SheetClose>
                                     <SheetClose asChild>
                                         <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
                                             <Send className="h-5 w-5" /> Apply
@@ -146,7 +152,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                 <CardTitle>Archived Event</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-muted-foreground">This event has passed. Check out our current events for more opportunities!</p>
+                                <p className="text-muted-foreground">{event.description}</p>
                             </CardContent>
                         </Card>
                     ) : (

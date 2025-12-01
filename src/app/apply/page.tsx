@@ -4,7 +4,7 @@ import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group, Book, Code } from "lucide-react";
+import { FileSearch, Home, LogIn, Menu, Clock, Users, Calendar, Mic, Send, Group, Book, Code, Activity } from "lucide-react";
 import Link from "next/link";
 
 const navLinks = [
@@ -34,6 +34,7 @@ export default async function ApplyPage() {
                  <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
              ))}
              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
+             <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">Status</a>
           </nav>
           <div className="flex items-center gap-4">
             <Button asChild variant="glass" size="sm" className="hidden lg:flex">
@@ -61,6 +62,11 @@ export default async function ApplyPage() {
                                   <Link href="/projects" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
                                       <Code className="h-5 w-5" /> Projects
                                   </Link>
+                              </SheetClose>
+                              <SheetClose asChild>
+                                  <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
+                                      <Activity className="h-5 w-5" /> Status
+                                  </a>
                               </SheetClose>
                                <SheetClose asChild>
                                   <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
@@ -113,12 +119,6 @@ export default async function ApplyPage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
-          <div className="container mx-auto text-center text-sm text-muted-foreground">
-              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved.</p>
-          </div>
-      </footer>
     </div>
   );
 }

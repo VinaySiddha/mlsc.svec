@@ -1,9 +1,10 @@
+
 import { fetchAndCacheJobs } from "@/app/actions";
 import { JobCard, JobCardSkeleton } from "@/components/job-card";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, Briefcase } from "lucide-react";
+import { Home as HomeIcon, Users, Calendar, Group, LogIn, Send, Menu, Book, Code, Briefcase, Activity } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -63,6 +64,7 @@ export default function JobsPage() {
              ))}
              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
              <Link href="/jobs" className="text-foreground hover:text-foreground transition-colors">Jobs</Link>
+             <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">Status</a>
 
           </nav>
           <div className="flex items-center gap-4">
@@ -96,6 +98,11 @@ export default function JobsPage() {
                                   <Link href="/jobs" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
                                       <Briefcase className="h-5 w-5" /> Jobs
                                   </Link>
+                              </SheetClose>
+                              <SheetClose asChild>
+                                  <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
+                                      <Activity className="h-5 w-5" /> Status
+                                  </a>
                               </SheetClose>
                                <SheetClose asChild>
                                   <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
