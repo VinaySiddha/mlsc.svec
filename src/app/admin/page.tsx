@@ -7,7 +7,7 @@ import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, 
 import Link from "next/link";
 import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
-import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
+import { AdminAnalyticsSection } from "@/components/admin-analytics-section";
 import { headers } from "next/headers";
 import {
   Menubar,
@@ -29,7 +29,7 @@ export default async function AdminPage() {
   const headersList = headers();
   const userRole = headersList.get('X-User-Role');
   const panelDomain = headersList.get('X-Panel-Domain') || undefined;
-  
+
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
     ds_ml: "Data Science & ML",
@@ -50,7 +50,7 @@ export default async function AdminPage() {
             </h1>
           </Link>
           <div className="flex items-center gap-4">
-             <Menubar>
+            <Menubar>
               <MenubarMenu>
                 <MenubarTrigger>File</MenubarTrigger>
                 <MenubarContent>
@@ -60,23 +60,23 @@ export default async function AdminPage() {
                     </Link>
                   </MenubarItem>
                   <MenubarItem asChild>
-                     <Link href="/admin/applications">
-                       View Applications <MenubarShortcut>⌘A</MenubarShortcut>
+                    <Link href="/admin/applications">
+                      View Applications <MenubarShortcut>⌘A</MenubarShortcut>
                     </Link>
                   </MenubarItem>
                   <MenubarSeparator />
-                   <MenubarItem disabled>Print</MenubarItem>
+                  <MenubarItem disabled>Print</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
-               {userRole === 'admin' && (
+              {userRole === 'admin' && (
                 <>
                   <MenubarMenu>
                     <MenubarTrigger>Edit</MenubarTrigger>
-                     <MenubarContent>
+                    <MenubarContent>
                       <MenubarSub>
                         <MenubarSubTrigger>Management</MenubarSubTrigger>
                         <MenubarSubContent>
-                           <MenubarItem asChild>
+                          <MenubarItem asChild>
                             <Link href="/admin/events">Manage Events</Link>
                           </MenubarItem>
                           <MenubarItem asChild>
@@ -90,7 +90,7 @@ export default async function AdminPage() {
                       <MenubarSub>
                         <MenubarSubTrigger>Data</MenubarSubTrigger>
                         <MenubarSubContent>
-                           <MenubarItem asChild>
+                          <MenubarItem asChild>
                             <Link href="/admin/internal-registration">Internal Registration</Link>
                           </MenubarItem>
                           <MenubarItem asChild>
@@ -100,20 +100,20 @@ export default async function AdminPage() {
                       </MenubarSub>
                     </MenubarContent>
                   </MenubarMenu>
-                   <MenubarMenu>
+                  <MenubarMenu>
                     <MenubarTrigger>View</MenubarTrigger>
                     <MenubarContent>
-                       <MenubarCheckboxItem checked disabled>Always Show Full URLs</MenubarCheckboxItem>
-                       <MenubarSeparator />
-                       <MenubarItem asChild inset>
-                         <Link href="/admin/analytics">Hiring Analytics</Link>
+                      <MenubarCheckboxItem checked disabled>Always Show Full URLs</MenubarCheckboxItem>
+                      <MenubarSeparator />
+                      <MenubarItem asChild inset>
+                        <Link href="/admin/analytics">Hiring Analytics</Link>
                       </MenubarItem>
-                       <MenubarItem asChild inset>
-                         <Link href="/admin/interview-analytics">Interview Analytics</Link>
+                      <MenubarItem asChild inset>
+                        <Link href="/admin/interview-analytics">Interview Analytics</Link>
                       </MenubarItem>
                     </MenubarContent>
                   </MenubarMenu>
-                   <MenubarMenu>
+                  <MenubarMenu>
                     <MenubarTrigger>Profiles</MenubarTrigger>
                     <MenubarContent>
                       <MenubarRadioGroup value="admin">
@@ -122,27 +122,27 @@ export default async function AdminPage() {
                       </MenubarRadioGroup>
                       <MenubarSeparator />
                       <MenubarItem inset>
-                         <LogoutButton />
+                        <LogoutButton />
                       </MenubarItem>
                     </MenubarContent>
                   </MenubarMenu>
                 </>
-               )}
-                {userRole === 'panel' && (
-                  <MenubarMenu>
-                    <MenubarTrigger>Profiles</MenubarTrigger>
-                     <MenubarContent>
-                       <MenubarRadioGroup value="panel">
-                        <MenubarRadioItem value="admin" disabled>Admin</MenubarRadioItem>
-                        <MenubarRadioItem value="panel">Panel</MenubarRadioItem>
-                      </MenubarRadioGroup>
-                      <MenubarSeparator />
-                      <MenubarItem inset>
-                         <LogoutButton />
-                      </MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu>
-                )}
+              )}
+              {userRole === 'panel' && (
+                <MenubarMenu>
+                  <MenubarTrigger>Profiles</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarRadioGroup value="panel">
+                      <MenubarRadioItem value="admin" disabled>Admin</MenubarRadioItem>
+                      <MenubarRadioItem value="panel">Panel</MenubarRadioItem>
+                    </MenubarRadioGroup>
+                    <MenubarSeparator />
+                    <MenubarItem inset>
+                      <LogoutButton />
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              )}
             </Menubar>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default async function AdminPage() {
                     </Button>
                   </CardContent>
                 </Card>
-                 <Card className="glass-card flex flex-col justify-between">
+                <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <UploadCloud />
@@ -233,20 +233,20 @@ export default async function AdminPage() {
                   </CardContent>
                 </Card>
                 <Card className="glass-card flex flex-col justify-between">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                        <UserCheck />
-                        Interview Analytics
-                        </CardTitle>
-                        <CardDescription className="text-xs text-muted-foreground">
-                        Analytics for candidates who completed their interview.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Button asChild variant="glass" size="sm">
-                          <Link href="/admin/interview-analytics">View Interview Analytics</Link>
-                        </Button>
-                    </CardContent>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <UserCheck />
+                      Interview Analytics
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Analytics for candidates who completed their interview.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild variant="glass" size="sm">
+                      <Link href="/admin/interview-analytics">View Interview Analytics</Link>
+                    </Button>
+                  </CardContent>
                 </Card>
                 <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
@@ -264,7 +264,7 @@ export default async function AdminPage() {
                     </Button>
                   </CardContent>
                 </Card>
-                 <Card className="glass-card flex flex-col justify-between">
+                <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <Megaphone />
@@ -289,13 +289,13 @@ export default async function AdminPage() {
               <DeadlineSetter />
             </div>
           )}
-          
-           {userRole === 'panel' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold tracking-tight">Domain Analytics</h2>
-                <AdminDashboardAnalytics panelDomain={panelDomain} />
-              </div>
-            )}
+
+          {userRole === 'panel' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold tracking-tight">Domain Analytics</h2>
+              <AdminAnalyticsSection panelDomain={panelDomain} />
+            </div>
+          )}
         </div>
       </main>
     </div>

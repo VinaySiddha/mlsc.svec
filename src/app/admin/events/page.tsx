@@ -34,7 +34,7 @@ export default async function EventsPage() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
-                         <Button asChild variant="glass">
+                        <Button asChild variant="glass">
                             <Link href="/admin/events/new">
                                 <PlusCircle className="mr-2 h-4 w-4" />
                                 Create Event
@@ -59,7 +59,7 @@ export default async function EventsPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <EventsTable events={events} />
+                            <EventsTable events={events || []} />
                         </CardContent>
                     </Card>
                 </div>

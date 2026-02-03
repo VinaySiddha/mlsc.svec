@@ -52,9 +52,9 @@ const formSchema = z.object({
   rollNo: z.string().min(1, "Roll number is required."),
   branch: z.string({ required_error: "Please select your branch." }),
   section: z.string({ required_error: "Please select your section." }),
-  yearOfStudy: z.string({ required_error: "Please select your year of study."}),
-  cgpa: z.string().min(1, "CGPA is required.").refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 10, { message: "Please enter a valid CGPA between 0 and 10."}),
-  backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number."}),
+  yearOfStudy: z.string({ required_error: "Please select your year of study." }),
+  cgpa: z.string().min(1, "CGPA is required.").refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 10, { message: "Please enter a valid CGPA between 0 and 10." }),
+  backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number." }),
   technicalDomain: z.string({ required_error: "Please select a technical domain." }).min(1, "Please select a technical domain."),
   nonTechnicalDomain: z.string({ required_error: "Please select a non-technical domain." }).min(1, "Please select a non-technical domain."),
   linkedin: z.string().url("Please enter a valid LinkedIn URL.").optional().or(z.literal('')),
@@ -64,7 +64,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function InternalRegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<{ referenceId: string | null} | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<{ referenceId: string | null } | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -85,15 +85,15 @@ export function InternalRegistrationForm() {
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     setSubmissionResult(null);
-    
+
     try {
       const result = await internalRegister(values);
 
       if (result.error) {
         throw new Error(result.error);
       }
-      
-      setSubmissionResult({ referenceId: result.referenceId });
+
+      setSubmissionResult({ referenceId: result.referenceId || null });
       toast({
         title: "Candidate Registered!",
         description: "The candidate has been added to the system.",
@@ -121,44 +121,44 @@ export function InternalRegistrationForm() {
 
   if (submissionResult) {
     return (
-       <Card className="bg-background">
-          <CardHeader>
-             <CardTitle className="flex items-center gap-2 text-2xl">
-              <ThumbsUp className="h-8 w-8 text-green-500" />
-              <span>Candidate Registered!</span>
-            </CardTitle>
-            <CardDescription>
-              A new application has been created successfully.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-             <Alert>
-                <AlertTitle className="font-bold">Important: Share the Reference ID</AlertTitle>
-                <AlertDescription>
-                  Please copy and share the Reference ID with the candidate. They will need it to check their application status.
-                </AlertDescription>
-             </Alert>
+      <Card className="bg-background">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <ThumbsUp className="h-8 w-8 text-green-500" />
+            <span>Candidate Registered!</span>
+          </CardTitle>
+          <CardDescription>
+            A new application has been created successfully.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Alert>
+            <AlertTitle className="font-bold">Important: Share the Reference ID</AlertTitle>
+            <AlertDescription>
+              Please copy and share the Reference ID with the candidate. They will need it to check their application status.
+            </AlertDescription>
+          </Alert>
 
-            {submissionResult.referenceId && (
-              <div>
-                <Label htmlFor="referenceId" className="text-sm font-medium text-foreground">Generated Reference ID</Label>
-                <div className="flex items-center gap-2 mt-2">
-                  <Input 
-                    id="referenceId"
-                    readOnly 
-                    value={submissionResult.referenceId} 
-                    className="bg-muted font-mono text-base"
-                  />
-                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
-                    <ClipboardCopy className="h-5 w-5" />
-                    <span className="sr-only">Copy Reference ID</span>
-                  </Button>
-                </div>
+          {submissionResult.referenceId && (
+            <div>
+              <Label htmlFor="referenceId" className="text-sm font-medium text-foreground">Generated Reference ID</Label>
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  id="referenceId"
+                  readOnly
+                  value={submissionResult.referenceId}
+                  className="bg-muted font-mono text-base"
+                />
+                <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
+                  <ClipboardCopy className="h-5 w-5" />
+                  <span className="sr-only">Copy Reference ID</span>
+                </Button>
               </div>
-            )}
-             <Button onClick={() => setSubmissionResult(null)} variant="outline">Register another candidate</Button>
-          </CardContent>
-        </Card>
+            </div>
+          )}
+          <Button onClick={() => setSubmissionResult(null)} variant="outline">Register another candidate</Button>
+        </CardContent>
+      </Card>
     )
   }
 
@@ -220,66 +220,66 @@ export function InternalRegistrationForm() {
               )}
             />
             <FormField
-                control={form.control}
-                name="branch"
-                render={({ field }) => (
+              control={form.control}
+              name="branch"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Branch *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Branch *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <SelectTrigger>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select your branch" />
-                        </SelectTrigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                      {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
                     </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  </Select>
+                  <FormMessage />
                 </FormItem>
-                )}
+              )}
             />
             <FormField
-                control={form.control}
-                name="section"
-                render={({ field }) => (
+              control={form.control}
+              name="section"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Section *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Section *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <SelectTrigger>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select your section" />
-                        </SelectTrigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        {sections.map(section => <SelectItem key={section} value={section}>{section}</SelectItem>)}
+                      {sections.map(section => <SelectItem key={section} value={section}>{section}</SelectItem>)}
                     </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  </Select>
+                  <FormMessage />
                 </FormItem>
-                )}
+              )}
             />
             <FormField
-                control={form.control}
-                name="yearOfStudy"
-                render={({ field }) => (
+              control={form.control}
+              name="yearOfStudy"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Current Year of Study *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Current Year of Study *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <SelectTrigger>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select your year" />
-                        </SelectTrigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                      {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
                     </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  </Select>
+                  <FormMessage />
                 </FormItem>
-                )}
+              )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="cgpa"
               render={({ field }) => (
@@ -306,7 +306,7 @@ export function InternalRegistrationForm() {
               )}
             />
           </div>
-          
+
           <div className="space-y-8">
             <FormField
               control={form.control}
@@ -366,18 +366,18 @@ export function InternalRegistrationForm() {
           </div>
 
           <FormField
-              control={form.control}
-              name="linkedin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>LinkedIn Profile (Link)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            control={form.control}
+            name="linkedin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>LinkedIn Profile (Link)</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
             {isSubmitting ? (

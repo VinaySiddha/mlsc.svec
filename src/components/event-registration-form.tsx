@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Clock, Users } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
-const branches = ["AIML", "CAI", "CSE", "CST", "ECE", "Others"];
+const branches = ["AIML", "CAI", "CIVIL", "CSDS", "CSE", "CST", "ECE", "ECT", "EEE", "MECH"];
 const years = ["1st", "2nd", "3rd", "4th"];
 
 const registrationSchema = z.object({
@@ -42,7 +42,7 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
     const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
-    
+
     const isLimitReached = (limit && currentCount != null) ? currentCount >= limit : false;
 
     useEffect(() => {
@@ -87,10 +87,10 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
             setIsSubmitting(false);
         }
     };
-    
+
     if (isLimitReached) {
         return (
-             <Button disabled className="w-full">
+            <Button disabled className="w-full">
                 <Users className="mr-2 h-4 w-4" />
                 Registrations Full
             </Button>
@@ -177,44 +177,44 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                 control={form.control}
                                 name="branch"
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Branch</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                        <SelectValue placeholder="Select your branch" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem>
+                                        <FormLabel>Branch</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select your branch" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
                             <FormField
                                 control={form.control}
                                 name="yearOfStudy"
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Year of Study</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                        <SelectValue placeholder="Select your year" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem>
+                                        <FormLabel>Year of Study</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select your year" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
                         </div>
-                         <DialogFooter>
+                        <DialogFooter>
                             <DialogClose asChild>
                                 <Button type="button" variant="secondary">
                                     Cancel

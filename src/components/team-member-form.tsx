@@ -20,10 +20,10 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const teamMemberSchema = z.object({
-  name: z.string().min(2, "Name is required."),
-  email: z.string().email("A valid email is required."),
-  role: z.string().min(2, "Role is required."),
-  categoryId: z.string({ required_error: "Please select a category." }),
+    name: z.string().min(2, "Name is required."),
+    email: z.string().email("A valid email is required."),
+    role: z.string().min(2, "Role is required."),
+    categoryId: z.string({ required_error: "Please select a category." }),
 });
 
 const teamMemberUpdateSchema = teamMemberSchema.extend({
@@ -52,11 +52,12 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
 
     const isUpdateMode = !!member;
     const schema = isUpdateMode ? teamMemberUpdateSchema : teamMemberSchema;
-    
-    type FormValues = z.infer<typeof schema>;
+
+    // Use the superset type for the form to allow accessing image/linkedin fields safely
+    type FormValues = UpdateFormValues;
 
     const form = useForm<FormValues>({
-        resolver: zodResolver(schema),
+        resolver: zodResolver(schema) as any,
         defaultValues: isUpdateMode ? {
             ...member,
             image: undefined, // Clear image field on update form
@@ -66,12 +67,13 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
             role: "",
             email: "",
             categoryId: "",
+            linkedin: "",
         },
     });
 
     const onSubmit = async (values: FormValues) => {
         setIsSubmitting(true);
-        
+
         const formData = new FormData();
         Object.entries(values).forEach(([key, value]) => {
             if (key === 'image' && value instanceof FileList && value.length > 0) {
@@ -99,7 +101,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                 title: isUpdateMode ? "Member Updated!" : "Invitation Sent!",
                 description: `Team member "${(values as InviteFormValues).name}" has been saved successfully.`,
             });
-            
+
             router.push(redirectUrl);
             router.refresh();
 
@@ -114,13 +116,13 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
             setIsSubmitting(false);
         }
     };
-    
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                 {/* Fields editable by admin or when creating new */}
+                {/* Fields editable by admin or when creating new */}
                 <div className={cn("space-y-6")}>
-                     <FormField
+                    <FormField
                         control={form.control}
                         name="name"
                         render={({ field }) => (
@@ -146,20 +148,20 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                             </FormItem>
                         )}
                     />
-                     <FormField
+                    <FormField
                         control={form.control}
                         name="role"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Role</FormLabel>
-                                 <FormControl>
-                                     <Input placeholder="e.g., Club Lead" {...field} disabled={!isAdmin}/>
-                                 </FormControl>
+                                <FormControl>
+                                    <Input placeholder="e.g., Club Lead" {...field} disabled={!isAdmin} />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                     <FormField
+                    <FormField
                         control={form.control}
                         name="categoryId"
                         render={({ field }) => (
@@ -184,19 +186,19 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                         )}
                     />
                 </div>
-                
-                 {/* Fields for updating image and linkedin, only shown in update mode */}
+
+                {/* Fields for updating image and linkedin, only shown in update mode */}
                 {isUpdateMode && (
                     <div className="space-y-6">
-                         <FormField
+                        <FormField
                             control={form.control}
                             name="image"
                             render={({ field: { onChange, value, ...rest } }) => (
                                 <FormItem>
                                     <FormLabel>New Profile Image (Optional)</FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            type="file" 
+                                        <Input
+                                            type="file"
                                             accept="image/*"
                                             onChange={(e) => onChange(e.target.files)}
                                             {...rest}
@@ -214,7 +216,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                                 <FormItem>
                                     <FormLabel>LinkedIn Profile URL</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://linkedin.com/in/..." {...field as any} />
+                                        <Input placeholder="https://linkedin.com/in/..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -222,7 +224,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
                         />
                     </div>
                 )}
-                
+
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (
                         <>

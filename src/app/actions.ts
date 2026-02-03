@@ -15,19 +15,19 @@ import { sendEventReminderEmail } from '@/ai/flows/send-event-reminder-email';
 import { sendFeedbackEmail } from '@/ai/flows/send-feedback-email';
 
 
-import {z} from 'zod';
+import { z } from 'zod';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
 import { db, storage } from '@/lib/firebase';
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  getDoc, 
-  doc, 
-  updateDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  query,
+  where,
   orderBy,
   limit,
   startAfter,
@@ -54,7 +54,7 @@ const applicationSchema = z.object({
   rollNo: z.string().min(1, 'Roll number is required.'),
   branch: z.string({ required_error: 'Please select your branch.' }),
   section: z.string({ required_error: 'Please select your section.' }),
-  yearOfStudy: z.string({ required_error: 'Please select your year of study.'}),
+  yearOfStudy: z.string({ required_error: 'Please select your year of study.' }),
   cgpa: z.string().min(1, 'CGPA is required.'),
   backlogs: z.string().min(1, 'Number of backlogs is required.'),
   joinReason: z.string().min(20, 'Please tell us why you want to join.'),
@@ -105,17 +105,17 @@ export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema
 
 
 const speakerSchema = z.object({
-    id: z.string().optional(),
-    name: z.string().min(2, "Speaker name is required."),
-    title: z.string().min(2, "Speaker title is required."),
-    image: z.any().optional(),
-    existingImageUrl: z.string().optional(),
+  id: z.string().optional(),
+  name: z.string().min(2, "Speaker name is required."),
+  title: z.string().min(2, "Speaker title is required."),
+  image: z.any().optional(),
+  existingImageUrl: z.string().optional(),
 });
 
 const timelineEntrySchema = z.object({
-    id: z.string().optional(),
-    time: z.string().min(1, "Time is required."),
-    description: z.string().min(3, "Description is required."),
+  id: z.string().optional(),
+  time: z.string().min(1, "Time is required."),
+  description: z.string().min(3, "Description is required."),
 });
 
 const eventFormSchema = z.object({
@@ -138,12 +138,12 @@ const eventFormSchema = z.object({
 
 
 const registrationSchema = z.object({
-    name: z.string().min(2, 'Name is required.'),
-    email: z.string().email('Please enter a valid email address.'),
-    rollNo: z.string().min(1, 'Roll number is required.'),
-    phone: z.string().regex(/^\d{10}$/, 'Please enter a valid 10-digit phone number.'),
-    branch: z.string({ required_error: "Please select your branch." }),
-    yearOfStudy: z.string({ required_error: "Please select your year of study." }),
+  name: z.string().min(2, 'Name is required.'),
+  email: z.string().email('Please enter a valid email address.'),
+  rollNo: z.string().min(1, 'Roll number is required.'),
+  phone: z.string().regex(/^\d{10}$/, 'Please enter a valid 10-digit phone number.'),
+  branch: z.string({ required_error: "Please select your branch." }),
+  yearOfStudy: z.string({ required_error: "Please select your year of study." }),
 });
 
 const teamCategorySchema = z.object({
@@ -153,22 +153,22 @@ const teamCategorySchema = z.object({
 });
 
 const teamMemberSchema = z.object({
-    name: z.string().min(2, "Name is required."),
-    email: z.string().email("A valid email is required."),
-    role: z.string().min(2, "Role is required."),
-    categoryId: z.string({ required_error: "Please select a category." }),
+  name: z.string().min(2, "Name is required."),
+  email: z.string().email("A valid email is required."),
+  role: z.string().min(2, "Role is required."),
+  categoryId: z.string({ required_error: "Please select a category." }),
 });
 
 const teamMemberUpdateSchema = teamMemberSchema.extend({
-    image: z.any().optional(),
-    linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
+  image: z.any().optional(),
+  linkedin: z.string().url("A valid LinkedIn URL is required.").or(z.literal('')),
 });
 
 
 const completeOnboardingSchema = z.object({
-    token: z.string(),
-    image: z.any().optional(),
-    linkedin: z.string().url("LinkedIn URL is required."),
+  token: z.string(),
+  image: z.any().optional(),
+  linkedin: z.string().url("LinkedIn URL is required."),
 });
 
 export interface EventConfirmationEmailInput {
@@ -206,7 +206,7 @@ function generateReferenceId() {
 
 export async function submitApplication(formData: FormData) {
   const file = formData.get('resume') as File;
-  
+
   const values = Object.fromEntries(formData.entries());
   delete values.resume;
 
@@ -214,7 +214,7 @@ export async function submitApplication(formData: FormData) {
 
   if (!parsed.success) {
     console.error('Form validation failed:', parsed.error.flatten().fieldErrors);
-    return {error: 'Invalid form data. Please check your inputs.'};
+    return { error: 'Invalid form data. Please check your inputs.' };
   }
 
   const { ...applicationData } = parsed.data;
@@ -265,25 +265,25 @@ export async function submitApplication(formData: FormData) {
       },
       remarks: '',
     };
-    
+
     // 1. Immediately save the application to get a reference ID for the user
     docRef = await addDoc(applicationsRef, { ...newApplication });
     await updateDoc(docRef, { firestoreId: docRef.id });
 
     // Send confirmation email in background
-     (async () => {
-        try {
-            const emailInput: ConfirmationEmailInput = { 
-                name: newApplication.name, 
-                email: newApplication.email, 
-                referenceId 
-            };
-            await sendConfirmationEmail(emailInput);
-        } catch (emailError) {
-            console.error(`Email sending failed for ${referenceId}:`, emailError);
-        }
+    (async () => {
+      try {
+        const emailInput: ConfirmationEmailInput = {
+          name: newApplication.name,
+          email: newApplication.email,
+          referenceId
+        };
+        await sendConfirmationEmail(emailInput);
+      } catch (emailError) {
+        console.error(`Email sending failed for ${referenceId}:`, emailError);
+      }
     })();
-    
+
     // Process resume and return result to user
     let summaryResult = null;
     if (file && file.size > 0) {
@@ -292,20 +292,20 @@ export async function submitApplication(formData: FormData) {
         const base64 = Buffer.from(buffer).toString('base64');
         const resumeDataUri = `data:${file.type};base64,${base64}`;
 
-        const summarizationInput: SummarizeResumeInput = {resumeDataURI : resumeDataUri};
+        const summarizationInput: SummarizeResumeInput = { resumeDataURI: resumeDataUri };
         const result = await summarizeResume(summarizationInput);
-        
+
         if (docRef) {
-            await updateDoc(docRef, { resumeSummary: result.summary });
-            summaryResult = result.summary;
-            console.log(`Successfully generated summary for ${referenceId}`);
+          await updateDoc(docRef, { resumeSummary: result.summary });
+          summaryResult = result.summary;
+          console.log(`Successfully generated summary for ${referenceId}`);
         }
       } catch (aiError) {
-          console.error(`AI summarization failed for ${referenceId}:`, aiError);
-          summaryResult = "AI summary generation failed. We'll process your resume manually.";
-          if (docRef) {
-              await updateDoc(docRef, { resumeSummary: "AI summary failed." });
-          }
+        console.error(`AI summarization failed for ${referenceId}:`, aiError);
+        summaryResult = "AI summary generation failed. We'll process your resume manually.";
+        if (docRef) {
+          await updateDoc(docRef, { resumeSummary: "AI summary failed." });
+        }
       }
     }
 
@@ -318,7 +318,7 @@ export async function submitApplication(formData: FormData) {
         error: `An error occurred during application submission: ${error.message}`,
       };
     }
-    return {error: 'An unexpected error occurred. Please try again.'};
+    return { error: 'An unexpected error occurred. Please try again.' };
   }
 }
 
@@ -380,7 +380,7 @@ export async function internalRegister(values: z.infer<typeof internalApplicatio
       aboutClub: '',
       anythingElse: '',
     };
-    
+
     const docRef = await addDoc(applicationsRef, { ...newApplication });
     await updateDoc(docRef, { firestoreId: docRef.id });
 
@@ -418,7 +418,7 @@ function buildFilteredQuery(params: {
   } else if (domain) {
     constraints.push(where('technicalDomain', '==', domain));
   }
-  
+
   if (status && status !== 'all') {
     constraints.push(where('status', '==', status));
   }
@@ -428,12 +428,12 @@ function buildFilteredQuery(params: {
   if (sortByRecommended === 'true') {
     constraints.push(where('isRecommended', '==', true));
   }
-  
+
   if (search) {
-      const searchTermLower = search.toLowerCase();
-      const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
-      // Use exact match for searching
-      constraints.push(where(searchField, '==', searchTermLower));
+    const searchTermLower = search.toLowerCase();
+    const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
+    // Use exact match for searching
+    constraints.push(where(searchField, '==', searchTermLower));
   }
 
 
@@ -444,6 +444,12 @@ function buildFilteredQuery(params: {
   return q;
 }
 
+
+import { Application, TeamMember, TeamCategory } from '@/types';
+
+// ... (existing imports)
+
+// ... (previous code)
 
 export async function getApplications(params: {
   panelDomain?: string;
@@ -458,13 +464,18 @@ export async function getApplications(params: {
   page?: string;
   limit?: string;
   lastVisibleId?: string;
-  // Add flags for fetching all results or only attended
   fetchAll?: boolean;
   attendedOnly?: boolean;
-}) {
+}): Promise<{
+  applications: Application[];
+  totalApplications?: number; // Optional as not always returned
+  totalPages?: number;
+  currentPage?: number;
+  hasNextPage?: boolean;
+}> {
   const { search, sortByPerformance, sortByRecommended, page = '1', limit: limitStr = '10', lastVisibleId, fetchAll = false } = params;
   const limitNumber = parseInt(limitStr, 10);
-  
+
   let baseQuery = buildFilteredQuery(params);
   let finalQuery: Query<DocumentData>;
 
@@ -485,7 +496,7 @@ export async function getApplications(params: {
   // If fetchAll is true, bypass pagination and get all documents
   if (fetchAll) {
     const querySnapshot = await getDocs(finalQuery);
-    const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
+    const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() } as Application));
     return {
       applications,
       totalApplications: applications.length,
@@ -493,20 +504,20 @@ export async function getApplications(params: {
       currentPage: 1,
     };
   }
-  
+
   // For pagination, we fetch one more than the limit to see if there's a next page
   const paginatedQuery = query(finalQuery, limit(limitNumber + 1));
   let queryWithCursor = paginatedQuery;
 
   if (page && parseInt(page, 10) > 1 && lastVisibleId) {
-      const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
-      if (lastVisibleDoc.exists()) {
-        queryWithCursor = query(paginatedQuery, startAfter(lastVisibleDoc));
-      }
+    const lastVisibleDoc = await getDoc(doc(db, 'applications', lastVisibleId));
+    if (lastVisibleDoc.exists()) {
+      queryWithCursor = query(paginatedQuery, startAfter(lastVisibleDoc));
+    }
   }
 
   const querySnapshot = await getDocs(queryWithCursor);
-  const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
+  const applications = querySnapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() } as Application));
 
   const hasNextPage = applications.length > limitNumber;
   // Remove the extra document we fetched for the check
@@ -522,14 +533,14 @@ export async function getApplications(params: {
 }
 
 
-export async function getApplicationById(id: string) {
-    const q = query(collection(db, 'applications'), where('id', '==', id), limit(1));
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-        return null;
-    }
-    const docSnap = querySnapshot.docs[0];
-    return { firestoreId: docSnap.id, ...docSnap.data() };
+export async function getApplicationById(id: string): Promise<Application | null> {
+  const q = query(collection(db, 'applications'), where('id', '==', id), limit(1));
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) {
+    return null;
+  }
+  const docSnap = querySnapshot.docs[0];
+  return { firestoreId: docSnap.id, ...docSnap.data() } as Application;
 }
 
 export async function getPanels() {
@@ -555,18 +566,18 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
     const { id, ...reviewData } = parsed.data;
     let originalStatus = '';
     let applicantInfo: { name: string; email: string; } | null = null;
-    
-    await runTransaction(db, async (transaction) => {
+
+    const txResult = await runTransaction(db, async (transaction) => {
       const applicationQueryResult = await getDocs(query(collection(db, 'applications'), where('id', '==', id), limit(1)));
       if (applicationQueryResult.empty) {
         throw new Error('Application not found.');
       }
-      
+
       const appDocRef = applicationQueryResult.docs[0].ref;
-      const appData = applicationQueryResult.docs[0].data();
-      
-      originalStatus = appData.status;
-      applicantInfo = { name: appData.name, email: appData.email };
+      const appData = applicationQueryResult.docs[0].data() as Application;
+
+      const originalStatus = appData.status;
+      const applicantInfo = { name: appData.name, email: appData.email };
 
       // Automated status update logic
       if (reviewData.isRecommended) {
@@ -580,14 +591,16 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
         ratings: reviewData.ratings,
         remarks: reviewData.remarks,
       });
+
+      return { originalStatus, applicantInfo };
     });
 
     // Send email only if the status has changed
-    if (applicantInfo && reviewData.status !== originalStatus) {
+    if (txResult.applicantInfo && reviewData.status !== txResult.originalStatus) {
       // Do not await this, let it run in the background
       sendStatusUpdateEmail({
-        name: applicantInfo.name,
-        email: applicantInfo.email,
+        name: txResult.applicantInfo.name,
+        email: txResult.applicantInfo.email,
         status: reviewData.status,
         referenceId: id,
       }).catch(emailError => {
@@ -618,12 +631,12 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   const SUPER_ADMIN_USERNAME = 'vinaysiddha';
   const SUPER_ADMIN_PASSWORD = 'Vinay@15';
-  
+
   const panelCredentials = [
-      { username: 'gen_ai_panel', password: 'panel@genai', domain: 'gen_ai' },
-      { username: 'ds_ml_panel', password: 'panel@ds', domain: 'ds_ml' },
-      { username: 'azure_panel', password: 'panel@azure', domain: 'azure' },
-      { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
+    { username: 'gen_ai_panel', password: 'panel@genai', domain: 'gen_ai' },
+    { username: 'ds_ml_panel', password: 'panel@ds', domain: 'ds_ml' },
+    { username: 'azure_panel', password: 'panel@azure', domain: 'azure' },
+    { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
   ];
 
   const JWT_SECRET = process.env.JWT_SECRET;
@@ -632,9 +645,9 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     console.error('JWT_SECRET is not set in environment variables.');
     return { error: 'Authentication configuration error.' };
   }
-  
+
   let userPayload: { role: string; domain?: string; username: string } | null = null;
-  
+
   if (username === SUPER_ADMIN_USERNAME && password === SUPER_ADMIN_PASSWORD) {
     userPayload = { role: 'admin', username };
   } else {
@@ -653,7 +666,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
       .setIssuedAt()
       .setExpirationTime('1d')
       .sign(secret);
-      
+
     cookies().set('session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -662,7 +675,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
       sameSite: 'strict',
       priority: 'high',
     });
-    
+
     return { success: true };
   } else {
     return { error: 'Invalid username or password.' };
@@ -703,11 +716,11 @@ export async function bulkUpdateStatus(filters: {
   if (!newStatus) {
     return { error: 'No status provided for bulk update.' };
   }
-  
+
   try {
     let q = buildFilteredQuery(filters);
     const querySnapshot = await getDocs(q);
-    
+
     if (querySnapshot.empty) {
       return { success: true, updatedCount: 0, sentEmailCount: 0 };
     }
@@ -727,7 +740,7 @@ export async function bulkUpdateStatus(filters: {
         });
       }
     });
-    
+
     await batch.commit();
 
     // After successfully committing the batch, send emails in the background.
@@ -761,15 +774,15 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
   }
 
   const hiredRollNos = new Set(hiredCandidates.map(c => c.rollNo.toLowerCase()));
-  
+
   try {
     const applicationsRef = collection(db, 'applications');
     const allApplicationsSnapshot = await getDocs(applicationsRef);
-    
+
     const batch = writeBatch(db);
     const applicantsToEmail: StatusUpdateEmailInput[] = [];
     const membersToInvite: { email: string, name: string, role: string, categoryId: string }[] = [];
-    
+
     // Find the default "Technical Team" category
     const categoriesRef = collection(db, 'teamCategories');
     const q = query(categoriesRef, where('name', '==', 'Technical Team'), limit(1));
@@ -783,7 +796,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
     for (const doc of allApplicationsSnapshot.docs) {
       const app = doc.data();
       const isHired = hiredRollNos.has(app.rollNo_lowercase);
-      
+
       if (isHired) {
         if (app.status !== 'Hired') {
           batch.update(doc.ref, { status: 'Hired' });
@@ -821,7 +834,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
           console.error(`Failed to invite team member ${member.email}:`, inviteError);
         }
       }
-      
+
       // Notify Rejected Applicants
       for (const applicant of applicantsToEmail) {
         try {
@@ -831,7 +844,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
         }
       }
     })();
-    
+
     return { success: true, updatedCount: applicantsToEmail.length + membersToInvite.length };
 
   } catch (error) {
@@ -844,46 +857,46 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
 }
 
 export async function exportHiredToCsv() {
-    try {
-        const q = query(collection(db, 'applications'), where('status', '==', 'Hired'));
-        const querySnapshot = await getDocs(q);
+  try {
+    const q = query(collection(db, 'applications'), where('status', '==', 'Hired'));
+    const querySnapshot = await getDocs(q);
 
-        if (querySnapshot.empty) {
-            return { error: 'No hired candidates found to export.' };
-        }
-
-        const hiredData = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            // Flatten nested objects for easier CSV export
-            return {
-                referenceId: data.id,
-                name: data.name,
-                email: data.email,
-                phone: data.phone,
-                rollNo: data.rollNo,
-                branch: data.branch,
-                section: data.section,
-                yearOfStudy: data.yearOfStudy,
-                cgpa: data.cgpa,
-                backlogs: data.backlogs,
-                technicalDomain: data.technicalDomain,
-                nonTechnicalDomain: data.nonTechnicalDomain,
-                linkedin: data.linkedin,
-                submittedAt: data.submittedAt,
-                overallRating: data.ratings?.overall || 0,
-            };
-        });
-
-        const csv = papaparse.unparse(hiredData);
-        return { success: true, csvData: csv };
-
-    } catch (error) {
-        console.error('Error exporting hired candidates:', error);
-        if (error instanceof Error) {
-            return { error: `Export failed: ${error.message}` };
-        }
-        return { error: 'An unexpected error occurred during export.' };
+    if (querySnapshot.empty) {
+      return { error: 'No hired candidates found to export.' };
     }
+
+    const hiredData = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      // Flatten nested objects for easier CSV export
+      return {
+        referenceId: data.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        rollNo: data.rollNo,
+        branch: data.branch,
+        section: data.section,
+        yearOfStudy: data.yearOfStudy,
+        cgpa: data.cgpa,
+        backlogs: data.backlogs,
+        technicalDomain: data.technicalDomain,
+        nonTechnicalDomain: data.nonTechnicalDomain,
+        linkedin: data.linkedin,
+        submittedAt: data.submittedAt,
+        overallRating: data.ratings?.overall || 0,
+      };
+    });
+
+    const csv = papaparse.unparse(hiredData);
+    return { success: true, csvData: csv };
+
+  } catch (error) {
+    console.error('Error exporting hired candidates:', error);
+    if (error instanceof Error) {
+      return { error: `Export failed: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred during export.' };
+  }
 }
 
 
@@ -893,7 +906,7 @@ export async function getAnalyticsData(panelDomain?: string) {
     if (panelDomain) {
       constraints.push(where('technicalDomain', '==', panelDomain));
     }
-    
+
     const applicationsRef = collection(db, 'applications');
     const baseQuery = query(applicationsRef, ...constraints);
 
@@ -905,7 +918,7 @@ export async function getAnalyticsData(panelDomain?: string) {
     const attendedQuery = query(baseQuery, where('interviewAttended', '==', true));
     const attendedSnapshot = await getCountFromServer(attendedQuery);
     const attendedCount = attendedSnapshot.data().count;
-    
+
     // 3. Get all applications within the scope to aggregate various counts
     const allApplicationsSnapshot = await getDocs(baseQuery);
     const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
@@ -925,12 +938,12 @@ export async function getAnalyticsData(panelDomain?: string) {
       azure: "Azure Cloud",
       web_app: "Web & App Development",
     };
-    
+
     const nonTechDomainLabels: Record<string, string> = {
-        event_management: "Event Management",
-        public_relations: "Public Relations",
-        media_marketing: "Media Marketing",
-        creativity: "Creativity",
+      event_management: "Event Management",
+      public_relations: "Public Relations",
+      media_marketing: "Media Marketing",
+      creativity: "Creativity",
     };
 
     applications.forEach(app => {
@@ -946,12 +959,12 @@ export async function getAnalyticsData(panelDomain?: string) {
       if (techDomainName) {
         techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
       }
-      
+
       // Non-Technical Domain
       const nonTechDomainKey = app.nonTechnicalDomain;
       const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
       if (nonTechDomainName) {
-          nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
+        nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
       }
 
       // Branch
@@ -979,7 +992,7 @@ export async function getAnalyticsData(panelDomain?: string) {
       branchData,
       yearData,
     };
-    
+
   } catch (error) {
     console.error("Error fetching analytics data:", error);
     if (error instanceof Error) {
@@ -998,7 +1011,7 @@ export async function getInterviewAnalyticsData() {
     // 1. Get total applications count for the scope (which is already attended)
     const totalSnapshot = await getCountFromServer(baseQuery);
     const totalApplications = totalSnapshot.data().count; // This is the total number of attended interviews
-    
+
     // 2. Get all applications within the scope to aggregate various counts
     const allApplicationsSnapshot = await getDocs(baseQuery);
     const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
@@ -1018,12 +1031,12 @@ export async function getInterviewAnalyticsData() {
       azure: "Azure Cloud",
       web_app: "Web & App Development",
     };
-    
+
     const nonTechDomainLabels: Record<string, string> = {
-        event_management: "Event Management",
-        public_relations: "Public Relations",
-        media_marketing: "Media Marketing",
-        creativity: "Creativity",
+      event_management: "Event Management",
+      public_relations: "Public Relations",
+      media_marketing: "Media Marketing",
+      creativity: "Creativity",
     };
 
     applications.forEach(app => {
@@ -1039,12 +1052,12 @@ export async function getInterviewAnalyticsData() {
       if (techDomainName) {
         techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
       }
-      
+
       // Non-Technical Domain
       const nonTechDomainKey = app.nonTechnicalDomain;
       const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
       if (nonTechDomainName) {
-          nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
+        nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
       }
 
       // Branch
@@ -1072,7 +1085,7 @@ export async function getInterviewAnalyticsData() {
       branchData,
       yearData,
     };
-    
+
   } catch (error) {
     console.error("Error fetching interview analytics data:", error);
     if (error instanceof Error) {
@@ -1113,854 +1126,857 @@ export async function getDeadline() {
 
 
 async function uploadFile(file: File, path: string): Promise<string> {
-    const storageRef = ref(storage, path);
-    const buffer = await file.arrayBuffer();
-    await uploadBytes(storageRef, buffer, { contentType: file.type });
-    return getDownloadURL(storageRef);
+  const storageRef = ref(storage, path);
+  const buffer = await file.arrayBuffer();
+  await uploadBytes(storageRef, buffer, { contentType: file.type });
+  return getDownloadURL(storageRef);
 }
 
 export async function createEvent(formData: FormData) {
-    const values = Object.fromEntries(formData.entries());
-    const bannerImageFile = formData.get('bannerImage') as File | null;
-    const listImageFile = formData.get('listImage') as File | null;
-    const highlightImageFiles = formData.getAll('highlightImages') as File[];
-    
-    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
-        ...values,
-        date: new Date(values.date as string),
-        registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
-        registrationOpen: values.registrationOpen === 'true',
-        registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
-    });
+  const values = Object.fromEntries(formData.entries());
+  const bannerImageFile = formData.get('bannerImage') as File | null;
+  const listImageFile = formData.get('listImage') as File | null;
+  const highlightImageFiles = formData.getAll('highlightImages') as File[];
 
-    if (!parsed.success) {
-        console.error("Event form validation failed:", parsed.error.flatten().fieldErrors);
-        return { error: 'Invalid event data.' };
+  const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
+    ...values,
+    date: new Date(values.date as string),
+    registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
+    registrationOpen: values.registrationOpen === 'true',
+    registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
+  });
+
+  if (!parsed.success) {
+    console.error("Event form validation failed:", parsed.error.flatten().fieldErrors);
+    return { error: 'Invalid event data.' };
+  }
+
+  try {
+    const docId = doc(collection(db, 'events')).id; // Generate ID upfront
+    let bannerImageUrl = '';
+    if (bannerImageFile && bannerImageFile.size > 0) {
+      bannerImageUrl = await uploadFile(bannerImageFile, `events/${docId}/banner`);
+    }
+    let listImageUrl = '';
+    if (listImageFile && listImageFile.size > 0) {
+      listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
     }
 
-    try {
-        const docId = doc(collection(db, 'events')).id; // Generate ID upfront
-        let bannerImageUrl = '';
-        if (bannerImageFile && bannerImageFile.size > 0) {
-            bannerImageUrl = await uploadFile(bannerImageFile, `events/${docId}/banner`);
-        }
-        let listImageUrl = '';
-        if (listImageFile && listImageFile.size > 0) {
-            listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
-        }
-        
-        const highlightImageUrls = await Promise.all(
-            highlightImageFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
-        );
+    const highlightImageUrls = await Promise.all(
+      highlightImageFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
+    );
 
-        const speakersData = JSON.parse(values.speakers as string || '[]');
-        for (let i = 0; i < speakersData.length; i++) {
-            const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
-            if (speakerImageFile && speakerImageFile.size > 0) {
-                speakersData[i].image = await uploadFile(speakerImageFile, `events/${docId}/speaker_${i}`);
-            }
-        }
-        
-        const timelineData = JSON.parse(values.timeline as string || '[]');
-
-        const dataToSave = {
-            ...parsed.data,
-            speakers: speakersData,
-            timeline: timelineData,
-            bannerImage: bannerImageUrl,
-            listImage: listImageUrl,
-            highlightImages: highlightImageUrls,
-        };
-
-        await setDoc(doc(db, 'events', docId), dataToSave);
-        return { success: true, id: docId };
-    } catch (error) {
-        console.error("Failed to create event:", error);
-        return { error: 'Failed to create event.' };
+    const speakersData = JSON.parse(values.speakers as string || '[]');
+    for (let i = 0; i < speakersData.length; i++) {
+      const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+      if (speakerImageFile && speakerImageFile.size > 0) {
+        speakersData[i].image = await uploadFile(speakerImageFile, `events/${docId}/speaker_${i}`);
+      }
     }
+
+    const timelineData = JSON.parse(values.timeline as string || '[]');
+
+    const dataToSave = {
+      ...parsed.data,
+      speakers: speakersData,
+      timeline: timelineData,
+      bannerImage: bannerImageUrl,
+      listImage: listImageUrl,
+      highlightImages: highlightImageUrls,
+    };
+
+    await setDoc(doc(db, 'events', docId), dataToSave);
+    return { success: true, id: docId };
+  } catch (error) {
+    console.error("Failed to create event:", error);
+    return { error: 'Failed to create event.' };
+  }
 }
 
 
 export async function updateEvent(id: string, formData: FormData) {
-    const values = Object.fromEntries(formData.entries());
-    const bannerImageFile = formData.get('bannerImage') as File | null;
-    const listImageFile = formData.get('listImage') as File | null;
-    const highlightImageFiles = formData.getAll('highlightImages') as File[];
+  const values = Object.fromEntries(formData.entries());
+  const bannerImageFile = formData.get('bannerImage') as File | null;
+  const listImageFile = formData.get('listImage') as File | null;
+  const highlightImageFiles = formData.getAll('highlightImages') as File[];
 
-    const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
-        ...values,
-        date: new Date(values.date as string),
-        registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
-        registrationOpen: values.registrationOpen === 'true',
-        registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
-    });
+  const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
+    ...values,
+    date: new Date(values.date as string),
+    registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
+    registrationOpen: values.registrationOpen === 'true',
+    registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
+  });
 
-    if (!parsed.success) {
-        return { error: 'Invalid event data.' };
+  if (!parsed.success) {
+    return { error: 'Invalid event data.' };
+  }
+
+  try {
+    const eventDocRef = doc(db, 'events', id);
+    const existingEvent = await getDoc(eventDocRef);
+    const existingData = existingEvent.data();
+
+    const dataToUpdate: any = { ...parsed.data };
+
+    if (bannerImageFile && bannerImageFile.size > 0) {
+      dataToUpdate.bannerImage = await uploadFile(bannerImageFile, `events/${id}/banner`);
+    }
+    if (listImageFile && listImageFile.size > 0) {
+      dataToUpdate.listImage = await uploadFile(listImageFile, `events/${id}/list`);
     }
 
-    try {
-        const eventDocRef = doc(db, 'events', id);
-        const existingEvent = await getDoc(eventDocRef);
-        const existingData = existingEvent.data();
-
-        const dataToUpdate: any = { ...parsed.data };
-        
-        if (bannerImageFile && bannerImageFile.size > 0) {
-            dataToUpdate.bannerImage = await uploadFile(bannerImageFile, `events/${id}/banner`);
-        }
-        if (listImageFile && listImageFile.size > 0) {
-            dataToUpdate.listImage = await uploadFile(listImageFile, `events/${id}/list`);
-        }
-        
-        if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
-            dataToUpdate.highlightImages = await Promise.all(
-                highlightImageFiles.map((file, i) => uploadFile(file, `events/${id}/highlight_${i}`))
-            );
-        }
-        
-        const speakersData = JSON.parse(values.speakers as string || '[]');
-        for (let i = 0; i < speakersData.length; i++) {
-            const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
-            if (speakerImageFile && speakerImageFile.size > 0) {
-                 speakersData[i].image = await uploadFile(speakerImageFile, `events/${id}/speaker_${i}`);
-            } else {
-                 speakersData[i].image = speakersData[i].existingImageUrl;
-            }
-            delete speakersData[i].existingImageUrl;
-        }
-        dataToUpdate.speakers = speakersData;
-        dataToUpdate.timeline = JSON.parse(values.timeline as string || '[]');
-
-        await updateDoc(eventDocRef, dataToUpdate);
-        return { success: true };
-    } catch (error) {
-        console.error("Failed to update event:", error);
-        return { error: 'Failed to update event.' };
+    if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
+      dataToUpdate.highlightImages = await Promise.all(
+        highlightImageFiles.map((file, i) => uploadFile(file, `events/${id}/highlight_${i}`))
+      );
     }
+
+    const speakersData = JSON.parse(values.speakers as string || '[]');
+    for (let i = 0; i < speakersData.length; i++) {
+      const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+      if (speakerImageFile && speakerImageFile.size > 0) {
+        speakersData[i].image = await uploadFile(speakerImageFile, `events/${id}/speaker_${i}`);
+      } else {
+        speakersData[i].image = speakersData[i].existingImageUrl;
+      }
+      delete speakersData[i].existingImageUrl;
+    }
+    dataToUpdate.speakers = speakersData;
+    dataToUpdate.timeline = JSON.parse(values.timeline as string || '[]');
+
+    await updateDoc(eventDocRef, dataToUpdate);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update event:", error);
+    return { error: 'Failed to update event.' };
+  }
 }
 
 export async function deleteEvent(id: string) {
-    try {
-        await deleteDoc(doc(db, 'events', id));
-        // Note: Does not delete images from storage or subcollections like registrations. 
-        // For a production app, a Cloud Function would be needed to handle this.
-        return { success: true };
-    } catch (error) {
-        return { error: 'Failed to delete event.' };
-    }
+  try {
+    await deleteDoc(doc(db, 'events', id));
+    // Note: Does not delete images from storage or subcollections like registrations. 
+    // For a production app, a Cloud Function would be needed to handle this.
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to delete event.' };
+  }
 }
 
 
 export async function getEvents() {
-    try {
-        const eventsCol = collection(db, 'events');
-        const q = query(eventsCol, orderBy('date', 'desc'));
-        const eventSnapshot = await getDocs(q);
-        const eventList = eventSnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                ...data,
-                id: doc.id,
-                date: data.date.toDate().toISOString(),
-                registrationDeadline: data.registrationDeadline?.toDate().toISOString() || null,
-            }
-        });
-        return { events: eventList as any[], error: null };
-    } catch (error) {
-        console.error("Could not fetch events:", error);
-        if (error instanceof Error) {
-            return { error: `Failed to fetch events: ${error.message}` };
-        }
-        return { error: 'An unexpected error occurred while fetching events.' };
+  try {
+    const eventsCol = collection(db, 'events');
+    const q = query(eventsCol, orderBy('date', 'desc'));
+    const eventSnapshot = await getDocs(q);
+    const eventList = eventSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        id: doc.id,
+        date: data.date.toDate().toISOString(),
+        registrationDeadline: data.registrationDeadline?.toDate().toISOString() || null,
+      }
+    });
+    return { events: eventList as any[], error: null };
+  } catch (error) {
+    console.error("Could not fetch events:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to fetch events: ${error.message}` };
     }
+    return { error: 'An unexpected error occurred while fetching events.' };
+  }
 }
 
 
 export async function getEventById(id: string) {
-    try {
-        const eventDoc = await getDoc(doc(db, 'events', id));
-        if (!eventDoc.exists()) {
-            return { error: 'Event not found.' };
-        }
-        
-        const registrationsRef = collection(db, 'events', id, 'registrations');
-        const registrationsSnapshot = await getCountFromServer(registrationsRef);
-        const registrationCount = registrationsSnapshot.data().count;
-
-        const data = eventDoc.data();
-        const eventData = { 
-            ...data,
-            id: eventDoc.id,
-            date: data.date.toDate().toISOString(),
-            registrationDeadline: data.registrationDeadline?.toDate().toISOString() || null,
-            registrationCount,
-        };
-        return { event: eventData as any };
-    } catch (error) {
-        console.error("Error fetching event by ID:", error);
-        return { error: 'Failed to fetch event.' };
+  try {
+    const eventDoc = await getDoc(doc(db, 'events', id));
+    if (!eventDoc.exists()) {
+      return { error: 'Event not found.' };
     }
+
+    const registrationsRef = collection(db, 'events', id, 'registrations');
+    const registrationsSnapshot = await getCountFromServer(registrationsRef);
+    const registrationCount = registrationsSnapshot.data().count;
+
+    const data = eventDoc.data();
+    const eventData = {
+      ...data,
+      id: eventDoc.id,
+      date: data.date.toDate().toISOString(),
+      registrationDeadline: data.registrationDeadline?.toDate().toISOString() || null,
+      registrationCount,
+    };
+    return { event: eventData as any };
+  } catch (error) {
+    console.error("Error fetching event by ID:", error);
+    return { error: 'Failed to fetch event.' };
+  }
 }
 
 
 export async function registerForEvent(eventId: string, values: z.infer<typeof registrationSchema>) {
-    const parsed = registrationSchema.safeParse(values);
-    if (!parsed.success) {
-        return { error: 'Invalid registration data.' };
+  const parsed = registrationSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: 'Invalid registration data.' };
+  }
+
+  try {
+    const eventRef = doc(db, 'events', eventId);
+    const eventSnap = await getDoc(eventRef);
+
+    if (!eventSnap.exists()) {
+      return { error: 'Event not found.' };
     }
-    
-    try {
-        const eventRef = doc(db, 'events', eventId);
-        const eventSnap = await getDoc(eventRef);
 
-        if (!eventSnap.exists()) {
-            return { error: 'Event not found.' };
-        }
-        
-        const eventData = eventSnap.data();
-        
-        if (!eventData.registrationOpen) {
-            return { error: 'Registrations for this event are currently closed.' };
-        }
-        
-        const deadline = eventData.registrationDeadline?.toDate();
-        if (deadline && new Date() > deadline) {
-             return { error: 'The registration deadline for this event has passed.' };
-        }
-        
-        const registrationsRef = collection(db, 'events', eventId, 'registrations');
-        
-        if (eventData.registrationLimit && eventData.registrationLimit > 0) {
-            const registrationsSnapshot = await getCountFromServer(registrationsRef);
-            if (registrationsSnapshot.data().count >= eventData.registrationLimit) {
-                return { error: 'Sorry, this event has reached its registration limit.' };
-            }
-        }
+    const eventData = eventSnap.data();
 
-        // Check for existing email in this event's registrations
-        const emailQuery = query(registrationsRef, where("email", "==", parsed.data.email));
-        const emailSnapshot = await getDocs(emailQuery);
-        if (!emailSnapshot.empty) {
-            return { error: 'This email is already registered for this event.' };
-        }
-
-        await addDoc(registrationsRef, {
-            ...parsed.data,
-            registeredAt: new Date().toISOString(),
-        });
-
-        // Send confirmation email
-        const emailInput: EventConfirmationEmailInput = {
-            name: parsed.data.name,
-            email: parsed.data.email,
-            eventName: eventData.title,
-            eventDate: eventData.date.toDate().toLocaleDateString(),
-            eventLink: eventData.eventLink || undefined,
-        };
-        await sendEventConfirmationEmail(emailInput);
-        
-        return { success: true };
-
-    } catch (error) {
-        console.error("Error registering for event:", error);
-        return { error: 'An unexpected error occurred during registration.' };
+    if (!eventData.registrationOpen) {
+      return { error: 'Registrations for this event are currently closed.' };
     }
+
+    const deadline = eventData.registrationDeadline?.toDate();
+    if (deadline && new Date() > deadline) {
+      return { error: 'The registration deadline for this event has passed.' };
+    }
+
+    const registrationsRef = collection(db, 'events', eventId, 'registrations');
+
+    if (eventData.registrationLimit && eventData.registrationLimit > 0) {
+      const registrationsSnapshot = await getCountFromServer(registrationsRef);
+      if (registrationsSnapshot.data().count >= eventData.registrationLimit) {
+        return { error: 'Sorry, this event has reached its registration limit.' };
+      }
+    }
+
+    // Check for existing email in this event's registrations
+    const emailQuery = query(registrationsRef, where("email", "==", parsed.data.email));
+    const emailSnapshot = await getDocs(emailQuery);
+    if (!emailSnapshot.empty) {
+      return { error: 'This email is already registered for this event.' };
+    }
+
+    await addDoc(registrationsRef, {
+      ...parsed.data,
+      registeredAt: new Date().toISOString(),
+    });
+
+    // Send confirmation email
+    const emailInput: EventConfirmationEmailInput = {
+      name: parsed.data.name,
+      email: parsed.data.email,
+      eventName: eventData.title,
+      eventDate: eventData.date.toDate().toLocaleDateString(),
+      eventLink: eventData.eventLink || undefined,
+    };
+    await sendEventConfirmationEmail(emailInput);
+
+    return { success: true };
+
+  } catch (error) {
+    console.error("Error registering for event:", error);
+    return { error: 'An unexpected error occurred during registration.' };
+  }
 }
 
 export async function sendReminderEmails(eventId: string) {
-    try {
-        const eventRef = doc(db, 'events', eventId);
-        const eventSnap = await getDoc(eventRef);
+  try {
+    const eventRef = doc(db, 'events', eventId);
+    const eventSnap = await getDoc(eventRef);
 
-        if (!eventSnap.exists()) {
-            return { error: "Event not found." };
-        }
-
-        const eventData = eventSnap.data();
-        const registrationsRef = collection(db, 'events', eventId, 'registrations');
-        const registrationsSnapshot = await getDocs(registrationsRef);
-
-        if (registrationsSnapshot.empty) {
-            return { success: true, count: 0 };
-        }
-
-        let sentCount = 0;
-        for (const registrationDoc of registrationsSnapshot.docs) {
-            const registration = registrationDoc.data();
-            try {
-                const emailInput: EventReminderEmailInput = {
-                    name: registration.name,
-                    email: registration.email,
-                    eventName: eventData.title,
-                    eventDate: eventData.date.toDate().toLocaleDateString(),
-                    eventTime: eventData.time,
-                    eventVenue: eventData.venue,
-                    eventLink: eventData.eventLink || undefined,
-                };
-                await sendEventReminderEmail(emailInput);
-                sentCount++;
-            } catch (emailError) {
-                console.error(`Failed to send reminder to ${registration.email}:`, emailError);
-            }
-        }
-        
-        return { success: true, count: sentCount };
-    } catch (error) {
-        console.error("Error sending reminder emails:", error);
-        if (error instanceof Error) {
-            return { error: `Failed to send reminders: ${error.message}` };
-        }
-        return { error: "An unexpected error occurred." };
+    if (!eventSnap.exists()) {
+      return { error: "Event not found." };
     }
+
+    const eventData = eventSnap.data();
+    const registrationsRef = collection(db, 'events', eventId, 'registrations');
+    const registrationsSnapshot = await getDocs(registrationsRef);
+
+    if (registrationsSnapshot.empty) {
+      return { success: true, count: 0 };
+    }
+
+    let sentCount = 0;
+    for (const registrationDoc of registrationsSnapshot.docs) {
+      const registration = registrationDoc.data();
+      try {
+        const emailInput: EventReminderEmailInput = {
+          name: registration.name,
+          email: registration.email,
+          eventName: eventData.title,
+          eventDate: eventData.date.toDate().toLocaleDateString(),
+          eventTime: eventData.time,
+          eventVenue: eventData.venue,
+          eventLink: eventData.eventLink || undefined,
+        };
+        await sendEventReminderEmail(emailInput);
+        sentCount++;
+      } catch (emailError) {
+        console.error(`Failed to send reminder to ${registration.email}:`, emailError);
+      }
+    }
+
+    return { success: true, count: sentCount };
+  } catch (error) {
+    console.error("Error sending reminder emails:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to send reminders: ${error.message}` };
+    }
+    return { error: "An unexpected error occurred." };
+  }
 }
 
 export async function sendFeedbackEmails(eventId: string) {
-    try {
-        const eventRef = doc(db, 'events', eventId);
-        const eventSnap = await getDoc(eventRef);
+  try {
+    const eventRef = doc(db, 'events', eventId);
+    const eventSnap = await getDoc(eventRef);
 
-        if (!eventSnap.exists()) {
-            return { error: "Event not found." };
-        }
-
-        const eventData = eventSnap.data();
-        if (!eventData.feedbackLink) {
-            return { error: "No feedback link is set for this event." };
-        }
-
-        const registrationsRef = collection(db, 'events', eventId, 'registrations');
-        const registrationsSnapshot = await getDocs(registrationsRef);
-
-        if (registrationsSnapshot.empty) {
-            return { success: true, count: 0 };
-        }
-
-        let sentCount = 0;
-        for (const registrationDoc of registrationsSnapshot.docs) {
-            const registration = registrationDoc.data();
-            try {
-                const emailInput: EventFeedbackEmailInput = {
-                    name: registration.name,
-                    email: registration.email,
-                    eventName: eventData.title,
-                    feedbackLink: eventData.feedbackLink,
-                };
-                await sendFeedbackEmail(emailInput);
-                sentCount++;
-            } catch (emailError) {
-                console.error(`Failed to send feedback email to ${registration.email}:`, emailError);
-            }
-        }
-        
-        return { success: true, count: sentCount };
-    } catch (error) {
-        console.error("Error sending feedback emails:", error);
-        if (error instanceof Error) {
-            return { error: `Failed to send feedback emails: ${error.message}` };
-        }
-        return { error: "An unexpected error occurred." };
+    if (!eventSnap.exists()) {
+      return { error: "Event not found." };
     }
+
+    const eventData = eventSnap.data();
+    if (!eventData.feedbackLink) {
+      return { error: "No feedback link is set for this event." };
+    }
+
+    const registrationsRef = collection(db, 'events', eventId, 'registrations');
+    const registrationsSnapshot = await getDocs(registrationsRef);
+
+    if (registrationsSnapshot.empty) {
+      return { success: true, count: 0 };
+    }
+
+    let sentCount = 0;
+    for (const registrationDoc of registrationsSnapshot.docs) {
+      const registration = registrationDoc.data();
+      try {
+        const emailInput: EventFeedbackEmailInput = {
+          name: registration.name,
+          email: registration.email,
+          eventName: eventData.title,
+          feedbackLink: eventData.feedbackLink,
+        };
+        await sendFeedbackEmail(emailInput);
+        sentCount++;
+      } catch (emailError) {
+        console.error(`Failed to send feedback email to ${registration.email}:`, emailError);
+      }
+    }
+
+    return { success: true, count: sentCount };
+  } catch (error) {
+    console.error("Error sending feedback emails:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to send feedback emails: ${error.message}` };
+    }
+    return { error: "An unexpected error occurred." };
+  }
 }
 
 
 export async function getEventRegistrations(eventId: string) {
-    try {
-        const registrationsCol = collection(db, 'events', eventId, 'registrations');
-        const q = query(registrationsCol, orderBy('registeredAt', 'desc'));
-        const registrationSnapshot = await getDocs(q);
-        const registrationList = registrationSnapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id,
-        }));
-        return { registrations: registrationList as any[] };
-    } catch (error) {
-        console.error("Error fetching event registrations:", error);
-        return { error: 'Could not fetch event registrations.' };
-    }
+  try {
+    const registrationsCol = collection(db, 'events', eventId, 'registrations');
+    const q = query(registrationsCol, orderBy('registeredAt', 'desc'));
+    const registrationSnapshot = await getDocs(q);
+    const registrationList = registrationSnapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+    return { registrations: registrationList as any[] };
+  } catch (error) {
+    console.error("Error fetching event registrations:", error);
+    return { error: 'Could not fetch event registrations.' };
+  }
 }
 
 export async function exportEventRegistrationsToCsv(eventId: string) {
-    try {
-        const { registrations, error } = await getEventRegistrations(eventId);
-        if (error) throw new Error(error);
-        
-        if (!registrations || registrations.length === 0) {
-            return { csvData: null };
-        }
+  try {
+    const { registrations, error } = await getEventRegistrations(eventId);
+    if (error) throw new Error(error);
 
-        const csv = papaparse.unparse(registrations);
-        return { success: true, csvData: csv };
-
-    } catch (error) {
-        console.error('Error exporting event registrations:', error);
-        if (error instanceof Error) {
-            return { error: `Export failed: ${error.message}` };
-        }
-        return { error: 'An unexpected error occurred during export.' };
+    if (!registrations || registrations.length === 0) {
+      return { csvData: null };
     }
+
+    const csv = papaparse.unparse(registrations);
+    return { success: true, csvData: csv };
+
+  } catch (error) {
+    console.error('Error exporting event registrations:', error);
+    if (error instanceof Error) {
+      return { error: `Export failed: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred during export.' };
+  }
 }
 
 
 // Team Category Actions
 export async function createTeamCategory(values: z.infer<typeof teamCategorySchema>) {
-    const parsed = teamCategorySchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data." };
-    try {
-        await addDoc(collection(db, 'teamCategories'), parsed.data);
-        return { success: true };
-    } catch (e) {
-        return { error: "Failed to create category." };
-    }
+  const parsed = teamCategorySchema.safeParse(values);
+  if (!parsed.success) return { error: "Invalid data." };
+  try {
+    await addDoc(collection(db, 'teamCategories'), parsed.data);
+    return { success: true };
+  } catch (e) {
+    return { error: "Failed to create category." };
+  }
 }
 
 export async function getTeamCategories() {
-    try {
-        const q = query(collection(db, 'teamCategories'), orderBy('order'));
-        const snapshot = await getDocs(q);
-        const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        return { categories };
-    } catch (e) {
-        return { error: "Failed to fetch categories." };
-    }
+  try {
+    const q = query(collection(db, 'teamCategories'), orderBy('order'));
+    const snapshot = await getDocs(q);
+    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamCategory));
+    return { categories };
+  } catch (e) {
+    return { error: "Failed to fetch categories." };
+  }
 }
 
 export async function getTeamCategoryById(id: string) {
-    try {
-        const docRef = doc(db, 'teamCategories', id);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) return { error: 'Category not found.' };
-        return { category: { id: docSnap.id, ...docSnap.data() } };
-    } catch (e) {
-        return { error: 'Failed to fetch category.' };
-    }
+  try {
+    const docRef = doc(db, 'teamCategories', id);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return { error: 'Category not found.' };
+    return { category: { id: docSnap.id, ...docSnap.data() } as TeamCategory };
+  } catch (e) {
+    return { error: 'Failed to fetch category.' };
+  }
 }
 
 export async function updateTeamCategory(id: string, values: z.infer<typeof teamCategorySchema>) {
-    const parsed = teamCategorySchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data." };
-    try {
-        await updateDoc(doc(db, 'teamCategories', id), parsed.data as any);
-        return { success: true };
-    } catch (e) {
-        return { error: "Failed to update category." };
-    }
+  const parsed = teamCategorySchema.safeParse(values);
+  if (!parsed.success) return { error: "Invalid data." };
+  try {
+    await updateDoc(doc(db, 'teamCategories', id), parsed.data as any);
+    return { success: true };
+  } catch (e) {
+    return { error: "Failed to update category." };
+  }
 }
 
 export async function deleteTeamCategory(id: string) {
-    try {
-        // You might want to check if any team members are using this category first
-        await deleteDoc(doc(db, 'teamCategories', id));
-        return { success: true };
-    } catch (e) {
-        return { error: "Failed to delete category." };
-    }
+  try {
+    // You might want to check if any team members are using this category first
+    await deleteDoc(doc(db, 'teamCategories', id));
+    return { success: true };
+  } catch (e) {
+    return { error: "Failed to delete category." };
+  }
 }
 
 // Team Member Actions
 export async function inviteTeamMember(values: z.infer<typeof teamMemberSchema>) {
-    const parsed = teamMemberSchema.safeParse(values);
-    if (!parsed.success) return { error: "Invalid data provided." };
+  const parsed = teamMemberSchema.safeParse(values);
+  if (!parsed.success) return { error: "Invalid data provided." };
 
-    const { email, name, role, categoryId } = parsed.data;
+  const { email, name, role, categoryId } = parsed.data;
 
-    try {
-        // Check if member with this email already exists
-        const q = query(collection(db, 'teamMembers'), where('email', '==', email));
-        const existing = await getDocs(q);
-        if (!existing.empty) {
-            return { error: "A team member with this email already exists." };
-        }
-
-        const onboardingToken = randomBytes(32).toString('hex');
-        const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // Token valid for 24 hours
-
-        const newMemberData = {
-            ...parsed.data,
-            status: 'pending',
-            onboardingToken,
-            tokenExpiresAt: tokenExpiresAt.toISOString(),
-            image: '', // To be filled by the user
-            linkedin: '', // To be filled by the user
-        };
-
-        await addDoc(collection(db, 'teamMembers'), newMemberData);
-
-        // Send invitation email
-        (async () => {
-            try {
-                const emailInput: InvitationEmailInput = {
-                    name,
-                    email,
-                    role,
-                    onboardingToken,
-                };
-                await sendInvitationEmail(emailInput);
-            } catch (emailError) {
-                console.error(`Invitation email sending failed for ${email}:`, emailError);
-                // Even if email fails, the member is in the DB. This could be handled with a retry queue.
-            }
-        })();
-        
-        return { success: true };
-    } catch (e) {
-        console.error("Error inviting team member:", e);
-        return { error: "Failed to invite team member." };
+  try {
+    // Check if member with this email already exists
+    const q = query(collection(db, 'teamMembers'), where('email', '==', email));
+    const existing = await getDocs(q);
+    if (!existing.empty) {
+      return { error: "A team member with this email already exists." };
     }
+
+    const onboardingToken = randomBytes(32).toString('hex');
+    const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // Token valid for 24 hours
+
+    const newMemberData = {
+      ...parsed.data,
+      status: 'pending',
+      onboardingToken,
+      tokenExpiresAt: tokenExpiresAt.toISOString(),
+      image: '', // To be filled by the user
+      linkedin: '', // To be filled by the user
+    };
+
+    await addDoc(collection(db, 'teamMembers'), newMemberData);
+
+    // Send invitation email
+    (async () => {
+      try {
+        const emailInput: InvitationEmailInput = {
+          name,
+          email,
+          role,
+          onboardingToken,
+        };
+        await sendInvitationEmail(emailInput);
+      } catch (emailError) {
+        console.error(`Invitation email sending failed for ${email}:`, emailError);
+        // Even if email fails, the member is in the DB. This could be handled with a retry queue.
+      }
+    })();
+
+    return { success: true };
+  } catch (e) {
+    console.error("Error inviting team member:", e);
+    return { error: "Failed to invite team member." };
+  }
 }
 
 export async function resendInvitation(memberId: string) {
-    try {
-        const memberDocRef = doc(db, 'teamMembers', memberId);
-        const memberDoc = await getDoc(memberDocRef);
-        if (!memberDoc.exists()) {
-            return { error: "Team member not found." };
-        }
-        const member = memberDoc.data();
-
-        if (member.status !== 'pending') {
-            return { error: "This member is already active. Use the 'Send Edit Link' option instead." };
-        }
-
-        const onboardingToken = randomBytes(32).toString('hex');
-        const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-        await updateDoc(memberDocRef, {
-            onboardingToken,
-            tokenExpiresAt: tokenExpiresAt.toISOString(),
-            status: 'pending',
-        });
-
-        // Send invitation email with the new token
-        await sendInvitationEmail({
-            name: member.name,
-            email: member.email,
-            role: member.role,
-            onboardingToken,
-        });
-
-        return { success: true };
-    } catch (error) {
-        console.error("Error resending invitation:", error);
-        return { error: "Failed to resend invitation email." };
+  try {
+    const memberDocRef = doc(db, 'teamMembers', memberId);
+    const memberDoc = await getDoc(memberDocRef);
+    if (!memberDoc.exists()) {
+      return { error: "Team member not found." };
     }
+    const member = memberDoc.data() as TeamMember;
+
+    if (member.status !== 'pending') {
+      return { error: "This member is already active. Use the 'Send Edit Link' option instead." };
+    }
+
+    const onboardingToken = randomBytes(32).toString('hex');
+    const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await updateDoc(memberDocRef, {
+      onboardingToken,
+      tokenExpiresAt: tokenExpiresAt.toISOString(),
+      status: 'pending',
+    });
+
+    // Send invitation email with the new token
+    await sendInvitationEmail({
+      name: member.name,
+      email: member.email,
+      role: member.role,
+      onboardingToken,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error resending invitation:", error);
+    return { error: "Failed to resend invitation email." };
+  }
 }
 
 export async function sendProfileEditLink(memberId: string) {
-    try {
-        const memberDocRef = doc(db, 'teamMembers', memberId);
-        const memberDoc = await getDoc(memberDocRef);
+  try {
+    const memberDocRef = doc(db, 'teamMembers', memberId);
+    const memberDoc = await getDoc(memberDocRef);
 
-        if (!memberDoc.exists()) {
-            return { error: "Team member not found." };
-        }
-        const member = { id: memberDoc.id, ...memberDoc.data() };
-
-        if (member.status !== 'active') {
-             return { error: "Cannot send edit link to a pending member. Please resend their invitation instead." };
-        }
-
-        // Send profile confirmation/edit email
-        await sendProfileConfirmationEmail({
-            name: member.name,
-            email: member.email,
-            memberId: member.id,
-            editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
-        });
-
-        return { success: true };
-    } catch (error) {
-        console.error("Error sending profile edit link:", error);
-        return { error: "Failed to send profile edit link email." };
+    if (!memberDoc.exists()) {
+      return { error: "Team member not found." };
     }
+    const member = { id: memberDoc.id, ...memberDoc.data() } as TeamMember;
+
+    if (member.status !== 'active') {
+      return { error: "Cannot send edit link to a pending member. Please resend their invitation instead." };
+    }
+
+    // Send profile confirmation/edit email
+    await sendProfileConfirmationEmail({
+      name: member.name,
+      email: member.email,
+      memberId: member.id,
+      editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error sending profile edit link:", error);
+    return { error: "Failed to send profile edit link email." };
+  }
 }
 
 export async function bulkResendInvitations() {
-    try {
-        const q = query(collection(db, 'teamMembers'), where('status', '==', 'pending'));
-        const snapshot = await getDocs(q);
+  try {
+    const q = query(collection(db, 'teamMembers'), where('status', '==', 'pending'));
+    const snapshot = await getDocs(q);
 
-        if (snapshot.empty) {
-            return { success: true, count: 0 };
-        }
-
-        const batch = writeBatch(db);
-        let count = 0;
-
-        for (const memberDoc of snapshot.docs) {
-            const member = memberDoc.data();
-            const onboardingToken = randomBytes(32).toString('hex');
-            const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-            batch.update(memberDoc.ref, {
-                onboardingToken,
-                tokenExpiresAt: tokenExpiresAt.toISOString(),
-            });
-
-            await sendInvitationEmail({
-                name: member.name,
-                email: member.email,
-                role: member.role,
-                onboardingToken,
-            });
-            count++;
-        }
-
-        await batch.commit();
-        return { success: true, count };
-    } catch (error) {
-        console.error("Error bulk resending invitations:", error);
-        return { error: "Failed to resend all invitations." };
+    if (snapshot.empty) {
+      return { success: true, count: 0 };
     }
+
+    const batch = writeBatch(db);
+    let count = 0;
+
+    for (const memberDoc of snapshot.docs) {
+      const member = memberDoc.data() as TeamMember;
+      const onboardingToken = randomBytes(32).toString('hex');
+      const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      batch.update(memberDoc.ref, {
+        onboardingToken,
+        tokenExpiresAt: tokenExpiresAt.toISOString(),
+      });
+
+      await sendInvitationEmail({
+        name: member.name,
+        email: member.email,
+        role: member.role,
+        onboardingToken,
+      });
+      count++;
+    }
+
+    await batch.commit();
+    return { success: true, count };
+  } catch (error) {
+    console.error("Error bulk resending invitations:", error);
+    return { error: "Failed to resend all invitations." };
+  }
 }
 
 export async function bulkSendProfileEditLinks() {
-    try {
-        const q = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
-        const snapshot = await getDocs(q);
+  try {
+    const q = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
+    const snapshot = await getDocs(q);
 
-        if (snapshot.empty) {
-            return { success: true, count: 0 };
-        }
-
-        let count = 0;
-        for (const memberDoc of snapshot.docs) {
-            const member = { id: memberDoc.id, ...memberDoc.data() };
-            await sendProfileConfirmationEmail({
-                name: member.name,
-                email: member.email,
-                memberId: member.id,
-                editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
-            });
-            count++;
-        }
-        
-        return { success: true, count };
-    } catch (error) {
-        console.error("Error bulk sending edit links:", error);
-        return { error: "Failed to send all edit links." };
+    if (snapshot.empty) {
+      return { success: true, count: 0 };
     }
+
+    let count = 0;
+    for (const memberDoc of snapshot.docs) {
+      const member = { id: memberDoc.id, ...memberDoc.data() } as TeamMember;
+      await sendProfileConfirmationEmail({
+        name: member.name,
+        email: member.email,
+        memberId: member.id,
+        editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+      });
+      count++;
+    }
+
+    return { success: true, count };
+  } catch (error) {
+    console.error("Error bulk sending edit links:", error);
+    return { error: "Failed to send all edit links." };
+  }
 }
 
 
 
 export async function updateTeamMember(id: string, formData: FormData) {
-    const values = Object.fromEntries(formData.entries());
-    const imageFile = formData.get('image') as File | null;
+  const values = Object.fromEntries(formData.entries());
+  const imageFile = formData.get('image') as File | null;
 
-    const updatePayloadSchema = teamMemberUpdateSchema.omit({ image: true });
-    const parsed = updatePayloadSchema.safeParse(values);
+  const updatePayloadSchema = teamMemberUpdateSchema.omit({ image: true });
+  const parsed = updatePayloadSchema.safeParse(values);
 
-    if (!parsed.success) {
-        console.error("Update validation error:", parsed.error.flatten().fieldErrors);
-        return { error: "Invalid data provided." };
+  if (!parsed.success) {
+    console.error("Update validation error:", parsed.error.flatten().fieldErrors);
+    return { error: "Invalid data provided." };
+  }
+
+  try {
+    const docRef = doc(db, "teamMembers", id);
+    const dataToUpdate: any = parsed.data;
+
+    if (imageFile && imageFile.size > 0) {
+      const storageRef = ref(storage, `profile-images/${id}`);
+      const imageBuffer = await imageFile.arrayBuffer();
+      await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
+      dataToUpdate.image = await getDownloadURL(storageRef);
     }
 
-    try {
-        const docRef = doc(db, "teamMembers", id);
-        const dataToUpdate: any = parsed.data;
-
-        if (imageFile && imageFile.size > 0) {
-            const storageRef = ref(storage, `profile-images/${id}`);
-            const imageBuffer = await imageFile.arrayBuffer();
-            await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-            dataToUpdate.image = await getDownloadURL(storageRef);
-        }
-
-        await updateDoc(docRef, dataToUpdate);
-        return { success: true };
-    } catch (error) {
-        console.error("Error updating team member:", error);
-        if (error instanceof Error) {
-            return { error: `Failed to update team member: ${error.message}` };
-        }
-        return { error: "Failed to update team member." };
+    await updateDoc(docRef, dataToUpdate);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating team member:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to update team member: ${error.message}` };
     }
+    return { error: "Failed to update team member." };
+  }
 }
 
 
 export async function getTeamMemberByToken(token: string) {
-    try {
-        const q = query(
-            collection(db, 'teamMembers'),
-            where('onboardingToken', '==', token)
-        );
-        const snapshot = await getDocs(q);
+  try {
+    const q = query(
+      collection(db, 'teamMembers'),
+      where('onboardingToken', '==', token)
+    );
+    const snapshot = await getDocs(q);
 
-        if (snapshot.empty) {
-            return { error: "Invalid onboarding link." };
-        }
-        
-        const memberDoc = snapshot.docs[0];
-        const member = { id: memberDoc.id, ...memberDoc.data() };
-        
-        if (member.status !== 'pending') {
-            return { error: "This invitation has already been used." };
-        }
-
-        const now = new Date();
-        const expiresAt = new Date(member.tokenExpiresAt);
-        
-        if (now > expiresAt) {
-            return { error: "This onboarding link has expired." };
-        }
-        
-        return { member };
-    } catch (e) {
-        console.error("Error fetching member by token:", e);
-        return { error: "Failed to validate onboarding link." };
+    if (snapshot.empty) {
+      return { error: "Invalid onboarding link." };
     }
+
+    const memberDoc = snapshot.docs[0];
+    const member = { id: memberDoc.id, ...memberDoc.data() } as TeamMember;
+
+    if (member.status !== 'pending') {
+      return { error: "This invitation has already been used." };
+    }
+
+    const now = new Date();
+    if (!member.tokenExpiresAt) {
+      return { error: "Invalid token expiration date." };
+    }
+    const expiresAt = new Date(member.tokenExpiresAt);
+
+    if (now > expiresAt) {
+      return { error: "This onboarding link has expired." };
+    }
+
+    return { member };
+  } catch (e) {
+    console.error("Error fetching member by token:", e);
+    return { error: "Failed to validate onboarding link." };
+  }
 }
 
 export async function completeOnboarding(formData: FormData) {
-    const values = Object.fromEntries(formData.entries());
-    const imageFile = formData.get('image') as File;
+  const values = Object.fromEntries(formData.entries());
+  const imageFile = formData.get('image') as File;
 
-    const parsed = completeOnboardingSchema.omit({ image: true }).safeParse(values);
-    if (!parsed.success) {
-        return { error: "Invalid data provided." };
+  const parsed = completeOnboardingSchema.omit({ image: true }).safeParse(values);
+  if (!parsed.success) {
+    return { error: "Invalid data provided." };
+  }
+
+  const { token, linkedin } = parsed.data;
+
+  try {
+    const { member, error } = await getTeamMemberByToken(token);
+    if (error || !member) {
+      return { error: error || "Failed to validate token." };
     }
 
-    const { token, linkedin } = parsed.data;
+    // Upload image to Firebase Storage
+    const storageRef = ref(storage, `profile-images/${member.id}`);
+    const imageBuffer = await imageFile.arrayBuffer();
+    await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
+    const imageUrl = await getDownloadURL(storageRef);
 
-    try {
-        const { member, error } = await getTeamMemberByToken(token);
-        if (error || !member) {
-            return { error: error || "Failed to validate token." };
-        }
+    const updatedMemberData = {
+      image: imageUrl,
+      linkedin,
+      status: 'active',
+      onboardingToken: '', // Clear the token after use
+      tokenExpiresAt: '',
+    };
 
-        // Upload image to Firebase Storage
-        const storageRef = ref(storage, `profile-images/${member.id}`);
-        const imageBuffer = await imageFile.arrayBuffer();
-        await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-        const imageUrl = await getDownloadURL(storageRef);
+    await updateDoc(doc(db, 'teamMembers', member.id), updatedMemberData);
 
-        const updatedMemberData = {
-            image: imageUrl,
-            linkedin,
-            status: 'active',
-            onboardingToken: '', // Clear the token after use
-            tokenExpiresAt: '',
+    const updatedMember = { ...member, ...updatedMemberData };
+
+    // Send confirmation email with edit link
+    (async () => {
+      try {
+        const emailInput: ProfileConfirmationEmailInput = {
+          name: updatedMember.name,
+          email: updatedMember.email,
+          memberId: member.id,
+          editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
         };
+        await sendProfileConfirmationEmail(emailInput);
+      } catch (emailError) {
+        console.error(`Profile confirmation email sending failed for ${updatedMember.email}:`, emailError);
+      }
+    })();
 
-        await updateDoc(doc(db, 'teamMembers', member.id), updatedMemberData);
-
-        const updatedMember = { ...member, ...updatedMemberData };
-
-        // Send confirmation email with edit link
-        (async () => {
-            try {
-                const emailInput: ProfileConfirmationEmailInput = {
-                    name: updatedMember.name,
-                    email: updatedMember.email,
-                    memberId: member.id,
-                    editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
-                };
-                await sendProfileConfirmationEmail(emailInput);
-            } catch (emailError) {
-                console.error(`Profile confirmation email sending failed for ${updatedMember.email}:`, emailError);
-            }
-        })();
-
-        return { success: true, member: updatedMember };
-    } catch (e) {
-        console.error("Error completing onboarding:", e);
-        return { error: "Failed to activate profile." };
-    }
+    return { success: true, member: updatedMember };
+  } catch (e) {
+    console.error("Error completing onboarding:", e);
+    return { error: "Failed to activate profile." };
+  }
 }
 
 
 export async function getTeamMembers() {
-    try {
-        const teamMembersSnapshot = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'active')));
-        const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        const teamCategoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), orderBy('order')));
-        const teamCategoriesData = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        // This function needs to return a more structured format for the page
-        const membersByCategory = teamCategoriesData.map(category => ({
-            ...category,
-            members: teamMembers.filter(member => member.categoryId === category.id)
-        }));
+  try {
+    const teamMembersSnapshot = await getDocs(query(collection(db, 'teamMembers'), where('status', '==', 'active')));
+    const teamMembers = teamMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
 
-        return { membersByCategory };
-    } catch (e) {
-        console.error(e)
-        return { error: "Failed to fetch team members." };
-    }
+    const teamCategoriesSnapshot = await getDocs(query(collection(db, 'teamCategories'), orderBy('order')));
+    const teamCategoriesData = teamCategoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamCategory));
+
+    // This function needs to return a more structured format for the page
+    const membersByCategory = teamCategoriesData.map(category => ({
+      ...category,
+      members: teamMembers.filter(member => member.categoryId === category.id)
+    }));
+
+    return { membersByCategory };
+  } catch (e) {
+    console.error(e)
+    return { error: "Failed to fetch team members." };
+  }
 }
 
 export async function getAllTeamMembersWithCategory() {
-    try {
-        const membersSnapshot = await getDocs(collection(db, "teamMembers"));
-        const members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        const categoriesSnapshot = await getDocs(collection(db, "teamCategories"));
-        const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, subDomain: doc.data().subDomain }));
-        const categoryMap = new Map(categories.map(c => [c.id, {name: c.name, subDomain: c.subDomain}]));
+  try {
+    const membersSnapshot = await getDocs(collection(db, "teamMembers"));
+    const members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
 
-        const membersWithCategoryName = members.map(member => ({
-            ...member,
-            categoryName: categoryMap.get(member.categoryId)?.name || 'Uncategorized',
-            subDomain: categoryMap.get(member.categoryId)?.subDomain || 'N/A',
-        }));
-        
-        return { members: membersWithCategoryName };
-    } catch (e) {
-        return { error: "Failed to fetch team members." };
-    }
+    const categoriesSnapshot = await getDocs(collection(db, "teamCategories"));
+    const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, subDomain: doc.data().subDomain }));
+    const categoryMap = new Map(categories.map(c => [c.id, { name: c.name, subDomain: c.subDomain }]));
+
+    const membersWithCategoryName = members.map(member => ({
+      ...member,
+      categoryName: categoryMap.get(member.categoryId)?.name || 'Uncategorized',
+      subDomain: categoryMap.get(member.categoryId)?.subDomain || 'N/A',
+    }));
+
+    return { members: membersWithCategoryName };
+  } catch (e) {
+    return { error: "Failed to fetch team members." };
+  }
 }
 
 export async function getTeamMemberById(id: string) {
-    try {
-        const docRef = doc(db, 'teamMembers', id);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) return { error: 'Team member not found.' };
-        return { member: { id: docSnap.id, ...docSnap.data() } };
-    } catch (e) {
-        return { error: 'Failed to fetch team member.' };
-    }
+  try {
+    const docRef = doc(db, 'teamMembers', id);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return { error: 'Team member not found.' };
+    return { member: { id: docSnap.id, ...docSnap.data() } as TeamMember };
+  } catch (e) {
+    return { error: 'Failed to fetch team member.' };
+  }
 }
 
 
 export async function deleteTeamMember(id: string) {
+  try {
+    // First, try to delete the image from storage.
+    const storageRef = ref(storage, `profile-images/${id}`);
     try {
-        // First, try to delete the image from storage.
-        const storageRef = ref(storage, `profile-images/${id}`);
-        try {
-            await deleteObject(storageRef);
-        } catch (storageError: any) {
-            // It's okay if the image doesn't exist.
-            if (storageError.code !== 'storage/object-not-found') {
-                console.warn(`Could not delete profile image for member ${id}:`, storageError);
-            }
-        }
-        
-        // Then, delete the member document from Firestore.
-        await deleteDoc(doc(db, 'teamMembers', id));
-        return { success: true };
-    } catch (e) {
-        console.error("Error deleting team member:", e);
-        if (e instanceof Error) {
-            return { error: `Failed to delete team member: ${e.message}` };
-        }
-        return { error: "Failed to delete team member." };
+      await deleteObject(storageRef);
+    } catch (storageError: any) {
+      // It's okay if the image doesn't exist.
+      if (storageError.code !== 'storage/object-not-found') {
+        console.warn(`Could not delete profile image for member ${id}:`, storageError);
+      }
     }
+
+    // Then, delete the member document from Firestore.
+    await deleteDoc(doc(db, 'teamMembers', id));
+    return { success: true };
+  } catch (e) {
+    console.error("Error deleting team member:", e);
+    if (e instanceof Error) {
+      return { error: `Failed to delete team member: ${e.message}` };
+    }
+    return { error: "Failed to delete team member." };
+  }
 }
 
 // Notification Actions
 export async function getNotifications() {
-    try {
-        const notificationsCol = collection(db, 'notifications');
-        const q = query(notificationsCol, orderBy('createdAt', 'desc'));
-        const snapshot = await getDocs(q);
-        const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        return { notifications: notifications as {id: string, message: string}[] };
-    } catch (e) {
-        console.error("Error fetching notifications:", e);
-        return { error: "Failed to fetch notifications." };
-    }
+  try {
+    const notificationsCol = collection(db, 'notifications');
+    const q = query(notificationsCol, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return { notifications: notifications as { id: string, message: string }[] };
+  } catch (e) {
+    console.error("Error fetching notifications:", e);
+    return { error: "Failed to fetch notifications." };
+  }
 }
 
 const notificationSchema = z.object({
@@ -1968,145 +1984,145 @@ const notificationSchema = z.object({
 });
 
 export async function addNotification(values: z.infer<typeof notificationSchema>) {
-    const parsed = notificationSchema.safeParse(values);
-    if (!parsed.success) {
-        return { error: "Invalid notification data." };
-    }
+  const parsed = notificationSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: "Invalid notification data." };
+  }
 
-    try {
-        await addDoc(collection(db, 'notifications'), {
-            message: parsed.data.message,
-            createdAt: serverTimestamp(),
-        });
-        return { success: true };
-    } catch (e) {
-        console.error("Error adding notification:", e);
-        return { error: "Failed to add notification." };
-    }
+  try {
+    await addDoc(collection(db, 'notifications'), {
+      message: parsed.data.message,
+      createdAt: serverTimestamp(),
+    });
+    return { success: true };
+  } catch (e) {
+    console.error("Error adding notification:", e);
+    return { error: "Failed to add notification." };
+  }
 }
 
 export async function deleteNotification(id: string) {
-    try {
-        await deleteDoc(doc(db, 'notifications', id));
-        return { success: true };
-    } catch (e) {
-        console.error("Error deleting notification:", e);
-        return { error: "Failed to delete notification." };
-    }
+  try {
+    await deleteDoc(doc(db, 'notifications', id));
+    return { success: true };
+  } catch (e) {
+    console.error("Error deleting notification:", e);
+    return { error: "Failed to delete notification." };
+  }
 }
 
 // Job Listings Actions
 const CACHE_DURATION_HOURS = 6;
 
 async function fetchFromJSearchAPI() {
-    const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
-    if (!JSEARCH_API_KEY) {
-        throw new Error("JSearch API key is not configured. Please set the JSEARCH_API_KEY environment variable.");
+  const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
+  if (!JSEARCH_API_KEY) {
+    throw new Error("JSearch API key is not configured. Please set the JSEARCH_API_KEY environment variable.");
+  }
+  const url = 'https://jsearch.p.rapidapi.com/search?query=developer&country=IN&num_pages=1';
+  const options = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': JSEARCH_API_KEY,
+      'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
     }
-    const url = 'https://jsearch.p.rapidapi.com/search?query=developer&country=IN&num_pages=1';
-    const options = {
-        method: 'GET',
-        headers: {
-            'X-RapidAPI-Key': JSEARCH_API_KEY,
-            'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
-        }
-    };
+  };
 
-    const response = await fetch(url, options);
-    if (!response.ok) {
-        console.error("JSearch API error:", await response.text());
-        throw new Error("Failed to fetch data from the job API.");
-    }
-    const result = await response.json();
-    return result.data;
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    console.error("JSearch API error:", await response.text());
+    throw new Error("Failed to fetch data from the job API.");
+  }
+  const result = await response.json();
+  return result.data;
 }
 
 export async function fetchAndCacheJobs() {
-    try {
-        const metaRef = doc(db, 'jobs_meta', 'lastFetch');
-        const metaDoc = await getDoc(metaRef);
-        const now = new Date();
-        
-        let shouldFetch = true;
-        if (metaDoc.exists()) {
-            const lastFetch = metaDoc.data().timestamp.toDate();
-            const hoursSinceLastFetch = (now.getTime() - lastFetch.getTime()) / (1000 * 60 * 60);
-            if (hoursSinceLastFetch < CACHE_DURATION_HOURS) {
-                shouldFetch = false;
-            }
-        }
-        
-        if (shouldFetch) {
-            console.log("Cache is stale or empty. Fetching new jobs from API...");
-            const newJobsData = await fetchFromJSearchAPI();
-            const jobsRef = collection(db, "jobs");
-            const batch = writeBatch(db);
+  try {
+    const metaRef = doc(db, 'jobs_meta', 'lastFetch');
+    const metaDoc = await getDoc(metaRef);
+    const now = new Date();
 
-            // Fetch existing job links to avoid duplicates
-            const existingJobsSnapshot = await getDocs(query(jobsRef, orderBy('created_at', 'desc'), limit(200)));
-            const existingLinks = new Set(existingJobsSnapshot.docs.map(d => d.data().apply_link));
-
-            let addedCount = 0;
-            for (const job of newJobsData) {
-                if (job.job_apply_link && !existingLinks.has(job.job_apply_link)) {
-                    const newJobRef = doc(jobsRef); // auto-generate ID
-                    batch.set(newJobRef, {
-                        title: job.job_title || "N/A",
-                        company: job.employer_name || "N/A",
-                        location: job.job_city || "N/A",
-                        type: job.job_employment_type || "Full-time",
-                        description: job.job_description || "No description provided.",
-                        skills: job.job_required_skills || [],
-                        apply_link: job.job_apply_link,
-                        posted_on: new Date(job.job_posted_at_timestamp * 1000),
-                        created_at: serverTimestamp()
-                    });
-                    addedCount++;
-                }
-            }
-            
-            await batch.commit();
-            await setDoc(metaRef, { timestamp: Timestamp.fromDate(now) });
-            console.log(`Successfully added ${addedCount} new jobs.`);
-        }
-
-        // Always fetch from Firestore to return data
-        const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
-        const jobsSnapshot = await getDocs(jobsQuery);
-        const jobs = jobsSnapshot.docs.map(doc => {
-            const data = doc.data();
-            return { 
-                id: doc.id, 
-                ...data,
-                // Ensure posted_on is a string for client-side rendering
-                posted_on: data.posted_on.toDate().toISOString(),
-            };
-        });
-        
-        return { jobs: jobs as any[] };
-
-    } catch (error) {
-        console.error("Error in fetchAndCacheJobs:", error);
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while fetching jobs.";
-        // Fallback: try to read from cache even if API fails
-        try {
-            const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
-            const jobsSnapshot = await getDocs(jobsQuery);
-            if (!jobsSnapshot.empty) {
-                const jobs = jobsSnapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        ...data,
-                        posted_on: data.posted_on.toDate().toISOString(),
-                    };
-                });
-                return { jobs: jobs as any[], error: `Could not refresh job listings: ${errorMessage}. Displaying cached data.` };
-            }
-        } catch (cacheError) {
-             // If both API and cache fail
-            return { jobs: [], error: errorMessage };
-        }
-         return { jobs: [], error: errorMessage };
+    let shouldFetch = true;
+    if (metaDoc.exists()) {
+      const lastFetch = metaDoc.data().timestamp.toDate();
+      const hoursSinceLastFetch = (now.getTime() - lastFetch.getTime()) / (1000 * 60 * 60);
+      if (hoursSinceLastFetch < CACHE_DURATION_HOURS) {
+        shouldFetch = false;
+      }
     }
+
+    if (shouldFetch) {
+      console.log("Cache is stale or empty. Fetching new jobs from API...");
+      const newJobsData = await fetchFromJSearchAPI();
+      const jobsRef = collection(db, "jobs");
+      const batch = writeBatch(db);
+
+      // Fetch existing job links to avoid duplicates
+      const existingJobsSnapshot = await getDocs(query(jobsRef, orderBy('created_at', 'desc'), limit(200)));
+      const existingLinks = new Set(existingJobsSnapshot.docs.map(d => d.data().apply_link));
+
+      let addedCount = 0;
+      for (const job of newJobsData) {
+        if (job.job_apply_link && !existingLinks.has(job.job_apply_link)) {
+          const newJobRef = doc(jobsRef); // auto-generate ID
+          batch.set(newJobRef, {
+            title: job.job_title || "N/A",
+            company: job.employer_name || "N/A",
+            location: job.job_city || "N/A",
+            type: job.job_employment_type || "Full-time",
+            description: job.job_description || "No description provided.",
+            skills: job.job_required_skills || [],
+            apply_link: job.job_apply_link,
+            posted_on: new Date(job.job_posted_at_timestamp * 1000),
+            created_at: serverTimestamp()
+          });
+          addedCount++;
+        }
+      }
+
+      await batch.commit();
+      await setDoc(metaRef, { timestamp: Timestamp.fromDate(now) });
+      console.log(`Successfully added ${addedCount} new jobs.`);
+    }
+
+    // Always fetch from Firestore to return data
+    const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
+    const jobsSnapshot = await getDocs(jobsQuery);
+    const jobs = jobsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        // Ensure posted_on is a string for client-side rendering
+        posted_on: data.posted_on.toDate().toISOString(),
+      };
+    });
+
+    return { jobs: jobs as any[] };
+
+  } catch (error) {
+    console.error("Error in fetchAndCacheJobs:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while fetching jobs.";
+    // Fallback: try to read from cache even if API fails
+    try {
+      const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
+      const jobsSnapshot = await getDocs(jobsQuery);
+      if (!jobsSnapshot.empty) {
+        const jobs = jobsSnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            posted_on: data.posted_on.toDate().toISOString(),
+          };
+        });
+        return { jobs: jobs as any[], error: `Could not refresh job listings: ${errorMessage}. Displaying cached data.` };
+      }
+    } catch (cacheError) {
+      // If both API and cache fail
+      return { jobs: [], error: errorMessage };
+    }
+    return { jobs: [], error: errorMessage };
+  }
 }
