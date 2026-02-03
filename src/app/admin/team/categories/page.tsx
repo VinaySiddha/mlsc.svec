@@ -34,7 +34,7 @@ export default async function TeamCategoriesPage() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
-                         <Button asChild variant="glass">
+                        <Button asChild variant="glass">
                             <Link href="/admin/team/categories/new">
                                 <PlusCircle className="mr-2 h-4 w-4" />
                                 Add Category
@@ -59,7 +59,7 @@ export default async function TeamCategoriesPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <TeamCategoriesTable categories={categories} />
+                            <TeamCategoriesTable categories={categories || []} />
                         </CardContent>
                     </Card>
                 </div>

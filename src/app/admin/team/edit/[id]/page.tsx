@@ -25,7 +25,7 @@ export default async function EditTeamMemberPage({ params }: { params: { id: str
     }
 
     return (
-         <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen">
             <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
                 <div className="container mx-auto flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -34,17 +34,17 @@ export default async function EditTeamMemberPage({ params }: { params: { id: str
                             Edit Team Member
                         </h1>
                     </div>
-                     <Button asChild variant="glass">
+                    <Button asChild variant="glass">
                         <Link href="/admin/team">
                             <ArrowLeft className="mr-2 h-4 w-4" />
-                           Back to Team
+                            Back to Team
                         </Link>
                     </Button>
                 </div>
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="container mx-auto">
-                     <Card className="max-w-2xl mx-auto glass-card">
+                    <Card className="max-w-2xl mx-auto glass-card">
                         <CardHeader>
                             <CardTitle>Edit Member Details</CardTitle>
                             <CardDescription>
@@ -52,7 +52,7 @@ export default async function EditTeamMemberPage({ params }: { params: { id: str
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <TeamMemberForm member={member as any} categories={categories} isAdmin={true} />
+                            <TeamMemberForm member={member as any} categories={categories || []} isAdmin={true} />
                         </CardContent>
                     </Card>
                 </div>

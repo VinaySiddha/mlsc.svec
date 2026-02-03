@@ -19,8 +19,8 @@ export default async function TeamManagementPage() {
 
     const { members, error } = await getAllTeamMembersWithCategory();
 
-    if (error) {
-        return <div>Error loading team members: {error}</div>
+    if (error || !members) {
+        return <div>Error loading team members: {error || "Unknown error"}</div>
     }
 
     const hasPending = members.some(m => m.status === 'pending');
@@ -37,7 +37,7 @@ export default async function TeamManagementPage() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
-                         <Button asChild variant="glass">
+                        <Button asChild variant="glass">
                             <Link href="/admin/team/new">
                                 <PlusCircle className="mr-2 h-4 w-4" />
                                 Add Member

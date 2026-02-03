@@ -14,27 +14,27 @@ import { PaginationComponent } from "@/components/pagination";
 import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
 
 function ApplicationsDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
-    const domainLabels: Record<string, string> = {
-      gen_ai: "Generative AI",
-      ds_ml: "Data Science & ML",
-      azure: "Azure Cloud",
-      web_app: "Web & App Development",
-    };
-    const description = panelDomain
-      ? `Applications for the ${domainLabels[panelDomain]} domain.`
-      : `Loading applications...`;
+  const domainLabels: Record<string, string> = {
+    gen_ai: "Generative AI",
+    ds_ml: "Data Science & ML",
+    azure: "Azure Cloud",
+    web_app: "Web & App Development",
+  };
+  const description = panelDomain
+    ? `Applications for the ${domainLabels[panelDomain]} domain.`
+    : `Loading applications...`;
 
-    return (
-        <>
-            <CardHeader>
-                <CardTitle className="text-lg">Applications</CardTitle>
-                <CardDescription className="text-xs">{description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <ApplicationsTableSkeleton />
-            </CardContent>
-        </>
-    );
+  return (
+    <>
+      <CardHeader>
+        <CardTitle className="text-lg">Applications</CardTitle>
+        <CardDescription className="text-xs">{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ApplicationsTableSkeleton />
+      </CardContent>
+    </>
+  );
 }
 
 async function ApplicationsDashboard({
@@ -44,7 +44,7 @@ async function ApplicationsDashboard({
 }: {
   panelDomain?: string;
   userRole: string | null;
-  searchParams: { [key:string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
   const searchBy = typeof searchParams.searchBy === 'string' ? searchParams.searchBy : 'rollNo';
@@ -58,21 +58,21 @@ async function ApplicationsDashboard({
   const lastVisibleId = typeof searchParams.lastVisibleId === 'string' ? searchParams.lastVisibleId : undefined;
   const attendedOnly = typeof searchParams.attendedOnly === 'string' ? searchParams.attendedOnly === 'true' : undefined;
 
-  const { applications, hasNextPage, currentPage } = await getApplications({ 
-    panelDomain, 
-    search, 
+  const { applications, hasNextPage, currentPage } = await getApplications({
+    panelDomain,
+    search,
     searchBy,
-    status, 
-    year, 
-    branch, 
-    domain, 
+    status,
+    year,
+    branch,
+    domain,
     sortByPerformance,
     sortByRecommended,
     page,
     lastVisibleId,
     attendedOnly,
   });
-  
+
   const filterData = {
     statuses: ['Received', 'Under Processing', 'Interviewing', 'Recommended', 'Hired', 'Rejected'],
     years: ["2nd", "3rd"],
@@ -86,7 +86,7 @@ async function ApplicationsDashboard({
     azure: "Azure Cloud",
     web_app: "Web & App Development",
   };
-  
+
   const description = panelDomain
     ? `Applications for the ${domainLabels[panelDomain]} domain.`
     : `View and manage all submitted applications.`;
@@ -100,19 +100,19 @@ async function ApplicationsDashboard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-         <AdminFilters
+        <AdminFilters
           userRole={userRole}
           panelDomain={panelDomain}
           filterData={filterData}
           currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended, attendedOnly: searchParams.attendedOnly as string }}
-         />
+        />
         <Suspense fallback={<ApplicationsTableSkeleton />}>
-            <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
+          <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
         </Suspense>
-        <PaginationComponent 
-            hasNextPage={hasNextPage} 
-            currentPage={currentPage} 
-            applications={applications}
+        <PaginationComponent
+          hasNextPage={hasNextPage || false}
+          currentPage={currentPage || 1}
+          applications={applications}
         />
       </CardContent>
     </>

@@ -17,8 +17,7 @@ import {
   Cell,
   Sector,
 } from 'recharts';
-import { useCallback, useState, useEffect } from 'react';
-import { getAnalyticsData } from '@/app/actions';
+import { useCallback, useState } from 'react';
 import { Skeleton } from './ui/skeleton';
 
 interface AnalyticsData {
@@ -100,43 +99,17 @@ function AnalyticsSkeleton() {
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="lg:col-span-4 glass-card p-6">
-           <Skeleton className="h-[350px] w-full" />
+          <Skeleton className="h-[350px] w-full" />
         </Card>
         <Card className="lg:col-span-3 glass-card p-6">
-           <Skeleton className="h-[350px] w-full" />
+          <Skeleton className="h-[350px] w-full" />
         </Card>
       </div>
     </div>
   )
 }
 
-export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string }) {
-  const [data, setData] = useState<AnalyticsData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      try {
-        const result = await getAnalyticsData(panelDomain);
-        if ('error' in result) {
-          setError(result.error ?? "Failed to fetch analytics data.");
-          setData(null);
-        } else {
-          setData(result as AnalyticsData);
-        }
-      } catch (e) {
-        setError("An unexpected error occurred.");
-        setData(null);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchData();
-  }, [panelDomain]);
-
-
+export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
   const [statusIndex, setStatusIndex] = useState(0);
   const [branchIndex, setBranchIndex] = useState(0);
   const [yearIndex, setYearIndex] = useState(0);
@@ -146,26 +119,8 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
     setter(index);
   }, []);
 
-  if (isLoading) {
+  if (!data) {
     return <AnalyticsSkeleton />;
-  }
-
-  if (error || !data) {
-    return (
-      <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg text-destructive">
-                <AlertCircle className="h-5 w-5" />
-                Analytics Error
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-destructive-foreground">
-              {error || "Could not load analytics data."}
-            </p>
-          </CardContent>
-        </Card>
-    )
   }
 
   return (
@@ -192,7 +147,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
             <p className="text-xs text-muted-foreground">Candidates who attended interviews</p>
           </CardContent>
         </Card>
-         <Card className="glass-card">
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
@@ -204,7 +159,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
             <p className="text-xs text-muted-foreground">From application to interview</p>
           </CardContent>
         </Card>
-         <Card className="glass-card">
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Candidates Hired</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
@@ -214,7 +169,7 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
             <p className="text-xs text-muted-foreground">Total candidates hired</p>
           </CardContent>
         </Card>
-         <Card className="glass-card">
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Candidates Rejected</CardTitle>
             <UserX className="h-4 w-4 text-muted-foreground" />
@@ -225,10 +180,10 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Domain Charts */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-         <Card className="lg:col-span-4 glass-card">
+        <Card className="lg:col-span-4 glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart className="h-5 w-5" />
@@ -263,28 +218,28 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
-                <RechartsPieChart>
-                    <Pie
-                        activeIndex={nonTechIndex}
-                        activeShape={renderActiveShape}
-                        data={data.nonTechDomainData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={80}
-                        outerRadius={110}
-                        fill="hsl(var(--chart-2))"
-                        dataKey="count"
-                        onMouseEnter={(_: any, index: number) => setNonTechIndex(index)}
-                    >
-                        {data.nonTechDomainData.map((entry, index) => (
-                        <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                    </Pie>
-                    <Legend
-                        iconType="circle"
-                        formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                    />
-                </RechartsPieChart>
+              <RechartsPieChart>
+                <Pie
+                  activeIndex={nonTechIndex}
+                  activeShape={renderActiveShape}
+                  data={data.nonTechDomainData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={80}
+                  outerRadius={110}
+                  fill="hsl(var(--chart-2))"
+                  dataKey="count"
+                  onMouseEnter={(_: any, index: number) => setNonTechIndex(index)}
+                >
+                  {data.nonTechDomainData.map((entry, index) => (
+                    <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Legend
+                  iconType="circle"
+                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
+                />
+              </RechartsPieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
@@ -302,33 +257,33 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <RechartsPieChart>
-                 <Pie
-                    activeIndex={statusIndex}
-                    activeShape={renderActiveShape}
-                    data={data.statusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    fill="hsl(var(--chart-3))"
-                    dataKey="count"
-                    onMouseEnter={(_: any, index: number) => setStatusIndex(index)}
-                 >
-                    {data.statusData.map((entry, index) => (
-                      <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                 </Pie>
-                 <Tooltip
+                <Pie
+                  activeIndex={statusIndex}
+                  activeShape={renderActiveShape}
+                  data={data.statusData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  fill="hsl(var(--chart-3))"
+                  dataKey="count"
+                  onMouseEnter={(_: any, index: number) => setStatusIndex(index)}
+                >
+                  {data.statusData.map((entry, index) => (
+                    <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     borderColor: 'hsl(var(--border))',
                     color: 'hsl(var(--card-foreground))'
                   }}
-                 />
-                 <Legend
-                    iconType="circle"
-                    formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                 />
+                />
+                <Legend
+                  iconType="circle"
+                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
+                />
               </RechartsPieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -344,33 +299,33 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <RechartsPieChart>
-                 <Pie
-                    activeIndex={branchIndex}
-                    activeShape={renderActiveShape}
-                    data={data.branchData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    fill="hsl(var(--chart-4))"
-                    dataKey="count"
-                    onMouseEnter={(_: any, index: number) => setBranchIndex(index)}
-                 >
-                    {data.branchData.map((entry, index) => (
-                      <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                 </Pie>
-                 <Tooltip
+                <Pie
+                  activeIndex={branchIndex}
+                  activeShape={renderActiveShape}
+                  data={data.branchData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  fill="hsl(var(--chart-4))"
+                  dataKey="count"
+                  onMouseEnter={(_: any, index: number) => setBranchIndex(index)}
+                >
+                  {data.branchData.map((entry, index) => (
+                    <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     borderColor: 'hsl(var(--border))',
                     color: 'hsl(var(--card-foreground))'
                   }}
-                 />
-                 <Legend
-                    iconType="circle"
-                    formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                 />
+                />
+                <Legend
+                  iconType="circle"
+                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
+                />
               </RechartsPieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -386,33 +341,33 @@ export function AdminDashboardAnalytics({ panelDomain }: { panelDomain?: string 
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <RechartsPieChart>
-                 <Pie
-                    activeIndex={yearIndex}
-                    activeShape={renderActiveShape}
-                    data={data.yearData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    fill="hsl(var(--chart-5))"
-                    dataKey="count"
-                    onMouseEnter={(_: any, index: number) => setYearIndex(index)}
-                 >
-                    {data.yearData.map((entry, index) => (
-                      <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                 </Pie>
-                 <Tooltip
+                <Pie
+                  activeIndex={yearIndex}
+                  activeShape={renderActiveShape}
+                  data={data.yearData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  fill="hsl(var(--chart-5))"
+                  dataKey="count"
+                  onMouseEnter={(_: any, index: number) => setYearIndex(index)}
+                >
+                  {data.yearData.map((entry, index) => (
+                    <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     borderColor: 'hsl(var(--border))',
                     color: 'hsl(var(--card-foreground))'
                   }}
-                 />
-                 <Legend
-                    iconType="circle"
-                    formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                 />
+                />
+                <Legend
+                  iconType="circle"
+                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
+                />
               </RechartsPieChart>
             </ResponsiveContainer>
           </CardContent>

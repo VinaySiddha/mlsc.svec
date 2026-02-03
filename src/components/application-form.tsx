@@ -58,9 +58,9 @@ const formSchema = z.object({
   rollNo: z.string().min(1, "Roll number is required."),
   branch: z.string({ required_error: "Please select your branch." }),
   section: z.string({ required_error: "Please select your section." }),
-  yearOfStudy: z.string({ required_error: "Please select your year of study."}),
-  cgpa: z.string().min(1, "CGPA is required.").refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 10, { message: "Please enter a valid CGPA between 0 and 10."}),
-  backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number."}),
+  yearOfStudy: z.string({ required_error: "Please select your year of study." }),
+  cgpa: z.string().min(1, "CGPA is required.").refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 10, { message: "Please enter a valid CGPA between 0 and 10." }),
+  backlogs: z.string().min(1, "Number of backlogs is required.").refine(val => !isNaN(parseInt(val)) && parseInt(val) >= 0, { message: "Please enter a valid number." }),
   joinReason: z.string().min(20, "Response must be at least 20 characters long.").max(1000, "Response cannot exceed 1000 characters."),
   aboutClub: z.string().min(20, "Response must be at least 20 characters long.").max(1000, "Response cannot exceed 1000 characters."),
   technicalDomain: z.string({ required_error: "Please select a technical domain." }).min(1, "Please select a technical domain."),
@@ -87,7 +87,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function ApplicationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<{name: string, referenceId: string | null, summary: string | null} | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<{ name: string, referenceId: string | null, summary: string | null } | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -121,15 +121,15 @@ export function ApplicationForm() {
         formData.append(key, value as string);
       }
     });
-    
+
     try {
       const result = await submitApplication(formData);
 
       if (result.error) {
         throw new Error(result.error);
       }
-      
-      setSubmissionResult({ name: values.name, referenceId: result.referenceId, summary: result.summary });
+
+      setSubmissionResult({ name: values.name, referenceId: result.referenceId || null, summary: result.summary || null });
       toast({
         title: "Application Submitted!",
         description: "We've received your application. Keep your reference ID safe.",
@@ -157,69 +157,69 @@ export function ApplicationForm() {
 
   if (submissionResult) {
     return (
-       <Card className="bg-background">
-          <CardHeader>
-             <CardTitle className="flex items-center gap-2 text-2xl">
-              <ThumbsUp className="h-8 w-8 text-green-500" />
-              <span>Application Received!</span>
-            </CardTitle>
-            <CardDescription>
-              Your application has been submitted successfully. Here is your digital ID card.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-             <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle className="font-bold">Important: Save Your Reference ID</AlertTitle>
-                <AlertDescription>
-                  Please copy and save your Reference ID below. You will need it to check your application status.
-                </AlertDescription>
-             </Alert>
-            
-             {submissionResult.summary && (
-              <div>
-                <Label className="text-sm font-medium text-foreground">AI-Generated Resume Summary</Label>
-                 <blockquote className="text-sm text-muted-foreground mt-2 p-3 border rounded-md bg-muted/50 italic">
-                  {submissionResult.summary}
-                </blockquote>
-              </div>
-             )}
+      <Card className="bg-background">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl">
+            <ThumbsUp className="h-8 w-8 text-green-500" />
+            <span>Application Received!</span>
+          </CardTitle>
+          <CardDescription>
+            Your application has been submitted successfully. Here is your digital ID card.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="font-bold">Important: Save Your Reference ID</AlertTitle>
+            <AlertDescription>
+              Please copy and save your Reference ID below. You will need it to check your application status.
+            </AlertDescription>
+          </Alert>
+
+          {submissionResult.summary && (
+            <div>
+              <Label className="text-sm font-medium text-foreground">AI-Generated Resume Summary</Label>
+              <blockquote className="text-sm text-muted-foreground mt-2 p-3 border rounded-md bg-muted/50 italic">
+                {submissionResult.summary}
+              </blockquote>
+            </div>
+          )}
 
 
-             <DigitalIdCard
-                name={submissionResult.name}
-                referenceId={submissionResult.referenceId!}
-             />
+          <DigitalIdCard
+            name={submissionResult.name}
+            referenceId={submissionResult.referenceId!}
+          />
 
-            {submissionResult.referenceId && (
-              <div>
-                <Label htmlFor="referenceId" className="text-sm font-medium text-foreground">Your Unique Reference ID</Label>
-                <div className="flex items-center gap-2 mt-2">
-                  <Input 
-                    id="referenceId"
-                    readOnly 
-                    value={submissionResult.referenceId} 
-                    className="bg-muted font-mono text-base"
-                  />
-                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
-                    <ClipboardCopy className="h-5 w-5" />
-                    <span className="sr-only">Copy Reference ID</span>
-                  </Button>
-                </div>
-              </div>
-            )}
-             <div className="text-center space-y-4">
-                <p className="text-sm font-medium">📢 Stay Updated! Join our WhatsApp group for important announcements.</p>
-                <Button asChild className="bg-green-600 hover:bg-green-700">
-                  <Link href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank">
-                    Join WhatsApp Group
-                  </Link>
+          {submissionResult.referenceId && (
+            <div>
+              <Label htmlFor="referenceId" className="text-sm font-medium text-foreground">Your Unique Reference ID</Label>
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  id="referenceId"
+                  readOnly
+                  value={submissionResult.referenceId}
+                  className="bg-muted font-mono text-base"
+                />
+                <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
+                  <ClipboardCopy className="h-5 w-5" />
+                  <span className="sr-only">Copy Reference ID</span>
                 </Button>
               </div>
+            </div>
+          )}
+          <div className="text-center space-y-4">
+            <p className="text-sm font-medium">📢 Stay Updated! Join our WhatsApp group for important announcements.</p>
+            <Button asChild className="bg-green-600 hover:bg-green-700">
+              <Link href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank">
+                Join WhatsApp Group
+              </Link>
+            </Button>
+          </div>
 
-             <Button onClick={() => window.location.reload()} variant="outline">Submit another application</Button>
-          </CardContent>
-        </Card>
+          <Button onClick={() => window.location.reload()} variant="outline">Submit another application</Button>
+        </CardContent>
+      </Card>
     )
   }
 
@@ -281,66 +281,66 @@ export function ApplicationForm() {
               )}
             />
             <FormField
-                control={form.control}
-                name="branch"
-                render={({ field }) => (
+              control={form.control}
+              name="branch"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Branch *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Branch *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <SelectTrigger>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select your branch" />
-                        </SelectTrigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                      {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
                     </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  </Select>
+                  <FormMessage />
                 </FormItem>
-                )}
+              )}
             />
             <FormField
-                control={form.control}
-                name="section"
-                render={({ field }) => (
+              control={form.control}
+              name="section"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Section *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Section *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <SelectTrigger>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select your section" />
-                        </SelectTrigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        {sections.map(section => <SelectItem key={section} value={section}>{section}</SelectItem>)}
+                      {sections.map(section => <SelectItem key={section} value={section}>{section}</SelectItem>)}
                     </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  </Select>
+                  <FormMessage />
                 </FormItem>
-                )}
+              )}
             />
             <FormField
-                control={form.control}
-                name="yearOfStudy"
-                render={({ field }) => (
+              control={form.control}
+              name="yearOfStudy"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Current Year of Study *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Current Year of Study *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <SelectTrigger>
+                      <SelectTrigger>
                         <SelectValue placeholder="Select your year" />
-                        </SelectTrigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                      {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
                     </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  </Select>
+                  <FormMessage />
                 </FormItem>
-                )}
+              )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="cgpa"
               render={({ field }) => (
@@ -403,7 +403,7 @@ export function ApplicationForm() {
               </FormItem>
             )}
           />
-          
+
           <div className="space-y-8">
             <FormField
               control={form.control}
@@ -463,19 +463,19 @@ export function ApplicationForm() {
           </div>
 
           <FormField
-              control={form.control}
-              name="linkedin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>LinkedIn Profile (Link)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          
+            control={form.control}
+            name="linkedin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>LinkedIn Profile (Link)</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="anythingElse"
@@ -494,27 +494,27 @@ export function ApplicationForm() {
             )}
           />
 
-           <FormField
-              control={form.control}
-              name="resume"
-              render={({ field: { onChange, value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>Resume *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="file" 
-                      accept=".pdf,.docx"
-                      onChange={(e) => onChange(e.target.files)}
-                      {...rest}
-                    />
-                  </FormControl>
-                  <FormDescription>Upload your resume (PDF or DOCX, max 5MB).</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="resume"
+            render={({ field: { onChange, value, ...rest } }) => (
+              <FormItem>
+                <FormLabel>Resume *</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept=".pdf,.docx"
+                    onChange={(e) => onChange(e.target.files)}
+                    {...rest}
+                  />
+                </FormControl>
+                <FormDescription>Upload your resume (PDF or DOCX, max 5MB).</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
+          <FormField
             control={form.control}
             name="terms"
             render={({ field }) => (
@@ -532,7 +532,7 @@ export function ApplicationForm() {
                   <FormDescription>
                     By submitting this application, you agree to our data handling and privacy policies.
                   </FormDescription>
-                   <FormMessage />
+                  <FormMessage />
                 </div>
               </FormItem>
             )}

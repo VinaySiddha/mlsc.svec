@@ -39,7 +39,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
     const [isSending, startTransition] = useTransition();
     const [actionType, setActionType] = useState<'reminders' | 'feedback' | 'export' | null>(null);
     const { toast } = useToast();
-    
+
     const eventId = params.id;
 
     useEffect(() => {
@@ -56,7 +56,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                 if (registrationsResult.error) {
                     throw new Error(registrationsResult.error);
                 }
-                setRegistrations(registrationsResult.registrations);
+                setRegistrations(registrationsResult.registrations || []);
 
             } catch (e: any) {
                 setError(e.message);
@@ -136,19 +136,19 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                     toast({
+                    toast({
                         title: "Export Successful",
                         description: "The registrations list has been downloaded as a CSV file."
                     });
                 } else {
-                     toast({
+                    toast({
                         variant: 'destructive',
                         title: "No Data",
                         description: "There are no registrations to export."
                     });
                 }
             } catch (e: any) {
-                 toast({
+                toast({
                     variant: 'destructive',
                     title: "Export Failed",
                     description: e.message || "An unknown error occurred."
@@ -162,10 +162,10 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
 
     if (isLoading) {
         return (
-             <div className="flex flex-col min-h-screen items-center justify-center">
+            <div className="flex flex-col min-h-screen items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin" />
                 <p className="text-muted-foreground mt-2">Loading registrations...</p>
-             </div>
+            </div>
         )
     }
 
@@ -186,7 +186,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                             <p className="text-sm text-muted-foreground">{event?.title}</p>
                         </div>
                     </div>
-                     <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <Button onClick={handleSendReminders} variant="outline" disabled={isSending}>
                             {isSending && actionType === 'reminders' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Send Reminders
@@ -195,7 +195,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                             {isSending && actionType === 'feedback' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuote className="mr-2 h-4 w-4" />}
                             Send Feedback Forms
                         </Button>
-                         <Button onClick={handleExportCsv} variant="outline" disabled={isSending}>
+                        <Button onClick={handleExportCsv} variant="outline" disabled={isSending}>
                             {isSending && actionType === 'export' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                             Export to CSV
                         </Button>
@@ -205,7 +205,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                                 Back to Events
                             </Link>
                         </Button>
-                     </div>
+                    </div>
                 </div>
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">

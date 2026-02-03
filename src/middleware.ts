@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as jose from "jose";
-import { logVisitor } from "./app/middleware-actions";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -27,12 +26,16 @@ export async function middleware(req: NextRequest) {
   if (isLoggable) {
     const ip = req.ip ?? '127.0.0.1';
     const userAgent = req.headers.get('user-agent') ?? 'unknown';
-    
-    // Fire-and-forget log action without awaiting it
-    logVisitor({
-      ip,
-      userAgent,
-      path: pathname,
+
+    // Fire-and-forget log action via API route to avoid Edge Runtime issues with Firebase
+    fetch(new URL('/api/log-visitor', req.url).toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ip,
+        userAgent,
+        path: pathname,
+      })
     }).catch(console.error);
   }
 
@@ -67,13 +70,13 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === "/login") {
     if (sessionToken) {
-       const payload = await verifyToken(sessionToken);
-       if (payload) {
-         const url = req.nextUrl.clone()
-         url.pathname = '/admin'
-         url.search = '' // Clear query params
-         return NextResponse.rewrite(url);
-       }
+      const payload = await verifyToken(sessionToken);
+      if (payload) {
+        const url = req.nextUrl.clone()
+        url.pathname = '/admin'
+        url.search = '' // Clear query params
+        return NextResponse.rewrite(url);
+      }
     }
   }
 
