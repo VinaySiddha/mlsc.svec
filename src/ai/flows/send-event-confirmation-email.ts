@@ -6,7 +6,7 @@ import type { EventConfirmationEmailInput } from '@/app/actions';
 
 
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Event emails will not be sent.");
+  console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Event emails will not be sent.");
 }
 
 export async function sendEventConfirmationEmail(input: EventConfirmationEmailInput): Promise<void> {
@@ -18,11 +18,11 @@ export async function sendEventConfirmationEmail(input: EventConfirmationEmailIn
   }
 
   const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-          user: process.env.GMAIL_USER,
-          pass: process.env.GMAIL_APP_PASSWORD,
-      },
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
   });
 
   const subject = `Confirmation for ${eventName}`;
@@ -33,7 +33,7 @@ export async function sendEventConfirmationEmail(input: EventConfirmationEmailIn
     <div style="padding: 20px;">
       <h2 style="color: #222; font-size: 20px; font-weight: 600;">Hi ${name},</h2>
       <p style="font-size: 16px;">
-        Thank you for registering for our event: <strong>${eventName}</strong>. We're excited to have you join us!
+        Thank you for registering for our event: <strong>${eventName}</strong>. 
       </p>
       <div style="background-color: #f1f5f9; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; margin: 20px 0;">
         <p style="margin: 0 0 8px 0;"><strong>Event Details:</strong></p>
@@ -42,8 +42,8 @@ export async function sendEventConfirmationEmail(input: EventConfirmationEmailIn
       </div>
       ${eventLink ? `
       <div style="text-align: center; margin: 30px 0;">
-        <p style="font-size: 16px;">Click the button below to join the event group or access the meeting:</p>
-        <a href="${eventLink}" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Access Event Link</a>
+        <p style="font-size: 16px;">To check your registration status, please join the WhatsApp group below.</p>
+        <a href="${eventLink}" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Whatsapp Group</a>
       </div>
       ` : ''}
       <p>We'll send you a reminder before the event. We look forward to seeing you there.</p>
@@ -51,12 +51,12 @@ export async function sendEventConfirmationEmail(input: EventConfirmationEmailIn
     </div>
   </div>
   `;
-  
+
   const mailOptions = {
-      from: `"MLSC Events" <${process.env.GMAIL_USER}>`,
-      to: email,
-      subject: subject,
-      html: htmlBody,
+    from: `"MLSC Events" <${process.env.GMAIL_USER}>`,
+    to: email,
+    subject: subject,
+    html: htmlBody,
   };
 
   try {

@@ -168,18 +168,21 @@ export default function EventsPage() {
                 <div className="grid gap-8 lg:gap-12">
                   {events.map((event: any) => (
                     <Card key={event.id} className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
-                      <div className="lg:w-1/3">
+                      <div className="relative h-48 lg:h-auto lg:w-1/3">
                         <Image
-                          src={event.listImage || event.bannerImage}
+                          src={event.listImage || event.bannerImage || '/images/event-placeholder.png'}
                           alt={event.title}
-                          width={600}
-                          height={400}
-                          className="rounded-t-lg lg:rounded-l-lg lg:rounded-t-none object-cover h-full w-full"
-                          data-ai-hint="event photo"
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
                         />
                       </div>
                       <div className="p-6 flex flex-col flex-1 lg:w-2/3">
-                        <p className="text-sm text-primary font-medium">{format(new Date(event.date), "MMMM d, yyyy")}</p>
+                        <p className="text-sm text-primary font-medium">
+                          {event.date && !isNaN(new Date(event.date).getTime())
+                            ? format(new Date(event.date), "MMMM d, yyyy")
+                            : "Date TBA"}
+                        </p>
                         <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
                         <p className="text-muted-foreground mt-2 flex-1">{event.description}</p>
 
