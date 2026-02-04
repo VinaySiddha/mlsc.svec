@@ -219,6 +219,22 @@ export default async function AdminPage() {
                 <Card className="glass-card flex flex-col justify-between">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
+                      <Home />
+                      Home Page Management
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Manage Hero, Ambassadors, Gallery, and Chapters.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild variant="glass" size="sm">
+                      <Link href="/admin/home">Manage Home</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                <Card className="glass-card flex flex-col justify-between">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
                       <BarChart2 />
                       Hiring Analytics
                     </CardTitle>
