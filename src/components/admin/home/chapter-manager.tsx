@@ -46,6 +46,9 @@ export function ChapterManager() {
                 ...doc.data(),
             })) as Chapter[];
             setChapters(data);
+        }, (error) => {
+            console.error("Error fetching chapters:", error);
+            // Optionally add toast here if imported
         });
 
         return () => unsubscribe();

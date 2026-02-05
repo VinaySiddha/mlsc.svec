@@ -6,3 +6,27 @@ runConfig:
   # more instances in response to increased traffic.
   maxInstances: 10
 
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyDZz0vWiVJHkqeQW5LUAaKOX7sxRTn25a0"
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "mlsc-30.firebaseapp.com"
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "mlsc-30"
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "mlsc-30.firebasestorage.app"
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "376409105264"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:376409105264:web:fe8daa1d8724e7d13e25b5"
+# Secrets (These must match the Secret Name in Google Cloud Secret Manager)
+  - variable: JWT_SECRET
+    secret: JWT_SECRET
+  - variable: GOOGLE_API_KEY
+    secret: GOOGLE_API_KEY
+  - variable: GMAIL_USER
+    secret: GMAIL_USER
+  - variable: GMAIL_APP_PASSWORD
+    secret: GMAIL_APP_PASSWORD
+  - variable: JSEARCH_API_KEY
+    secret: JSEARCH_API_KEY

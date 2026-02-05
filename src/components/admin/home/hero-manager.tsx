@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db, storage } from "@/lib/firebase";
 import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -22,6 +22,7 @@ export function HeroManager() {
     const [images, setImages] = useState<HeroImage[]>([]);
     const [loading, setLoading] = useState(false);
     const [file, setFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const q = query(collection(db, "home_hero"), orderBy("createdAt", "desc"));
@@ -31,42 +32,54 @@ export function HeroManager() {
                 ...doc.data(),
             })) as HeroImage[];
             setImages(data);
+        }, (error) => {
+            console.error("Error fetching hero images:", error);
+            toast({
+                title: "Error",
+                description: "Failed to load hero images.",
+                variant: "destructive",
+            });
         });
 
         return () => unsubscribe();
     }, []);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
-        }
-    };
-
-    const handeUpload = async () => {
+    const handleUpload = async () => {
         if (!file) return;
 
         setLoading(true);
+        let storagePath = "";
         try {
-            const path = `home/hero/${Date.now()}_${file.name}`;
-            const storageRef = ref(storage, path);
-
-            const snapshot = await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(snapshot.ref);
+            const storageRef = ref(storage, `home/hero/${Date.now()}_${file.name}`);
+            storagePath = storageRef.fullPath;
+            await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(storageRef);
 
             await addDoc(collection(db, "home_hero"), {
-                url,
-                path,
-                createdAt: serverTimestamp(),
+                url: downloadURL,
+                path: storagePath, // Save path for deletion
+                createdAt: new Date().toISOString()
             });
 
+            setFile(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
             toast({
                 title: "Success",
-                description: "Hero image uploaded successfully.",
+                description: "Hero image uploaded.",
             });
-            setFile(null);
-            // Reset input manually if needed, or rely on state trigger
         } catch (error) {
             console.error("Upload error:", error);
+            // Cleanup storage if firestore fails
+            if (storagePath) {
+                try {
+                    const storageRef = ref(storage, storagePath);
+                    await deleteObject(storageRef);
+                } catch (cleanupError) {
+                    console.error("Cleanup error:", cleanupError);
+                }
+            }
             toast({
                 title: "Error",
                 description: "Failed to upload image.",
@@ -78,9 +91,17 @@ export function HeroManager() {
     };
 
     const handleDelete = async (image: HeroImage) => {
+        if (!confirm("Are you sure you want to delete this image?")) return;
+
+        setLoading(true);
         try {
             const storageRef = ref(storage, image.path);
-            await deleteObject(storageRef);
+            try {
+                await deleteObject(storageRef);
+            } catch (storageError) {
+                console.error("Storage delete error (continuing):", storageError);
+            }
+
             await deleteDoc(doc(db, "home_hero", image.id));
 
             toast({
@@ -94,19 +115,27 @@ export function HeroManager() {
                 description: "Failed to delete image.",
                 variant: "destructive",
             });
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="space-y-6">
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="hero-image">Upload New Image</Label>
-                <div className="flex gap-2">
-                    <Input id="hero-image" type="file" accept="image/*" onChange={handleFileChange} />
-                    <Button onClick={handeUpload} disabled={!file || loading}>
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    </Button>
+            <div className="flex gap-4 items-end">
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                    <Label htmlFor="hero-image">Upload New Hero Image</Label>
+                    <Input
+                        id="hero-image"
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    />
                 </div>
+                <Button onClick={handleUpload} disabled={!file || loading}>
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

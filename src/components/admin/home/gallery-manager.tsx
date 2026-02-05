@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db, storage } from "@/lib/firebase";
 import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -25,6 +25,7 @@ export function GalleryManager() {
     const [loading, setLoading] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [type, setType] = useState<'moments' | 'milestones'>('moments');
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const q = query(collection(db, "home_gallery"), orderBy("createdAt", "desc"));
@@ -34,6 +35,13 @@ export function GalleryManager() {
                 ...doc.data(),
             })) as GalleryImage[];
             setImages(data);
+        }, (error) => {
+            console.error("Error fetching gallery images:", error);
+            toast({
+                title: "Error",
+                description: "Failed to load gallery images.",
+                variant: "destructive",
+            });
         });
 
         return () => unsubscribe();
@@ -67,6 +75,9 @@ export function GalleryManager() {
                 title: "Success",
                 description: "Image uploaded successfully.",
             });
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""; // Reset file input
+            }
             setFile(null);
         } catch (error) {
             console.error("Upload error:", error);
@@ -81,9 +92,17 @@ export function GalleryManager() {
     };
 
     const handleDelete = async (image: GalleryImage) => {
+        if (!confirm("Are you sure you want to delete this image?")) return;
+
+        setLoading(true);
         try {
             const storageRef = ref(storage, image.path);
-            await deleteObject(storageRef);
+            try {
+                await deleteObject(storageRef);
+            } catch (storageError) {
+                console.error("Storage delete error (continuing):", storageError);
+            }
+
             await deleteDoc(doc(db, "home_gallery", image.id));
 
             toast({
@@ -97,6 +116,8 @@ export function GalleryManager() {
                 description: "Failed to delete image.",
                 variant: "destructive",
             });
+        } finally {
+            setLoading(false);
         }
     };
 

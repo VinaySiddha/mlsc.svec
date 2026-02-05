@@ -28,7 +28,20 @@ export function DynamicChapters() {
             try {
                 const q = query(collection(db, "home_chapters"), orderBy("createdAt", "asc")); // asc to show in order 1, 2, ...
                 const snapshot = await getDocs(q);
-                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Chapter[];
+                const data = snapshot.docs
+                    .map((doc) => {
+                        const raw = doc.data();
+                        if (typeof raw.name !== "string" || typeof raw.description !== "string" || !Array.isArray(raw.cards)) {
+                            return null;
+                        }
+                        return {
+                            id: doc.id,
+                            name: raw.name,
+                            description: raw.description,
+                            cards: raw.cards,
+                        };
+                    })
+                    .filter((item): item is Chapter => item !== null);
                 setChapters(data);
             } catch (error) {
                 console.error("Error fetching chapters:", error);
@@ -37,13 +50,15 @@ export function DynamicChapters() {
         fetchChapters();
     }, []);
 
-    if (chapters.length === 0) {
-        // Return static default chapters if none exist
-        return <StaticChapters />;
-    }
+    const getGridClass = (count: number) => {
+        if (count >= 3) return "grid-cols-1 md:grid-cols-3";
+        if (count === 2) return "grid-cols-1 md:grid-cols-2";
+        return "grid-cols-1";
+    };
 
     return (
         <>
+            <StaticChapters />
             {chapters.map((chapter) => (
                 <section key={chapter.id} className="py-20 bg-transparent">
                     <div className="container mx-auto px-4 text-center">
@@ -51,8 +66,8 @@ export function DynamicChapters() {
                         <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                             {chapter.description}
                         </p>
-                        <div className={`grid md:grid-cols-${Math.min(chapter.cards.length, 3)} gap-8 justify-center`}>
-                            {chapter.cards.map((card, idx) => (
+                        <div className={`grid gap-8 justify-center ${getGridClass(chapter.cards ? chapter.cards.length : 0)}`}>
+                            {(chapter.cards || []).map((card, idx) => (
                                 <div key={idx} className="glass-card p-6 text-left">
                                     <h3 className="text-xl font-bold mb-2">{card.title}</h3>
                                     <p className="text-muted-foreground">{card.content}</p>
