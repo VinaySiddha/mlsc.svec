@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2, Trash2, Pencil, Save, X, Plus } from "lucide-react";
-import { toast } from "@/hooks/use-toast"; // Assuming hooks path, will adjust if search result differs
+import { toast } from "@/hooks/use-toast"; // Correct hook import
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -36,11 +36,21 @@ export function AmbassadorManager() {
     useEffect(() => {
         const q = query(collection(db, "home_ambassadors"), orderBy("createdAt", "desc"));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as Ambassador[];
+            const data = snapshot.docs.map((doc) => {
+                const raw = doc.data();
+                return {
+                    id: doc.id,
+                    ...raw,
+                } as Ambassador;
+            }).filter(item => item.name && item.photoUrl); // Basic validation
             setAmbassadors(data);
+        }, (error) => {
+            console.error("Error fetching ambassadors:", error);
+            toast({
+                title: "Error",
+                description: "Failed to load ambassadors.",
+                variant: "destructive",
+            });
         });
 
         return () => unsubscribe();
@@ -58,7 +68,7 @@ export function AmbassadorManager() {
         }
     };
 
-    const handeAddAmbassador = async () => {
+    const handleAddAmbassador = async () => {
         if (!file || !name || !description) {
             toast({
                 title: "Missing fields",
@@ -105,9 +115,15 @@ export function AmbassadorManager() {
     const handleDelete = async (ambassador: Ambassador) => {
         if (!confirm("Are you sure you want to delete this ambassador?")) return;
 
+        setLoading(true);
         try {
+            // Try to delete storage object first
+            // CodeAnt suggested: "let the storage deletion error propagate so the entire delete operation fails"
+            // So we DO NOT catch the error here.
             const storageRef = ref(storage, ambassador.photoPath);
             await deleteObject(storageRef);
+
+            // If storage delete succeeds, then delete the doc
             await deleteDoc(doc(db, "home_ambassadors", ambassador.id));
 
             toast({
@@ -118,9 +134,11 @@ export function AmbassadorManager() {
             console.error("Delete error:", error);
             toast({
                 title: "Error",
-                description: "Failed to delete ambassador.",
+                description: "Failed to delete ambassador. Storage file might be missing or permission denied.",
                 variant: "destructive",
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -177,7 +195,7 @@ export function AmbassadorManager() {
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button onClick={handeAddAmbassador} disabled={loading}>
+                            <Button onClick={handleAddAmbassador} disabled={loading}>
                                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Save
                             </Button>

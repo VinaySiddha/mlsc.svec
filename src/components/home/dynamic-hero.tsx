@@ -25,6 +25,10 @@ interface HeroImage {
 }
 
 export function DynamicHero() {
+    const defaultImages: HeroImage[] = [
+        { id: "default1", url: "/team1.jpg" }
+    ];
+
     const [images, setImages] = useState<HeroImage[]>([]);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 20 });
 
@@ -33,7 +37,15 @@ export function DynamicHero() {
             try {
                 const q = query(collection(db, "home_hero"), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
-                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as HeroImage[];
+                const data = snapshot.docs
+                    .map((doc) => {
+                        const raw = doc.data() as { url?: unknown };
+                        if (typeof raw.url !== "string") {
+                            return null;
+                        }
+                        return { id: doc.id, url: raw.url };
+                    })
+                    .filter((item): item is HeroImage => item !== null);
                 setImages(data);
             } catch (error) {
                 console.error("Error fetching hero images:", error);
@@ -45,14 +57,18 @@ export function DynamicHero() {
     useEffect(() => {
         if (emblaApi) {
             const autoplay = setInterval(() => {
-                emblaApi.scrollNext();
-            }, 5000);
+                if (emblaApi.canScrollNext()) {
+                    emblaApi.scrollNext();
+                } else {
+                    emblaApi.scrollTo(0);
+                }
+            }, 4000); // 4 seconds delay
             return () => clearInterval(autoplay);
         }
     }, [emblaApi]);
 
-    // Fallback to static if no dynamic images
-    const heroImages = images.length > 0 ? images : [{ id: "default", url: "/team1.jpg" }];
+    // Combine default and dynamic images (Append Strategy)
+    const heroImages = [...defaultImages, ...images];
 
     return (
         <section className="relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
@@ -61,7 +77,7 @@ export function DynamicHero() {
                     {heroImages.map((img) => (
                         <div key={img.id} className="flex-[0_0_100%] min-w-0 relative h-[80vh] md:h-screen">
                             <div
-                                className="absolute inset-0 bg-cover bg-center transition-transform duration-500"
+                                className="absolute inset-0 bg-cover bg-center"
                                 style={{ backgroundImage: `url('${img.url}')` }}
                             />
                             <div className="absolute inset-0 bg-background/70 backdrop-brightness-50"></div>

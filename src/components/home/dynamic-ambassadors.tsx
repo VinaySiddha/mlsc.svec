@@ -21,7 +21,24 @@ export function DynamicAmbassadors() {
             try {
                 const q = query(collection(db, "home_ambassadors"), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
-                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Ambassador[];
+                const data = snapshot.docs
+                    .map((doc) => {
+                        const raw = doc.data();
+                        if (
+                            typeof raw.name !== "string" ||
+                            typeof raw.description !== "string" ||
+                            typeof raw.photoUrl !== "string"
+                        ) {
+                            return null;
+                        }
+                        return {
+                            id: doc.id,
+                            name: raw.name,
+                            description: raw.description,
+                            photoUrl: raw.photoUrl,
+                        };
+                    })
+                    .filter((item): item is Ambassador => item !== null);
                 setAmbassadors(data);
             } catch (error) {
                 console.error("Error fetching ambassadors:", error);
@@ -30,9 +47,7 @@ export function DynamicAmbassadors() {
         fetchAmbassadors();
     }, []);
 
-    // If no ambassadors, you might want to show default ones, or nothing. 
-    // Given strict "deployment ready", let's fallback to defaults if empty to preserve UI
-    const displayAmbassadors = ambassadors.length > 0 ? ambassadors : [
+    const defaultAmbassadors: Ambassador[] = [
         {
             id: "default1",
             name: "Chandu Neelam",
@@ -47,6 +62,9 @@ export function DynamicAmbassadors() {
         }
     ];
 
+    // Append Strategy: Defaults + Dynamic
+    const displayAmbassadors = [...defaultAmbassadors, ...ambassadors];
+
     return (
         <section className="py-12 md:py-16 bg-transparent">
             <div className="container mx-auto px-4 text-center">
@@ -54,7 +72,8 @@ export function DynamicAmbassadors() {
                 <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
                     Meet the leaders guiding our community.
                 </p>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                {/* Adaptive Layout: Centered 2-col for defaults, expands to 3-col when more items added */}
+                <div className={`grid gap-8 mx-auto ${displayAmbassadors.length <= 2 ? 'md:grid-cols-2 lg:grid-cols-2 max-w-4xl' : 'md:grid-cols-2 lg:grid-cols-3 max-w-6xl'}`}>
                     {displayAmbassadors.map((person) => (
                         <div key={person.id} className="glass-card p-6 flex flex-col items-center">
                             <div className="relative w-32 h-32 mb-4">
@@ -67,7 +86,6 @@ export function DynamicAmbassadors() {
                                 />
                             </div>
                             <h3 className="text-2xl font-bold">{person.name}</h3>
-                            {/* Assuming "MLSA" or similar title isn't stored in DB based on previous step, or part of description */}
                             <p className="text-sm text-muted-foreground mt-2">{person.description}</p>
                         </div>
                     ))}
