@@ -78,7 +78,7 @@ export function DynamicHero() {
                         <div key={img.id} className="flex-[0_0_100%] min-w-0 relative h-[80vh] md:h-screen">
                             <div
                                 className="absolute inset-0 bg-cover bg-center"
-                                style={{ backgroundImage: `url('${encodeURI(img.url)}')` }}
+                                style={{ backgroundImage: `url('${img.url}')` }}
                             />
                             <div className="absolute inset-0 bg-background/70 backdrop-brightness-50"></div>
                         </div>

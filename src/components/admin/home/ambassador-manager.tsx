@@ -36,10 +36,13 @@ export function AmbassadorManager() {
     useEffect(() => {
         const q = query(collection(db, "home_ambassadors"), orderBy("createdAt", "desc"));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as Ambassador[];
+            const data = snapshot.docs.map((doc) => {
+                const raw = doc.data();
+                return {
+                    id: doc.id,
+                    ...raw,
+                } as Ambassador;
+            }).filter(item => item.name && item.photoUrl); // Basic validation
             setAmbassadors(data);
         }, (error) => {
             console.error("Error fetching ambassadors:", error);
@@ -112,17 +115,15 @@ export function AmbassadorManager() {
     const handleDelete = async (ambassador: Ambassador) => {
         if (!confirm("Are you sure you want to delete this ambassador?")) return;
 
-        setLoading(true); // Add loading state
+        setLoading(true);
         try {
             // Try to delete storage object first
+            // CodeAnt suggested: "let the storage deletion error propagate so the entire delete operation fails"
+            // So we DO NOT catch the error here.
             const storageRef = ref(storage, ambassador.photoPath);
-            try {
-                await deleteObject(storageRef);
-            } catch (storageError) {
-                console.error("Storage delete error (continuing):", storageError);
-            }
+            await deleteObject(storageRef);
 
-            // Always delete the doc
+            // If storage delete succeeds, then delete the doc
             await deleteDoc(doc(db, "home_ambassadors", ambassador.id));
 
             toast({
@@ -133,7 +134,7 @@ export function AmbassadorManager() {
             console.error("Delete error:", error);
             toast({
                 title: "Error",
-                description: "Failed to delete ambassador.",
+                description: "Failed to delete ambassador. Storage file might be missing or permission denied.",
                 variant: "destructive",
             });
         } finally {

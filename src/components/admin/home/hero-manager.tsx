@@ -58,7 +58,7 @@ export function HeroManager() {
             await addDoc(collection(db, "home_hero"), {
                 url: downloadURL,
                 path: storagePath, // Save path for deletion
-                createdAt: new Date().toISOString()
+                createdAt: serverTimestamp()
             });
 
             setFile(null);
@@ -95,11 +95,11 @@ export function HeroManager() {
 
         setLoading(true);
         try {
-            const storageRef = ref(storage, image.path);
-            try {
+            if (image.path) {
+                const storageRef = ref(storage, image.path);
                 await deleteObject(storageRef);
-            } catch (storageError) {
-                console.error("Storage delete error (continuing):", storageError);
+            } else {
+                console.warn("Image path missing, skipping storage delete for image:", image.id);
             }
 
             await deleteDoc(doc(db, "home_hero", image.id));

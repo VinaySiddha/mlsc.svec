@@ -97,11 +97,8 @@ export function GalleryManager() {
         setLoading(true);
         try {
             const storageRef = ref(storage, image.path);
-            try {
-                await deleteObject(storageRef);
-            } catch (storageError) {
-                console.error("Storage delete error (continuing):", storageError);
-            }
+            // Let error propagate as suggested
+            await deleteObject(storageRef);
 
             await deleteDoc(doc(db, "home_gallery", image.id));
 
@@ -141,7 +138,7 @@ export function GalleryManager() {
                 <div>
                     <Label htmlFor="gallery-image">Upload Photo</Label>
                     <div className="flex gap-2 mt-1">
-                        <Input id="gallery-image" type="file" accept="image/*" onChange={handleFileChange} />
+                        <Input id="gallery-image" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} />
                         <Button onClick={handeUpload} disabled={!file || loading}>
                             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                         </Button>

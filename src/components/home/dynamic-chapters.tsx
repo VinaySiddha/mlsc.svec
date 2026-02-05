@@ -34,11 +34,18 @@ export function DynamicChapters() {
                         if (typeof raw.name !== "string" || typeof raw.description !== "string" || !Array.isArray(raw.cards)) {
                             return null;
                         }
+                        const cards = raw.cards.filter(
+                            (card: any): card is ChapterCard =>
+                                card &&
+                                typeof card.title === "string" &&
+                                typeof card.content === "string"
+                        );
+
                         return {
                             id: doc.id,
                             name: raw.name,
                             description: raw.description,
-                            cards: raw.cards,
+                            cards,
                         };
                     })
                     .filter((item): item is Chapter => item !== null);
