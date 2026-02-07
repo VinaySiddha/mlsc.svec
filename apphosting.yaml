@@ -1,9 +1,4 @@
-# Settings to manage and configure a Firebase App Hosting backend.
-# https://firebase.google.com/docs/app-hosting/configure
-
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
   maxInstances: 10
 
 env:
@@ -19,7 +14,8 @@ env:
     value: "376409105264"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:376409105264:web:fe8daa1d8724e7d13e25b5"
-# Secrets (These must match the Secret Name in Google Cloud Secret Manager)
+
+  # Secrets (Managed via Google Secret Manager)
   - variable: JWT_SECRET
     secret: JWT_SECRET
   - variable: GOOGLE_API_KEY
