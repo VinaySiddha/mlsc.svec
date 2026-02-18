@@ -639,10 +639,13 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   ];
 
   const JWT_SECRET = process.env.JWT_SECRET;
+  const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
   if (!JWT_SECRET) {
-    console.error("Authentication failed: The JWT_SECRET is not set in the server's environment variables.");
-    return { error: "Authentication Configuration Error: The server is missing its secret key. Please contact the administrator." };
+    const serviceAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
+    const errorMessage = `Authentication failed: The JWT_SECRET is not available to the server. Please check your setup. 1) Ensure you have created a secret named 'JWT_SECRET' in Google Secret Manager. 2) Grant the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for that secret.`;
+    console.error(errorMessage);
+    return { error: errorMessage };
   }
 
   let userPayload: { role: string; domain?: string; username: string } | null = null;
@@ -2129,5 +2132,3 @@ export async function fetchAndCacheJobs() {
     return { jobs: [], error: errorMessage };
   }
 }
-
-    
