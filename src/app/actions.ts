@@ -643,7 +643,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   if (!JWT_SECRET) {
     const serviceAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
-    const errorMessage = `Authentication failed: The JWT_SECRET is not available to the server. Please check your setup. 1) Ensure you have created a secret named 'JWT_SECRET' in Google Secret Manager. 2) Grant the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for that secret.`;
+    const errorMessage = `Authentication failed: The JWT_SECRET is not available to the server. This is a permission issue. Please grant the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for the secret named 'JWT_SECRET'.`;
     console.error(errorMessage);
     return { error: errorMessage };
   }
