@@ -641,8 +641,8 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   const JWT_SECRET = process.env.JWT_SECRET;
 
   if (!JWT_SECRET) {
-    console.error('The JWT_SECRET environment variable is not set in the server environment.');
-    return { error: 'The JWT_SECRET is not configured on the server. Please check your hosting environment secrets.' };
+    console.error("Authentication failed: The JWT_SECRET is not set in the server's environment variables.");
+    return { error: "Authentication Configuration Error: The server is missing its secret key. Please contact the administrator." };
   }
 
   let userPayload: { role: string; domain?: string; username: string } | null = null;
@@ -2129,3 +2129,5 @@ export async function fetchAndCacheJobs() {
     return { jobs: [], error: errorMessage };
   }
 }
+
+    
