@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import {
@@ -642,8 +641,8 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   const JWT_SECRET = process.env.JWT_SECRET;
 
   if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not set in environment variables.');
-    return { error: 'Authentication configuration error.' };
+    console.error('The JWT_SECRET environment variable is not set in the server environment.');
+    return { error: 'The JWT_SECRET is not configured on the server. Please check your hosting environment secrets.' };
   }
 
   let userPayload: { role: string; domain?: string; username: string } | null = null;
@@ -2039,6 +2038,11 @@ async function fetchFromJSearchAPI() {
 
 export async function fetchAndCacheJobs() {
   try {
+    const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
+    if (!JSEARCH_API_KEY) {
+      return { jobs: [], error: "The job search feature is not configured. An API key is missing." };
+    }
+
     const metaRef = doc(db, 'jobs_meta', 'lastFetch');
     const metaDoc = await getDoc(metaRef);
     const now = new Date();
@@ -2094,7 +2098,6 @@ export async function fetchAndCacheJobs() {
       return {
         id: doc.id,
         ...data,
-        // Ensure posted_on is a string for client-side rendering
         posted_on: data.posted_on.toDate().toISOString(),
       };
     });
