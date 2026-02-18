@@ -6,6 +6,10 @@ runConfig:
   # more instances in response to increased traffic.
   maxInstances: 10
 
+# All variables that need to be available at build and runtime.
+# These variables are not secret and are safe to be stored in your code repository.
+# You can also add secrets to this list. App Hosting will fetch the secret
+# value from Secret Manager and inject it into the build and runtime environments.
 secretParameters:
   - secret: JWT_SECRET
     key: JWT_SECRET
