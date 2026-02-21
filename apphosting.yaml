@@ -27,8 +27,8 @@ secretParameters:
   - variable: JWT_SECRET
     secret: JWT_SECRET
     version: latest
-  - variable: GOOGLE_API_KEY
-    secret: GOOGLE_API_KEY
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
     version: latest
   - variable: GMAIL_USER
     secret: GMAIL_USER
