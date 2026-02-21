@@ -16,7 +16,7 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "mlsc-30"
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: "mlsc-30.appspot.com"
+    value: "mlsc-30.firebasestorage.app"
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
     value: "376409105264"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
@@ -26,11 +26,16 @@ env:
 secretParameters:
   - variable: JWT_SECRET
     secret: JWT_SECRET
-  - variable: GOOGLE_API_KEY
-    secret: GOOGLE_API_KEY
+    version: latest
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
+    version: latest
   - variable: GMAIL_USER
     secret: GMAIL_USER
+    version: latest
   - variable: GMAIL_APP_PASSWORD
     secret: GMAIL_APP_PASSWORD
+    version: latest
   - variable: JSEARCH_API_KEY
     secret: JSEARCH_API_KEY
+    version: latest
