@@ -24,13 +24,13 @@ env:
 
 # Secrets (These must match the Secret Name in Google Cloud Secret Manager)
 secretParameters:
-  - secret: JWT_SECRET
-    key: JWT_SECRET
-  - secret: GOOGLE_API_KEY
-    key: GOOGLE_API_KEY
-  - secret: GMAIL_USER
-    key: GMAIL_USER
-  - secret: GMAIL_APP_PASSWORD
-    key: GMAIL_APP_PASSWORD
-  - secret: JSEARCH_API_KEY
-    key: JSEARCH_API_KEY
+  - variable: JWT_SECRET
+    secret: JWT_SECRET
+  - variable: GOOGLE_API_KEY
+    secret: GOOGLE_API_KEY
+  - variable: GMAIL_USER
+    secret: GMAIL_USER
+  - variable: GMAIL_APP_PASSWORD
+    secret: GMAIL_APP_PASSWORD
+  - variable: JSEARCH_API_KEY
+    secret: JSEARCH_API_KEY
