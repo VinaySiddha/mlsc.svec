@@ -22,8 +22,13 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:376409105264:web:fe8daa1d8724e7d13e25b5"
 
-# Secrets (These must match the Secret Name in Google Cloud Secret Manager)
+# This section maps environment variables to secrets stored in Google Cloud Secret Manager.
+# IMPORTANT: Each 'secret' parameter below must match the EXACT NAME of a secret you have
+# created in Secret Manager. For this to work, you must create individual secrets
+# named 'JWT_SECRET', 'GOOGLE_API_KEY', etc.
 secretParameters:
+  # This line tells App Hosting: "Find a secret named 'JWT_SECRET' in Secret Manager
+  # and make its value available as the environment variable 'JWT_SECRET'."
   - secret: JWT_SECRET
     key: JWT_SECRET
   - secret: GOOGLE_API_KEY
