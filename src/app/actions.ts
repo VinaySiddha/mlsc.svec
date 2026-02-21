@@ -626,6 +626,25 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     return { error: 'Invalid input.' };
   }
 
+  // Comprehensive check for all required secrets at login time.
+  const requiredSecrets = [
+    'JWT_SECRET',
+    'GOOGLE_API_KEY',
+    'GMAIL_USER',
+    'GMAIL_APP_PASSWORD',
+    'JSEARCH_API_KEY'
+  ];
+
+  const missingSecrets = requiredSecrets.filter(secret => !process.env[secret]);
+
+  if (missingSecrets.length > 0) {
+    const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'mlsc-30';
+    const serviceAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
+    const errorMessage = `Authentication and app configuration failed. The following secrets are missing or inaccessible to the server: ${missingSecrets.join(', ')}. This is a permission or configuration issue. Please ensure you have created each secret individually in Google Secret Manager and granted the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for each one.`;
+    console.error(errorMessage);
+    return { error: errorMessage };
+  }
+
   const { username, password } = parsed.data;
 
   const SUPER_ADMIN_USERNAME = 'vinaysiddha';
@@ -638,15 +657,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
   ];
 
-  const JWT_SECRET = process.env.JWT_SECRET;
-  const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-
-  if (!JWT_SECRET) {
-    const serviceAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
-    const errorMessage = `Authentication failed: The JWT_SECRET is not available to the server. This is a permission issue. Please grant the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for the secret named 'JWT_SECRET'.`;
-    console.error(errorMessage);
-    return { error: errorMessage };
-  }
+  const JWT_SECRET = process.env.JWT_SECRET!; // We've already checked this is present
 
   let userPayload: { role: string; domain?: string; username: string } | null = null;
 
