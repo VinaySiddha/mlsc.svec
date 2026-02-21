@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import {
@@ -640,10 +639,13 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   ];
 
   const JWT_SECRET = process.env.JWT_SECRET;
+  const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
   if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not set in environment variables.');
-    return { error: 'Authentication configuration error.' };
+    const serviceAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
+    const errorMessage = `Authentication failed: The JWT_SECRET is not available to the server. This is a permission issue. Please grant the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for the secret named 'JWT_SECRET'.`;
+    console.error(errorMessage);
+    return { error: errorMessage };
   }
 
   let userPayload: { role: string; domain?: string; username: string } | null = null;
@@ -2039,6 +2041,11 @@ async function fetchFromJSearchAPI() {
 
 export async function fetchAndCacheJobs() {
   try {
+    const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
+    if (!JSEARCH_API_KEY) {
+      return { jobs: [], error: "The job search feature is not configured. An API key is missing." };
+    }
+
     const metaRef = doc(db, 'jobs_meta', 'lastFetch');
     const metaDoc = await getDoc(metaRef);
     const now = new Date();
@@ -2094,7 +2101,6 @@ export async function fetchAndCacheJobs() {
       return {
         id: doc.id,
         ...data,
-        // Ensure posted_on is a string for client-side rendering
         posted_on: data.posted_on.toDate().toISOString(),
       };
     });
