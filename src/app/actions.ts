@@ -620,6 +620,51 @@ export async function saveApplicationReview(data: z.infer<typeof reviewSchema>) 
   }
 }
 
+const GCP_SECRET_NAME = 'JWT_SECRET';
+
+// Module-level cache so Secret Manager is only called once per server lifetime.
+let _cachedLoginJwtSecret: string | undefined = undefined;
+
+/**
+ * Resolves the JWT secret needed to sign session tokens, trying (in order):
+ * 1. The JWT_SECRET environment variable (injected by apphosting.yaml secretParameters).
+ * 2. A direct Cloud Secret Manager API call via the GCP metadata server
+ *    (works in Cloud Run / Firebase App Hosting even when the env-var injection
+ *    has not yet taken effect for the running revision).
+ */
+async function resolveLoginJwtSecret(): Promise<string | null> {
+  // Always check the env var first so a hot-reload or updated env is picked up immediately.
+  if (process.env.JWT_SECRET) return process.env.JWT_SECRET;
+  // Return cached value only after confirming the env var is still absent.
+  if (_cachedLoginJwtSecret !== undefined) return _cachedLoginJwtSecret;
+
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  if (!projectId) return null;
+
+  try {
+    const tokenRes = await fetch(
+      'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token',
+      { headers: { 'Metadata-Flavor': 'Google' } }
+    );
+    if (!tokenRes.ok) return null;
+    const { access_token } = await tokenRes.json() as { access_token: string };
+
+    const secretRes = await fetch(
+      `https://secretmanager.googleapis.com/v1/projects/${projectId}/secrets/${GCP_SECRET_NAME}/versions/latest:access`,
+      { headers: { Authorization: `Bearer ${access_token}` } }
+    );
+    if (!secretRes.ok) return null;
+    const { payload } = await secretRes.json() as { payload: { data: string } };
+
+    const decoded = Buffer.from(payload.data, 'base64').toString('utf-8');
+    _cachedLoginJwtSecret = decoded;
+    return decoded;
+  } catch (err) {
+    console.error('[loginAction] Failed to fetch JWT secret from Secret Manager:', err);
+    return null;
+  }
+}
+
 export async function loginAction(values: z.infer<typeof loginSchema>) {
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
@@ -638,14 +683,16 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     { username: 'web_app_panel', password: 'panel@web', domain: 'web_app' },
   ];
 
-  const JWT_SECRET = process.env.JWT_SECRET;
+  const JWT_SECRET = await resolveLoginJwtSecret();
   const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
   if (!JWT_SECRET) {
     const serviceAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
-    const errorMessage = `Authentication failed: The JWT_SECRET is not available to the server. This is a permission issue. Please grant the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for the secret named 'JWT_SECRET'.`;
-    console.error(errorMessage);
-    return { error: errorMessage };
+    console.error(
+      `JWT_SECRET could not be resolved. Ensure the secret exists in Cloud Secret Manager ` +
+      `and that '${serviceAccount}' has the 'Secret Manager Secret Accessor' role.`
+    );
+    return { error: 'Server configuration error. Please contact the administrator.' };
   }
 
   let userPayload: { role: string; domain?: string; username: string } | null = null;
