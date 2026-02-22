@@ -5,7 +5,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 async function verifyToken(token: string) {
   if (!JWT_SECRET) {
-    throw new Error("JWT_SECRET is not set in environment variables.");
+    console.warn('JWT_SECRET is not configured; treating token as invalid.');
+    return null;
   }
   const secret = new TextEncoder().encode(JWT_SECRET);
   try {
