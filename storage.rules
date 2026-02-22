@@ -1,0 +1,61 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper function to check file size (max 5MB)
+    function validFileSize() {
+      return request.resource.size <= 5 * 1024 * 1024;
+    }
+
+    // Helper function to check if PDF
+    function isPDF() {
+      return request.resource.contentType == 'application/pdf';
+    }
+
+    // Helper function to check if image
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    // Resumes - No public access (uploaded via REST API)
+    match /resumes/{resumeId} {
+      allow read: if false; // No direct access
+      allow write: if false; // Only via REST API
+    }
+
+    // Profile images - Public read, no direct write
+    match /profile-images/{imageId} {
+      allow read: if true;
+      allow write: if false; // Only via REST API
+    }
+
+    // Team member images - Public read, no direct write
+    match /team-images/{imageId} {
+      allow read: if true;
+      allow write: if false; // Only via REST API
+    }
+
+    // Event images - Public read, no direct write
+    match /events/{eventId}/{imageType} {
+      allow read: if true;
+      allow write: if false; // Only via REST API or admin
+    }
+
+    // Event highlight images
+    match /event-highlights/{imageId} {
+      allow read: if true;
+      allow write: if false; // Only via REST API or admin
+    }
+
+    // Speaker images
+    match /speakers/{imageId} {
+      allow read: if true;
+      allow write: if false; // Only via REST API or admin
+    }
+
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
