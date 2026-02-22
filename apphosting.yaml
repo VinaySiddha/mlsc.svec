@@ -41,7 +41,3 @@ secretParameters:
     key: JSEARCH_API_KEY
   - variable: GEMINI_API_KEY
     secret: GEMINI_API_KEY
-  - variable: GMAIL_USER
-    secret: GMAIL_USER
-
-
