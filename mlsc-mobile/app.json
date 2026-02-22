@@ -7,6 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -18,7 +23,8 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow MLSC to access your photos for profile and resume uploads",
         "NSCameraUsageDescription": "Allow MLSC to access your camera for profile photos",
-        "NSDocumentsFolderUsageDescription": "Allow MLSC to access documents for resume uploads"
+        "NSDocumentsFolderUsageDescription": "Allow MLSC to access documents for resume uploads",
+        "NSUserNotificationsUsageDescription": "Allow MLSC to send you notifications about application status updates and event reminders"
       }
     },
     "android": {
