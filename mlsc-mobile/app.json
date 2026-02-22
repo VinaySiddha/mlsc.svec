@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "MLSC App",
+    "slug": "mlsc-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0078D4"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mlsc.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow MLSC to access your photos for profile and resume uploads",
+        "NSCameraUsageDescription": "Allow MLSC to access your camera for profile photos",
+        "NSDocumentsFolderUsageDescription": "Allow MLSC to access documents for resume uploads"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0078D4"
+      },
+      "package": "com.mlsc.app",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "CAMERA",
+        "NOTIFICATIONS"
+      ],
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0078D4"
+        }
+      ]
+    ]
+  }
+}
