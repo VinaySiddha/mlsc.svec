@@ -93,24 +93,32 @@ export function GalleryManager() {
 
     const handleDelete = async (image: GalleryImage) => {
         if (!confirm("Are you sure you want to delete this image?")) return;
-
+    
         setLoading(true);
         try {
-            const storageRef = ref(storage, image.path);
-            // Let error propagate as suggested
-            await deleteObject(storageRef);
-
+            if (image.path) {
+                const storageRef = ref(storage, image.path);
+                try {
+                    await deleteObject(storageRef);
+                } catch (storageError: any) {
+                    if (storageError.code === 'storage/unauthorized') {
+                        throw new Error("Permission denied in Firebase Storage. Please grant the 'Storage Object Admin' role to your service account.");
+                    }
+                    console.warn(`Could not delete storage file, but proceeding. Reason: ${storageError.code}`);
+                }
+            }
+            
             await deleteDoc(doc(db, "home_gallery", image.id));
-
+    
             toast({
                 title: "Success",
-                description: "Image deleted successfully.",
+                description: "Gallery image record deleted.",
             });
-        } catch (error) {
-            console.error("Delete error:", error);
+        } catch (error: any) {
+            console.error("Delete operation failed:", error);
             toast({
-                title: "Error",
-                description: "Failed to delete image.",
+                title: "Deletion Failed",
+                description: error.message || "An unexpected error occurred.",
                 variant: "destructive",
             });
         } finally {

@@ -92,27 +92,36 @@ export function HeroManager() {
 
     const handleDelete = async (image: HeroImage) => {
         if (!confirm("Are you sure you want to delete this image?")) return;
-
+    
         setLoading(true);
         try {
+            // Attempt to delete the storage object if a path exists
             if (image.path) {
                 const storageRef = ref(storage, image.path);
-                await deleteObject(storageRef);
-            } else {
-                console.warn("Image path missing, skipping storage delete for image:", image.id);
+                try {
+                    await deleteObject(storageRef);
+                } catch (storageError: any) {
+                    if (storageError.code === 'storage/unauthorized') {
+                        // This is a fatal permission error, so we re-throw it to be caught by the outer catch block.
+                        throw new Error("Permission denied in Firebase Storage. Please grant the 'Storage Object Admin' role to your service account.");
+                    }
+                    // For other errors like 'object-not-found', we can log a warning but continue.
+                    console.warn(`Could not delete storage file, but proceeding to delete database entry. Reason: ${storageError.code}`);
+                }
             }
-
+    
+            // Delete the Firestore document
             await deleteDoc(doc(db, "home_hero", image.id));
-
+    
             toast({
                 title: "Success",
-                description: "Image deleted successfully.",
+                description: "Hero image record deleted successfully.",
             });
-        } catch (error) {
-            console.error("Delete error:", error);
+        } catch (error: any) {
+            console.error("Delete operation failed:", error);
             toast({
-                title: "Error",
-                description: "Failed to delete image.",
+                title: "Deletion Failed",
+                description: error.message || "An unexpected error occurred.",
                 variant: "destructive",
             });
         } finally {

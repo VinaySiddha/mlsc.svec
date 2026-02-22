@@ -114,27 +114,32 @@ export function AmbassadorManager() {
 
     const handleDelete = async (ambassador: Ambassador) => {
         if (!confirm("Are you sure you want to delete this ambassador?")) return;
-
+    
         setLoading(true);
         try {
-            // Try to delete storage object first
-            // CodeAnt suggested: "let the storage deletion error propagate so the entire delete operation fails"
-            // So we DO NOT catch the error here.
-            const storageRef = ref(storage, ambassador.photoPath);
-            await deleteObject(storageRef);
-
-            // If storage delete succeeds, then delete the doc
+            if (ambassador.photoPath) {
+                const storageRef = ref(storage, ambassador.photoPath);
+                try {
+                    await deleteObject(storageRef);
+                } catch (storageError: any) {
+                    if (storageError.code === 'storage/unauthorized') {
+                        throw new Error("Permission denied in Firebase Storage. Please grant the 'Storage Object Admin' role to your service account.");
+                    }
+                    console.warn(`Could not delete storage file, but proceeding. Reason: ${storageError.code}`);
+                }
+            }
+            
             await deleteDoc(doc(db, "home_ambassadors", ambassador.id));
-
+    
             toast({
                 title: "Success",
-                description: "Ambassador deleted successfully.",
+                description: "Ambassador record deleted.",
             });
-        } catch (error) {
-            console.error("Delete error:", error);
+        } catch (error: any) {
+            console.error("Delete operation failed:", error);
             toast({
-                title: "Error",
-                description: "Failed to delete ambassador. Storage file might be missing or permission denied.",
+                title: "Deletion Failed",
+                description: error.message || "An unexpected error occurred.",
                 variant: "destructive",
             });
         } finally {

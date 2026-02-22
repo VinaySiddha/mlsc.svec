@@ -1,4 +1,3 @@
-
 import { getNotifications } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,8 @@ import { DynamicHero } from "@/components/home/dynamic-hero";
 import { DynamicAmbassadors } from "@/components/home/dynamic-ambassadors";
 import { DynamicGallery } from "@/components/home/dynamic-gallery";
 import { DynamicChapters } from "@/components/home/dynamic-chapters";
+
+export const dynamic = 'force-dynamic';
 
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
