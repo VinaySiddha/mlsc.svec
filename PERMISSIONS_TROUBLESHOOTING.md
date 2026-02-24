@@ -16,7 +16,7 @@ You must grant permission to **both**.
 First, verify that you have created all 5 required secrets as individual entries in the Google Cloud Secret Manager.
 
 1.  Go to the **Secret Manager** page in the Google Cloud Console for your `mlsc-30` project.
-2.  You should see the following 5 names in your secrets list. If any are missing, create them now. **Do NOT use quotes in the secret value.**
+2.  You should see the following 5 names in your secrets list. If any are missing, create them now. **Do NOT use quotes in the secret value.** The names must be an exact match.
 
 *   `JWT_SECRET`
 *   `GOOGLE_API_KEY`

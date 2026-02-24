@@ -639,8 +639,8 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   if (missingSecrets.length > 0) {
     const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'mlsc-30';
-    const serviceAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
-    const errorMessage = `Authentication and app configuration failed. The following secrets are missing or inaccessible to the server: ${missingSecrets.join(', ')}. This is a permission or configuration issue. Please ensure you have created each secret individually in Google Secret Manager and granted the 'Secret Manager Secret Accessor' role to the service account: '${serviceAccount}' for each one.`;
+    const runtimeAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
+    const errorMessage = `Authentication failed. The server cannot access these required secrets: ${missingSecrets.join(', ')}. This is a configuration or permission issue. Please double-check two things: 1) The secret names in Google Secret Manager must EXACTLY match the required names (e.g., 'JWT_SECRET'). 2) The 'Secret Manager Secret Accessor' role must be granted to BOTH the runtime service account ('${runtimeAccount}') and your Cloud Build service account (ending in @cloudbuild.gserviceaccount.com) in the IAM settings.`;
     console.error(errorMessage);
     return { error: errorMessage };
   }
@@ -2028,28 +2028,27 @@ export async function deleteNotification(id: string) {
 const CACHE_DURATION_HOURS = 6;
 
 async function fetchFromJSearchAPI() {
-  const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
-  if (!JSEARCH_API_KEY) {
-    console.warn("JSEARCH_API_KEY is not configured. The job search feature will be disabled.");
-    return []; // Return empty array to prevent build crash
-  }
-  const url = 'https://jsearch.p.rapidapi.com/search?query=developer&country=IN&num_pages=1';
-  const options = {
-    method: 'GET',
-    headers: {
-      'X-RapidAPI-Key': JSEARCH_API_KEY,
-      'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
+    const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
+    if (!JSEARCH_API_KEY) {
+        throw new Error("JSearch API key is not configured. Please set the JSEARCH_API_KEY environment variable.");
     }
-  };
-
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    console.error("JSearch API error:", await response.text());
-    throw new Error("Failed to fetch data from the job API.");
+    const url = 'https://jsearch.p.rapidapi.com/search?query=developer&country=IN&num_pages=1';
+    const options = {
+      method: 'GET',
+      headers: {
+        'X-RapidAPI-Key': JSEARCH_API_KEY,
+        'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
+      }
+    };
+  
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      console.error("JSearch API error:", await response.text());
+      throw new Error("Failed to fetch data from the job API.");
+    }
+    const result = await response.json();
+    return result.data;
   }
-  const result = await response.json();
-  return result.data;
-}
 
 export async function fetchAndCacheJobs() {
   try {
@@ -2129,6 +2128,13 @@ export async function fetchAndCacheJobs() {
   } catch (error) {
     console.error("Error in fetchAndCacheJobs:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while fetching jobs.";
+    
+    // During build, if JSEARCH_API_KEY is missing, we don't want to fail the build.
+    if (errorMessage.includes("JSearch API key is not configured")) {
+        console.warn(errorMessage);
+        return { jobs: [], error: null }; // Return empty array and no error to prevent build crash
+    }
+    
     // Fallback: try to read from cache even if API fails
     try {
       const jobsQuery = query(collection(db, "jobs"), orderBy("posted_on", "desc"), limit(50));
