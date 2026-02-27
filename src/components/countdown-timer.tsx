@@ -85,5 +85,3 @@ export function CountdownTimer({ deadline }: CountdownTimerProps) {
     </Card>
   );
 }
-
-    
