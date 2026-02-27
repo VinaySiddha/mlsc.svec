@@ -50,13 +50,21 @@ export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
                     <div className="glass-card-hover p-4 flex flex-col items-center text-center group h-full">
                         <div className="relative mb-4">
                             <div className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300 overflow-hidden w-40 h-40">
-                                <Image
-                                    src={member.image}
-                                    alt={`Photo of ${member.name}`}
-                                    width={160}
-                                    height={160}
-                                    className="rounded-full object-cover group-hover:scale-110 transition-transform duration-300 w-40 h-40"
-                                />
+                                {member.image ? (
+                                    <Image
+                                        src={member.image}
+                                        alt={`Photo of ${member.name}`}
+                                        width={160}
+                                        height={160}
+                                        className="rounded-full object-cover group-hover:scale-110 transition-transform duration-300 w-40 h-40"
+                                    />
+                                ) : (
+                                    <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center">
+                                        <span className="text-4xl font-bold text-muted-foreground">
+                                            {member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <h4 className="font-semibold text-lg">{member.name}</h4>
