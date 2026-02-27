@@ -14,12 +14,18 @@ export default function CommunityPage() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchPosts = async (append = false, lastDate?: string) => {
     if (append) setLoadingMore(true); else setLoading(true);
+    setFetchError(null);
 
     const type = typeFilter === 'all' ? undefined : typeFilter as any;
     const result = await getCommunityPosts({ type, lastPostDate: lastDate });
+
+    if (result.error) {
+      setFetchError(result.error);
+    }
 
     if (append) {
       setPosts((prev) => [...prev, ...result.posts]);
@@ -58,11 +64,18 @@ export default function CommunityPage() {
         </Select>
       </div>
 
+      {fetchError && (
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          <p className="font-medium">Error loading posts</p>
+          <p className="mt-1 text-xs break-all">{fetchError}</p>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      ) : posts.length === 0 ? (
+      ) : posts.length === 0 && !fetchError ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">No posts yet. Be the first to share something!</p>
         </div>

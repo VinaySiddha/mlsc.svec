@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { registerForEvent } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Clock, Users, LogIn } from 'lucide-react';
+import { Loader2, Clock, Users, LogIn, Info } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { useAuth } from '@/lib/auth-context';
 import { usePathname } from 'next/navigation';
@@ -32,15 +32,21 @@ const registrationSchema = z.object({
 
 type RegistrationFormValues = z.infer<typeof registrationSchema>;
 
+interface SeatLimits {
+    branch?: Record<string, number>;
+    year?: Record<string, number>;
+}
+
 interface EventRegistrationFormProps {
     eventId: string;
     registrationOpen: boolean;
     deadline?: string | null;
     limit?: number;
     currentCount?: number;
+    seatLimits?: SeatLimits;
 }
 
-export function EventRegistrationForm({ eventId, registrationOpen, deadline, limit, currentCount }: EventRegistrationFormProps) {
+export function EventRegistrationForm({ eventId, registrationOpen, deadline, limit, currentCount, seatLimits }: EventRegistrationFormProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
@@ -221,6 +227,12 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                                 {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
+                                        {field.value && seatLimits?.branch?.[field.value] && (
+                                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <Info className="h-3 w-3" />
+                                                Seats limited for {field.value} ({seatLimits.branch[field.value]} max)
+                                            </p>
+                                        )}
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -241,6 +253,12 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                                 {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
+                                        {field.value && seatLimits?.year?.[field.value] && (
+                                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <Info className="h-3 w-3" />
+                                                Seats limited for {field.value} year ({seatLimits.year[field.value]} max)
+                                            </p>
+                                        )}
                                         <FormMessage />
                                     </FormItem>
                                 )}

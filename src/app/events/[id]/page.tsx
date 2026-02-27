@@ -260,6 +260,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                                 deadline={event.registrationDeadline}
                                                 limit={event.registrationLimit}
                                                 currentCount={event.registrationCount}
+                                                seatLimits={event.seatLimits}
                                             />
                                         </CardContent>
                                     </Card>

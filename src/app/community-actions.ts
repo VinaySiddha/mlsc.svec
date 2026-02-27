@@ -122,9 +122,9 @@ export async function getCommunityPosts(options: {
     if (hasMore) posts.pop();
 
     return { posts, hasMore };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching posts:', error);
-    return { posts: [], hasMore: false };
+    return { posts: [], hasMore: false, error: error?.message || 'Failed to fetch posts.' };
   }
 }
 

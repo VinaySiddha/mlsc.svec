@@ -40,6 +40,7 @@ import {
   runTransaction,
   setDoc,
   deleteDoc,
+  deleteField,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
@@ -1193,7 +1194,9 @@ export async function createEvent(formData: FormData) {
 
     const timelineData = JSON.parse(values.timeline as string || '[]');
 
-    const dataToSave = {
+    const seatLimits = values.seatLimits ? JSON.parse(values.seatLimits as string) : undefined;
+
+    const dataToSave: any = {
       ...parsed.data,
       speakers: speakersData,
       timeline: timelineData,
@@ -1202,6 +1205,7 @@ export async function createEvent(formData: FormData) {
       highlightImages: highlightImageUrls,
       createdAt: serverTimestamp(),
     };
+    if (seatLimits) dataToSave.seatLimits = seatLimits;
 
     await setDoc(doc(db, 'events', docId), dataToSave);
 
@@ -1276,6 +1280,9 @@ export async function updateEvent(id: string, formData: FormData) {
     }
     dataToUpdate.speakers = speakersData;
     dataToUpdate.timeline = JSON.parse(values.timeline as string || '[]');
+
+    const seatLimits = values.seatLimits ? JSON.parse(values.seatLimits as string) : null;
+    dataToUpdate.seatLimits = seatLimits || deleteField();
 
     await updateDoc(eventDocRef, dataToUpdate);
     return { success: true };
@@ -1380,6 +1387,27 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
       const registrationsSnapshot = await getCountFromServer(registrationsRef);
       if (registrationsSnapshot.data().count >= eventData.registrationLimit) {
         return { error: 'Sorry, this event has reached its registration limit.' };
+      }
+    }
+
+    // Check per-branch and per-year seat limits
+    if (eventData.seatLimits) {
+      const { branch: branchLimits, year: yearLimits } = eventData.seatLimits;
+
+      if (branchLimits?.[parsed.data.branch]) {
+        const branchQuery = query(registrationsRef, where('branch', '==', parsed.data.branch));
+        const branchCount = await getCountFromServer(branchQuery);
+        if (branchCount.data().count >= branchLimits[parsed.data.branch]) {
+          return { error: `Sorry, the seat limit for ${parsed.data.branch} branch has been reached.` };
+        }
+      }
+
+      if (yearLimits?.[parsed.data.yearOfStudy]) {
+        const yearQuery = query(registrationsRef, where('yearOfStudy', '==', parsed.data.yearOfStudy));
+        const yearCount = await getCountFromServer(yearQuery);
+        if (yearCount.data().count >= yearLimits[parsed.data.yearOfStudy]) {
+          return { error: `Sorry, the seat limit for ${parsed.data.yearOfStudy} year students has been reached.` };
+        }
       }
     }
 

@@ -1,17 +1,19 @@
 
 'use client';
 
-import { getEventRegistrations, getEventById, sendReminderEmails, sendFeedbackEmails, exportEventRegistrationsToCsv } from "@/app/actions";
+import { getEventRegistrations, getEventById, sendReminderEmails, sendFeedbackEmails } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send, FileDown, MessageSquareQuote } from "lucide-react";
+import { ArrowLeft, Loader2, Send, MessageSquareQuote, Search, X } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useMemo, useTransition } from "react";
 
 interface Registration {
     id: string;
@@ -37,8 +39,12 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSending, startTransition] = useTransition();
-    const [actionType, setActionType] = useState<'reminders' | 'feedback' | 'export' | null>(null);
+    const [actionType, setActionType] = useState<'reminders' | 'feedback' | null>(null);
     const { toast } = useToast();
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [branchFilter, setBranchFilter] = useState('all');
+    const [yearFilter, setYearFilter] = useState('all');
 
     const eventId = params.id;
 
@@ -66,6 +72,41 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
         }
         loadData();
     }, [eventId]);
+
+    const branches = useMemo(() => {
+        const set = new Set(registrations.map(r => r.branch).filter(Boolean));
+        return Array.from(set).sort();
+    }, [registrations]);
+
+    const years = useMemo(() => {
+        const set = new Set(registrations.map(r => r.yearOfStudy).filter(Boolean));
+        return Array.from(set).sort();
+    }, [registrations]);
+
+    const filteredRegistrations = useMemo(() => {
+        return registrations.filter(reg => {
+            if (branchFilter !== 'all' && reg.branch !== branchFilter) return false;
+            if (yearFilter !== 'all' && reg.yearOfStudy !== yearFilter) return false;
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                return (
+                    reg.name?.toLowerCase().includes(q) ||
+                    reg.email?.toLowerCase().includes(q) ||
+                    reg.rollNo?.toLowerCase().includes(q) ||
+                    reg.phone?.includes(q)
+                );
+            }
+            return true;
+        });
+    }, [registrations, branchFilter, yearFilter, searchQuery]);
+
+    const hasActiveFilters = searchQuery || branchFilter !== 'all' || yearFilter !== 'all';
+
+    const clearFilters = () => {
+        setSearchQuery('');
+        setBranchFilter('all');
+        setYearFilter('all');
+    };
 
     const handleSendReminders = () => {
         setActionType('reminders');
@@ -119,47 +160,6 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
         });
     }
 
-    const handleExportCsv = () => {
-        setActionType('export');
-        startTransition(async () => {
-            try {
-                const result = await exportEventRegistrationsToCsv(eventId);
-                if (result.error) throw new Error(result.error);
-
-                if (result.csvData) {
-                    const blob = new Blob([result.csvData], { type: 'text/csv;charset=utf-8;' });
-                    const link = document.createElement('a');
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', `${event?.title.replace(/\s+/g, '_')}_registrations.csv`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    toast({
-                        title: "Export Successful",
-                        description: "The registrations list has been downloaded as a CSV file."
-                    });
-                } else {
-                    toast({
-                        variant: 'destructive',
-                        title: "No Data",
-                        description: "There are no registrations to export."
-                    });
-                }
-            } catch (e: any) {
-                toast({
-                    variant: 'destructive',
-                    title: "Export Failed",
-                    description: e.message || "An unknown error occurred."
-                });
-            } finally {
-                setActionType(null);
-            }
-        });
-    }
-
-
     if (isLoading) {
         return (
             <div className="flex flex-col min-h-screen items-center justify-center">
@@ -195,10 +195,6 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                             {isSending && actionType === 'feedback' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuote className="mr-2 h-4 w-4" />}
                             Send Feedback Forms
                         </Button>
-                        <Button onClick={handleExportCsv} variant="outline" disabled={isSending}>
-                            {isSending && actionType === 'export' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
-                            Export to CSV
-                        </Button>
                         <Button asChild variant="glass">
                             <Link href="/admin/events">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -212,10 +208,54 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                 <div className="container mx-auto space-y-8">
                     <Card className="glass-card">
                         <CardHeader>
-                            <CardTitle>Registered Users ({registrations.length})</CardTitle>
-                            <CardDescription>
-                                List of users who have registered for this event.
-                            </CardDescription>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle>Registered Users ({filteredRegistrations.length}{hasActiveFilters ? ` of ${registrations.length}` : ''})</CardTitle>
+                                    <CardDescription>
+                                        List of users who have registered for this event.
+                                    </CardDescription>
+                                </div>
+                                {hasActiveFilters && (
+                                    <Button variant="ghost" size="sm" onClick={clearFilters}>
+                                        <X className="mr-1 h-4 w-4" />
+                                        Clear Filters
+                                    </Button>
+                                )}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3 pt-4">
+                                <div className="relative flex-1 min-w-[200px]">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Search by name, email, roll no, phone..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-9"
+                                    />
+                                </div>
+                                <Select value={branchFilter} onValueChange={setBranchFilter}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Branch" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Branches</SelectItem>
+                                        {branches.map(b => (
+                                            <SelectItem key={b} value={b}>{b}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Select value={yearFilter} onValueChange={setYearFilter}>
+                                    <SelectTrigger className="w-[150px]">
+                                        <SelectValue placeholder="Year" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Years</SelectItem>
+                                        {years.map(y => (
+                                            <SelectItem key={y} value={y}>{y}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <div className="border rounded-md">
@@ -232,8 +272,8 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {registrations.length > 0 ? (
-                                            registrations.map(reg => (
+                                        {filteredRegistrations.length > 0 ? (
+                                            filteredRegistrations.map(reg => (
                                                 <TableRow key={reg.id}>
                                                     <TableCell className="font-medium">{reg.name}</TableCell>
                                                     <TableCell>{reg.email}</TableCell>
@@ -247,7 +287,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
                                         ) : (
                                             <TableRow>
                                                 <TableCell colSpan={7} className="text-center h-24">
-                                                    No registrations yet.
+                                                    {hasActiveFilters ? 'No registrations match the current filters.' : 'No registrations yet.'}
                                                 </TableCell>
                                             </TableRow>
                                         )}

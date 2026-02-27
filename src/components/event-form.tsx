@@ -56,14 +56,23 @@ const eventFormSchema = z.object({
 
 type FormValues = z.infer<typeof eventFormSchema>;
 
+const branches = ["AIML", "CAI", "CIVIL", "CSDS", "CSE", "CST", "ECE", "ECT", "EEE", "MECH"];
+const years = ["1st", "2nd", "3rd", "4th"];
+
+interface SeatLimits {
+    branch?: Record<string, number>;
+    year?: Record<string, number>;
+}
+
 interface EventFormProps {
-    event?: (Omit<FormValues, 'speakers' | 'timeline' | 'bannerImage' | 'listImage' | 'highlightImages'> & { 
-        id: string, 
-        speakers?: {name: string, title: string, image: string}[], 
+    event?: (Omit<FormValues, 'speakers' | 'timeline' | 'bannerImage' | 'listImage' | 'highlightImages'> & {
+        id: string,
+        speakers?: {name: string, title: string, image: string}[],
         timeline?: {time: string, description: string}[],
         bannerImage?: string,
         listImage?: string,
-        highlightImages?: string[]
+        highlightImages?: string[],
+        seatLimits?: SeatLimits,
     });
 }
 
@@ -71,6 +80,20 @@ export function EventForm({ event }: EventFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [notifyUsers, setNotifyUsers] = useState(false);
+    const [seatLimitsEnabled, setSeatLimitsEnabled] = useState(
+        !!(event?.seatLimits?.branch && Object.keys(event.seatLimits.branch).length > 0) ||
+        !!(event?.seatLimits?.year && Object.keys(event.seatLimits.year).length > 0)
+    );
+    const [branchLimits, setBranchLimits] = useState<Record<string, string>>(() => {
+        const init: Record<string, string> = {};
+        branches.forEach(b => { init[b] = event?.seatLimits?.branch?.[b]?.toString() || ''; });
+        return init;
+    });
+    const [yearLimits, setYearLimits] = useState<Record<string, string>>(() => {
+        const init: Record<string, string> = {};
+        years.forEach(y => { init[y] = event?.seatLimits?.year?.[y]?.toString() || ''; });
+        return init;
+    });
     const { toast } = useToast();
     const uniqueId = useId();
 
@@ -164,6 +187,21 @@ export function EventForm({ event }: EventFormProps) {
         
         const timelineToSave = values.timeline?.map(t => ({ time: t.time, description: t.description })) || [];
         formData.append('timeline', JSON.stringify(timelineToSave));
+
+        if (seatLimitsEnabled) {
+            const seatLimits: SeatLimits = {};
+            const branchEntries = Object.entries(branchLimits).filter(([, v]) => v && parseInt(v) > 0);
+            if (branchEntries.length > 0) {
+                seatLimits.branch = Object.fromEntries(branchEntries.map(([k, v]) => [k, parseInt(v)]));
+            }
+            const yearEntries = Object.entries(yearLimits).filter(([, v]) => v && parseInt(v) > 0);
+            if (yearEntries.length > 0) {
+                seatLimits.year = Object.fromEntries(yearEntries.map(([k, v]) => [k, parseInt(v)]));
+            }
+            if (seatLimits.branch || seatLimits.year) {
+                formData.append('seatLimits', JSON.stringify(seatLimits));
+            }
+        }
 
         if (notifyUsers && !event) {
             formData.append('notifyUsers', 'true');
@@ -548,6 +586,61 @@ export function EventForm({ event }: EventFormProps) {
                             </FormItem>
                         )}
                     />
+                </div>
+
+                <div className="space-y-4">
+                    <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                            <p className="text-base font-medium">Seat Limits by Branch / Year</p>
+                            <p className="text-sm text-muted-foreground">Optionally restrict how many students from each branch or year can register</p>
+                        </div>
+                        <Switch checked={seatLimitsEnabled} onCheckedChange={setSeatLimitsEnabled} />
+                    </div>
+
+                    {seatLimitsEnabled && (
+                        <Card className="p-4">
+                            <CardContent className="p-0 space-y-6">
+                                <div>
+                                    <p className="text-sm font-medium mb-3">Branch Limits</p>
+                                    <p className="text-xs text-muted-foreground mb-3">Leave blank for no restriction on that branch.</p>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                        {branches.map(b => (
+                                            <div key={b} className="space-y-1">
+                                                <label className="text-xs font-medium">{b}</label>
+                                                <Input
+                                                    type="number"
+                                                    min="0"
+                                                    placeholder="--"
+                                                    value={branchLimits[b]}
+                                                    onChange={(e) => setBranchLimits(prev => ({ ...prev, [b]: e.target.value }))}
+                                                    className="h-8 text-sm"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium mb-3">Year Limits</p>
+                                    <p className="text-xs text-muted-foreground mb-3">Leave blank for no restriction on that year.</p>
+                                    <div className="grid grid-cols-4 gap-3">
+                                        {years.map(y => (
+                                            <div key={y} className="space-y-1">
+                                                <label className="text-xs font-medium">{y} Year</label>
+                                                <Input
+                                                    type="number"
+                                                    min="0"
+                                                    placeholder="--"
+                                                    value={yearLimits[y]}
+                                                    onChange={(e) => setYearLimits(prev => ({ ...prev, [y]: e.target.value }))}
+                                                    className="h-8 text-sm"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
                 {!event && (
