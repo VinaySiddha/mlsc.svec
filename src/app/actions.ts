@@ -1170,30 +1170,38 @@ export async function createEvent(formData: FormData) {
   }
 
   try {
-    const docId = doc(collection(db, 'events')).id; // Generate ID upfront
+    const docId = doc(collection(db, 'events')).id;
     let bannerImageUrl = '';
-    if (bannerImageFile && bannerImageFile.size > 0) {
-      bannerImageUrl = await uploadFile(bannerImageFile, `events/${docId}/banner`);
-    }
     let listImageUrl = '';
-    if (listImageFile && listImageFile.size > 0) {
-      listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
-    }
-
-    const highlightImageUrls = await Promise.all(
-      highlightImageFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
-    );
-
+    let highlightImageUrls: string[] = [];
     const speakersData = JSON.parse(values.speakers as string || '[]');
-    for (let i = 0; i < speakersData.length; i++) {
-      const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
-      if (speakerImageFile && speakerImageFile.size > 0) {
-        speakersData[i].image = await uploadFile(speakerImageFile, `events/${docId}/speaker_${i}`);
-      }
+
+    try {
+        if (bannerImageFile && bannerImageFile.size > 0) {
+            bannerImageUrl = await uploadFile(bannerImageFile, `events/${docId}/banner`);
+        }
+        if (listImageFile && listImageFile.size > 0) {
+            listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
+        }
+        if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
+            highlightImageUrls = await Promise.all(
+                highlightImageFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
+            );
+        }
+        for (let i = 0; i < speakersData.length; i++) {
+            const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+            if (speakerImageFile && speakerImageFile.size > 0) {
+                speakersData[i].image = await uploadFile(speakerImageFile, `events/${docId}/speaker_${i}`);
+            }
+        }
+    } catch (storageError: any) {
+        if (storageError.code === 'storage/unauthorized') {
+            throw new Error("Permission denied: Cannot upload images to Firebase Storage. Please grant the 'Storage Object Admin' role to the service account.");
+        }
+        throw storageError;
     }
 
     const timelineData = JSON.parse(values.timeline as string || '[]');
-
     const seatLimits = values.seatLimits ? JSON.parse(values.seatLimits as string) : undefined;
 
     const dataToSave: any = {
@@ -1209,7 +1217,6 @@ export async function createEvent(formData: FormData) {
 
     await setDoc(doc(db, 'events', docId), dataToSave);
 
-    // Fire-and-forget broadcast if notifyUsers is set
     if (values.notifyUsers === 'true') {
       const eventDate = parsed.data.date instanceof Date
         ? parsed.data.date.toLocaleDateString()
@@ -1225,7 +1232,7 @@ export async function createEvent(formData: FormData) {
     return { success: true, id: docId };
   } catch (error) {
     console.error("Failed to create event:", error);
-    return { error: 'Failed to create event.' };
+    return { error: error instanceof Error ? error.message : 'Failed to create event.' };
   }
 }
 
@@ -1250,34 +1257,37 @@ export async function updateEvent(id: string, formData: FormData) {
 
   try {
     const eventDocRef = doc(db, 'events', id);
-    const existingEvent = await getDoc(eventDocRef);
-    const existingData = existingEvent.data();
-
     const dataToUpdate: any = { ...parsed.data };
-
-    if (bannerImageFile && bannerImageFile.size > 0) {
-      dataToUpdate.bannerImage = await uploadFile(bannerImageFile, `events/${id}/banner`);
-    }
-    if (listImageFile && listImageFile.size > 0) {
-      dataToUpdate.listImage = await uploadFile(listImageFile, `events/${id}/list`);
-    }
-
-    if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
-      dataToUpdate.highlightImages = await Promise.all(
-        highlightImageFiles.map((file, i) => uploadFile(file, `events/${id}/highlight_${i}`))
-      );
-    }
-
     const speakersData = JSON.parse(values.speakers as string || '[]');
-    for (let i = 0; i < speakersData.length; i++) {
-      const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
-      if (speakerImageFile && speakerImageFile.size > 0) {
-        speakersData[i].image = await uploadFile(speakerImageFile, `events/${id}/speaker_${i}`);
-      } else {
-        speakersData[i].image = speakersData[i].existingImageUrl;
-      }
-      delete speakersData[i].existingImageUrl;
+
+    try {
+        if (bannerImageFile && bannerImageFile.size > 0) {
+            dataToUpdate.bannerImage = await uploadFile(bannerImageFile, `events/${id}/banner`);
+        }
+        if (listImageFile && listImageFile.size > 0) {
+            dataToUpdate.listImage = await uploadFile(listImageFile, `events/${id}/list`);
+        }
+        if (highlightImageFiles.length > 0 && highlightImageFiles[0].size > 0) {
+            dataToUpdate.highlightImages = await Promise.all(
+                highlightImageFiles.map((file, i) => uploadFile(file, `events/${id}/highlight_${i}`))
+            );
+        }
+        for (let i = 0; i < speakersData.length; i++) {
+            const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+            if (speakerImageFile && speakerImageFile.size > 0) {
+                speakersData[i].image = await uploadFile(speakerImageFile, `events/${id}/speaker_${i}`);
+            } else {
+                speakersData[i].image = speakersData[i].existingImageUrl;
+            }
+            delete speakersData[i].existingImageUrl;
+        }
+    } catch (storageError: any) {
+        if (storageError.code === 'storage/unauthorized') {
+            throw new Error("Permission denied: Cannot upload images to Firebase Storage. Please grant the 'Storage Object Admin' role to the service account.");
+        }
+        throw storageError;
     }
+    
     dataToUpdate.speakers = speakersData;
     dataToUpdate.timeline = JSON.parse(values.timeline as string || '[]');
 
@@ -1288,7 +1298,7 @@ export async function updateEvent(id: string, formData: FormData) {
     return { success: true };
   } catch (error) {
     console.error("Failed to update event:", error);
-    return { error: 'Failed to update event.' };
+    return { error: error instanceof Error ? error.message : 'Failed to update event.' };
   }
 }
 

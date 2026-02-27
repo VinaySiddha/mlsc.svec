@@ -12,6 +12,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CountdownTimer } from "@/components/countdown-timer";
 
+export const revalidate = 0;
+
 const navLinks = [
     { href: "/", label: "Home", icon: HomeIcon },
     { href: "/team", label: "Team", icon: Group },

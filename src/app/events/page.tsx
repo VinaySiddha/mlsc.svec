@@ -9,7 +9,7 @@ import { getEvents } from "@/app/actions";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger-container";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 const staticEvents = [
   {

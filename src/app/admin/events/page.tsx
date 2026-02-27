@@ -9,6 +9,8 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+export const revalidate = 0;
+
 export default async function EventsPage() {
     const headersList = headers();
     const userRole = headersList.get('X-User-Role');
