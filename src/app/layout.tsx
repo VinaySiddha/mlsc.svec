@@ -4,8 +4,10 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
-import Link from 'next/link';
 import { CelebrationPopup } from '@/components/celebration-popup';
+import { Providers } from '@/components/providers';
+import { HeaderWrapper } from '@/components/header-wrapper';
+import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://mlscsvec.in'),
@@ -59,8 +61,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
     <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
-     crossOrigin="anonymous"></script>
       <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
       <meta property="og:site_name" content="MLSC SVEC" />
       <meta name="google-adsense-account" content="ca-pub-4523569844866132"></meta>
@@ -110,26 +110,20 @@ export default function RootLayout({
     </head>
 
       <body className={cn('font-sans antialiased')}>
+        <Providers>
+        <HeaderWrapper />
         <CelebrationPopup />
         <main className="min-h-screen">{children}</main>
-        <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
-          <div className="container mx-auto text-center text-sm text-muted-foreground">
-              <div className="flex justify-center gap-4 mb-2">
-                 <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-                 <Link href="/terms-and-conditions" className="hover:text-primary transition-colors">Terms & Conditions</Link>
-                 <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Status</a>
-              </div>
-              <p>&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved.</p>
-          </div>
-      </footer>
+        <SiteFooter />
+        </Providers>
         <Toaster />
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ"></Script>
-        <Script id="google-analytics">
+        <Script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" strategy="lazyOnload" crossOrigin="anonymous" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-          
             gtag('config', 'G-E51L2CC5ZZ');
           `}
         </Script>

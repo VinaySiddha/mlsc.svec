@@ -13,7 +13,7 @@ export function NotificationTicker({ notifications }: NotificationTickerProps) {
     }
 
     return (
-        <div className="bg-primary/10 border-y border-primary/20 text-primary-foreground overflow-hidden whitespace-nowrap">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-y border-primary/20 text-primary-foreground overflow-hidden whitespace-nowrap">
             <div className="flex items-center gap-4 animate-marquee py-2">
                 <div className="flex items-center gap-4 shrink-0">
                     <Megaphone className="h-5 w-5 text-primary ml-4" />

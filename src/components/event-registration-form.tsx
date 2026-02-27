@@ -11,8 +11,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { registerForEvent } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Clock, Users } from 'lucide-react';
+import { Loader2, Clock, Users, LogIn } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useAuth } from '@/lib/auth-context';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 const branches = ["AIML", "CAI", "CIVIL", "CSDS", "CSE", "CST", "ECE", "ECT", "EEE", "MECH"];
 const years = ["1st", "2nd", "3rd", "4th"];
@@ -42,6 +45,8 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
     const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+    const { user, loading: authLoading } = useAuth();
+    const pathname = usePathname();
 
     const isLimitReached = (limit && currentCount != null) ? currentCount >= limit : false;
 
@@ -53,7 +58,7 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                 }
             };
             checkDeadline();
-            const interval = setInterval(checkDeadline, 1000); // Check every second
+            const interval = setInterval(checkDeadline, 1000);
             return () => clearInterval(interval);
         }
     }, [deadline]);
@@ -63,10 +68,17 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
         defaultValues: { name: '', email: '', rollNo: '', phone: '' },
     });
 
+    useEffect(() => {
+        if (user) {
+            if (user.displayName) form.setValue('name', user.displayName);
+            if (user.email) form.setValue('email', user.email);
+        }
+    }, [user, form]);
+
     const onSubmit = async (values: RegistrationFormValues) => {
         setIsSubmitting(true);
         try {
-            const result = await registerForEvent(eventId, values);
+            const result = await registerForEvent(eventId, values, user?.uid);
             if (result.error) {
                 throw new Error(result.error);
             }
@@ -102,6 +114,26 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
             <Button disabled className="w-full">
                 <Clock className="mr-2 h-4 w-4" />
                 Registrations Closed
+            </Button>
+        )
+    }
+
+    if (authLoading) {
+        return (
+            <Button disabled className="w-full">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+            </Button>
+        )
+    }
+
+    if (!user) {
+        return (
+            <Button asChild className="w-full">
+                <Link href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign in to Register
+                </Link>
             </Button>
         )
     }

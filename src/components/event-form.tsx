@@ -70,6 +70,7 @@ interface EventFormProps {
 export function EventForm({ event }: EventFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [notifyUsers, setNotifyUsers] = useState(false);
     const { toast } = useToast();
     const uniqueId = useId();
 
@@ -163,6 +164,10 @@ export function EventForm({ event }: EventFormProps) {
         
         const timelineToSave = values.timeline?.map(t => ({ time: t.time, description: t.description })) || [];
         formData.append('timeline', JSON.stringify(timelineToSave));
+
+        if (notifyUsers && !event) {
+            formData.append('notifyUsers', 'true');
+        }
 
         try {
             const result = event ? await updateEvent(event.id, formData) : await createEvent(formData);
@@ -544,6 +549,16 @@ export function EventForm({ event }: EventFormProps) {
                         )}
                     />
                 </div>
+
+                {!event && (
+                    <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                            <p className="text-base font-medium">Notify Users</p>
+                            <p className="text-sm text-muted-foreground">Send email notification to all registered users about this event</p>
+                        </div>
+                        <Switch checked={notifyUsers} onCheckedChange={setNotifyUsers} />
+                    </div>
+                )}
 
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (

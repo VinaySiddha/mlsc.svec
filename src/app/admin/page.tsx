@@ -3,7 +3,7 @@ import { getAnalyticsData } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, Group, UploadCloud, Database, Megaphone } from "lucide-react";
+import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, Group, UploadCloud, Database, Megaphone, Shield, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/logout-button";
 import { DeadlineSetter } from "@/components/deadline-setter";
@@ -293,6 +293,38 @@ export default async function AdminPage() {
                   <CardContent>
                     <Button asChild variant="glass" size="sm">
                       <Link href="/admin/notifications">Manage Notifications</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                <Card className="glass-card flex flex-col justify-between">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Shield />
+                      User Management
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Manage registered users, assign roles, and control access.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild variant="glass" size="sm">
+                      <Link href="/admin/users">Manage Users</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+                <Card className="glass-card flex flex-col justify-between">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <MessageSquare />
+                      Community Moderation
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      Review flagged posts and moderate community content.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button asChild variant="glass" size="sm">
+                      <Link href="/admin/community">Moderate Community</Link>
                     </Button>
                   </CardContent>
                 </Card>

@@ -12,6 +12,8 @@ import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/a
 import { sendEventConfirmationEmail } from '@/ai/flows/send-event-confirmation-email';
 import { sendEventReminderEmail } from '@/ai/flows/send-event-reminder-email';
 import { sendFeedbackEmail } from '@/ai/flows/send-feedback-email';
+import { broadcastEmail } from '@/lib/email-broadcast';
+import { eventAnnouncementTemplate } from '@/lib/email-templates/event-announcement';
 
 
 import { z } from 'zod';
@@ -1202,6 +1204,20 @@ export async function createEvent(formData: FormData) {
     };
 
     await setDoc(doc(db, 'events', docId), dataToSave);
+
+    // Fire-and-forget broadcast if notifyUsers is set
+    if (values.notifyUsers === 'true') {
+      const eventDate = parsed.data.date instanceof Date
+        ? parsed.data.date.toLocaleDateString()
+        : String(parsed.data.date);
+      const { subject, html } = eventAnnouncementTemplate(
+        parsed.data.title,
+        eventDate,
+        parsed.data.description || ''
+      );
+      broadcastEmail(subject, html).catch(() => {});
+    }
+
     return { success: true, id: docId };
   } catch (error) {
     console.error("Failed to create event:", error);
@@ -1333,7 +1349,7 @@ export async function getEventById(id: string) {
 }
 
 
-export async function registerForEvent(eventId: string, values: z.infer<typeof registrationSchema>) {
+export async function registerForEvent(eventId: string, values: z.infer<typeof registrationSchema>, userId?: string) {
   const parsed = registrationSchema.safeParse(values);
   if (!parsed.success) {
     return { error: 'Invalid registration data.' };
@@ -1367,17 +1383,39 @@ export async function registerForEvent(eventId: string, values: z.infer<typeof r
       }
     }
 
-    // Check for existing email in this event's registrations
+    // Check for existing registration by userId or email
+    if (userId) {
+      const userQuery = query(registrationsRef, where("userId", "==", userId));
+      const userSnapshot = await getDocs(userQuery);
+      if (!userSnapshot.empty) {
+        return { error: 'You are already registered for this event.' };
+      }
+    }
+
     const emailQuery = query(registrationsRef, where("email", "==", parsed.data.email));
     const emailSnapshot = await getDocs(emailQuery);
     if (!emailSnapshot.empty) {
       return { error: 'This email is already registered for this event.' };
     }
 
-    await addDoc(registrationsRef, {
+    const registrationData = {
       ...parsed.data,
+      ...(userId && { userId }),
       registeredAt: new Date().toISOString(),
-    });
+    };
+
+    await addDoc(registrationsRef, registrationData);
+
+    // Write to user's registeredEvents subcollection for profile queries
+    if (userId) {
+      const userEventRef = doc(db, 'users', userId, 'registeredEvents', eventId);
+      await setDoc(userEventRef, {
+        eventId,
+        eventTitle: eventData.title,
+        eventDate: eventData.date.toDate().toISOString(),
+        registeredAt: new Date().toISOString(),
+      });
+    }
 
     // Send confirmation email
     const emailInput: EventConfirmationEmailInput = {

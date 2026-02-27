@@ -11,7 +11,11 @@ const visitorSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
+        const text = await req.text();
+        if (!text) {
+            return NextResponse.json({ error: "Empty body" }, { status: 400 });
+        }
+        const body = JSON.parse(text);
         const parsed = visitorSchema.safeParse(body);
 
         if (!parsed.success) {

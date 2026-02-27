@@ -1,65 +1,41 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import Image from "next/image";
+import type { GalleryImage } from "@/app/home-actions";
+import { ScrollReveal } from "@/components/motion/scroll-reveal";
+import { StaggerContainer, StaggerItem } from "@/components/motion/stagger-container";
 
-interface GalleryImage {
-    id: string;
-    url: string;
-    type: 'moments' | 'milestones';
-}
+const defaultImages: GalleryImage[] = [
+    { id: "d1", url: "/team1.jpg", type: "moments" },
+    { id: "d2", url: "/g2.jpg", type: "milestones" }
+];
 
-export function DynamicGallery() {
-    const [images, setImages] = useState<GalleryImage[]>([]);
-
-    useEffect(() => {
-        const fetchImages = async () => {
-            try {
-                const q = query(collection(db, "home_gallery"), orderBy("createdAt", "desc"));
-                const snapshot = await getDocs(q);
-                const data = snapshot.docs
-                    .map((doc) => {
-                        const raw = doc.data();
-                        if (typeof raw.url !== "string" || (raw.type !== "moments" && raw.type !== "milestones")) {
-                            return null;
-                        }
-                        return { id: doc.id, url: raw.url, type: raw.type as GalleryImage["type"] };
-                    })
-                    .filter((image): image is GalleryImage => image !== null);
-                setImages(data);
-            } catch (error) {
-                console.error("Error fetching gallery:", error);
-            }
-        };
-        fetchImages();
-    }, []);
-
-    const defaultImages: GalleryImage[] = [
-        { id: "d1", url: "/team1.jpg", type: "moments" },
-        { id: "d2", url: "/g2.jpg", type: "milestones" }
-    ];
-
-    // Append Strategy
+export function DynamicGallery({ images = [] }: { images?: GalleryImage[] }) {
     const displayImages = [...defaultImages, ...images];
 
     return (
         <section className="py-20 bg-transparent">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-4xl font-bold mb-12">Gallery: <span className="text-primary">Moments & Milestones</span></h2>
-                <div className="flex flex-wrap justify-center gap-8">
+                <ScrollReveal>
+                    <h2 className="text-4xl font-bold mb-12">Gallery: <span className="gradient-text">Moments & Milestones</span></h2>
+                </ScrollReveal>
+                <StaggerContainer className="flex flex-wrap justify-center gap-8">
                     {displayImages.map((image) => (
-                        <div key={image.id} className="relative aspect-video group overflow-hidden rounded-lg shadow-lg w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)]">
-                            <Image
-                                src={image.url}
-                                alt={`Gallery image (${image.type})`}
-                                fill
-                                className="object-cover hover:scale-105 transition-transform duration-300"
-                            />
-                        </div>
+                        <StaggerItem key={image.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)]">
+                            <div className="relative aspect-video group overflow-hidden rounded-lg shadow-lg">
+                                <Image
+                                    src={image.url}
+                                    alt={`Gallery image (${image.type})`}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                    className="object-cover hover:scale-105 transition-transform duration-300"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <span className="absolute bottom-2 left-2 text-xs font-medium bg-primary/80 text-primary-foreground px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    {image.type}
+                                </span>
+                            </div>
+                        </StaggerItem>
                     ))}
-                </div>
+                </StaggerContainer>
             </div>
         </section>
     );

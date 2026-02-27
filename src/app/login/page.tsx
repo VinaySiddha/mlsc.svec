@@ -8,14 +8,12 @@ import * as z from 'zod';
 import { loginAction } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { MLSCLogo } from '@/components/icons';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Home, Users, Calendar, LogIn, Menu, Send, Group, Book, Code, Activity } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required.'),
@@ -23,14 +21,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
-const navLinks = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/team", label: "Team", icon: Group },
-    { href: "/events", label: "Events", icon: Calendar },
-    { href: "/about", label: "About", icon: Users },
-    { href: "/blog", label: "Blog", icon: Book },
-];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -73,71 +63,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-transparent text-foreground">
-       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
-          <Link href="/" className="flex items-center gap-2">
-            <MLSCLogo className="h-10 w-10 text-primary" />
-            <span className="text-xl font-bold tracking-tight">
-              Microsoft Learn Student Club
-            </span>
-          </Link>
-          <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
-             {navLinks.map(link => (
-                 <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
-             ))}
-             <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-             <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">Status</a>
-          </nav>
-          <div className="flex items-center gap-4">
-             <Button asChild variant="glass" size="sm" className="hidden lg:flex">
-                <Link href="/login"><LogIn/> Login</Link>
-            </Button>
-            <div className="lg:hidden">
-              <Sheet>
-                  <SheetTrigger asChild>
-                      <Button variant="outline" size="icon" className="bg-transparent border-border hover:bg-background/80">
-                          <Menu />
-                          <span className="sr-only">Open menu</span>
-                      </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="glass-card">
-                      <div className="p-4">
-                          <nav className="flex flex-col gap-4">
-                              {navLinks.map(link => (
-                                  <SheetClose key={link.href} asChild>
-                                      <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                          <link.icon className="h-5 w-5" /> {link.label}
-                                      </Link>
-                                  </SheetClose>
-                              ))}
-                               <SheetClose asChild>
-                                  <Link href="/projects" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                      <Code className="h-5 w-5" /> Projects
-                                  </Link>
-                              </SheetClose>
-                              <SheetClose asChild>
-                                  <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                      <Activity className="h-5 w-5" /> Status
-                                  </a>
-                              </SheetClose>
-                               <SheetClose asChild>
-                                  <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                      <Send className="h-5 w-5" /> Apply
-                                  </Link>
-                              </SheetClose>
-                              <SheetClose asChild>
-                                <Link href="/login" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                  <LogIn className="h-5 w-5" /> Login
-                                </Link>
-                              </SheetClose>
-                          </nav>
-                      </div>
-                  </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-        </div>
-      </header>
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-sm glass-card">
           <CardHeader>
@@ -179,6 +104,12 @@ export default function LoginPage() {
                 </Button>
               </form>
             </Form>
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              Not an admin?{' '}
+              <Link href="/auth/login" className="text-primary hover:underline">
+                Sign in as user
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </main>
