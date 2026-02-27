@@ -4,9 +4,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
-import { ContentProtection } from '@/components/content-protection';
-import { EntryWarningPopup } from '@/components/entry-warning-popup';
 import Link from 'next/link';
+import { CelebrationPopup } from '@/components/celebration-popup';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://mlscsvec.in'),
@@ -111,8 +110,7 @@ export default function RootLayout({
     </head>
 
       <body className={cn('font-sans antialiased')}>
-        <ContentProtection />
-        <EntryWarningPopup />
+        <CelebrationPopup />
         <main className="min-h-screen">{children}</main>
         <footer className="bg-background/60 backdrop-blur-sm border-t border-border/50 py-6">
           <div className="container mx-auto text-center text-sm text-muted-foreground">
