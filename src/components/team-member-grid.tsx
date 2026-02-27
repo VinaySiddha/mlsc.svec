@@ -59,7 +59,7 @@ export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
                     <div className="glass-card-hover p-4 flex flex-col items-center text-center group h-full">
                         <div className="relative mb-4">
                             <div className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300 overflow-hidden w-40 h-40">
-                                {member.image && member.image.length > 0 ? (
+                                {member.image && member.image.trim().length > 0 ? (
                                     <Image
                                         src={member.image}
                                         alt={`Photo of ${member.name}`}
