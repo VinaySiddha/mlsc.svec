@@ -2,9 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAuth, type Auth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, type Auth, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -25,8 +23,30 @@ const storage = getStorage(app);
 let _auth: Auth | null = null;
 const auth: Auth = new Proxy({} as Auth, {
   get(_target, prop) {
-    if (!_auth) _auth = getAuth(app);
-    return (_auth as any)[prop];
+    if (!_auth) {
+      _auth = getAuth(app);
+      setPersistence(_auth, browserLocalPersistence);
+    }
+    const value = (_auth as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(_auth);
+    }
+    return value;
+  },
+  set(_target, prop, value) {
+    if (!_auth) {
+      _auth = getAuth(app);
+      setPersistence(_auth, browserLocalPersistence);
+    }
+    (_auth as any)[prop] = value;
+    return true;
+  },
+  has(_target, prop) {
+    if (!_auth) {
+      _auth = getAuth(app);
+      setPersistence(_auth, browserLocalPersistence);
+    }
+    return prop in _auth;
   },
 });
 
