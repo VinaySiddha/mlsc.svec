@@ -639,7 +639,7 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
 
   for (const secret of secretsToCheck) {
       if (!secret.value) {
-          const errorMsg = `Authentication failed: The secret for '${secret.name}' is missing. Please ensure it is created in Google Secret Manager with the exact name and that all required permissions are granted. Refer to PERMISSIONS_TROUBLESHOOTING.md for detailed instructions.`;
+          const errorMsg = `Authentication failed: The secret for '${secret.name}' could not be accessed. This is a critical server configuration issue. Please double-check that this secret exists in Google Secret Manager with the EXACT name, and that both required service accounts have the 'Secret Manager Secret Accessor' role. Refer to PERMISSIONS_TROUBLESHOOTING.md for a detailed guide.`;
           console.error(errorMsg);
           return { error: errorMsg };
       }

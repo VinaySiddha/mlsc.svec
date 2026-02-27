@@ -106,7 +106,7 @@ export function AmbassadorManager() {
             if (error.code === 'storage/unauthorized') {
                 toast({
                     title: "Permission Error",
-                    description: "You do not have permission to upload files. Please check your Firebase Storage rules or grant the 'Storage Object Admin' role.",
+                    description: "You do not have permission to upload files. Please grant the 'Storage Object Admin' role.",
                     variant: "destructive",
                 });
             } else {

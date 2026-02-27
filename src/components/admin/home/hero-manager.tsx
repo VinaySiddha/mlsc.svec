@@ -49,16 +49,16 @@ export function HeroManager() {
         if (!file) return;
 
         setLoading(true);
-        let storagePath = "";
         try {
-            const storageRef = ref(storage, `home/hero/${Date.now()}_${file.name}`);
-            storagePath = storageRef.fullPath;
+            const storagePath = `home/hero/${Date.now()}_${file.name}`;
+            const storageRef = ref(storage, storagePath);
+            
             await uploadBytes(storageRef, file);
             const downloadURL = await getDownloadURL(storageRef);
 
             await addDoc(collection(db, "home_hero"), {
                 url: downloadURL,
-                path: storagePath, // Save path for deletion
+                path: storagePath,
                 createdAt: serverTimestamp()
             });
 
@@ -72,14 +72,6 @@ export function HeroManager() {
             });
         } catch (error: any) {
             console.error("Upload error:", error);
-            if (storagePath) {
-                try {
-                    const storageRef = ref(storage, storagePath);
-                    await deleteObject(storageRef);
-                } catch (cleanupError) {
-                    console.error("Cleanup error:", cleanupError);
-                }
-            }
             if (error.code === 'storage/unauthorized') {
                 toast({
                     title: "Permission Error",
@@ -89,7 +81,7 @@ export function HeroManager() {
             } else {
                 toast({
                     title: "Error",
-                    description: "Failed to upload image.",
+                    description: "Failed to upload image. Check console for details.",
                     variant: "destructive",
                 });
             }
@@ -103,7 +95,6 @@ export function HeroManager() {
     
         setLoading(true);
         try {
-            // Attempt to delete the storage object if a path exists
             if (image.path) {
                 const storageRef = ref(storage, image.path);
                 try {
