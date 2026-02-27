@@ -626,23 +626,22 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     return { error: 'Invalid input.' };
   }
 
-  // Comprehensive check for all required secrets at login time.
-  const requiredSecrets = [
-    'JWT_SECRET',
-    'GOOGLE_API_KEY',
-    'GMAIL_USER',
-    'GMAIL_APP_PASSWORD',
-    'JSEARCH_API_KEY'
-  ];
+  // Individual secret check for precise error messaging
+  const secretsToCheck = {
+      JWT_SECRET: process.env.JWT_SECRET,
+      GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
+      GMAIL_USER: process.env.GMAIL_USER,
+      GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
+      JSEARCH_API_KEY: process.env.JSEARCH_API_KEY,
+  };
 
-  const missingSecrets = requiredSecrets.filter(secret => !process.env[secret]);
-
-  if (missingSecrets.length > 0) {
-    const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'mlsc-30';
-    const runtimeAccount = `firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com`;
-    const errorMessage = `Authentication failed. The server cannot access these required secrets: ${missingSecrets.join(', ')}. This is a configuration or permission issue. Please double-check two things: 1) The secret names in Google Secret Manager must EXACTLY match the required names (e.g., 'JWT_SECRET'). 2) The 'Secret Manager Secret Accessor' role must be granted to BOTH the runtime service account ('${runtimeAccount}') and your Cloud Build service account (ending in @cloudbuild.gserviceaccount.com) in the IAM settings.`;
-    console.error(errorMessage);
-    return { error: errorMessage };
+  for (const [name, value] of Object.entries(secretsToCheck)) {
+      if (!value) {
+          const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'your-project-id';
+          const errorMsg = `Authentication failed. The secret '${name}' is missing or inaccessible to the server. Please verify in Google Secret Manager that this secret exists with the exact name and that the 'Secret Manager Secret Accessor' role is granted to the 'firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com' service account.`;
+          console.error(errorMsg);
+          return { error: errorMsg };
+      }
   }
 
   const { username, password } = parsed.data;
@@ -2030,7 +2029,8 @@ const CACHE_DURATION_HOURS = 6;
 async function fetchFromJSearchAPI() {
     const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
     if (!JSEARCH_API_KEY) {
-        throw new Error("JSearch API key is not configured. Please set the JSEARCH_API_KEY environment variable.");
+        console.warn("JSearch API key is not configured. Skipping API call.");
+        return [];
     }
     const url = 'https://jsearch.p.rapidapi.com/search?query=developer&country=IN&num_pages=1';
     const options = {
@@ -2055,7 +2055,7 @@ export async function fetchAndCacheJobs() {
     const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
     if (!JSEARCH_API_KEY) {
       console.warn("JSEARCH_API_KEY is not configured during build/run. Job search feature will be disabled.");
-      return { jobs: [], error: "The job search feature is not configured on the server." };
+      return { jobs: [], error: null };
     }
 
     const metaRef = doc(db, 'jobs_meta', 'lastFetch');
@@ -2128,12 +2128,6 @@ export async function fetchAndCacheJobs() {
   } catch (error) {
     console.error("Error in fetchAndCacheJobs:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while fetching jobs.";
-    
-    // During build, if JSEARCH_API_KEY is missing, we don't want to fail the build.
-    if (errorMessage.includes("JSearch API key is not configured")) {
-        console.warn(errorMessage);
-        return { jobs: [], error: null }; // Return empty array and no error to prevent build crash
-    }
     
     // Fallback: try to read from cache even if API fails
     try {
