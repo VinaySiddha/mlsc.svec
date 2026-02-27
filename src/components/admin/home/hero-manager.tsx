@@ -70,9 +70,8 @@ export function HeroManager() {
                 title: "Success",
                 description: "Hero image uploaded.",
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Upload error:", error);
-            // Cleanup storage if firestore fails
             if (storagePath) {
                 try {
                     const storageRef = ref(storage, storagePath);
@@ -81,11 +80,19 @@ export function HeroManager() {
                     console.error("Cleanup error:", cleanupError);
                 }
             }
-            toast({
-                title: "Error",
-                description: "Failed to upload image.",
-                variant: "destructive",
-            });
+            if (error.code === 'storage/unauthorized') {
+                toast({
+                    title: "Permission Error",
+                    description: "You do not have permission to upload files. Please grant the 'Storage Object Admin' role to the service account.",
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: "Error",
+                    description: "Failed to upload image.",
+                    variant: "destructive",
+                });
+            }
         } finally {
             setLoading(false);
         }
@@ -103,15 +110,12 @@ export function HeroManager() {
                     await deleteObject(storageRef);
                 } catch (storageError: any) {
                     if (storageError.code === 'storage/unauthorized') {
-                        // This is a fatal permission error, so we re-throw it to be caught by the outer catch block.
                         throw new Error("Permission denied in Firebase Storage. Please grant the 'Storage Object Admin' role to your service account.");
                     }
-                    // For other errors like 'object-not-found', we can log a warning but continue.
                     console.warn(`Could not delete storage file, but proceeding to delete database entry. Reason: ${storageError.code}`);
                 }
             }
     
-            // Delete the Firestore document
             await deleteDoc(doc(db, "home_hero", image.id));
     
             toast({

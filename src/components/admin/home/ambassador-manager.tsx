@@ -101,13 +101,21 @@ export function AmbassadorManager() {
             });
             resetForm();
             setIsOpen(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Add error:", error);
-            toast({
-                title: "Error",
-                description: "Failed to add ambassador.",
-                variant: "destructive",
-            });
+            if (error.code === 'storage/unauthorized') {
+                toast({
+                    title: "Permission Error",
+                    description: "You do not have permission to upload files. Please check your Firebase Storage rules or grant the 'Storage Object Admin' role.",
+                    variant: "destructive",
+                });
+            } else {
+                 toast({
+                    title: "Error",
+                    description: "Failed to add ambassador.",
+                    variant: "destructive",
+                });
+            }
         } finally {
             setLoading(false);
         }

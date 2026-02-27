@@ -1,3 +1,4 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -41,47 +42,61 @@ export interface HomePageData {
 }
 
 export async function getHomePageData(): Promise<HomePageData> {
-  const [heroSnap, ambassadorSnap, gallerySnap, chapterSnap] = await Promise.all([
+  const results = await Promise.allSettled([
     getDocs(query(collection(db, 'home_hero'), orderBy('createdAt', 'desc'))),
     getDocs(query(collection(db, 'home_ambassadors'), orderBy('createdAt', 'desc'))),
     getDocs(query(collection(db, 'home_gallery'), orderBy('createdAt', 'desc'))),
     getDocs(query(collection(db, 'home_chapters'), orderBy('createdAt', 'asc'))),
   ]);
 
-  const heroImages = heroSnap.docs
-    .map((doc) => {
-      const raw = doc.data();
-      if (typeof raw.url !== 'string') return null;
-      return { id: doc.id, url: raw.url };
-    })
-    .filter((item): item is HeroImage => item !== null);
+  const [heroResult, ambassadorResult, galleryResult, chapterResult] = results;
 
-  const ambassadors = ambassadorSnap.docs
-    .map((doc) => {
-      const raw = doc.data();
-      if (typeof raw.name !== 'string' || typeof raw.description !== 'string' || typeof raw.photoUrl !== 'string') return null;
-      return { id: doc.id, name: raw.name, description: raw.description, photoUrl: raw.photoUrl };
-    })
-    .filter((item): item is Ambassador => item !== null);
+  const heroImages = heroResult.status === 'fulfilled' 
+    ? heroResult.value.docs
+        .map((doc) => {
+          const raw = doc.data();
+          if (typeof raw.url !== 'string') return null;
+          return { id: doc.id, url: raw.url };
+        })
+        .filter((item): item is HeroImage => item !== null)
+    : [];
 
-  const galleryImages = gallerySnap.docs
-    .map((doc) => {
-      const raw = doc.data();
-      if (typeof raw.url !== 'string' || (raw.type !== 'moments' && raw.type !== 'milestones')) return null;
-      return { id: doc.id, url: raw.url, type: raw.type as GalleryImage['type'] };
-    })
-    .filter((item): item is GalleryImage => item !== null);
+  const ambassadors = ambassadorResult.status === 'fulfilled'
+    ? ambassadorResult.value.docs
+        .map((doc) => {
+          const raw = doc.data();
+          if (typeof raw.name !== 'string' || typeof raw.description !== 'string' || typeof raw.photoUrl !== 'string') return null;
+          return { id: doc.id, name: raw.name, description: raw.description, photoUrl: raw.photoUrl };
+        })
+        .filter((item): item is Ambassador => item !== null)
+    : [];
 
-  const chapters = chapterSnap.docs
-    .map((doc) => {
-      const raw = doc.data();
-      if (typeof raw.name !== 'string' || typeof raw.description !== 'string' || !Array.isArray(raw.cards)) return null;
-      const cards = raw.cards.filter(
-        (card: any): card is ChapterCard => card && typeof card.title === 'string' && typeof card.content === 'string'
-      );
-      return { id: doc.id, name: raw.name, description: raw.description, cards };
-    })
-    .filter((item): item is Chapter => item !== null);
+  const galleryImages = galleryResult.status === 'fulfilled'
+    ? galleryResult.value.docs
+        .map((doc) => {
+          const raw = doc.data();
+          if (typeof raw.url !== 'string' || (raw.type !== 'moments' && raw.type !== 'milestones')) return null;
+          return { id: doc.id, url: raw.url, type: raw.type as GalleryImage['type'] };
+        })
+        .filter((item): item is GalleryImage => item !== null)
+    : [];
+
+  const chapters = chapterResult.status === 'fulfilled'
+    ? chapterResult.value.docs
+        .map((doc) => {
+          const raw = doc.data();
+          if (typeof raw.name !== 'string' || typeof raw.description !== 'string' || !Array.isArray(raw.cards)) return null;
+          const cards = raw.cards.filter(
+            (card: any): card is ChapterCard => card && typeof card.title === 'string' && typeof card.content === 'string'
+          );
+          return { id: doc.id, name: raw.name, description: raw.description, cards };
+        })
+        .filter((item): item is Chapter => item !== null)
+    : [];
+
+  if (results.some(r => r.status === 'rejected')) {
+    console.error("One or more home page collections failed to load:", results);
+  }
 
   return { heroImages, ambassadors, galleryImages, chapters };
 }

@@ -629,24 +629,20 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
     return { error: 'Invalid input.' };
   }
 
-  // Individual secret check for precise error messaging
-  const secretsToCheck: { [key: string]: string | undefined } = {
-      'JWT_SECRET': process.env.JWT_SECRET,
-      'GOOGLE_API_KEY': process.env.GOOGLE_API_KEY,
-      'GMAIL_USER': process.env.GMAIL_USER,
-      'GMAIL_APP_PASSWORD': process.env.GMAIL_APP_PASSWORD,
-      'JSEARCH_API_KEY': process.env.JSEARCH_API_KEY,
-  };
+  const secretsToCheck: { name: string; value: string | undefined }[] = [
+      { name: 'JWT_SECRET', value: process.env.JWT_SECRET },
+      { name: 'GOOGLE_API_KEY', value: process.env.GOOGLE_API_KEY },
+      { name: 'GMAIL_USER', value: process.env.GMAIL_USER },
+      { name: 'GMAIL_APP_PASSWORD', value: process.env.GMAIL_APP_PASSWORD },
+      { name: 'JSEARCH_API_KEY', value: process.env.JSEARCH_API_KEY },
+  ];
 
-  const missingSecrets = Object.entries(secretsToCheck)
-      .filter(([_, value]) => !value)
-      .map(([name]) => name);
-
-  if (missingSecrets.length > 0) {
-      const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'your-project-id';
-      const errorMsg = `Authentication failed. The secret(s) '${missingSecrets.join(', ')}' are missing or inaccessible. Please verify in Google Secret Manager that each secret exists with the exact name and that the 'Secret Manager Secret Accessor' role is granted to BOTH 'firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com' AND the Cloud Build service account. Check troubleshooting docs for more details.`;
-      console.error(errorMsg);
-      return { error: errorMsg };
+  for (const secret of secretsToCheck) {
+      if (!secret.value) {
+          const errorMsg = `Authentication failed: The secret for '${secret.name}' is missing. Please ensure it is created in Google Secret Manager with the exact name and that all required permissions are granted. Refer to PERMISSIONS_TROUBLESHOOTING.md for detailed instructions.`;
+          console.error(errorMsg);
+          return { error: errorMsg };
+      }
   }
 
 
@@ -1874,12 +1870,12 @@ export async function updateTeamMember(id: string, formData: FormData) {
 
     await updateDoc(docRef, dataToUpdate);
     return { success: true };
-  } catch (error) {
-    console.error("Error updating team member:", error);
-    if (error instanceof Error) {
-      return { error: `Failed to update team member: ${error.message}` };
+  } catch (error: any) {
+    if (error?.code === 'storage/unauthorized') {
+      return { error: "Permission denied. Please ensure the 'Storage Object Admin' role is granted." };
     }
-    return { error: "Failed to update team member." };
+    console.error("Error updating team member:", error);
+    return { error: error.message || "Failed to update team member." };
   }
 }
 
@@ -1937,11 +1933,20 @@ export async function completeOnboarding(formData: FormData) {
       return { error: error || "Failed to validate token." };
     }
 
-    // Upload image to Firebase Storage
-    const storageRef = ref(storage, `profile-images/${member.id}`);
-    const imageBuffer = await imageFile.arrayBuffer();
-    await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-    const imageUrl = await getDownloadURL(storageRef);
+    let imageUrl = '';
+    try {
+      // Upload image to Firebase Storage
+      const storageRef = ref(storage, `profile-images/${member.id}`);
+      const imageBuffer = await imageFile.arrayBuffer();
+      await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
+      imageUrl = await getDownloadURL(storageRef);
+    } catch (storageError: any) {
+        if (storageError.code === 'storage/unauthorized') {
+            throw new Error("Permission denied: Cannot upload image to Firebase Storage. Please ensure 'Storage Object Admin' role is granted.");
+        }
+        throw storageError;
+    }
+
 
     const updatedMemberData = {
       image: imageUrl,
@@ -1973,7 +1978,8 @@ export async function completeOnboarding(formData: FormData) {
     return { success: true, member: updatedMember };
   } catch (e) {
     console.error("Error completing onboarding:", e);
-    return { error: "Failed to activate profile." };
+    const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred';
+    return { error: `Failed to activate profile: ${errorMessage}` };
   }
 }
 
@@ -2039,7 +2045,10 @@ export async function deleteTeamMember(id: string) {
     try {
       await deleteObject(storageRef);
     } catch (storageError: any) {
-      // It's okay if the image doesn't exist.
+      if (storageError.code === 'storage/unauthorized') {
+        throw new Error("Permission denied to delete image. Please grant 'Storage Object Admin' role to the service account.");
+      }
+      // It's okay if the image doesn't exist, so we only throw for permission errors.
       if (storageError.code !== 'storage/object-not-found') {
         console.warn(`Could not delete profile image for member ${id}:`, storageError);
       }
@@ -2053,7 +2062,7 @@ export async function deleteTeamMember(id: string) {
     if (e instanceof Error) {
       return { error: `Failed to delete team member: ${e.message}` };
     }
-    return { error: "Failed to delete team member." };
+    return { error: "An unexpected error occurred during deletion." };
   }
 }
 
@@ -2135,7 +2144,7 @@ export async function fetchAndCacheJobs() {
     const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY;
     if (!JSEARCH_API_KEY) {
       console.warn("JSEARCH_API_KEY is not configured during build/run. Job search feature will be disabled.");
-      return { jobs: [], error: null };
+      return { jobs: [], error: "The Job Search feature is currently disabled due to a configuration issue." };
     }
 
     const metaRef = doc(db, 'jobs_meta', 'lastFetch');

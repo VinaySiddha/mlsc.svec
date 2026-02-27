@@ -80,13 +80,21 @@ export function GalleryManager() {
                 fileInputRef.current.value = ""; // Reset file input
             }
             setFile(null);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Upload error:", error);
-            toast({
-                title: "Error",
-                description: "Failed to upload image.",
-                variant: "destructive",
-            });
+            if (error.code === 'storage/unauthorized') {
+                 toast({
+                    title: "Permission Error",
+                    description: "You do not have permission to upload files. Please grant the 'Storage Object Admin' role.",
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: "Error",
+                    description: "Failed to upload image.",
+                    variant: "destructive",
+                });
+            }
         } finally {
             setLoading(false);
         }
