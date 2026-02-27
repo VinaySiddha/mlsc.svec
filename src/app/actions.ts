@@ -19,7 +19,7 @@ import { eventAnnouncementTemplate } from '@/lib/email-templates/event-announcem
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
-import { db, storage } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import {
   collection,
   addDoc,
@@ -44,7 +44,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { adminStorage } from '@/lib/firebase-admin';
 import papaparse from 'papaparse';
 import { randomBytes } from 'crypto';
 
@@ -1144,10 +1144,11 @@ export async function getDeadline() {
 
 
 async function uploadFile(file: File, path: string): Promise<string> {
-  const storageRef = ref(storage, path);
-  const buffer = await file.arrayBuffer();
-  await uploadBytes(storageRef, buffer, { contentType: file.type });
-  return getDownloadURL(storageRef);
+  const bucket = adminStorage.bucket();
+  const fileRef = bucket.file(path);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await fileRef.save(buffer, { contentType: file.type, public: true });
+  return `https://storage.googleapis.com/${bucket.name}/${path}`;
 }
 
 export async function createEvent(formData: FormData) {
@@ -1290,7 +1291,8 @@ export async function updateEvent(id: string, formData: FormData) {
     return { success: true };
   } catch (error) {
     console.error("Failed to update event:", error);
-    return { error: 'Failed to update event.' };
+    const message = error instanceof Error ? error.message : String(error);
+    return { error: `Failed to update event: ${message}` };
   }
 }
 
@@ -1858,10 +1860,8 @@ export async function updateTeamMember(id: string, formData: FormData) {
     const dataToUpdate: any = parsed.data;
 
     if (imageFile && imageFile.size > 0) {
-      const storageRef = ref(storage, `profile-images/${id}`);
-      const imageBuffer = await imageFile.arrayBuffer();
-      await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-      dataToUpdate.image = await getDownloadURL(storageRef);
+      const url = await uploadFile(imageFile, `profile-images/${id}`);
+      dataToUpdate.image = url;
     }
 
     await updateDoc(docRef, dataToUpdate);
@@ -1930,10 +1930,7 @@ export async function completeOnboarding(formData: FormData) {
     }
 
     // Upload image to Firebase Storage
-    const storageRef = ref(storage, `profile-images/${member.id}`);
-    const imageBuffer = await imageFile.arrayBuffer();
-    await uploadBytes(storageRef, imageBuffer, { contentType: imageFile.type });
-    const imageUrl = await getDownloadURL(storageRef);
+    const imageUrl = await uploadFile(imageFile, `profile-images/${member.id}`);
 
     const updatedMemberData = {
       image: imageUrl,
@@ -2027,12 +2024,11 @@ export async function getTeamMemberById(id: string) {
 export async function deleteTeamMember(id: string) {
   try {
     // First, try to delete the image from storage.
-    const storageRef = ref(storage, `profile-images/${id}`);
     try {
-      await deleteObject(storageRef);
+      await adminStorage.bucket().file(`profile-images/${id}`).delete();
     } catch (storageError: any) {
       // It's okay if the image doesn't exist.
-      if (storageError.code !== 'storage/object-not-found') {
+      if (storageError.code !== 404) {
         console.warn(`Could not delete profile image for member ${id}:`, storageError);
       }
     }
