@@ -1180,8 +1180,9 @@ export async function createEvent(formData: FormData) {
       listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
     }
 
+    const validHighlightFiles = highlightImageFiles.filter(f => f.size > 0);
     const highlightImageUrls = await Promise.all(
-      highlightImageFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
+      validHighlightFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
     );
 
     const speakersData = JSON.parse(values.speakers as string || '[]');
@@ -1225,7 +1226,8 @@ export async function createEvent(formData: FormData) {
     return { success: true, id: docId };
   } catch (error) {
     console.error("Failed to create event:", error);
-    return { error: 'Failed to create event.' };
+    const message = error instanceof Error ? error.message : String(error);
+    return { error: `Failed to create event: ${message}` };
   }
 }
 
