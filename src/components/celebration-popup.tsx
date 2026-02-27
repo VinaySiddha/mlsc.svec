@@ -12,44 +12,45 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { PartyPopper } from 'lucide-react';
-import { getNotifications } from '@/app/actions';
+import { getLatestAnnouncement } from '@/app/actions';
+import Link from 'next/link';
 
-interface Notification {
-    id: string;
+interface Announcement {
+    type: 'notification' | 'event';
     message: string;
+    link?: string;
 }
 
 export function CelebrationPopup() {
   const [isOpen, setIsOpen] = useState(false);
-  const [latestNotification, setLatestNotification] = useState<Notification | null>(null);
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
 
   useEffect(() => {
     const hasSeenPopup = sessionStorage.getItem('hasSeenCelebrationPopup');
 
     if (!hasSeenPopup) {
-      const fetchLatestNotification = async () => {
+      const fetchAnnouncement = async () => {
         try {
-          const { notifications, error } = await getNotifications();
-          if (!error && notifications && notifications.length > 0) {
-            setLatestNotification(notifications[0]); // Get the most recent one
+          const { announcement: latestAnnouncement, error } = await getLatestAnnouncement();
+          if (!error && latestAnnouncement) {
+            setAnnouncement(latestAnnouncement);
             setIsOpen(true);
             sessionStorage.setItem('hasSeenCelebrationPopup', 'true');
           }
         } catch (e) {
-            // Silently fail if notifications can't be fetched
-            console.error("Failed to fetch notifications for popup", e);
+            console.error("Failed to fetch announcement for popup", e);
         }
       };
       
-      fetchLatestNotification();
+      fetchAnnouncement();
     }
   }, []);
 
-  const handleAcknowledge = () => {
+  const handleClose = () => {
     setIsOpen(false);
   };
 
-  if (!isOpen || !latestNotification) {
+  if (!isOpen || !announcement) {
       return null;
   }
 
@@ -57,18 +58,24 @@ export function CelebrationPopup() {
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogContent className="glass-card">
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2 text-xl">
+          <AlertDialogTitle className="flex items-center justify-center gap-2 text-xl">
             <PartyPopper className="h-8 w-8 text-primary animate-pulse" />
             <span>What's New at MLSC?</span>
           </AlertDialogTitle>
           <AlertDialogDescription className="pt-4 text-lg text-foreground/90 text-center">
-            {latestNotification.message}
+            {announcement.message}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogAction onClick={handleAcknowledge}>
-            Awesome!
-          </AlertDialogAction>
+        <AlertDialogFooter className='sm:justify-center'>
+            {announcement.type === 'event' && announcement.link ? (
+                <AlertDialogAction asChild>
+                    <Link href={announcement.link} onClick={handleClose}>View Event</Link>
+                </AlertDialogAction>
+            ) : (
+                <AlertDialogAction onClick={handleClose}>
+                    Awesome!
+                </AlertDialogAction>
+            )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

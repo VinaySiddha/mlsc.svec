@@ -627,22 +627,25 @@ export async function loginAction(values: z.infer<typeof loginSchema>) {
   }
 
   // Individual secret check for precise error messaging
-  const secretsToCheck = {
-      JWT_SECRET: process.env.JWT_SECRET,
-      GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
-      GMAIL_USER: process.env.GMAIL_USER,
-      GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
-      JSEARCH_API_KEY: process.env.JSEARCH_API_KEY,
+  const secretsToCheck: { [key: string]: string | undefined } = {
+      'JWT_SECRET': process.env.JWT_SECRET,
+      'GOOGLE_API_KEY': process.env.GOOGLE_API_KEY,
+      'GMAIL_USER': process.env.GMAIL_USER,
+      'GMAIL_APP_PASSWORD': process.env.GMAIL_APP_PASSWORD,
+      'JSEARCH_API_KEY': process.env.JSEARCH_API_KEY,
   };
 
-  for (const [name, value] of Object.entries(secretsToCheck)) {
-      if (!value) {
-          const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'your-project-id';
-          const errorMsg = `Authentication failed. The secret '${name}' is missing or inaccessible to the server. Please verify in Google Secret Manager that this secret exists with the exact name and that the 'Secret Manager Secret Accessor' role is granted to the 'firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com' service account.`;
-          console.error(errorMsg);
-          return { error: errorMsg };
-      }
+  const missingSecrets = Object.entries(secretsToCheck)
+      .filter(([_, value]) => !value)
+      .map(([name]) => name);
+
+  if (missingSecrets.length > 0) {
+      const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'your-project-id';
+      const errorMsg = `Authentication failed. The secret(s) '${missingSecrets.join(', ')}' are missing or inaccessible. Please verify in Google Secret Manager that each secret exists with the exact name and that the 'Secret Manager Secret Accessor' role is granted to BOTH 'firebase-app-hosting-compute@${PROJECT_ID}.iam.gserviceaccount.com' AND the Cloud Build service account. Check troubleshooting docs for more details.`;
+      console.error(errorMsg);
+      return { error: errorMsg };
   }
+
 
   const { username, password } = parsed.data;
 
@@ -1195,6 +1198,7 @@ export async function createEvent(formData: FormData) {
       bannerImage: bannerImageUrl,
       listImage: listImageUrl,
       highlightImages: highlightImageUrls,
+      createdAt: serverTimestamp(),
     };
 
     await setDoc(doc(db, 'events', docId), dataToSave);
@@ -2149,5 +2153,44 @@ export async function fetchAndCacheJobs() {
       return { jobs: [], error: errorMessage };
     }
     return { jobs: [], error: errorMessage };
+  }
+}
+
+export async function getLatestAnnouncement() {
+  try {
+    // Get latest notification
+    const notificationsCol = collection(db, 'notifications');
+    const notificationQuery = query(notificationsCol, orderBy('createdAt', 'desc'), limit(1));
+    const notificationSnapshot = await getDocs(notificationQuery);
+    const latestNotification = notificationSnapshot.empty ? null : { ...notificationSnapshot.docs[0].data(), id: notificationSnapshot.docs[0].id } as { message: string, createdAt: Timestamp, id: string };
+
+    // Get latest event (created)
+    const eventsCol = collection(db, 'events');
+    const eventQuery = query(eventsCol, orderBy('createdAt', 'desc'), limit(1));
+    const eventSnapshot = await getDocs(eventQuery);
+    const latestEvent = eventSnapshot.empty ? null : { ...eventSnapshot.docs[0].data(), id: eventSnapshot.docs[0].id } as { title: string, createdAt: Timestamp, id: string };
+
+    if (!latestNotification && !latestEvent) {
+      return { announcement: null, error: null };
+    }
+
+    if (latestNotification && !latestEvent) {
+      return { announcement: { type: 'notification', message: latestNotification.message }, error: null };
+    }
+
+    if (!latestNotification && latestEvent) {
+      return { announcement: { type: 'event', message: `New Event: ${latestEvent.title}`, link: `/events/${latestEvent.id}` }, error: null };
+    }
+
+    // Both exist, compare timestamps
+    if (latestNotification!.createdAt.toMillis() > latestEvent!.createdAt.toMillis()) {
+      return { announcement: { type: 'notification', message: latestNotification.message }, error: null };
+    } else {
+      return { announcement: { type: 'event', message: `New Event: ${latestEvent.title}`, link: `/events/${latestEvent.id}` }, error: null };
+    }
+
+  } catch (e) {
+    console.error("Error fetching latest announcement:", e);
+    return { announcement: null, error: "Failed to fetch latest announcement." };
   }
 }
