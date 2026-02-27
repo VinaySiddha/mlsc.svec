@@ -33,6 +33,15 @@ const sortMembers = (members: TeamMember[]) => {
     });
 };
 
+const getInitials = (name?: string): string => {
+    if (!name) return '?';
+    const parts = name.trim().split(' ').filter(Boolean);
+    if (parts.length === 0) return '?';
+    const first = parts[0][0];
+    const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+    return (first + last).toUpperCase();
+}
+
 export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
     if (members.length === 0) return null;
 
@@ -50,7 +59,7 @@ export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
                     <div className="glass-card-hover p-4 flex flex-col items-center text-center group h-full">
                         <div className="relative mb-4">
                             <div className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300 overflow-hidden w-40 h-40">
-                                {member.image ? (
+                                {member.image && member.image.length > 0 ? (
                                     <Image
                                         src={member.image}
                                         alt={`Photo of ${member.name}`}
@@ -61,7 +70,7 @@ export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
                                 ) : (
                                     <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center">
                                         <span className="text-4xl font-bold text-muted-foreground">
-                                            {member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                            {getInitials(member.name)}
                                         </span>
                                     </div>
                                 )}
