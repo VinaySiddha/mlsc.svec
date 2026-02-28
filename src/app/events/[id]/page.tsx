@@ -1,26 +1,37 @@
 
+import type { Metadata } from "next";
 import { getEventById } from "@/app/actions";
 import { EventRegistrationForm } from "@/components/event-registration-form";
-import { MLSCLogo } from "@/components/icons";
 import { Image } from "@/components/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import { ArrowLeft, Book, Calendar, Code, Group, Home as HomeIcon, LogIn, Menu, Mic, Send, Users, Clock, MapPin, ListChecks, UserCheck, Image as ImageIcon, Activity } from "lucide-react";
-import Link from "next/link";
+import { Calendar, Mic, Clock, MapPin, ListChecks, UserCheck, Image as ImageIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { CountdownTimer } from "@/components/countdown-timer";
 
 export const revalidate = 0;
 
-const navLinks = [
-    { href: "/", label: "Home", icon: HomeIcon },
-    { href: "/team", label: "Team", icon: Group },
-    { href: "/events", label: "Events", icon: Calendar },
-    { href: "/about", label: "About", icon: Users },
-    { href: "/blog", label: "Blog", icon: Book },
-];
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+    if (params.id.startsWith('static-')) {
+        const event = staticEventsData[params.id];
+        return {
+            title: event ? `${event.title} — MLSC SVEC` : "Event — MLSC SVEC",
+            description: event?.description || "View event details on MLSC SVEC.",
+        };
+    }
+    const { event } = await getEventById(params.id);
+    if (!event) return { title: "Event Not Found — MLSC SVEC" };
+    return {
+        title: `${event.title} — MLSC SVEC`,
+        description: event.description?.slice(0, 160) || "View event details on MLSC SVEC.",
+        openGraph: {
+            title: event.title,
+            description: event.description?.slice(0, 160),
+            images: event.bannerImage ? [{ url: event.bannerImage }] : undefined,
+            url: `https://mlscsvec.in/events/${params.id}`,
+        },
+    };
+}
 
 const staticEventsData: { [key: string]: any } = {
     'static-1': {
@@ -71,73 +82,6 @@ export default async function EventDetailPage({ params }: { params: { id: string
 
     return (
         <div className="flex flex-col min-h-screen bg-transparent text-foreground">
-            {/* Header */}
-            <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
-                    <Link href="/" className="flex items-center gap-2">
-                        <MLSCLogo className="h-10 w-10 text-primary" />
-                        <span className="text-xl font-bold tracking-tight">
-                            Microsoft Learn Student Club
-                        </span>
-                    </Link>
-                    <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
-                        {navLinks.map(link => (
-                            <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
-                        ))}
-                        <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-                        <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">Status</a>
-                    </nav>
-                    <div className="flex items-center gap-4">
-                        <Button asChild variant="glass" size="sm" className="hidden lg:flex">
-                            <Link href="/events"><ArrowLeft /> All Events</Link>
-                        </Button>
-                        <div className="lg:hidden">
-                            <Sheet>
-                                <SheetTrigger asChild>
-                                    <Button variant="outline" size="icon" className="bg-transparent border-border hover:bg-background/80">
-                                        <Menu />
-                                        <span className="sr-only">Open menu</span>
-                                    </Button>
-                                </SheetTrigger>
-                                <SheetContent side="left" className="glass-card">
-                                    <div className="p-4">
-                                        <nav className="flex flex-col gap-4">
-                                            {navLinks.map(link => (
-                                                <SheetClose key={link.href} asChild>
-                                                    <Link href={link.href} className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                                        <link.icon className="h-5 w-5" /> {link.label}
-                                                    </Link>
-                                                </SheetClose>
-                                            ))}
-                                            <SheetClose asChild>
-                                                <Link href="/projects" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                                    <Code className="h-5 w-5" /> Projects
-                                                </Link>
-                                            </SheetClose>
-                                            <SheetClose asChild>
-                                                <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                                    <Activity className="h-5 w-5" /> Status
-                                                </a>
-                                            </SheetClose>
-                                            <SheetClose asChild>
-                                                <Link href="/apply" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                                    <Send className="h-5 w-5" /> Apply
-                                                </Link>
-                                            </SheetClose>
-                                            <SheetClose asChild>
-                                                <Link href="/login" className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50">
-                                                    <LogIn className="h-5 w-5" /> Login
-                                                </Link>
-                                            </SheetClose>
-                                        </nav>
-                                    </div>
-                                </SheetContent>
-                            </Sheet>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
             <main className="flex-1">
                 <section className="relative w-full">
                     <Image

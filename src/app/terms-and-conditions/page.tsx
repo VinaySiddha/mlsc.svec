@@ -1,5 +1,15 @@
 
+import type { Metadata } from "next";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Terms and Conditions — MLSC SVEC",
+  description: "Read the terms and conditions for the Microsoft Learn Student Club SVEC website.",
+  openGraph: {
+    title: "Terms and Conditions — MLSC SVEC",
+    url: "https://mlscsvec.in/terms-and-conditions",
+  },
+};
 
 export default function TermsAndConditionsPage() {
   return (

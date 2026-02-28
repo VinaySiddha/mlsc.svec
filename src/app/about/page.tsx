@@ -1,8 +1,19 @@
 
+import type { Metadata } from "next";
 import { ScrollReveal } from '@/components/motion/scroll-reveal';
 import { AnimatedCounter } from '@/components/motion/animated-counter';
 import { StaggerContainer, StaggerItem } from '@/components/motion/stagger-container';
 import { Target, Eye, Code, Lightbulb, Users, Handshake } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: "About — MLSC SVEC",
+  description: "Learn about Microsoft Learn Student Club at Sri Vasavi Engineering College — our mission, history, and the team driving student innovation.",
+  openGraph: {
+    title: "About — MLSC SVEC",
+    description: "Learn about Microsoft Learn Student Club at Sri Vasavi Engineering College — our mission, history, and the team driving student innovation.",
+    url: "https://mlscsvec.in/about",
+  },
+};
 
 const timeline = [
     { date: 'Oct 2023', title: 'Club Founded', desc: 'MLSC inaugurated at Sri Vasavi Engineering College' },

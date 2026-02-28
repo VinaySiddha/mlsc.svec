@@ -1,5 +1,16 @@
 
+import type { Metadata } from "next";
 import { fetchAndCacheJobs } from "@/app/actions";
+
+export const metadata: Metadata = {
+  title: "Jobs — MLSC SVEC",
+  description: "Browse the latest tech job listings and internship opportunities curated for MLSC SVEC members.",
+  openGraph: {
+    title: "Jobs — MLSC SVEC",
+    description: "Browse the latest tech job listings and internship opportunities curated for MLSC SVEC members.",
+    url: "https://mlscsvec.in/jobs",
+  },
+};
 import { JobCard, JobCardSkeleton } from "@/components/job-card";
 import { Briefcase } from "lucide-react";
 import { Suspense } from "react";

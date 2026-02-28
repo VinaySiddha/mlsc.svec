@@ -1,4 +1,5 @@
 
+import type { Metadata } from "next";
 import { getNotifications } from "@/app/actions";
 import { getHomePageData } from "@/app/home-actions";
 import { NotificationTicker } from "@/components/notification-ticker";
@@ -6,6 +7,16 @@ import { DynamicHero } from "@/components/home/dynamic-hero";
 import { DynamicAmbassadors } from "@/components/home/dynamic-ambassadors";
 import { DynamicGallery } from "@/components/home/dynamic-gallery";
 import { DynamicChapters } from "@/components/home/dynamic-chapters";
+
+export const metadata: Metadata = {
+  title: "MLSC X SVEC — Microsoft Learn Student Club",
+  description: "The official hub of Microsoft Learn Student Club at Sri Vasavi Engineering College. Explore events, meet the team, and join our community of student innovators.",
+  openGraph: {
+    title: "MLSC X SVEC — Microsoft Learn Student Club",
+    description: "The official hub of Microsoft Learn Student Club at Sri Vasavi Engineering College. Explore events, meet the team, and join our community of student innovators.",
+    url: "https://mlscsvec.in",
+  },
+};
 
 export const revalidate = 60;
 

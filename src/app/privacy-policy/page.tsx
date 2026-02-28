@@ -1,5 +1,15 @@
 
+import type { Metadata } from "next";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — MLSC SVEC",
+  description: "Read the privacy policy for the Microsoft Learn Student Club SVEC website.",
+  openGraph: {
+    title: "Privacy Policy — MLSC SVEC",
+    url: "https://mlscsvec.in/privacy-policy",
+  },
+};
 
 export default function PrivacyPolicyPage() {
   return (

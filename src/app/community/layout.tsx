@@ -1,4 +1,15 @@
+import type { Metadata } from "next";
 import { MLSCLogo } from '@/components/icons';
+
+export const metadata: Metadata = {
+  title: "Community — MLSC SVEC",
+  description: "Join the MLSC SVEC community — share posts, discuss ideas, and connect with fellow student innovators.",
+  openGraph: {
+    title: "Community — MLSC SVEC",
+    description: "Join the MLSC SVEC community — share posts, discuss ideas, and connect with fellow student innovators.",
+    url: "https://mlscsvec.in/community",
+  },
+};
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';

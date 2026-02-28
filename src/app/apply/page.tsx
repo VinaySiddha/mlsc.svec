@@ -1,5 +1,16 @@
 
+import type { Metadata } from "next";
 import { ApplicationForm } from "@/components/application-form";
+
+export const metadata: Metadata = {
+  title: "Apply — MLSC SVEC",
+  description: "Apply to join Microsoft Learn Student Club SVEC. Be part of a community of student innovators, tech enthusiasts, and future leaders.",
+  openGraph: {
+    title: "Apply — MLSC SVEC",
+    description: "Apply to join Microsoft Learn Student Club SVEC. Be part of a community of student innovators, tech enthusiasts, and future leaders.",
+    url: "https://mlscsvec.in/apply",
+  },
+};
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 

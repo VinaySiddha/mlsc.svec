@@ -1,9 +1,20 @@
 
+import type { Metadata } from "next";
 import { getTeamMembers } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { TeamMemberGrid } from "@/components/team-member-grid";
+
+export const metadata: Metadata = {
+  title: "Team — MLSC SVEC",
+  description: "Meet the team behind Microsoft Learn Student Club SVEC — student leaders, developers, designers, and creators building the future together.",
+  openGraph: {
+    title: "Team — MLSC SVEC",
+    description: "Meet the team behind Microsoft Learn Student Club SVEC — student leaders, developers, designers, and creators building the future together.",
+    url: "https://mlscsvec.in/team",
+  },
+};
 
 export const revalidate = 60;
 

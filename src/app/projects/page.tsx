@@ -1,4 +1,16 @@
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Projects — MLSC SVEC",
+  description: "Discover projects built by Microsoft Learn Student Club SVEC members — open-source tools, apps, and community contributions.",
+  openGraph: {
+    title: "Projects — MLSC SVEC",
+    description: "Discover projects built by Microsoft Learn Student Club SVEC members — open-source tools, apps, and community contributions.",
+    url: "https://mlscsvec.in/projects",
+  },
+};
+
 export default function ProjectsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-foreground">

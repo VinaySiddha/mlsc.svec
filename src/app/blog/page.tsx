@@ -1,5 +1,16 @@
 
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Blog — MLSC SVEC",
+  description: "Read articles, tutorials, and updates from the Microsoft Learn Student Club SVEC community.",
+  openGraph: {
+    title: "Blog — MLSC SVEC",
+    description: "Read articles, tutorials, and updates from the Microsoft Learn Student Club SVEC community.",
+    url: "https://mlscsvec.in/blog",
+  },
+};
 import { Card, CardTitle } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
 import { Image } from "@/components/image";

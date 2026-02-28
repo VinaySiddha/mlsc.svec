@@ -37,7 +37,7 @@ firestore-debug.log
 .vercel/
 
 # Firebase
-# (add other Firebase/Google files as needed)
+service-account.json
 
 # Misc
 components.json
