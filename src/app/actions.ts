@@ -1170,14 +1170,7 @@ export async function createEvent(formData: FormData) {
     const docId = doc(collection(db, 'events')).id;
     let bannerImageUrl = '';
     let listImageUrl = '';
-    if (listImageFile && listImageFile.size > 0) {
-      listImageUrl = await uploadFile(listImageFile, `events/${docId}/list`);
-    }
-
-    const validHighlightFiles = highlightImageFiles.filter(f => f.size > 0);
-    const highlightImageUrls = await Promise.all(
-      validHighlightFiles.map((file, i) => uploadFile(file, `events/${docId}/highlight_${i}`))
-    );
+    let highlightImageUrls: string[] = [];
 
     const speakersData = JSON.parse(values.speakers as string || '[]');
 
