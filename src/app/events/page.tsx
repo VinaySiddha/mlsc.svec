@@ -1,9 +1,11 @@
 
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Image } from "@/components/image";
+import NextImage from "next/image";
 import { format } from "date-fns";
 import { getEvents } from "@/app/actions";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
@@ -63,63 +65,64 @@ export default async function EventsPage() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
-    <div className="flex flex-col min-h-screen bg-transparent text-foreground">
+    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
       <main className="flex-1">
-        <section id="events" className="w-full py-20 md:py-28">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="space-y-12">
-              <div className="relative w-full py-20 md:py-28 text-center bg-cover bg-center mb-12 rounded-lg" style={{ backgroundImage: "url('/team1.jpg')" }}>
-                <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background rounded-lg"></div>
-                <div className="relative z-10 container mx-auto px-4">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Our <span className="gradient-text">Events</span></h2>
-                  <p className="max-w-[900px] mx-auto text-muted-foreground md:text-xl mt-4">
-                    We host a variety of events to help our members learn, grow, and connect.
-                  </p>
+        <section className="relative w-full py-40 md:py-60 text-center overflow-hidden border-b border-white/5">
+            <div className="glow-sphere top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#EA4335]/10" />
+            <div className="relative z-10 container mx-auto px-6">
+                <div className="mb-8">
+                    <span className="text-white/50 text-sm font-black uppercase tracking-[0.4em]">The Big Picture</span>
                 </div>
-              </div>
-              {combinedEvents.length > 0 ? (
-                <StaggerContainer className="grid gap-8 lg:gap-12">
-                  {combinedEvents.map((event: any) => (
+                <h1 className="hero-heading">
+                    OUR <br/> <span className="text-[#EA4335]">EVENTS.</span>
+                </h1>
+                <p className="max-w-2xl mx-auto mt-10 text-white/60 text-xl font-medium leading-relaxed">
+                    We host a variety of high-impact events to help our members learn, grow, and lead.
+                </p>
+            </div>
+        </section>
+
+        <section className="py-24 md:py-40 container mx-auto px-6">
+            {combinedEvents.length > 0 ? (
+                <StaggerContainer className="grid gap-10">
+                {combinedEvents.map((event: any) => (
                     <StaggerItem key={event.id}>
-                      <Card className="glass-card-hover overflow-hidden flex flex-col lg:flex-row">
-                        <div className="relative h-48 lg:h-auto lg:w-1/3">
-                          <Image
+                    <div className="bento-card overflow-hidden flex flex-col lg:flex-row !p-0 h-full group hover:border-[#4285F4]/20 transition-all">
+                        <div className="relative h-64 lg:h-auto lg:w-2/5 overflow-hidden">
+                        <NextImage
                             src={event.listImage || event.bannerImage || '/images/event-placeholder.png'}
                             alt={event.title}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                          />
+                        />
+                         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent opacity-60" />
                         </div>
-                        <div className="p-6 flex flex-col flex-1 lg:w-2/3">
-                          <p className="text-sm text-primary font-medium">
+                        <div className="p-10 lg:p-16 flex flex-col flex-1 lg:w-3/5">
+                        <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#4285F4] mb-6">
                             {event.date && !isNaN(new Date(event.date).getTime())
-                              ? format(new Date(event.date), "MMMM d, yyyy")
-                              : "Date TBA"}
-                          </p>
-                          <CardTitle className="pt-2 text-2xl">{event.title}</CardTitle>
-                          <p className="text-muted-foreground mt-2 flex-1">{event.description}</p>
-                          <div className="mt-6">
-                            <Button asChild variant="gradient" className="w-full">
-                              <Link href={`/events/${event.id}`}>
-                                View Details <ArrowRight className="ml-2 h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </div>
+                            ? format(new Date(event.date), "MMM d • yyyy")
+                            : "Date TBA"}
+                        </p>
+                        <h3 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase italic mb-6">{event.title}.</h3>
+                        <p className="text-white/50 text-lg font-medium leading-relaxed mb-10 flex-1">{event.description}</p>
+                        <Button asChild className="btn-primary w-fit px-12">
+                            <Link href={`/events/${event.id}`}>
+                                View Event
+                            </Link>
+                        </Button>
                         </div>
-                      </Card>
+                    </div>
                     </StaggerItem>
-                  ))}
+                ))}
                 </StaggerContainer>
-              ) : (
+            ) : (
                 <ScrollReveal>
-                  <div className="text-center text-muted-foreground glass-card p-8">
-                    <p>No upcoming events at the moment. Check back soon!</p>
-                  </div>
+                <div className="text-center text-white/30 bento-card p-20">
+                    <p className="text-xl font-bold uppercase tracking-widest italic">No upcoming events. Stay tuned.</p>
+                </div>
                 </ScrollReveal>
-              )}
-            </div>
-          </div>
+            )}
         </section>
       </main>
     </div>

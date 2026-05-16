@@ -3,6 +3,18 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: [
+      'genkit',
+      '@genkit-ai/core',
+      '@genkit-ai/googleai',
+      'handlebars',
+      'require-in-the-middle',
+      '@opentelemetry/sdk-node',
+      '@opentelemetry/instrumentation',
+    ],
+  },
+  transpilePackages: ['framer-motion'],
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -62,8 +74,19 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "ui-avatars.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.ui-avatars.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
-    unoptimized: true, // Required for Cloudflare
   },
   trailingSlash: true,
 

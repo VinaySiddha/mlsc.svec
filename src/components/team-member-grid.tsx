@@ -37,9 +37,9 @@ export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
     if (members.length === 0) return null;
 
     const containerClasses = cn(
-        "gap-8",
+        "grid gap-6 md:gap-8",
         members.length > 1
-            ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+            ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             : "flex justify-center"
     );
 
@@ -47,21 +47,46 @@ export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
         <StaggerContainer className={containerClasses}>
             {sortMembers(members).map((member) => (
                 <StaggerItem key={member.id}>
-                    <div className="glass-card-hover p-4 flex flex-col items-center text-center group h-full">
-                        <div className="relative mb-4">
-                            <Image
-                                src={member.image}
-                                alt={`Photo of ${member.name}`}
-                                width={160}
-                                height={160}
-                                className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300 object-cover group-hover:scale-110"
-                            />
+                    <div className="group relative w-full aspect-[3/4] overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/5 hover:border-primary/40 hover:shadow-[0_0_40px_rgba(66,133,244,0.15)] transition-all duration-500 bg-[#0A0A0A]">
+                        {/* The Image - Grayscale by default, color on hover */}
+                        <Image
+                            src={member.image}
+                            alt={member.name}
+                            fill
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+                            className="object-cover transition-all duration-700 grayscale group-hover:grayscale-0 group-hover:scale-110"
+                        />
+                        
+                        {/* Dark Gradient Overlay for text readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
+                        
+                        {/* Decorative Top-Right Corner Accent */}
+                        <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-primary/0 group-hover:border-primary/40 transition-all duration-700 rounded-tr-lg" />
+                        
+                        {/* Member Details (Overlaid at bottom) */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                            <h4 className="font-bold text-lg md:text-xl tracking-tighter text-white group-hover:text-primary transition-colors duration-300">
+                                {member.name}
+                            </h4>
+                            <p className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mt-1 group-hover:text-white transition-colors duration-300">
+                                {member.role}
+                            </p>
+                            
+                            {/* Profile Link (Revealed on hover) */}
+                            <div className="mt-4 pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-75">
+                                <a 
+                                    href={member.linkedin} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="inline-flex items-center text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-primary transition-colors font-black"
+                                >
+                                    Connect <span className="hidden md:inline ml-1">on LinkedIn</span>
+                                    <svg className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
-                        <h4 className="font-semibold text-lg">{member.name}</h4>
-                        <p className="text-primary text-sm">{member.role}</p>
-                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary mt-1 transition-colors">
-                            LinkedIn
-                        </a>
                     </div>
                 </StaggerItem>
             ))}

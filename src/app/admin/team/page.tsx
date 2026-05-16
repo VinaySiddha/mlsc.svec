@@ -27,49 +27,45 @@ export default async function TeamManagementPage() {
     const hasActive = members.some(m => m.status === 'active');
 
     return (
-        <div className="flex flex-col min-h-screen">
-            <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-                <div className="container mx-auto flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <MLSCLogo className="h-10 w-10 text-primary" />
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                            Team Management
+        <div className="flex flex-col min-h-screen bg-background">
+            <header className="sticky top-0 z-50 w-full glass-panel !rounded-none !border-t-0 !border-x-0 !shadow-none py-2">
+                <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
+                    <Link href="/admin" className="flex items-center gap-3 group">
+                        <MLSCLogo className="h-9 w-9 text-primary transition-transform group-hover:scale-105" />
+                        <h1 className="text-2xl font-black tracking-tighter">
+                            Manage <span className="text-muted-foreground/50">Team</span>
                         </h1>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button asChild variant="glass">
+                    </Link>
+                    <div className="flex items-center gap-6">
+                        <Button asChild variant="outline" className="rounded-full px-6">
                             <Link href="/admin/team/new">
                                 <PlusCircle className="mr-2 h-4 w-4" />
                                 Add Member
                             </Link>
                         </Button>
-                        <Button asChild variant="glass">
+                        <Button asChild variant="ghost" className="rounded-full px-6">
                             <Link href="/admin/team/categories">
-                                Manage Categories
+                                Categories
                             </Link>
                         </Button>
-                        <Button asChild variant="glass">
+                        <Button asChild variant="ghost" className="rounded-full px-6">
                             <Link href="/admin">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to Dashboard
+                                Dashboard
                             </Link>
                         </Button>
                     </div>
                 </div>
             </header>
-            <main className="flex-1 p-4 sm:p-6 md:p-8">
-                <div className="container mx-auto space-y-8">
-                    <Card className="glass-card">
-                        <CardHeader>
-                            <CardTitle>All Team Members</CardTitle>
-                            <CardDescription>
-                                Here you can create, update, and manage all team members.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <TeamMembersTable members={members} hasPending={hasPending} hasActive={hasActive} />
-                        </CardContent>
-                    </Card>
+            <main className="flex-1 p-8 md:p-12 lg:p-16">
+                <div className="container mx-auto">
+                    <div className="apple-card p-10">
+                        <div className="mb-10">
+                            <h2 className="text-3xl font-black tracking-tighter">Team Directory.</h2>
+                            <p className="text-muted-foreground font-medium">Create, update, and manage all team members.</p>
+                        </div>
+                        <TeamMembersTable members={members} hasPending={hasPending} hasActive={hasActive} />
+                    </div>
                 </div>
             </main>
         </div>

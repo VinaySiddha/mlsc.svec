@@ -4,56 +4,55 @@ import Link from 'next/link';
 
 export function SiteFooter() {
     return (
-        <footer
-            className="bg-background/80 backdrop-blur-sm border-t border-transparent relative"
-            style={{ borderImage: 'linear-gradient(90deg, transparent, hsl(217 91% 60% / 0.3), hsl(262 83% 58% / 0.3), transparent) 1' }}
-        >
-            <div className="container mx-auto py-10 px-4">
-                <div className="grid md:grid-cols-3 gap-8">
-                    <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            <MLSCLogo className="h-8 w-8 text-primary" />
-                            <span className="font-bold text-lg">MLSC SVEC</span>
+        <footer className="bg-black border-t border-white/5 py-24">
+            <div className="container mx-auto px-6 md:px-12">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-20">
+                    <div className="md:col-span-2">
+                        <div className="flex items-center gap-3 mb-8">
+                            <MLSCLogo className="h-10 w-10 text-white" />
+                            <span className="text-3xl font-black tracking-tighter text-white uppercase">MLSC <span className="text-[#4285F4]">SVEC</span></span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            Microsoft Learn Student Club at Sri Vasavi Engineering College.
-                            Learn. Train. Serve.
+                        <p className="text-lg text-white/50 font-medium max-w-sm leading-relaxed">
+                            Microsoft Learn Student Club • Sri Vasavi Engineering College.
+                            Building the future of technology, one line of code at a time.
                         </p>
+                        <div className="flex gap-6 mt-10">
+                            <a href="https://github.com/mlscsvec" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors">
+                                <Github className="h-6 w-6" />
+                            </a>
+                            <a href="https://linkedin.com/company/mlscsvec" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors">
+                                <Linkedin className="h-6 w-6" />
+                            </a>
+                            <a href="https://instagram.com/mlsc.svec" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors">
+                                <Instagram className="h-6 w-6" />
+                            </a>
+                        </div>
                     </div>
                     <div>
-                        <h4 className="font-semibold mb-4">Quick Links</h4>
-                        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                            <Link href="/about" className="hover:text-primary transition-colors">About</Link>
-                            <Link href="/team" className="hover:text-primary transition-colors">Team</Link>
-                            <Link href="/events" className="hover:text-primary transition-colors">Events</Link>
-                            <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
+                        <h4 className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-white/30 mb-8">Ecosystem Info</h4>
+                        <div className="flex flex-col gap-5 text-sm font-bold text-white/60 uppercase tracking-widest">
+                            <Link href="/about" className="hover:text-white transition-colors">Vision</Link>
+                            <Link href="/events" className="hover:text-white transition-colors">Events</Link>
+                            <Link href="/team" className="hover:text-white transition-colors">Team</Link>
+                            <Link href="/blog" className="hover:text-white transition-colors">FAQ</Link>
                         </div>
                     </div>
                     <div>
-                        <h4 className="font-semibold mb-4">Connect</h4>
-                        <div className="flex gap-3 mb-4">
-                            <a href="https://github.com/mlscsvec" target="_blank" rel="noopener noreferrer"
-                               className="w-9 h-9 rounded-full bg-card border border-border/50 flex items-center justify-center hover:border-primary/50 hover:text-primary transition-all">
-                                <Github className="h-4 w-4" />
-                            </a>
-                            <a href="https://www.linkedin.com/company/microsoft-learn-student-club-svec" target="_blank" rel="noopener noreferrer"
-                               className="w-9 h-9 rounded-full bg-card border border-border/50 flex items-center justify-center hover:border-primary/50 hover:text-primary transition-all">
-                                <Linkedin className="h-4 w-4" />
-                            </a>
-                            <a href="https://instagram.com/mlsc.svec" target="_blank" rel="noopener noreferrer"
-                               className="w-9 h-9 rounded-full bg-card border border-border/50 flex items-center justify-center hover:border-primary/50 hover:text-primary transition-all">
-                                <Instagram className="h-4 w-4" />
-                            </a>
-                        </div>
-                        <div className="flex gap-4 text-sm text-muted-foreground">
-                            <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy</Link>
-                            <Link href="/terms-and-conditions" className="hover:text-primary transition-colors">Terms</Link>
-                            <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Status</a>
+                        <h4 className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-white/30 mb-8">Resources</h4>
+                        <div className="flex flex-col gap-5 text-sm font-bold text-white/60 uppercase tracking-widest">
+                             <a href="https://mlscsvec.openstatus.dev/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Status</a>
+                             <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
+                             <Link href="/terms-and-conditions" className="hover:text-white transition-colors">Terms</Link>
+                             <Link href="/community" className="hover:text-white transition-colors">Guidelines</Link>
                         </div>
                     </div>
                 </div>
-                <div className="section-divider mt-8 mb-4" />
-                <p className="text-center text-sm text-muted-foreground">&copy; {new Date().getFullYear()} MLSC SVEC. All rights reserved.</p>
+                <div className="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <p className="text-[0.6rem] text-white/20 font-black uppercase tracking-[0.4em]">&copy; {new Date().getFullYear()} MLSC SVEC • ALL RIGHTS RESERVED.</p>
+                    <div className="flex gap-12 text-[0.6rem] font-black uppercase tracking-[0.4em] text-white/20">
+                        <span>MADE WITH PASSION BY MLSC CORE</span>
+                    </div>
+                </div>
             </div>
         </footer>
     );

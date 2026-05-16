@@ -1,18 +1,58 @@
-name: Docker Image CI
+name: Deploy to Cloud Run
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "Dev", "main", "master" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "Dev", "main", "master" ]
 
 jobs:
-
-  build:
-
+  deploy:
     runs-on: ubuntu-latest
-
+    
+    # We only want to actually deploy on push, not PRs
+    # PRs can just build to ensure it works
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag mlsc:hiring
+      - uses: actions/checkout@v4
+      
+      # If this is a pull request, just build the image to test it
+      - name: Build Docker Image (PR Test)
+        if: github.event_name == 'pull_request'
+        run: docker build -t mlsc-hiring-test .
+
+      # --- Deployment Steps (Only run on push) ---
+      
+      - name: Google Auth
+        if: github.event_name == 'push'
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Setup Google Cloud SDK
+        if: github.event_name == 'push'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: Configure Docker for Artifact Registry
+        if: github.event_name == 'push'
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+
+      - name: Build Docker Image
+        if: github.event_name == 'push'
+        run: docker build -t ${{ secrets.GAR_LOCATION }}/mlsc-hiring:${{ github.sha }} .
+
+      - name: Push Docker Image
+        if: github.event_name == 'push'
+        run: docker push ${{ secrets.GAR_LOCATION }}/mlsc-hiring:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        if: github.event_name == 'push'
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: 'mlsc-hiring-app'
+          image: '${{ secrets.GAR_LOCATION }}/mlsc-hiring:${{ github.sha }}'
+          region: '${{ secrets.GCP_REGION }}'
+          env_vars: |
+            NODE_ENV=production
+          # Note: Add additional environment variables here if they are not sensitive,
+          # or configure sensitive secrets directly in the Cloud Run service in GCP Console.

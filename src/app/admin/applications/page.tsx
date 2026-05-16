@@ -1,5 +1,4 @@
-
-import { getApplications } from "@/app/actions";
+import { getApplications, getHiringStatus } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,58 @@ import { ApplicationsTable } from "@/components/applications-table";
 import { AdminFilters } from "@/components/admin-filters";
 import { PaginationComponent } from "@/components/pagination";
 import { ApplicationsTableSkeleton } from "@/components/applications-table-skeleton";
+import { FinalizeCycleDialog } from "@/components/finalize-cycle-dialog";
+import { HiringToggle } from "@/components/hiring-toggle";
+
+export default async function ApplicationsPage({
+  searchParams
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  const headersList = headers();
+  const panelDomain = headersList.get('X-Panel-Domain') || undefined;
+  const userRole = headersList.get('X-User-Role');
+
+  if (!userRole) {
+    redirect('/login');
+  }
+
+  const { isHiringOpen } = await getHiringStatus();
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <header className="sticky top-0 z-50 w-full glass-panel !rounded-none !border-t-0 !border-x-0 !shadow-none py-2">
+        <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-12">
+          <Link href="/admin" className="flex items-center gap-3 group">
+            <MLSCLogo className="h-9 w-9 text-primary transition-transform group-hover:scale-105" />
+            <h1 className="text-2xl font-black tracking-tighter">
+              Manage <span className="text-muted-foreground/50">Applications</span>
+            </h1>
+          </Link>
+          <div className="flex items-center gap-6">
+            <HiringToggle initialStatus={isHiringOpen} />
+            <FinalizeCycleDialog />
+            <Button asChild variant="outline" size="sm" className="rounded-full px-6">
+              <Link href="/admin">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+      <main className="flex-1 p-8 md:p-12 lg:p-16">
+        <div className="container mx-auto">
+          <div className="apple-card p-0 overflow-hidden">
+            <Suspense key={JSON.stringify(searchParams)} fallback={<ApplicationsDashboardSkeleton panelDomain={panelDomain} />}>
+              <ApplicationsDashboard panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
+            </Suspense>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
 
 function ApplicationsDashboardSkeleton({ panelDomain }: { panelDomain?: string }) {
   const domainLabels: Record<string, string> = {
@@ -25,15 +76,13 @@ function ApplicationsDashboardSkeleton({ panelDomain }: { panelDomain?: string }
     : `Loading applications...`;
 
   return (
-    <>
-      <CardHeader>
-        <CardTitle className="text-lg">Applications</CardTitle>
-        <CardDescription className="text-xs">{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ApplicationsTableSkeleton />
-      </CardContent>
-    </>
+    <div className="p-10">
+      <div className="mb-8">
+        <h2 className="text-3xl font-black tracking-tighter">Applications.</h2>
+        <p className="text-muted-foreground font-medium">{description}</p>
+      </div>
+      <ApplicationsTableSkeleton />
+    </div>
   );
 }
 
@@ -46,6 +95,7 @@ async function ApplicationsDashboard({
   userRole: string | null;
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  // ... (keep logic same)
   const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
   const searchBy = typeof searchParams.searchBy === 'string' ? searchParams.searchBy : 'rollNo';
   const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
@@ -88,80 +138,35 @@ async function ApplicationsDashboard({
   };
 
   const description = panelDomain
-    ? `Applications for the ${domainLabels[panelDomain]} domain.`
+    ? `Hiring for the ${domainLabels[panelDomain]} domain.`
     : `View and manage all submitted applications.`;
 
   return (
-    <>
-      <CardHeader>
-        <CardTitle className="text-lg">All Applications</CardTitle>
-        <CardDescription className="text-xs">
-          {description}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <AdminFilters
-          userRole={userRole}
-          panelDomain={panelDomain}
-          filterData={filterData}
-          currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended, attendedOnly: searchParams.attendedOnly as string }}
-        />
+    <div className="p-10 space-y-10">
+      <div>
+        <h2 className="text-3xl font-black tracking-tighter">Applications.</h2>
+        <p className="text-muted-foreground font-medium">{description}</p>
+      </div>
+      <div className="space-y-8">
+        <div className="glass-panel p-6 !rounded-2xl">
+            <AdminFilters
+            userRole={userRole}
+            panelDomain={panelDomain}
+            filterData={filterData}
+            currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended, attendedOnly: searchParams.attendedOnly as string }}
+            />
+        </div>
         <Suspense fallback={<ApplicationsTableSkeleton />}>
-          <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
+          <div className="overflow-hidden">
+            <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
+          </div>
         </Suspense>
         <PaginationComponent
           hasNextPage={hasNextPage || false}
           currentPage={currentPage || 1}
           applications={applications}
         />
-      </CardContent>
-    </>
-  );
-}
-
-
-export default async function ApplicationsPage({
-  searchParams
-}: {
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
-  const headersList = headers();
-  const panelDomain = headersList.get('X-Panel-Domain') || undefined;
-  const userRole = headersList.get('X-User-Role');
-
-  if (!userRole) {
-    redirect('/login');
-  }
-
-  return (
-    <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
-          <Link href="/admin" className="flex items-center gap-2">
-            <MLSCLogo className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-bold tracking-tight">
-              Manage Applications
-            </h1>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="glass" size="sm">
-              <Link href="/admin">
-                <ArrowLeft />
-                <span>Dashboard</span>
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-      <main className="flex-1 p-4">
-        <div className="container mx-auto space-y-6">
-          <Card className="glass-card">
-            <Suspense key={JSON.stringify(searchParams)} fallback={<ApplicationsDashboardSkeleton panelDomain={panelDomain} />}>
-              <ApplicationsDashboard panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
-            </Suspense>
-          </Card>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
-
 import type { Metadata } from "next";
 import { ScrollReveal } from '@/components/motion/scroll-reveal';
 import { AnimatedCounter } from '@/components/motion/animated-counter';
 import { StaggerContainer, StaggerItem } from '@/components/motion/stagger-container';
 import { Target, Eye, Code, Lightbulb, Users, Handshake } from 'lucide-react';
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "About — MLSC SVEC",
@@ -32,127 +32,95 @@ const activities = [
 
 export default function AboutPage() {
     return (
-        <div className="flex flex-col min-h-screen bg-transparent text-foreground">
+        <div className="flex flex-col min-h-screen bg-black text-white font-sans">
             <main className="flex-1">
-                <section className="relative w-full py-24 md:py-32 text-center bg-cover bg-center" style={{ backgroundImage: "url('/team1.jpg')" }}>
-                    <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background"></div>
-                    <div className="relative z-10 container mx-auto px-4 md:px-6">
-                        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                            About <span className="gradient-text">MLSC SVEC</span>
+                <section className="relative w-full py-40 md:py-60 text-center overflow-hidden border-b border-white/5">
+                    {/* Background Glows */}
+                    <div className="glow-sphere top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#4285F4]/20" />
+                    <div className="glow-sphere bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#34A853]/20" />
+
+                    <div className="relative z-10 container mx-auto px-6">
+                         <div className="mb-8">
+                            <span className="text-white/50 text-sm font-black uppercase tracking-[0.4em]">Our Vision & Mission</span>
+                        </div>
+                        <h1 className="hero-heading">
+                            ABOUT <br/> <span className="text-[#4285F4]">MLSC SVEC.</span>
                         </h1>
-                        <p className="max-w-[700px] mx-auto mt-4 text-muted-foreground text-lg">
-                            A vibrant community of student innovators at Sri Vasavi Engineering College.
+                        <p className="max-w-2xl mx-auto mt-10 text-white/60 text-xl font-medium leading-relaxed">
+                            A premier technology community at Sri Vasavi Engineering College, dedicated to student innovation and leadership.
                         </p>
                     </div>
                 </section>
 
-                <section className="py-16">
-                    <div className="container mx-auto px-4">
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <ScrollReveal direction="left">
-                                <div className="glass-card-hover p-8 h-full">
-                                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                        <Target className="h-6 w-6 text-primary" />
-                                    </div>
-                                    <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
-                                    <p className="text-muted-foreground leading-relaxed">
-                                        To foster a culture of continuous learning and innovation by empowering students
-                                        with technical skills, leadership qualities, and a collaborative spirit to tackle
-                                        real-world challenges.
-                                    </p>
+                <section className="py-24 md:py-40 container mx-auto px-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <ScrollReveal>
+                            <div className="bento-card h-full">
+                                <div className="absolute top-0 right-0 p-8">
+                                    <Target className="h-10 w-10 text-[#EA4335]" />
                                 </div>
-                            </ScrollReveal>
-                            <ScrollReveal direction="right">
-                                <div className="glass-card-hover p-8 h-full">
-                                    <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-                                        <Eye className="h-6 w-6 text-accent" />
-                                    </div>
-                                    <h3 className="text-2xl font-bold mb-4">Our Vision</h3>
-                                    <p className="text-muted-foreground leading-relaxed">
-                                        To be the premier student technology community at SVEC, bridging the gap between
-                                        academic knowledge and industry demands through workshops, hackathons, and collaborative projects.
-                                    </p>
+                                <h3 className="text-4xl font-black tracking-tighter mb-6 uppercase italic">Mission.</h3>
+                                <p className="text-white/60 text-lg font-medium leading-relaxed">
+                                    To foster a culture of continuous learning by empowering students
+                                    with technical skills and leadership to tackle real-world challenges.
+                                </p>
+                            </div>
+                        </ScrollReveal>
+                        <ScrollReveal>
+                            <div className="bento-card h-full border-[#34A853]/20">
+                                <div className="absolute top-0 right-0 p-8">
+                                    <Eye className="h-10 w-10 text-[#34A853]" />
                                 </div>
-                            </ScrollReveal>
-                        </div>
+                                <h3 className="text-4xl font-black tracking-tighter mb-6 uppercase italic">Vision.</h3>
+                                <p className="text-white/60 text-lg font-medium leading-relaxed">
+                                    To be the hub of technology at SVEC, bridging the gap between
+                                    academic theory and high-velocity industry innovation.
+                                </p>
+                            </div>
+                        </ScrollReveal>
                     </div>
                 </section>
 
-                <div className="section-divider" />
-
-                <section className="py-16">
-                    <div className="container mx-auto px-4">
+                <section className="py-24 md:py-40 bg-[#050505] border-y border-white/5">
+                    <div className="container mx-auto px-6">
                         <ScrollReveal>
-                            <div className="glass-card p-8 flex flex-wrap justify-center gap-12 md:gap-20">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                                 <div className="text-center">
-                                    <AnimatedCounter target={300} suffix="+" className="text-4xl font-bold gradient-text" />
-                                    <p className="text-muted-foreground mt-2">Active Members</p>
+                                    <AnimatedCounter target={300} suffix="+" className="text-6xl font-black tracking-tighter text-[#4285F4]" />
+                                    <p className="text-white/40 text-[0.6rem] font-black uppercase tracking-[0.4em] mt-4">Active Members</p>
                                 </div>
                                 <div className="text-center">
-                                    <AnimatedCounter target={15} suffix="+" className="text-4xl font-bold gradient-text" />
-                                    <p className="text-muted-foreground mt-2">Events Conducted</p>
+                                    <AnimatedCounter target={15} suffix="+" className="text-6xl font-black tracking-tighter text-[#34A853]" />
+                                    <p className="text-white/40 text-[0.6rem] font-black uppercase tracking-[0.4em] mt-4">Events Done</p>
                                 </div>
                                 <div className="text-center">
-                                    <AnimatedCounter target={3} className="text-4xl font-bold gradient-text" />
-                                    <p className="text-muted-foreground mt-2">Successful Chapters</p>
+                                    <AnimatedCounter target={3} className="text-6xl font-black tracking-tighter text-[#FBBC04]" />
+                                    <p className="text-white/40 text-[0.6rem] font-black uppercase tracking-[0.4em] mt-4">Chapters</p>
                                 </div>
                                 <div className="text-center">
-                                    <AnimatedCounter target={50} suffix="+" className="text-4xl font-bold gradient-text" />
-                                    <p className="text-muted-foreground mt-2">Team Members</p>
+                                    <AnimatedCounter target={50} suffix="+" className="text-6xl font-black tracking-tighter text-[#EA4335]" />
+                                    <p className="text-white/40 text-[0.6rem] font-black uppercase tracking-[0.4em] mt-4">Core Team</p>
                                 </div>
                             </div>
                         </ScrollReveal>
                     </div>
                 </section>
 
-                <div className="section-divider" />
-
-                <section className="py-16">
-                    <div className="container mx-auto px-4 max-w-3xl">
-                        <ScrollReveal>
-                            <h2 className="text-3xl font-bold text-center mb-12">Our <span className="gradient-text">Journey</span></h2>
-                        </ScrollReveal>
-                        <div className="relative">
-                            <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-gradient-to-b from-primary/50 via-accent/50 to-transparent" />
-                            {timeline.map((item, i) => (
-                                <ScrollReveal key={i} direction={i % 2 === 0 ? 'left' : 'right'} delay={i * 0.1}>
-                                    <div className={`flex items-start mb-8 ${i % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
-                                        <div className={`w-[45%] ${i % 2 === 0 ? 'text-right pr-8' : 'text-left pl-8'}`}>
-                                            <div className="glass-card-hover p-4">
-                                                <p className="text-sm text-primary font-medium">{item.date}</p>
-                                                <h4 className="font-bold mt-1">{item.title}</h4>
-                                                <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
-                                            </div>
-                                        </div>
-                                        <div className="w-3 h-3 rounded-full bg-primary ring-4 ring-background z-10 shrink-0 mt-4" />
-                                        <div className="w-[45%]" />
-                                    </div>
-                                </ScrollReveal>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                <div className="section-divider" />
-
-                <section className="py-16">
-                    <div className="container mx-auto px-4">
-                        <ScrollReveal>
-                            <h2 className="text-3xl font-bold text-center mb-12">What We <span className="gradient-text">Do</span></h2>
-                        </ScrollReveal>
-                        <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {activities.map((item, i) => (
-                                <StaggerItem key={i}>
-                                    <div className="glass-card-hover p-6 text-center h-full">
-                                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                                            <item.icon className="h-6 w-6 text-primary" />
-                                        </div>
-                                        <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                                        <p className="text-sm text-muted-foreground">{item.desc}</p>
-                                    </div>
-                                </StaggerItem>
-                            ))}
-                        </StaggerContainer>
+                <section className="py-24 md:py-40 container mx-auto px-6">
+                    <ScrollReveal>
+                        <h2 className="text-4xl md:text-7xl font-black tracking-tighter mb-20 uppercase italic">Our <span className="text-[#FBBC04]">Journey.</span></h2>
+                    </ScrollReveal>
+                    <div className="relative border-l border-white/5 ml-4 pl-12 space-y-16">
+                        {timeline.map((item, i) => (
+                            <ScrollReveal key={i}>
+                                <div className="relative">
+                                    <div className="absolute -left-[3.25rem] top-2 w-4 h-4 rounded-full bg-white ring-8 ring-black" />
+                                    <p className="text-[#4285F4] text-xs font-black uppercase tracking-[0.3em] mb-2">{item.date}</p>
+                                    <h4 className="text-3xl font-black tracking-tighter uppercase mb-4">{item.title}</h4>
+                                    <p className="text-white/50 font-medium text-lg max-w-xl">{item.desc}</p>
+                                </div>
+                            </ScrollReveal>
+                        ))}
                     </div>
                 </section>
             </main>

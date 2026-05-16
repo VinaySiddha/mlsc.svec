@@ -80,35 +80,6 @@ const renderActiveShape = (props: any) => {
   );
 };
 
-function AnalyticsSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-        {[...Array(5)].map((_, i) => (
-          <Card key={i} className="glass-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-7 w-12" />
-              <Skeleton className="h-3 w-32 mt-1" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4 glass-card p-6">
-          <Skeleton className="h-[350px] w-full" />
-        </Card>
-        <Card className="lg:col-span-3 glass-card p-6">
-          <Skeleton className="h-[350px] w-full" />
-        </Card>
-      </div>
-    </div>
-  )
-}
-
 export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
   const [statusIndex, setStatusIndex] = useState(0);
   const [branchIndex, setBranchIndex] = useState(0);
@@ -124,100 +95,68 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stat Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.totalApplications}</div>
-            <p className="text-xs text-muted-foreground">Total applications received</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Interviews Attended</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.attendedCount}</div>
-            <p className="text-xs text-muted-foreground">Candidates who attended interviews</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.totalApplications > 0 ? ((data.attendedCount / data.totalApplications) * 100).toFixed(1) : 0}%
+    <div className="space-y-12">
+      {/* Stat Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="bento-card !p-8 flex flex-col justify-between border-[#4285F4]/20 bg-[#4285F4]/5">
+            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#4285F4] mb-6">Engagement</p>
+            <div className="text-6xl font-black tracking-tighter mb-2 text-white">{data.totalApplications}</div>
+            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Total Applicants</p>
+        </div>
+        <div className="bento-card !p-8 flex flex-col justify-between border-[#34A853]/20 bg-[#34A853]/5">
+            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#34A853] mb-6">Activity</p>
+            <div className="text-6xl font-black tracking-tighter mb-2 text-white">{data.attendedCount}</div>
+            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Interviews Done</p>
+        </div>
+        <div className="bento-card !p-8 flex flex-col justify-between border-[#FBBC04]/20 bg-[#FBBC04]/5">
+            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#FBBC04] mb-6">Efficiency</p>
+            <div className="text-6xl font-black tracking-tighter mb-2 text-white">
+              {data.totalApplications > 0 ? ((data.attendedCount / data.totalApplications) * 100).toFixed(0) : 0}%
             </div>
-            <p className="text-xs text-muted-foreground">From application to interview</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Candidates Hired</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.hiredCount}</div>
-            <p className="text-xs text-muted-foreground">Total candidates hired</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Candidates Rejected</CardTitle>
-            <UserX className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.rejectedCount}</div>
-            <p className="text-xs text-muted-foreground">Total candidates rejected</p>
-          </CardContent>
-        </Card>
+            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Conversion Rate</p>
+        </div>
+        <div className="bento-card !p-8 flex flex-col justify-between border-[#EA4335]/20 bg-[#EA4335]/5">
+            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#EA4335] mb-6">Growth</p>
+            <div className="text-6xl font-black tracking-tighter mb-2 text-[#EA4335]">{data.hiredCount}</div>
+            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">New Members</p>
+        </div>
+        <div className="bento-card !p-8 flex flex-col justify-between border-white/10">
+            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-white/30 mb-6">Selectivity</p>
+            <div className="text-6xl font-black tracking-tighter mb-2 text-white/20">{data.rejectedCount}</div>
+            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Total Rejections</p>
+        </div>
       </div>
 
       {/* Domain Charts */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4 glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart className="h-5 w-5" />
-              <span>Applications by Technical Domain</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ResponsiveContainer width="100%" height={350}>
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="bento-card !p-10 !h-auto">
+            <h3 className="text-2xl font-black tracking-tighter mb-10 flex items-center gap-4 uppercase italic">
+              <BarChart className="h-6 w-6 text-[#4285F4]" />
+              Technical Domains.
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
               <RechartsBarChart data={data.techDomainData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} width={150} />
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} width={120} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))',
-                    color: 'hsl(var(--card-foreground))'
+                    backgroundColor: '#000',
+                    borderRadius: '1.5rem',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff'
                   }}
-                  cursor={{ fill: 'hsl(var(--muted))' }}
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                 />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" fill="#4285F4" radius={[0, 10, 10, 0]} barSize={32} />
               </RechartsBarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-3 glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5" />
-              <span>Non-Technical Domain Distribution</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+        </div>
+        <div className="bento-card !p-10 !h-auto">
+            <h3 className="text-2xl font-black tracking-tighter mb-10 flex items-center gap-4 uppercase italic">
+              <PieChartIcon className="h-6 w-6 text-[#34A853]" />
+              Non-Tech Distribution.
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
               <RechartsPieChart>
                 <Pie
                   activeIndex={nonTechIndex}
@@ -225,153 +164,18 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                   data={data.nonTechDomainData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={80}
-                  outerRadius={110}
-                  fill="hsl(var(--chart-2))"
+                  innerRadius={100}
+                  outerRadius={130}
                   dataKey="count"
                   onMouseEnter={(_: any, index: number) => setNonTechIndex(index)}
                 >
-                  {data.nonTechDomainData.map((entry, index) => (
+                  {data.nonTechDomainData.map((_, index) => (
                     <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Legend
-                  iconType="circle"
-                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                />
               </RechartsPieChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Demographic Pie Charts */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PieChartIcon className="h-5 w-5" />
-              <span>Application Status</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <RechartsPieChart>
-                <Pie
-                  activeIndex={statusIndex}
-                  activeShape={renderActiveShape}
-                  data={data.statusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  fill="hsl(var(--chart-3))"
-                  dataKey="count"
-                  onMouseEnter={(_: any, index: number) => setStatusIndex(index)}
-                >
-                  {data.statusData.map((entry, index) => (
-                    <Cell key={`cell-status-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))',
-                    color: 'hsl(var(--card-foreground))'
-                  }}
-                />
-                <Legend
-                  iconType="circle"
-                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                />
-              </RechartsPieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5" />
-              <span>By Department</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <RechartsPieChart>
-                <Pie
-                  activeIndex={branchIndex}
-                  activeShape={renderActiveShape}
-                  data={data.branchData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  fill="hsl(var(--chart-4))"
-                  dataKey="count"
-                  onMouseEnter={(_: any, index: number) => setBranchIndex(index)}
-                >
-                  {data.branchData.map((entry, index) => (
-                    <Cell key={`cell-branch-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))',
-                    color: 'hsl(var(--card-foreground))'
-                  }}
-                />
-                <Legend
-                  iconType="circle"
-                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                />
-              </RechartsPieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              <span>By Year</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <RechartsPieChart>
-                <Pie
-                  activeIndex={yearIndex}
-                  activeShape={renderActiveShape}
-                  data={data.yearData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  fill="hsl(var(--chart-5))"
-                  dataKey="count"
-                  onMouseEnter={(_: any, index: number) => setYearIndex(index)}
-                >
-                  {data.yearData.map((entry, index) => (
-                    <Cell key={`cell-year-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))',
-                    color: 'hsl(var(--card-foreground))'
-                  }}
-                />
-                <Legend
-                  iconType="circle"
-                  formatter={(value) => <span className="text-foreground/80">{value}</span>}
-                />
-              </RechartsPieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   );

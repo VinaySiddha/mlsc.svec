@@ -7,169 +7,107 @@ import { UserNav } from '@/components/user-nav';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import {
-  Home as HomeIcon,
-  Users,
-  Calendar,
-  Group,
-  Book,
-  Code,
-  Activity,
-  MessageSquare,
-  Send,
-  LogIn,
-  Menu,
+    Home as HomeIcon,
+    Users,
+    Calendar,
+    Group,
+    Book,
+    Code,
+    Activity,
+    MessageSquare,
+    Send,
+    LogIn,
+    Menu,
 } from 'lucide-react';
 import Link from 'next/link';
 
 const navLinks = [
-  { href: '/', label: 'Home', icon: HomeIcon },
-  { href: '/team', label: 'Team', icon: Group },
-  { href: '/events', label: 'Events', icon: Calendar },
-  { href: '/community', label: 'Community', icon: MessageSquare },
-  { href: '/about', label: 'About', icon: Users },
-  { href: '/blog', label: 'Blog', icon: Book },
+    { href: '/', label: 'Home', icon: HomeIcon },
+    { href: '/team', label: 'Team', icon: Group },
+    { href: '/events', label: 'Events', icon: Calendar },
+    //   { href: '/community', label: 'Community', icon: MessageSquare },
+    { href: '/about', label: 'About', icon: Users },
+    { href: '/blog', label: 'Blog', icon: Book },
 ];
 
 export function SiteHeader() {
-  const pathname = usePathname();
+    const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname.startsWith(href);
+    const isActive = (href: string) =>
+        href === '/' ? pathname === '/' : pathname.startsWith(href);
 
-  return (
-    <header
-      className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-transparent"
-      style={{ borderImage: 'linear-gradient(90deg, transparent, hsl(217 91% 60% / 0.3), hsl(262 83% 58% / 0.3), transparent) 1' }}
-    >
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <MLSCLogo className="h-10 w-10 text-primary" />
-          <span className="text-xl font-bold tracking-tight">
-            Microsoft Learn Student Club
-          </span>
-        </Link>
-        <nav className="navbar hidden lg:flex items-center gap-6 text-sm font-medium">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "relative py-1 transition-colors",
-                isActive(link.href)
-                  ? "text-foreground font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {link.label}
-              {isActive(link.href) && (
-                <span className="absolute -bottom-[21px] left-0 right-0 h-[2px] bg-gradient-to-r from-primary to-accent" />
-              )}
-            </Link>
-          ))}
-          <Link
-            href="/projects"
-            className={cn(
-              "relative py-1 transition-colors",
-              isActive('/projects')
-                ? "text-foreground font-semibold"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            Projects
-            {isActive('/projects') && (
-              <span className="absolute -bottom-[21px] left-0 right-0 h-[2px] bg-gradient-to-r from-primary to-accent" />
-            )}
-          </Link>
-          <a
-            href="https://mlscsvec.openstatus.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Status
-          </a>
-        </nav>
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex">
-            <UserNav />
-          </div>
-          <div className="lg:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="bg-transparent border-border hover:bg-background/80"
-                >
-                  <Menu />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="glass-card">
-                <div className="p-4">
-                  <nav className="flex flex-col gap-4">
-                    {navLinks.map((link) => (
-                      <SheetClose key={link.href} asChild>
+    return (
+        <div className="flex flex-col w-full sticky top-0 z-50">
+            <div className="ticker-bar text-white text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-8">
+                <span className="animate-marquee inline-block">MLSC Chapter 3.0  • Join the future of innovation • MLSC Chapter 3.0  • Join the future of innovation</span>
+            </div>
+            <header className="glass-nav h-20">
+                <div className="container mx-auto flex h-full items-center justify-between px-6 md:px-12">
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <MLSCLogo className="h-9 w-9 text-white transition-transform group-hover:scale-110" />
+                        <span className="text-2xl font-black tracking-tighter text-white uppercase">
+                            MLSC <span className="text-[#4285F4]">SVEC</span>
+                        </span>
+
+                    </Link>
+                    <nav className="hidden lg:flex items-center gap-10 text-xs font-black tracking-[0.2em] uppercase text-white/70">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={cn(
+                                    "transition-all duration-300 hover:text-white",
+                                    isActive(link.href) ? "text-white" : ""
+                                )}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
                         <Link
-                          href={link.href}
-                          className={cn(
-                            "flex items-center gap-3 text-lg font-semibold p-2 rounded-md",
-                            isActive(link.href)
-                              ? "bg-primary/10 text-primary"
-                              : "hover:bg-muted/50"
-                          )}
+                            href="/schedule"
+                            className={cn(
+                                "transition-all duration-300 hover:text-white",
+                                isActive('/schedule') ? "text-white" : ""
+                            )}
                         >
-                          <link.icon className="h-5 w-5" /> {link.label}
+                            Schedule
                         </Link>
-                      </SheetClose>
-                    ))}
-                    <SheetClose asChild>
-                      <Link
-                        href="/projects"
-                        className={cn(
-                          "flex items-center gap-3 text-lg font-semibold p-2 rounded-md",
-                          isActive('/projects') ? "bg-primary/10 text-primary" : "hover:bg-muted/50"
-                        )}
-                      >
-                        <Code className="h-5 w-5" /> Projects
-                      </Link>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <a
-                        href="https://mlscsvec.openstatus.dev/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50"
-                      >
-                        <Activity className="h-5 w-5" /> Status
-                      </a>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Link
-                        href="/apply"
-                        className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50"
-                      >
-                        <Send className="h-5 w-5" /> Apply
-                      </Link>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Link
-                        href="/login"
-                        className="flex items-center gap-3 text-lg font-semibold p-2 rounded-md hover:bg-muted/50"
-                      >
-                        <LogIn className="h-5 w-5" /> Admin Login
-                      </Link>
-                    </SheetClose>
-                  </nav>
-                  <div className="mt-6 pt-4 border-t border-border/50">
-                    <UserNav />
-                  </div>
+                    </nav>
+                    <div className="flex items-center gap-6">
+                        <div className="hidden lg:flex">
+                            <Button asChild className="rounded-full bg-white text-black font-bold hover:bg-white/90 px-8">
+                                <Link href="/apply">Apply Now</Link>
+                            </Button>
+                        </div>
+                        <div className="lg:hidden">
+                            <Sheet>
+                                <SheetTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="text-white">
+                                        <Menu className="h-7 w-7" />
+                                    </Button>
+                                </SheetTrigger>
+                                <SheetContent side="right" className="bg-black border-none w-full p-12">
+                                    <nav className="flex flex-col gap-10 mt-20">
+                                        {navLinks.map((link) => (
+                                            <SheetClose key={link.href} asChild>
+                                                <Link
+                                                    href={link.href}
+                                                    className={cn(
+                                                        "text-5xl font-black tracking-tighter transition-colors",
+                                                        isActive(link.href) ? "text-[#4285F4]" : "text-white hover:text-[#4285F4]"
+                                                    )}
+                                                >
+                                                    {link.label}
+                                                </Link>
+                                            </SheetClose>
+                                        ))}
+                                    </nav>
+                                </SheetContent>
+                            </Sheet>
+                        </div>
+                    </div>
                 </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+            </header>
         </div>
-      </div>
-    </header>
-  );
+    );
 }

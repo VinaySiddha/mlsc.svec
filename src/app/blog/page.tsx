@@ -1,6 +1,10 @@
-
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
+import { BookOpen, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Image } from "@/components/image";
+import NextImage from "next/image";
+import { motion } from "framer-motion";
 
 export const metadata: Metadata = {
   title: "Blog — MLSC SVEC",
@@ -11,59 +15,57 @@ export const metadata: Metadata = {
     url: "https://mlscsvec.in/blog",
   },
 };
-import { Card, CardTitle } from "@/components/ui/card";
-import { BookOpen } from "lucide-react";
-import { Image } from "@/components/image";
 
 export default function BlogPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-transparent text-foreground">
+    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
       <main className="flex-1">
-        <section id="blogs" className="w-full py-20 md:py-28">
-            <div className="container mx-auto px-4 md:px-6">
-                 <div className="relative w-full py-20 md:py-28 text-center bg-cover bg-center mb-12 rounded-lg" style={{backgroundImage: "url('/team1.jpg')"}}>
-                    <div className="absolute inset-0 bg-black/60 rounded-lg"></div>
-                    <div className="relative z-10 container mx-auto px-4">
-                        <div className="glass-card inline-block p-8">
-                            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Our <span className="text-primary">Blogs</span></h2>
-                            <p className="max-w-[900px] text-muted-foreground md:text-xl mt-4">
-                                Read our latest articles and updates.
-                            </p>
-                        </div>
+        <section className="relative w-full py-24 md:py-40 text-center overflow-hidden border-b border-white/5">
+            <div className="glow-sphere top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FBBC04]/10" />
+            <div className="container mx-auto px-6 relative z-10">
+                <h1 className="hero-heading">
+                    OUR <br/> <span className="text-[#FBBC04]">STORIES.</span>
+                </h1>
+                <p className="max-w-xl mx-auto mt-8 text-white/50 text-xl font-medium leading-relaxed">
+                    Insightful articles, technical tutorials, and updates from the heart of our student community.
+                </p>
+            </div>
+        </section>
+
+        <section className="py-24 md:py-40 container mx-auto px-6">
+            <div className="grid gap-12 max-w-6xl mx-auto">
+                <div className="bento-card overflow-hidden flex flex-col lg:flex-row !p-0 h-full group hover:border-[#FBBC04]/20 transition-all">
+                    <div className="relative h-72 lg:h-auto lg:w-2/5 overflow-hidden">
+                        <Image
+                            src="/blog1.jpg"
+                            alt="Blog Post Image"
+                            width={800}
+                            height={600}
+                            className="object-cover h-full w-full opacity-70 group-hover:opacity-100 transition-all duration-1000 group-hover:scale-105"
+                        />
+                         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent opacity-60" />
                     </div>
-                </div>
-                <div className="grid gap-8 lg:gap-12">
-                    <Card className="glass-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col lg:flex-row">
-                        <div className="lg:w-2/5">
-                            <Image
-                                src="/blog1.jpg"
-                                alt="Blog Post Image"
-                                width={600}
-                                height={400}
-                                className="rounded-t-lg lg:rounded-l-lg lg:rounded-t-none object-cover h-full w-full"
-                                data-ai-hint="tech event photo"
-                            />
+                    <div className="p-12 lg:p-16 flex flex-col flex-1 lg:w-3/5">
+                        <div className="flex items-center gap-4 text-[#FBBC04] mb-8">
+                            <BookOpen className="h-6 w-6" />
+                            <span className="text-xs font-black uppercase tracking-[0.3em]">Medium Publication</span>
                         </div>
-                        <div className="p-6 flex flex-col flex-1 lg:w-3/5">
-                            <div className="flex items-center gap-2 text-primary mb-2">
-                                <BookOpen className="h-6 w-6" />
-                                <span className="font-semibold">Medium</span>
-                            </div>
-                            <CardTitle className="pt-2 text-2xl">
-                                Unveiling Excellence: The Inauguration of the Microsoft Learn Student Club at Sri Vasavi Engineering College
-                            </CardTitle>
-                            <div className="mt-auto pt-4">
-                               <Button asChild variant="glass">
-                                <a href="https://link.medium.com/4aHNce3OlEb" target="_blank" rel="noopener noreferrer">Read More</a>
-                               </Button>
-                            </div>
-                        </div>
-                    </Card>
+                        <h3 className="text-3xl lg:text-5xl font-black tracking-tighter uppercase italic mb-8 leading-tight">
+                            Unveiling Excellence: The Inauguration of MLSC at SVEC.
+                        </h3>
+                        <p className="text-white/50 text-lg font-medium leading-relaxed mb-12 flex-1">
+                            Diving deep into the momentous occasion that marked the birth of a new era of technology and collaboration at our campus.
+                        </p>
+                        <Button asChild className="btn-primary w-fit px-12 h-14 bg-[#FBBC04] text-black hover:bg-[#FBBC04]/90">
+                            <a href="https://link.medium.com/4aHNce3OlEb" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                                Read Story <ArrowRight className="ml-3 h-5 w-5" />
+                            </a>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </section>
       </main>
-
     </div>
   );
 }

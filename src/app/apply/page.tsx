@@ -1,6 +1,10 @@
-
 import type { Metadata } from "next";
 import { ApplicationForm } from "@/components/application-form";
+import { getHiringStatus } from "@/app/actions";
+import { Clock, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 export const metadata: Metadata = {
   title: "Apply — MLSC SVEC",
@@ -11,45 +15,52 @@ export const metadata: Metadata = {
     url: "https://mlscsvec.in/apply",
   },
 };
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
 
 export default async function ApplyPage() {
-  const isClosed = true;
+  const { isHiringOpen } = await getHiringStatus();
+  const isClosed = !isHiringOpen;
 
   return (
-    <div className="flex flex-col min-h-screen bg-transparent text-foreground">
-      <main className="flex-1 py-12 md:py-20">
-        {/* Application Form Section */}
-        <section id="apply" className="w-full">
-          <div className="container mx-auto px-4 md:px-6">
-            <Card className="max-w-3xl mx-auto shadow-lg glass-card text-foreground">
-              <CardHeader>
-                <CardTitle className="text-3xl">Application Form</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  {isClosed
-                    ? "Submissions are now closed. Thank you for your interest."
-                    : "Complete the form to apply for a role at MLSC."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
+      <main className="flex-1">
+        <section className="relative w-full py-24 md:py-40 text-center overflow-hidden border-b border-white/5">
+            <div className="glow-sphere top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#4285F4]/10" />
+            <div className="container mx-auto px-6 relative z-10">
+                <h1 className="hero-heading">
+                    APPLY <br/> <span className="text-[#4285F4]">NOW.</span>
+                </h1>
+                <p className="max-w-xl mx-auto mt-8 text-white/50 text-xl font-medium">
+                    {isClosed 
+                        ? "Hiring is currently closed. Stay tuned for future opportunities." 
+                        : "Join the most active developer community at Sri Vasavi Engineering College."}
+                </p>
+            </div>
+        </section>
+
+        <section className="py-24 md:py-40 container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
                 {isClosed ? (
-                   <div className="flex flex-col items-center justify-center text-center p-8 bg-muted/60 rounded-lg">
-                      <Clock className="h-16 w-16 text-primary mb-4" />
-                      <h3 className="text-xl font-semibold">Registrations are closed</h3>
-                      <p className="text-muted-foreground mt-2">
-                        We are no longer accepting applications. Follow us for future announcements.
-                      </p>
+                    <div className="bento-card p-20 text-center flex flex-col items-center">
+                        <Clock className="h-20 w-20 text-[#EA4335] mb-8" />
+                        <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-4">Closed.</h2>
+                        <p className="text-white/50 text-lg font-medium max-w-sm mx-auto">
+                            Applications are no longer being accepted at this time. 
+                            Follow our social channels for updates.
+                        </p>
+                        <Button asChild variant="outline" className="mt-12 rounded-full border-white/10">
+                            <Link href="/">Back to Home</Link>
+                        </Button>
                     </div>
                 ) : (
-                   <ApplicationForm />
+                    <div className="bento-card !p-0 overflow-hidden bg-[#0A0A0A] border-white/10">
+                        <div className="p-12 md:p-16">
+                             <ApplicationForm />
+                        </div>
+                    </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
+            </div>
         </section>
       </main>
-
     </div>
   );
 }

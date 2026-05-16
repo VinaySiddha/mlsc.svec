@@ -2,8 +2,15 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import { Outfit } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
+
+const outfitFont = Outfit({
+  subsets: ['latin'],
+  variable: '--font-outfit',
+  display: 'swap',
+});
 import { CelebrationPopup } from '@/components/celebration-popup';
 import { Providers } from '@/components/providers';
 import { HeaderWrapper } from '@/components/header-wrapper';
@@ -109,7 +116,7 @@ export default function RootLayout({
       />
     </head>
 
-      <body className={cn('font-sans antialiased')}>
+      <body className={cn('font-sans antialiased', outfitFont.variable, outfitFont.className)}>
         <Providers>
         <HeaderWrapper />
         <CelebrationPopup />

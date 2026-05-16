@@ -1,130 +1,85 @@
 "use client";
 
-import useEmblaCarousel from "embla-carousel-react";
-import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Github, ChevronDown } from "lucide-react";
+import { ArrowRight, Github } from "lucide-react";
 import { AnimatedCounter } from "@/components/motion/animated-counter";
-import type { HeroImage } from "@/app/home-actions";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-const VsCodeIconComponent = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M21.428 5.968l-4.286-4.286-12.214 4.286v12.062l4.286 4.286 12.214-4.286v-12.062zm-4.286-2.4l2.4 2.4-10.371 3.629-2.4-2.4 10.371-3.629zm-11.286 13.514v-9.628l10.371-3.629v9.629l-10.371 3.628zm15.571-3.628l-2.4 2.4-10.371-3.629 2.4-2.4 10.371 3.629z" />
-    </svg>
-);
-
-const AzureIconComponent = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M12.45 2.43L6.1 13.9l-2.18-3.87.5-1.12L12.45 2.43zm1.1.06l7.53 13.04-1.87 3.3-7.6-5.46 1.94-10.88zM6.6 15.3l5.53 6.27-7.22-1.2.5-4.26 1.19-.81z" />
-    </svg>
-);
-
-const defaultImages: HeroImage[] = [
-    { id: "default1", url: "/team1.jpg" }
-];
-
-export function DynamicHero({ images = [] }: { images?: HeroImage[] }) {
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 20 });
-
-    useEffect(() => {
-        if (emblaApi) {
-            const autoplay = setInterval(() => {
-                if (emblaApi.canScrollNext()) {
-                    emblaApi.scrollNext();
-                } else {
-                    emblaApi.scrollTo(0);
-                }
-            }, 4000);
-            return () => clearInterval(autoplay);
-        }
-    }, [emblaApi]);
-
-    const heroImages = [...defaultImages, ...images];
-
+export function DynamicHero({ images = [] }: { images?: any[] }) {
     return (
-        <section className="relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
-            <div className="absolute inset-0 z-0" ref={emblaRef}>
-                <div className="flex h-full">
-                    {heroImages.map((img) => (
-                        <div key={img.id} className="flex-[0_0_100%] min-w-0 relative h-[80vh] md:h-screen">
-                            <div
-                                className="absolute inset-0 bg-cover bg-center"
-                                style={{ backgroundImage: `url('${img.url}')` }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/70 to-primary/10 backdrop-brightness-50"></div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="absolute inset-0 -z-0 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-16 h-16 text-primary/30 animate-float">
-                    <VsCodeIconComponent />
-                </div>
-                <div className="absolute top-1/2 right-1/4 w-24 h-24 text-accent/20 animate-float" style={{ animationDelay: '1s' }}>
-                    <AzureIconComponent />
-                </div>
-                <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-foreground/10 animate-float" style={{ animationDelay: '2s' }}>
-                    <Github className="w-full h-full" />
-                </div>
-            </div>
+        <section className="relative overflow-hidden min-h-screen flex flex-col justify-center bg-black">
+            {/* Background Glows */}
+            <div className="glow-sphere top-[20%] left-[20%] w-[30%] h-[30%] bg-[#4285F4]" />
+            <div className="glow-sphere bottom-[20%] right-[20%] w-[25%] h-[25%] bg-[#EA4335]" />
 
             <div className="container relative z-10 mx-auto px-4 text-center">
-                <motion.h1
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, ease: 'easeOut' }}
-                    className="text-5xl md:text-7xl font-bold text-foreground [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] font-graffiti"
-                >
-                    MLSC X <span className="gradient-text">SVEC</span>
-                </motion.h1>
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.6 }}
-                    className="text-3xl md:text-4xl font-semibold my-4 text-foreground/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)]"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="mb-8"
                 >
-                    <h3>Learn-Train-Serve</h3>
+                    <span className="text-white/50 text-sm font-black uppercase tracking-[0.4em]">Microsoft Learn Student Club SVEC Presents</span>
                 </motion.div>
+
+                <motion.h1
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="hero-heading text-white"
+                >
+                    MLSC <br className="hidden md:block"/>
+                    <span className="text-[#4285F4]">SVEC.</span>
+                </motion.h1>
+
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.6 }}
-                    className="max-w-2xl text-lg text-muted-foreground mx-auto [text-shadow:_0_1px_2px_rgb(0_0_0_/_20%)]"
+                    transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="max-w-3xl text-xl md:text-2xl text-white/70 mx-auto mb-16 font-medium leading-relaxed"
                 >
-                    Microsoft Learn Student Club, is a Technical Club which is dedicated to elevating the coding culture
-                    at Sri Vasavi Engineering College, Tadepalligudem by mentoring to refine
-                    their critical thinking and logical reasoning making them unrivalled!
+                    The official hub of Microsoft Learn Student Club at SVEC. <br className="hidden md:block"/>
+                    Join a community of innovators, builders, and creators.
                 </motion.p>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.6 }}
-                    className="flex justify-center gap-8 md:gap-16 mt-10"
+                    transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col sm:flex-row items-center justify-center gap-8"
                 >
-                    <div className="text-center">
-                        <AnimatedCounter target={300} suffix="+" className="text-3xl font-bold gradient-text" />
-                        <p className="text-sm text-muted-foreground mt-1">Members</p>
+                    <Button asChild className="btn-primary min-w-[200px]">
+                        <Link href="/apply">Apply Now</Link>
+                    </Button>
+                    <Button asChild variant="outline" className="btn-outline min-w-[200px]">
+                        <Link href="/schedule" className="flex items-center">
+                            Explore Schedule
+                            <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
+                        </Link>
+                    </Button>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1.5, delay: 1, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-wrap justify-center gap-12 mt-40 pt-20 border-t border-white/5"
+                >
+                    <div className="flex flex-col items-center">
+                        <AnimatedCounter target={300} suffix="+" className="text-4xl md:text-5xl font-black text-white tracking-tighter" />
+                        <p className="text-[0.6rem] text-white/40 mt-2 font-black uppercase tracking-[0.4em]">Members</p>
                     </div>
-                    <div className="text-center">
-                        <AnimatedCounter target={15} suffix="+" className="text-3xl font-bold gradient-text" />
-                        <p className="text-sm text-muted-foreground mt-1">Events</p>
+                    <div className="flex flex-col items-center">
+                        <AnimatedCounter target={15} suffix="+" className="text-4xl md:text-5xl font-black text-white tracking-tighter" />
+                        <p className="text-[0.6rem] text-white/40 mt-2 font-black uppercase tracking-[0.4em]">Events Done</p>
                     </div>
-                    <div className="text-center">
-                        <AnimatedCounter target={3} className="text-3xl font-bold gradient-text" />
-                        <p className="text-sm text-muted-foreground mt-1">Chapters</p>
+                    <div className="flex flex-col items-center">
+                        <AnimatedCounter target={3} className="text-4xl md:text-5xl font-black text-white tracking-tighter" />
+                        <p className="text-[0.6rem] text-white/40 mt-2 font-black uppercase tracking-[0.4em]">Chapters</p>
                     </div>
                 </motion.div>
             </div>
-
-            <motion.div
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-                animate={{ y: [0, 8, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-            >
-                <ChevronDown className="h-6 w-6 text-muted-foreground" />
-            </motion.div>
         </section>
     );
 }

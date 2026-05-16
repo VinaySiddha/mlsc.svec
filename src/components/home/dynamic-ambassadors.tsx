@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Image } from "@/components/image";
 import type { Ambassador } from "@/app/home-actions";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger-container";
@@ -22,29 +22,41 @@ export function DynamicAmbassadors({ ambassadors = [] }: { ambassadors?: Ambassa
     const displayAmbassadors = [...defaultAmbassadors, ...ambassadors];
 
     return (
-        <section className="py-12 md:py-16 bg-transparent">
-            <div className="container mx-auto px-4 text-center">
+        <section className="relative py-24 md:py-32 bg-background overflow-hidden">
+            <div className="glow-accent top-[20%] right-[-10%] w-[30%] h-[30%] opacity-10" />
+
+            <div className="container mx-auto px-4 relative z-10">
                 <ScrollReveal>
-                    <h2 className="text-4xl font-bold mb-2">Our <span className="gradient-text">Team</span></h2>
-                    <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
-                        Meet the leaders guiding our community.
-                    </p>
+                    <div className="text-center mb-20">
+                        <h2 className="section-header">Our <span className="text-primary">Leaders.</span></h2>
+                        <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
+                            The visionary minds driving the club towards new horizons of technology and community.
+                        </p>
+                    </div>
                 </ScrollReveal>
-                <StaggerContainer className={`grid gap-8 mx-auto ${displayAmbassadors.length <= 2 ? 'md:grid-cols-2 lg:grid-cols-2 max-w-4xl' : 'md:grid-cols-2 lg:grid-cols-3 max-w-6xl'}`}>
+                <StaggerContainer className={`grid gap-12 mx-auto ${displayAmbassadors.length <= 2 ? 'md:grid-cols-2 max-w-4xl' : 'md:grid-cols-2 lg:grid-cols-3 max-w-6xl'}`}>
                     {displayAmbassadors.map((person) => (
                         <StaggerItem key={person.id}>
-                            <div className="glass-card-hover p-6 flex flex-col items-center group">
-                                <div className="relative w-32 h-32 mb-4 rounded-full overflow-hidden ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300">
-                                    <Image
-                                        src={person.photoUrl}
-                                        alt={person.name}
-                                        fill
-                                        sizes="128px"
-                                        className="object-cover"
-                                    />
+                            <div className="group relative aspect-[3/4] overflow-hidden rounded-[2.5rem] border border-white/5 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(66,133,244,0.2)] transition-all duration-500">
+                                <Image
+                                    src={person.photoUrl}
+                                    alt={person.name}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    className="object-cover transition-all duration-700 grayscale group-hover:grayscale-0 group-hover:scale-110"
+                                />
+                                
+                                {/* Gradient Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
+                                
+                                {/* Text Content Overlaid */}
+                                <div className="absolute bottom-0 left-0 right-0 p-10 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 text-left">
+                                    <p className="text-primary text-xs font-bold uppercase tracking-[0.3em] mb-2">MLSA Leader</p>
+                                    <h3 className="text-4xl font-black tracking-tighter text-white group-hover:text-primary transition-colors duration-300 mb-4">{person.name}</h3>
+                                    <p className="text-white/60 text-sm font-medium leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 line-clamp-3">
+                                        {person.description}
+                                    </p>
                                 </div>
-                                <h3 className="text-2xl font-bold">{person.name}</h3>
-                                <p className="text-sm text-muted-foreground mt-2">{person.description}</p>
                             </div>
                         </StaggerItem>
                     ))}

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -8,11 +7,10 @@ import * as z from 'zod';
 import { loginAction } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 const loginSchema = z.object({
@@ -42,7 +40,7 @@ export default function LoginPage() {
       if (result.success) {
         toast({
           title: 'Login Successful',
-          description: "You've been logged in.",
+          description: "Welcome back, Admin.",
         });
         router.push('/admin');
         router.refresh();
@@ -62,24 +60,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-transparent text-foreground">
-      <main className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-sm glass-card">
-          <CardHeader>
-            <CardTitle className="text-2xl">Admin Login</CardTitle>
-            <CardDescription className="text-muted-foreground">Enter your credentials to access the admin panel.</CardDescription>
-          </CardHeader>
-          <CardContent>
+    <div className="flex min-h-screen flex-col bg-black text-white font-sans items-center justify-center p-6">
+      <div className="glow-sphere top-[20%] left-[20%] w-[30%] h-[30%] bg-[#EA4335]/10" />
+      <div className="glow-sphere bottom-[20%] right-[20%] w-[30%] h-[30%] bg-[#4285F4]/10" />
+
+      <div className="w-full max-w-md space-y-12 relative z-10">
+        <div className="text-center">
+            <div className="inline-flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[#EA4335]/5 border border-[#EA4335]/10 mb-8">
+                <ShieldCheck className="h-10 w-10 text-[#EA4335]" />
+            </div>
+            <h1 className="text-5xl font-black uppercase italic tracking-tighter">Admin <br/> <span className="text-[#EA4335]">Control.</span></h1>
+            <p className="text-white/40 mt-4 font-bold uppercase tracking-widest text-xs">Restricted Access Only</p>
+        </div>
+
+        <div className="bento-card border-white/5 bg-[#0A0A0A] p-10 md:p-12">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-white/50">Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="admin" {...field} className="bg-background/20" />
+                        <Input placeholder="admin" {...field} className="bg-white/5 border-white/10 rounded-xl h-14 px-6 text-lg focus:border-[#4285F4] transition-all" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -90,29 +94,28 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-white/50">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="bg-background/20" />
+                        <Input type="password" placeholder="••••••••" {...field} className="bg-white/5 border-white/10 rounded-xl h-14 px-6 text-lg focus:border-[#4285F4] transition-all" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" variant="default" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Log in
+                <Button type="submit" className="btn-primary w-full !mt-12" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
+                  Authorize Access
                 </Button>
               </form>
             </Form>
-            <div className="mt-4 text-center text-sm text-muted-foreground">
-              Not an admin?{' '}
-              <Link href="/auth/login" className="text-primary hover:underline">
-                Sign in as user
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+        </div>
+
+        <div className="text-center">
+            <Link href="/" className="text-white/30 hover:text-white text-xs font-black uppercase tracking-[0.3em] transition-colors">
+              Return to Public Site
+            </Link>
+        </div>
+      </div>
     </div>
   );
 }

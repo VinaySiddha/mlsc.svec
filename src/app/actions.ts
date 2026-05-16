@@ -2,9 +2,9 @@
 'use server';
 
 import {
-  summarizeResume,
-  SummarizeResumeInput,
-} from '@/ai/flows/summarize-resume';
+  evaluateCandidate,
+  EvaluateCandidateInput,
+} from '@/ai/flows/evaluate-candidate';
 import { sendConfirmationEmail } from '@/ai/flows/send-confirmation-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { sendInvitationEmail, InvitationEmailInput } from '@/ai/flows/send-invitation-email';
@@ -286,28 +286,41 @@ export async function submitApplication(formData: FormData) {
       }
     })();
 
-    // Process resume and return result to user
+    // Process resume and evaluate candidate using AI
     let summaryResult = null;
-    if (file && file.size > 0) {
-      try {
+    try {
+      let resumeDataUri = '';
+      if (file && file.size > 0) {
         const buffer = await file.arrayBuffer();
         const base64 = Buffer.from(buffer).toString('base64');
-        const resumeDataUri = `data:${file.type};base64,${base64}`;
+        resumeDataUri = `data:${file.type};base64,${base64}`;
+      }
 
-        const summarizationInput: SummarizeResumeInput = { resumeDataURI: resumeDataUri };
-        const result = await summarizeResume(summarizationInput);
+      const evaluationInput: EvaluateCandidateInput = {
+        resumeDataURI: resumeDataUri,
+        cgpa: applicationData.cgpa,
+        joinReason: applicationData.joinReason,
+        aboutClub: applicationData.aboutClub,
+        domain: applicationData.technicalDomain,
+      };
 
-        if (docRef) {
-          await updateDoc(docRef, { resumeSummary: result.summary });
-          summaryResult = result.summary;
-          console.log(`Successfully generated summary for ${referenceId}`);
-        }
-      } catch (aiError) {
-        console.error(`AI summarization failed for ${referenceId}:`, aiError);
-        summaryResult = "AI summary generation failed. We'll process your resume manually.";
-        if (docRef) {
-          await updateDoc(docRef, { resumeSummary: "AI summary failed." });
-        }
+      const result = await evaluateCandidate(evaluationInput);
+
+      if (docRef) {
+        await updateDoc(docRef, { 
+          resumeSummary: result.summary,
+          isRecommended: result.isRecommended,
+          suitability: result.suitability,
+          ratings: result.ratings
+        });
+        summaryResult = result.summary;
+        console.log(`Successfully evaluated candidate ${referenceId}`);
+      }
+    } catch (aiError) {
+      console.error(`AI evaluation failed for ${referenceId}:`, aiError);
+      summaryResult = "AI evaluation failed. We'll process your application manually.";
+      if (docRef) {
+        await updateDoc(docRef, { resumeSummary: "AI evaluation failed." });
       }
     }
 
@@ -412,7 +425,9 @@ function buildFilteredQuery(params: {
 }) {
   const { panelDomain, search, searchBy, status, year, branch, domain, attendedOnly, sortByRecommended } = params;
   let q: Query<DocumentData> = collection(db, 'applications');
-  const constraints: QueryConstraint[] = [];
+  const constraints: QueryConstraint[] = [
+    where("isArchived", "==", false)
+  ];
 
   // Panel admin is locked to their domain
   if (panelDomain) {
@@ -2263,5 +2278,122 @@ export async function getLatestAnnouncement() {
   } catch (e) {
     console.error("Error fetching latest announcement:", e);
     return { announcement: null, error: "Failed to fetch latest announcement." };
+  }
+}
+
+export async function getHiringStatus() {
+  try {
+    const settingsRef = doc(db, 'settings', 'global');
+    const settingsSnap = await getDoc(settingsRef);
+    if (settingsSnap.exists()) {
+      return { isHiringOpen: settingsSnap.data().isHiringOpen || false };
+    }
+    return { isHiringOpen: false };
+  } catch (error) {
+    console.error('Error fetching hiring status:', error);
+    return { isHiringOpen: false };
+  }
+}
+
+export async function toggleHiringStatus(isOpen: boolean) {
+  try {
+    const settingsRef = doc(db, 'settings', 'global');
+    await setDoc(settingsRef, { isHiringOpen: isOpen }, { merge: true });
+    return { success: true };
+  } catch (error) {
+    console.error('Error toggling hiring status:', error);
+    return { error: 'Failed to update hiring status.' };
+  }
+}
+
+export async function finalizeHiringCycle() {
+  try {
+    const applicationsRef = collection(db, 'applications');
+    const teamMembersRef = collection(db, 'teamMembers');
+    const categoriesRef = collection(db, 'teamCategories');
+
+    // 1. Archive current active team members
+    const activeMembersQuery = query(teamMembersRef, where('status', '==', 'active'));
+    const activeMembersSnapshot = await getDocs(activeMembersQuery);
+    
+    let batch = writeBatch(db);
+    let operationCount = 0;
+
+    const commitBatchIfNeeded = async () => {
+      if (operationCount >= 400) { // Firestore batch limit is 500
+        await batch.commit();
+        batch = writeBatch(db);
+        operationCount = 0;
+      }
+    };
+
+    for (const docSnap of activeMembersSnapshot.docs) {
+      batch.update(docSnap.ref, { status: 'alumni' });
+      operationCount++;
+      await commitBatchIfNeeded();
+    }
+
+    // 2. Hire new members (Applications with status 'Hired' that are not yet archived)
+    const hiredAppsQuery = query(applicationsRef, where('status', '==', 'Hired'), where('isArchived', '==', false));
+    const hiredAppsSnapshot = await getDocs(hiredAppsQuery);
+    
+    const membersToInvite: { email: string, name: string, role: string, categoryId: string }[] = [];
+
+    // Get default category as fallback
+    const defaultTechCatQuery = query(categoriesRef, limit(1));
+    const defaultCatSnapshot = await getDocs(defaultTechCatQuery);
+    const defaultCategoryId = !defaultCatSnapshot.empty ? defaultCatSnapshot.docs[0].id : '';
+
+    for (const docSnap of hiredAppsSnapshot.docs) {
+      const app = docSnap.data();
+      
+      // Attempt to map their domain to a categoryId
+      const catQuery = query(categoriesRef, where('subDomain', '==', app.technicalDomain));
+      const catSnapshot = await getDocs(catQuery);
+      const categoryId = !catSnapshot.empty ? catSnapshot.docs[0].id : defaultCategoryId;
+
+      membersToInvite.push({
+        name: app.name,
+        email: app.email,
+        role: 'Team Member',
+        categoryId
+      });
+    }
+
+    // 3. Archive ALL applications from this cycle
+    const allActiveAppsQuery = query(applicationsRef, where('isArchived', '==', false));
+    const allActiveAppsSnapshot = await getDocs(allActiveAppsQuery);
+
+    for (const docSnap of allActiveAppsSnapshot.docs) {
+      batch.update(docSnap.ref, { isArchived: true });
+      operationCount++;
+      await commitBatchIfNeeded();
+    }
+
+    if (operationCount > 0) {
+      await batch.commit();
+    }
+
+    // 4. Send background emails and invites
+    (async () => {
+      for (const member of membersToInvite) {
+        try {
+          await inviteTeamMember(member);
+        } catch (inviteError) {
+          console.error(`Failed to invite team member ${member.email}:`, inviteError);
+        }
+      }
+    })();
+
+    // 5. Close the hiring form
+    await toggleHiringStatus(false);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error during finalizeHiringCycle:', error);
+    if (error instanceof Error) {
+      return { error: `Failed to finalize hiring cycle: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred.' };
   }
 }

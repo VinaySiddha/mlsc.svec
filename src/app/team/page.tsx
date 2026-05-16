@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { getTeamMembers } from "@/app/actions";
 import { Button } from "@/components/ui/button";
@@ -35,17 +34,17 @@ interface TeamCategory {
     members: TeamMember[];
 }
 
-const renderTeamSection = (teams: TeamCategory[], title: string) => {
+const renderTeamSection = (teams: TeamCategory[], title: string, color: string) => {
     if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
         return null;
     }
 
     return (
-        <section className="w-full bg-transparent py-16">
-            <div className="container mx-auto px-4 md:px-6 space-y-12">
+        <section className="w-full">
+            <div className="container mx-auto px-6 space-y-20">
                 <ScrollReveal>
-                    <div className="w-full text-center glass-card p-8">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{title}</h2>
+                    <div>
+                        <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic" style={{ color }}>{title}.</h2>
                     </div>
                 </ScrollReveal>
                 {teams.map(category => {
@@ -53,8 +52,8 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
                     return (
                         <div key={category.id} className="w-full">
                             <ScrollReveal>
-                                <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-                                    <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl gradient-text">{category.subDomain}</h3>
+                                <div className="mb-12">
+                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/40">{category.subDomain}</h3>
                                 </div>
                             </ScrollReveal>
                             <TeamMemberGrid members={category.members} />
@@ -66,16 +65,15 @@ const renderTeamSection = (teams: TeamCategory[], title: string) => {
     );
 };
 
-
 export default async function TeamPage() {
     const { membersByCategory, error } = await getTeamMembers();
 
     if (error || !membersByCategory) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-center">
-                <h2 className="text-2xl font-bold text-destructive">Failed to load team members</h2>
-                <p className="text-muted-foreground">{error || "An unknown error occurred."}</p>
-                <Button asChild variant="ghost" className="mt-4">
+            <div className="flex flex-col items-center justify-center min-h-screen text-center bg-black text-white">
+                <h2 className="text-4xl font-black uppercase italic tracking-tighter text-[#EA4335]">Error.</h2>
+                <p className="text-white/50 mt-4">{error || "Failed to load team members."}</p>
+                <Button asChild variant="outline" className="mt-8 rounded-full border-white/20">
                     <Link href="/">Return to Home</Link>
                 </Button>
             </div>
@@ -90,26 +88,29 @@ export default async function TeamPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-transparent text-foreground">
+        <div className="flex flex-col min-h-screen bg-black text-white font-sans">
             <main className="flex-1">
-                <section className="relative w-full py-20 md:py-28 text-center bg-cover bg-center" style={{ backgroundImage: "url('/team1.jpg')" }}>
-                    <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background rounded-lg"></div>
-                    <div className="relative z-10 container mx-auto px-4">
-                        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">Meet Our <span className="gradient-text">Team</span></h1>
-                        <p className="max-w-[900px] mx-auto mt-4 text-muted-foreground md:text-xl">The leaders and members driving the MLSC community forward.</p>
+                <section className="relative w-full py-40 md:py-60 text-center overflow-hidden border-b border-white/5">
+                    <div className="glow-sphere top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#FBBC04]/10" />
+                    <div className="relative z-10 container mx-auto px-6">
+                         <div className="mb-8">
+                            <span className="text-white/50 text-sm font-black uppercase tracking-[0.4em]">The Minds Behind MLSC SVEC</span>
+                        </div>
+                        <h1 className="hero-heading">
+                            MEET THE <br/> <span className="text-[#34A853]">FORCE.</span>
+                        </h1>
+                        <p className="max-w-2xl mx-auto mt-10 text-white/60 text-xl font-medium leading-relaxed">
+                            A dedicated team of student leaders, developers, and creators building the future together.
+                        </p>
                     </div>
                 </section>
 
-                <div className="space-y-4">
-                    {renderTeamSection(teamData.coreTeam, "Core Team")}
-                    <div className="section-divider" />
-                    {renderTeamSection(teamData.technicalTeam, "Technical Teams")}
-                    <div className="section-divider" />
-                    {renderTeamSection(teamData.nonTechnicalTeam, "Non-Technical Teams")}
+                <div className="space-y-40 py-24 md:py-40">
+                    {renderTeamSection(teamData.coreTeam, "Core Leadership", "#4285F4")}
+                    {renderTeamSection(teamData.technicalTeam, "Technical Architects", "#34A853")}
+                    {renderTeamSection(teamData.nonTechnicalTeam, "Creative Ecosystem", "#EA4335")}
                 </div>
-
             </main>
-
         </div>
     );
 }

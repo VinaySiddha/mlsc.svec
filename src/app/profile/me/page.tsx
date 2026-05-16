@@ -17,7 +17,7 @@ import { MLSCLogo } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -122,8 +122,8 @@ export default function UserProfilePage() {
 
   if (authLoading || loadingProfile) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <Loader2 className="h-12 w-12 animate-spin text-[#4285F4]" />
       </div>
     );
   }
@@ -131,170 +131,117 @@ export default function UserProfilePage() {
   if (!user || !profile) return null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-transparent text-foreground">
-      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/60 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
+    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
+      <header className="glass-nav h-20">
+        <div className="container mx-auto flex h-full items-center justify-between px-6 md:px-12">
           <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="icon">
-              <Link href="/"><ArrowLeft className="h-5 w-5" /></Link>
+            <Button asChild variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-full">
+              <Link href="/"><ArrowLeft className="h-6 w-6" /></Link>
             </Button>
-            <div className="flex items-center gap-2">
-              <MLSCLogo className="h-8 w-8 text-primary" />
-              <h1 className="text-xl font-bold tracking-tight">My Profile</h1>
+            <div className="flex items-center gap-3">
+              <MLSCLogo className="h-9 w-9 text-white" />
+              <h1 className="text-2xl font-black tracking-tighter uppercase italic">My Profile.</h1>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 p-4 container mx-auto max-w-3xl space-y-6">
-        <Card className="glass-card">
-          <CardHeader>
-            <div className="flex items-center gap-4">
+      <main className="flex-1 p-8 md:p-12 lg:p-20 container mx-auto max-w-5xl space-y-12">
+        <div className="bento-card !p-10 border-white/10">
+          <div className="flex flex-col md:flex-row items-center gap-10">
               <div className="relative group">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={profile.photoURL} alt={profile.displayName} />
-                  <AvatarFallback className="text-2xl">{profile.displayName?.[0]?.toUpperCase()}</AvatarFallback>
+                <Avatar className="h-32 w-32 rounded-[2.5rem] ring-4 ring-white/5 border-2 border-white/10">
+                  <AvatarImage src={profile.photoURL} alt={profile.displayName} className="object-cover" />
+                  <AvatarFallback className="text-4xl font-black bg-[#4285F4]">{profile.displayName?.[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-sm">
                   {isUploadingImage ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-white" />
+                    <Loader2 className="h-8 w-8 animate-spin text-white" />
                   ) : (
-                    <Upload className="h-5 w-5 text-white" />
+                    <Upload className="h-8 w-8 text-white" />
                   )}
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
                 </label>
               </div>
-              <div>
-                <CardTitle className="text-2xl">{profile.displayName}</CardTitle>
-                <CardDescription>{profile.email}</CardDescription>
-                <Badge variant="outline" className="mt-1">{ROLE_LABELS[profile.role] || profile.role}</Badge>
+              <div className="text-center md:text-left">
+                <CardTitle className="text-4xl font-black tracking-tighter uppercase mb-2">{profile.displayName}</CardTitle>
+                <CardDescription className="text-white/50 text-lg font-medium mb-6">{profile.email}</CardDescription>
+                <Badge className="bg-[#4285F4] text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border-none">
+                    {ROLE_LABELS[profile.role] || profile.role}
+                </Badge>
               </div>
             </div>
-          </CardHeader>
-        </Card>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="displayName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Display Name</FormLabel>
-                    <FormControl><Input {...field} className="bg-background/20" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="bio" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio</FormLabel>
-                    <FormControl><Textarea placeholder="Tell us about yourself..." {...field} className="bg-background/20" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField control={form.control} name="rollNo" render={({ field }) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bento-card border-white/5 space-y-8 h-fit">
+                <h3 className="text-2xl font-black tracking-tighter uppercase italic">Edit Details.</h3>
+                <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField control={form.control} name="displayName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Roll Number</FormLabel>
-                      <FormControl><Input placeholder="e.g. 22B01A0501" {...field} className="bg-background/20" /></FormControl>
-                      <FormMessage />
+                        <FormLabel className="text-[0.6rem] font-black uppercase tracking-[0.2em] text-white/40">Display Name</FormLabel>
+                        <FormControl><Input {...field} className="bg-white/5 border-white/10 rounded-xl h-12 focus:border-[#4285F4] transition-all" /></FormControl>
+                        <FormMessage />
                     </FormItem>
-                  )} />
-                  <FormField control={form.control} name="branch" render={({ field }) => (
+                    )} />
+                    <FormField control={form.control} name="bio" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Branch</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-background/20"><SelectValue placeholder="Select branch" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {['CSE', 'AIML', 'CAI', 'CST', 'ECE', 'EEE', 'MECH', 'CIVIL', 'Others'].map(b => (
-                            <SelectItem key={b} value={b}>{b}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
+                        <FormLabel className="text-[0.6rem] font-black uppercase tracking-[0.2em] text-white/40">Bio</FormLabel>
+                        <FormControl><Textarea placeholder="Tell us about yourself..." {...field} className="bg-white/5 border-white/10 rounded-xl min-h-[100px] focus:border-[#4285F4] transition-all" /></FormControl>
+                        <FormMessage />
                     </FormItem>
-                  )} />
-                  <FormField control={form.control} name="yearOfStudy" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year of Study</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-background/20"><SelectValue placeholder="Select year" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {['1st', '2nd', '3rd', '4th'].map(y => (
-                            <SelectItem key={y} value={y}>{y} Year</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="linkedin" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>LinkedIn URL</FormLabel>
-                      <FormControl><Input placeholder="https://linkedin.com/in/..." {...field} className="bg-background/20" /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </div>
+                    )} />
+                    
+                    <Separator className="bg-white/5" />
 
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">Email Notifications</p>
-                    <p className="text-xs text-muted-foreground">Receive emails about new events and announcements</p>
-                  </div>
-                  <Switch checked={emailNotifications} onCheckedChange={handleNotificationToggle} />
-                </div>
-
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Changes
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5" /> My Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {events.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">You haven't registered for any events yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {events.map((evt: any) => (
-                  <div key={evt.id} className="flex justify-between items-center p-3 rounded-lg bg-background/20">
+                    <div className="flex items-center justify-between py-2">
                     <div>
-                      <p className="font-medium">{evt.eventTitle}</p>
-                      <p className="text-xs text-muted-foreground">{evt.eventDate}</p>
+                        <p className="text-sm font-bold uppercase tracking-tight">Email Notifications</p>
+                        <p className="text-[0.6rem] text-white/40 font-bold uppercase tracking-widest mt-1">Updates and announcements</p>
                     </div>
-                    <Badge variant="outline">Registered</Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    <Switch checked={emailNotifications} onCheckedChange={handleNotificationToggle} className="data-[state=checked]:bg-[#34A853]" />
+                    </div>
 
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" /> My Posts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-center py-4">
-              Visit the <Link href="/community" className="text-primary hover:underline">community</Link> to create and view your posts.
-            </p>
-          </CardContent>
-        </Card>
+                    <Button type="submit" disabled={isSubmitting} className="btn-primary w-full h-14 !mt-8">
+                    {isSubmitting && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
+                    Save Changes
+                    </Button>
+                </form>
+                </Form>
+            </div>
+
+            <div className="space-y-8">
+                <div className="bento-card border-white/5">
+                    <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-8">Registered Events.</h3>
+                    {events.length === 0 ? (
+                    <div className="p-12 text-center border border-dashed border-white/10 rounded-2xl">
+                         <p className="text-white/30 font-bold uppercase tracking-widest text-xs">No active registrations.</p>
+                    </div>
+                    ) : (
+                    <div className="space-y-4">
+                        {events.map((evt: any) => (
+                        <div key={evt.id} className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-[#4285F4]/30 transition-all">
+                            <div>
+                            <p className="font-bold tracking-tight">{evt.eventTitle}</p>
+                            <p className="text-[0.6rem] text-white/40 font-black uppercase tracking-[0.2em] mt-1">{evt.eventDate}</p>
+                            </div>
+                            <Badge variant="outline" className="border-white/10 text-[0.5rem] font-black uppercase tracking-widest">Active</Badge>
+                        </div>
+                        ))}
+                    </div>
+                    )}
+                </div>
+
+                <div className="bento-card border-white/5 bg-[#34A853]/5 border-[#34A853]/10">
+                    <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-4 text-[#34A853]">Community.</h3>
+                    <p className="text-white/60 font-medium mb-8">Participate in discussions and share your knowledge.</p>
+                    <Button asChild variant="outline" className="w-full rounded-full border-[#34A853]/20 hover:bg-[#34A853]/10 text-[#34A853] font-black uppercase tracking-widest text-xs h-12">
+                        <Link href="/community">Join Discussion</Link>
+                    </Button>
+                </div>
+            </div>
+        </div>
       </main>
     </div>
   );

@@ -37,313 +37,132 @@ export default async function AdminPage() {
     web_app: "Web & App Development",
   };
 
-  const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
+  const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "SUPERADMIN CONTROL";
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b border-white/20 bg-background/50 backdrop-blur-lg">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
-          <Link href="/admin" className="flex items-center gap-2">
-            <MLSCLogo className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-bold tracking-tight">
+    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
+      <header className="glass-nav h-20">
+        <div className="container mx-auto flex h-full items-center justify-between px-6 md:px-12">
+          <Link href="/admin" className="flex items-center gap-3 group">
+            <MLSCLogo className="h-9 w-9 text-white transition-transform group-hover:scale-110" />
+            <h1 className="text-2xl font-black tracking-tighter uppercase italic">
               {title}
             </h1>
           </Link>
-          <div className="flex items-center gap-4">
-            <Menubar>
+          <div className="flex items-center gap-6">
+            <Menubar className="border-none bg-transparent shadow-none gap-4">
+               {/* Simplified menus for high-contrast look */}
               <MenubarMenu>
-                <MenubarTrigger>File</MenubarTrigger>
-                <MenubarContent>
-                  <MenubarItem asChild>
-                    <Link href="/">
-                      Go to Home Page <MenubarShortcut>⌘H</MenubarShortcut>
-                    </Link>
+                <MenubarTrigger className="text-[0.6rem] font-black uppercase tracking-[0.3em] cursor-pointer hover:text-[#4285F4] transition-colors">Navigation</MenubarTrigger>
+                <MenubarContent className="bg-black border border-white/10 rounded-2xl p-2 mt-2">
+                  <MenubarItem asChild className="rounded-xl focus:bg-[#4285F4] focus:text-white cursor-pointer">
+                    <Link href="/">Public Home</Link>
                   </MenubarItem>
-                  <MenubarItem asChild>
-                    <Link href="/admin/applications">
-                      View Applications <MenubarShortcut>⌘A</MenubarShortcut>
-                    </Link>
+                  <MenubarItem asChild className="rounded-xl focus:bg-[#4285F4] focus:text-white cursor-pointer">
+                    <Link href="/admin/applications">Applications</Link>
                   </MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem disabled>Print</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               {userRole === 'admin' && (
-                <>
-                  <MenubarMenu>
-                    <MenubarTrigger>Edit</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarSub>
-                        <MenubarSubTrigger>Management</MenubarSubTrigger>
-                        <MenubarSubContent>
-                          <MenubarItem asChild>
-                            <Link href="/admin/events">Manage Events</Link>
-                          </MenubarItem>
-                          <MenubarItem asChild>
-                            <Link href="/admin/team">Manage Team</Link>
-                          </MenubarItem>
-                          <MenubarItem asChild>
-                            <Link href="/admin/notifications">Manage Notifications</Link>
-                          </MenubarItem>
-                        </MenubarSubContent>
-                      </MenubarSub>
-                      <MenubarSub>
-                        <MenubarSubTrigger>Data</MenubarSubTrigger>
-                        <MenubarSubContent>
-                          <MenubarItem asChild>
-                            <Link href="/admin/internal-registration">Internal Registration</Link>
-                          </MenubarItem>
-                          <MenubarItem asChild>
-                            <Link href="/admin/bulk-update">Bulk Status Update</Link>
-                          </MenubarItem>
-                        </MenubarSubContent>
-                      </MenubarSub>
-                    </MenubarContent>
-                  </MenubarMenu>
-                  <MenubarMenu>
-                    <MenubarTrigger>View</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarCheckboxItem checked disabled>Always Show Full URLs</MenubarCheckboxItem>
-                      <MenubarSeparator />
-                      <MenubarItem asChild inset>
-                        <Link href="/admin/analytics">Hiring Analytics</Link>
-                      </MenubarItem>
-                      <MenubarItem asChild inset>
-                        <Link href="/admin/interview-analytics">Interview Analytics</Link>
-                      </MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu>
-                  <MenubarMenu>
-                    <MenubarTrigger>Profiles</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarRadioGroup value="admin">
-                        <MenubarRadioItem value="admin">Admin</MenubarRadioItem>
-                        <MenubarRadioItem value="panel" disabled>Panel</MenubarRadioItem>
-                      </MenubarRadioGroup>
-                      <MenubarSeparator />
-                      <MenubarItem inset>
-                        <LogoutButton />
-                      </MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu>
-                </>
-              )}
-              {userRole === 'panel' && (
                 <MenubarMenu>
-                  <MenubarTrigger>Profiles</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarRadioGroup value="panel">
-                      <MenubarRadioItem value="admin" disabled>Admin</MenubarRadioItem>
-                      <MenubarRadioItem value="panel">Panel</MenubarRadioItem>
-                    </MenubarRadioGroup>
-                    <MenubarSeparator />
-                    <MenubarItem inset>
-                      <LogoutButton />
-                    </MenubarItem>
-                  </MenubarContent>
+                    <MenubarTrigger className="text-[0.6rem] font-black uppercase tracking-[0.3em] cursor-pointer hover:text-[#34A853] transition-colors">Management</MenubarTrigger>
+                    <MenubarContent className="bg-black border border-white/10 rounded-2xl p-2 mt-2">
+                         <MenubarItem asChild className="rounded-xl focus:bg-[#34A853] focus:text-white cursor-pointer">
+                            <Link href="/admin/events">Events</Link>
+                        </MenubarItem>
+                        <MenubarItem asChild className="rounded-xl focus:bg-[#34A853] focus:text-white cursor-pointer">
+                            <Link href="/admin/team">Team</Link>
+                        </MenubarItem>
+                        <MenubarSeparator className="bg-white/5 my-1" />
+                        <MenubarItem asChild className="rounded-xl focus:bg-[#34A853] focus:text-white cursor-pointer">
+                            <Link href="/admin/notifications">Notifications</Link>
+                        </MenubarItem>
+                    </MenubarContent>
                 </MenubarMenu>
               )}
+              <MenubarMenu>
+                <MenubarTrigger className="text-[0.6rem] font-black uppercase tracking-[0.3em] cursor-pointer hover:text-[#EA4335] transition-colors">Session</MenubarTrigger>
+                <MenubarContent className="bg-black border border-white/10 rounded-2xl p-2 mt-2">
+                  <div className="p-1">
+                    <LogoutButton />
+                  </div>
+                </MenubarContent>
+              </MenubarMenu>
             </Menubar>
           </div>
         </div>
       </header>
-      <main className="flex-1 p-4">
-        <div className="container mx-auto space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="glass-card flex flex-col justify-between">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Users />
-                  All Applications
-                </CardTitle>
-                <CardDescription className="text-xs text-muted-foreground">
-                  View, filter, and manage all submitted applications.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild variant="glass" size="sm">
-                  <Link href="/admin/applications">Go to Applications</Link>
-                </Button>
-              </CardContent>
-            </Card>
+      
+      <main className="flex-1 py-20 md:py-32">
+        <div className="container mx-auto px-6 md:px-12 space-y-20">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="bento-card group">
+              <div className="absolute top-0 right-0 p-8">
+                <Users className="h-8 w-8 text-[#4285F4]" />
+              </div>
+              <h3 className="text-xl font-black tracking-tighter mb-2 uppercase italic">Applicants.</h3>
+              <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-8">Management Hub</p>
+              <Button asChild variant="outline" className="rounded-full border-white/10 hover:bg-white/5 px-6 w-full text-xs">
+                <Link href="/admin/applications">View All</Link>
+              </Button>
+            </div>
             {userRole === 'admin' && (
               <>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Calendar />
-                      Event Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Create, update, and manage all club events.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/events">Manage Events</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Group />
-                      Team Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Update the public team page members and categories.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/team">Manage Team</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <UploadCloud />
-                      Bulk Status Update
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Update statuses by uploading a CSV of hired candidates.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/bulk-update">Bulk Update</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Home />
-                      Home Page Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manage Hero, Ambassadors, Gallery, and Chapters.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/home">Manage Home</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <BarChart2 />
-                      Hiring Analytics
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Visualize application data, trends, and statistics.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/analytics">View Analytics</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <UserCheck />
-                      Interview Analytics
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Analytics for candidates who completed their interview.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/interview-analytics">View Interview Analytics</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <PencilRuler />
-                      Internal Registration
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manually register a candidate on their behalf.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/internal-registration">Register Candidate</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Megaphone />
-                      Notifications
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manage the scrolling ticker on the home page.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/notifications">Manage Notifications</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Shield />
-                      User Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manage registered users, assign roles, and control access.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/users">Manage Users</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <MessageSquare />
-                      Community Moderation
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Review flagged posts and moderate community content.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/community">Moderate Community</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="bento-card group border-[#34A853]/20">
+                  <div className="absolute top-0 right-0 p-8">
+                    <Calendar className="h-8 w-8 text-[#34A853]" />
+                  </div>
+                  <h3 className="text-xl font-black tracking-tighter mb-2 uppercase italic">Events.</h3>
+                  <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-8">Global Schedule</p>
+                  <Button asChild variant="outline" className="rounded-full border-white/10 hover:bg-white/5 px-6 w-full text-xs">
+                    <Link href="/admin/events">Manage</Link>
+                  </Button>
+                </div>
+                <div className="bento-card group border-[#FBBC04]/20">
+                  <div className="absolute top-0 right-0 p-8">
+                    <Group className="h-8 w-8 text-[#FBBC04]" />
+                  </div>
+                  <h3 className="text-xl font-black tracking-tighter mb-2 uppercase italic">Team.</h3>
+                  <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-8">Core Directory</p>
+                  <Button asChild variant="outline" className="rounded-full border-white/10 hover:bg-white/5 px-6 w-full text-xs">
+                    <Link href="/admin/team">Curate</Link>
+                  </Button>
+                </div>
+                <div className="bento-card group border-[#EA4335]/20">
+                  <div className="absolute top-0 right-0 p-8">
+                    <BarChart2 className="h-8 w-8 text-[#EA4335]" />
+                  </div>
+                  <h3 className="text-xl font-black tracking-tighter mb-2 uppercase italic">Analytics.</h3>
+                  <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-8">Performance Data</p>
+                  <Button asChild variant="outline" className="rounded-full border-white/10 hover:bg-white/5 px-6 w-full text-xs">
+                    <Link href="/admin/analytics">Inspect</Link>
+                  </Button>
+                </div>
               </>
             )}
           </div>
 
-          {userRole === 'admin' && (
-            <div className="glass-card p-6">
-              <DeadlineSetter />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 bento-card p-12 !h-auto">
+               <h2 className="text-4xl font-black tracking-tighter mb-12 uppercase italic">Live <span className="text-[#4285F4]">Metrics.</span></h2>
+               <AdminAnalyticsSection panelDomain={panelDomain} />
             </div>
-          )}
-
-          {userRole === 'panel' && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold tracking-tight">Domain Analytics</h2>
-              <AdminAnalyticsSection panelDomain={panelDomain} />
+            <div className="space-y-8">
+              {userRole === 'admin' && (
+                <div className="bento-card p-12 !h-auto">
+                   <h2 className="text-2xl font-black tracking-tighter mb-8 uppercase italic">Deadline.</h2>
+                  <DeadlineSetter />
+                </div>
+              )}
+              <div className="bento-card p-12 !h-auto bg-[#34A853]/5 border-[#34A853]/20">
+                <h2 className="text-2xl font-black tracking-tighter mb-6 uppercase italic text-[#34A853]">Status.</h2>
+                <div className="flex items-center gap-4">
+                  <div className="w-3 h-3 rounded-full bg-[#34A853] animate-pulse" />
+                  <p className="font-black text-xs uppercase tracking-[0.2em]">Operational</p>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </main>
     </div>
