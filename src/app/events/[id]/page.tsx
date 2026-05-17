@@ -9,7 +9,8 @@ import { Calendar, Mic, Clock, MapPin, ListChecks, UserCheck, Image as ImageIcon
 import { notFound } from "next/navigation";
 import { CountdownTimer } from "@/components/countdown-timer";
 
-export const revalidate = 0;
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
     if (params.id.startsWith('static-')) {

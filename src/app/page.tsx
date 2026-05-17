@@ -19,7 +19,9 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 60;
+// Make this page dynamic to prevent build-time Firestore access errors
+// Using revalidate: 60 can cause ISR issues during build when Firestore is unreachable
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
     const [{ notifications }, homeData] = await Promise.all([

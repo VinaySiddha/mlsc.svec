@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   description: "View the calendar of upcoming events, workshops, and meetups organized by Microsoft Learn Student Club SVEC.",
 };
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 const staticEvents = [
     { title: 'Blue Day', date: new Date('2025-01-25') },
     { title: 'The Flask Edition', date: new Date('2025-02-06') },

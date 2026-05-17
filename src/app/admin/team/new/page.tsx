@@ -9,6 +9,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTeamCategories } from "@/app/actions";
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export default async function NewTeamMemberPage() {
     const headersList = headers();
     const userRole = headersList.get('X-User-Role');

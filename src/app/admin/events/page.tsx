@@ -9,7 +9,8 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export const revalidate = 0;
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
 
 export default async function EventsPage() {
     const headersList = headers();

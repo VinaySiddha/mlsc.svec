@@ -2,6 +2,9 @@
 import type { Metadata } from "next";
 import { fetchAndCacheJobs } from "@/app/actions";
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Jobs — MLSC SVEC",
   description: "Browse the latest tech job listings and internship opportunities curated for MLSC SVEC members.",

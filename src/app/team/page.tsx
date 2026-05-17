@@ -15,7 +15,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 60;
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
 
 interface TeamMember {
     id: string;

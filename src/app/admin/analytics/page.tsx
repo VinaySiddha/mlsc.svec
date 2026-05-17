@@ -9,6 +9,9 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export default async function AnalyticsPage() {
   const headersList = headers();
   const userRole = headersList.get('X-User-Role');

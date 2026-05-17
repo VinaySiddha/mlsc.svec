@@ -10,6 +10,9 @@ import Link from 'next/link';
 import { ROLE_LABELS, type Role } from '@/lib/roles';
 import { UsersTable } from './users-table';
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export default async function AdminUsersPage() {
   const headersList = headers();
   const userRole = headersList.get('X-User-Role');

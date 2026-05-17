@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export default async function ApplyPage() {
   const { isHiringOpen } = await getHiringStatus();
   const isClosed = !isHiringOpen;
