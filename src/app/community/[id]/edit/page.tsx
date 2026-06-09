@@ -55,7 +55,7 @@ export default function EditPostPage() {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">Not authorized to edit this post.</p>
-        <Button asChild variant="link" className="mt-2">
+        <Button asChild variant="ghost" className="mt-2 text-primary hover:underline">
           <Link href="/community">Back to Community</Link>
         </Button>
       </div>

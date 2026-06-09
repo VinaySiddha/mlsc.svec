@@ -1,0 +1,226 @@
+'use server';
+
+import { unstable_cache, revalidateTag } from 'next/cache';
+import papaparse from 'papaparse';
+import { EventService } from '@/lib/services/event-service';
+import { eventFormSchema, registrationSchema } from '@/schemas/event';
+
+export async function createEvent(formData: FormData) {
+  const values = Object.fromEntries(formData.entries());
+  const bannerImageFile = formData.get('bannerImage') as File | null;
+  const listImageFile = formData.get('listImage') as File | null;
+  const highlightImageFiles = formData.getAll('highlightImages') as File[];
+
+  const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
+    ...values,
+    date: new Date(values.date as string),
+    registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
+    registrationOpen: values.registrationOpen === 'true',
+    registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
+  });
+
+  if (!parsed.success) {
+    console.error("Event form validation failed:", parsed.error.flatten().fieldErrors);
+    return { error: 'Invalid event data.' };
+  }
+
+  try {
+    const speakersData = JSON.parse(values.speakers as string || '[]');
+    const timelineData = JSON.parse(values.timeline as string || '[]');
+    const seatLimits = values.seatLimits ? JSON.parse(values.seatLimits as string) : undefined;
+
+    for (let i = 0; i < speakersData.length; i++) {
+      const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+      if (speakerImageFile && speakerImageFile.size > 0) {
+        speakersData[i].imageFile = speakerImageFile;
+      }
+    }
+
+    const docId = await EventService.createEvent({
+      ...parsed.data,
+      bannerImageFile,
+      listImageFile,
+      highlightImageFiles,
+      speakersData,
+      timelineData,
+      seatLimits,
+      notifyUsers: values.notifyUsers === 'true',
+    });
+
+    revalidateTag('events', 'max');
+    return { success: true, id: docId };
+  } catch (error) {
+    console.error("Failed to create event:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    return { error: `Failed to create event: ${message}` };
+  }
+}
+
+export async function updateEvent(id: string, formData: FormData) {
+  const values = Object.fromEntries(formData.entries());
+  const bannerImageFile = formData.get('bannerImage') as File | null;
+  const listImageFile = formData.get('listImage') as File | null;
+  const highlightImageFiles = formData.getAll('highlightImages') as File[];
+
+  const parsed = eventFormSchema.omit({ bannerImage: true, listImage: true, highlightImages: true, speakers: true, timeline: true }).safeParse({
+    ...values,
+    date: new Date(values.date as string),
+    registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
+    registrationOpen: values.registrationOpen === 'true',
+    registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
+  });
+
+  if (!parsed.success) {
+    console.error("Event form validation failed:", parsed.error.flatten().fieldErrors);
+    return { error: 'Invalid event data.' };
+  }
+
+  try {
+    const speakersData = JSON.parse(values.speakers as string || '[]');
+    const timelineData = JSON.parse(values.timeline as string || '[]');
+    const seatLimits = values.seatLimits ? JSON.parse(values.seatLimits as string) : null;
+
+    for (let i = 0; i < speakersData.length; i++) {
+      const speakerImageFile = formData.get(`speaker_image_${i}`) as File | null;
+      if (speakerImageFile && speakerImageFile.size > 0) {
+        speakersData[i].imageFile = speakerImageFile;
+      }
+    }
+
+    await EventService.updateEvent(id, {
+      ...parsed.data,
+      bannerImageFile,
+      listImageFile,
+      highlightImageFiles,
+      speakersData,
+      timelineData,
+      seatLimits,
+    });
+
+    revalidateTag('events', 'max');
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update event:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    return { error: `Failed to update event: ${message}` };
+  }
+}
+
+export async function deleteEvent(id: string) {
+  try {
+    await EventService.deleteEvent(id);
+    revalidateTag('events', 'max');
+    return { success: true };
+  } catch (error) {
+    return { error: 'Failed to delete event.' };
+  }
+}
+
+const getCachedEvents = unstable_cache(
+  async () => EventService.getRawEvents(),
+  ['events-list'],
+  { tags: ['events'], revalidate: 3600 }
+);
+
+export async function getEvents() {
+  try {
+    const eventList = await getCachedEvents();
+    return { events: eventList as any[], error: null };
+  } catch (error) {
+    console.error("Could not fetch events:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to fetch events: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred while fetching events.' };
+  }
+}
+
+const getCachedEventById = unstable_cache(
+  async (id: string) => EventService.getRawEventById(id),
+  ['event-detail'],
+  { tags: ['events'], revalidate: 3600 }
+);
+
+export async function getEventById(id: string) {
+  try {
+    const eventData = await getCachedEventById(id);
+    if (!eventData) {
+      return { error: 'Event not found.' };
+    }
+    return { event: eventData as any };
+  } catch (error) {
+    console.error("Error fetching event by ID:", error);
+    return { error: 'Failed to fetch event.' };
+  }
+}
+
+export async function registerForEvent(eventId: string, values: any, userId?: string) {
+  const parsed = registrationSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: 'Invalid registration data.' };
+  }
+
+  try {
+    const result = await EventService.registerForEvent(eventId, parsed.data, userId);
+    return result;
+  } catch (error) {
+    console.error("Error registering for event:", error);
+    return { error: 'An unexpected error occurred during registration.' };
+  }
+}
+
+export async function sendReminderEmails(eventId: string) {
+  try {
+    const result = await EventService.sendReminderEmails(eventId);
+    return result;
+  } catch (error) {
+    console.error("Error sending reminder emails:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to send reminders: ${error.message}` };
+    }
+    return { error: "An unexpected error occurred." };
+  }
+}
+
+export async function sendFeedbackEmails(eventId: string) {
+  try {
+    const result = await EventService.sendFeedbackEmails(eventId);
+    return result;
+  } catch (error) {
+    console.error("Error sending feedback emails:", error);
+    if (error instanceof Error) {
+      return { error: `Failed to send feedback emails: ${error.message}` };
+    }
+    return { error: "An unexpected error occurred." };
+  }
+}
+
+export async function getEventRegistrations(eventId: string) {
+  try {
+    const registrations = await EventService.getEventRegistrations(eventId) as any[];
+    return { registrations };
+  } catch (error) {
+    console.error("Error fetching event registrations:", error);
+    return { error: 'Could not fetch event registrations.' };
+  }
+}
+
+export async function exportEventRegistrationsToCsv(eventId: string) {
+  try {
+    const { registrations, error } = await getEventRegistrations(eventId);
+    if (error) throw new Error(error);
+
+    if (!registrations || registrations.length === 0) {
+      return { csvData: null };
+    }
+
+    const csv = papaparse.unparse(registrations);
+    return { success: true, csvData: csv };
+  } catch (error) {
+    console.error('Error exporting event registrations:', error);
+    if (error instanceof Error) {
+      return { error: `Export failed: ${error.message}` };
+    }
+    return { error: 'An unexpected error occurred during export.' };
+  }
+}

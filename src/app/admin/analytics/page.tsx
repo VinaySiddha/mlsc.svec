@@ -1,9 +1,8 @@
-
 import { getAnalyticsData } from "@/app/actions";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -13,7 +12,7 @@ import { redirect } from "next/navigation";
 export const dynamic = 'force-dynamic';
 
 export default async function AnalyticsPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
 
   if (userRole !== 'admin') {
@@ -79,7 +78,7 @@ export default async function AnalyticsPage() {
       </header>
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="container mx-auto space-y-8">
-           <AdminDashboardAnalytics data={analyticsData} />
+           <AdminDashboardAnalytics data={analyticsData.analytics} />
         </div>
       </main>
     </div>

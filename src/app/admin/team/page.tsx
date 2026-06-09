@@ -13,7 +13,7 @@ import { redirect } from "next/navigation";
 export const dynamic = 'force-dynamic';
 
 export default async function TeamManagementPage() {
-    const headersList = headers();
+    const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
     if (userRole !== 'admin') {

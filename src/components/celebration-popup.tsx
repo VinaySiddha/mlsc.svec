@@ -33,7 +33,7 @@ export function CelebrationPopup() {
         try {
           const { announcement: latestAnnouncement, error } = await getLatestAnnouncement();
           if (!error && latestAnnouncement) {
-            setAnnouncement(latestAnnouncement);
+            setAnnouncement(latestAnnouncement as Announcement);
             setIsOpen(true);
             sessionStorage.setItem('hasSeenCelebrationPopup', 'true');
           }

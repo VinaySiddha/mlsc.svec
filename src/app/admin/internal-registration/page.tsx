@@ -10,7 +10,7 @@ import { Suspense } from "react";
 import { InternalRegistrationForm } from "@/components/internal-registration-form";
 
 export default async function InternalRegistrationPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
 
   if (userRole !== 'admin') {

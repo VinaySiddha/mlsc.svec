@@ -116,7 +116,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     const filtersToPass = { ...currentFilters, attendedOnly: currentFilters.attendedOnly === 'true', panelDomain };
     
     try {
-        const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
+        const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus) as any;
         if (result.error) {
             throw new Error(result.error);
         }
@@ -201,7 +201,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
 
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
-        const result = await getApplications(params);
+        const result = await getApplications(params) as any;
         if (!result || !result.applications) {
             throw new Error("Failed to fetch applications for PDF generation.");
         }
@@ -238,7 +238,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
           ? ["S.No", "Roll No", "Name"]
           : ["S.No", "Roll No", "Name", "Year", "Branch"];
         
-        const tableRows = applications.map((app, index) => attendedOnly
+        const tableRows = applications.map((app: any, index: number) => attendedOnly
             ? [index + 1, app.rollNo, app.name]
             : [index + 1, app.rollNo, app.name, app.yearOfStudy, app.branch]
         );

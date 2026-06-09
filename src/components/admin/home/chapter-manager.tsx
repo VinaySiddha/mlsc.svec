@@ -11,6 +11,7 @@ import { Loader2, Trash2, Plus, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { revalidateHomePageData } from "@/app/home-actions";
 
 interface ChapterCard {
     title: string;
@@ -39,19 +40,40 @@ export function ChapterManager() {
     const [cardContent, setCardContent] = useState("");
 
     useEffect(() => {
-        const q = query(collection(db, "home_chapters"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as Chapter[];
-            setChapters(data);
-        }, (error) => {
-            console.error("Error fetching chapters:", error);
-            // Optionally add toast here if imported
-        });
+        console.log("[ChapterManager] Setting up Firestore listener for home_chapters");
+        
+        try {
+            const q = query(collection(db, "home_chapters"), orderBy("createdAt", "desc"));
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                console.log("[ChapterManager] Successfully received data:", snapshot.docs.length, "documents");
+                const data = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as Chapter[];
+                setChapters(data);
+            }, (error: any) => {
+                console.error("[ChapterManager] Firestore error details:", {
+                    code: error.code,
+                    message: error.message,
+                    customData: error.customData,
+                    fullError: error
+                });
+                toast({
+                    title: "Error",
+                    description: `Failed to load chapters. Error: ${error.code} - ${error.message}`,
+                    variant: "destructive",
+                });
+            });
 
-        return () => unsubscribe();
+            return () => unsubscribe();
+        } catch (error: any) {
+            console.error("[ChapterManager] Error setting up listener:", error);
+            toast({
+                title: "Error",
+                description: "Failed to initialize data listener.",
+                variant: "destructive",
+            });
+        }
     }, []);
 
     const clearForm = () => {
@@ -94,6 +116,8 @@ export function ChapterManager() {
                 createdAt: serverTimestamp(),
             });
 
+            await revalidateHomePageData();
+
             toast({
                 title: "Success",
                 description: "Chapter created successfully.",
@@ -115,6 +139,7 @@ export function ChapterManager() {
         if (!confirm("Are you sure you want to delete this chapter?")) return;
         try {
             await deleteDoc(doc(db, "home_chapters", id));
+            await revalidateHomePageData();
             toast({
                 title: "Success",
                 description: "Chapter deleted.",

@@ -12,15 +12,16 @@ import { CountdownTimer } from "@/components/countdown-timer";
 // Make this page dynamic to prevent build-time Firestore access errors
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-    if (params.id.startsWith('static-')) {
-        const event = staticEventsData[params.id];
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const resolvedParams = await params;
+    if (resolvedParams.id.startsWith('static-')) {
+        const event = staticEventsData[resolvedParams.id];
         return {
             title: event ? `${event.title} — MLSC SVEC` : "Event — MLSC SVEC",
             description: event?.description || "View event details on MLSC SVEC.",
         };
     }
-    const { event } = await getEventById(params.id);
+    const { event } = await getEventById(resolvedParams.id);
     if (!event) return { title: "Event Not Found — MLSC SVEC" };
     return {
         title: `${event.title} — MLSC SVEC`,
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             title: event.title,
             description: event.description?.slice(0, 160),
             images: event.bannerImage ? [{ url: event.bannerImage }] : undefined,
-            url: `https://mlscsvec.in/events/${params.id}`,
+            url: `https://mlscsvec.in/events/${resolvedParams.id}`,
         },
     };
 }
@@ -61,15 +62,16 @@ const staticEventsData: { [key: string]: any } = {
     }
 };
 
-export default async function EventDetailPage({ params }: { params: { id: string } }) {
+export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
     let event: any;
     let isStatic = false;
 
-    if (params.id.startsWith('static-')) {
+    if (resolvedParams.id.startsWith('static-')) {
         isStatic = true;
-        event = staticEventsData[params.id];
+        event = staticEventsData[resolvedParams.id];
     } else {
-        const { event: dynamicEvent, error } = await getEventById(params.id);
+        const { event: dynamicEvent, error } = await getEventById(resolvedParams.id);
         if (error || !dynamicEvent) {
             notFound();
         }

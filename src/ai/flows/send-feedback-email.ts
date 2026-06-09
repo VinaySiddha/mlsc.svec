@@ -7,7 +7,7 @@ if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Event feedback emails will not be sent.");
 }
 
-interface EventFeedbackEmailInput {
+export interface EventFeedbackEmailInput {
   name: string;
   email: string;
   eventName: string;

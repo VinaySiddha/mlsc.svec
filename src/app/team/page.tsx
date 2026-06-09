@@ -15,7 +15,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Make this page dynamic to prevent build-time Firestore access errors
 export const dynamic = 'force-dynamic';
 
 interface TeamMember {
@@ -35,32 +34,40 @@ interface TeamCategory {
     members: TeamMember[];
 }
 
-const renderTeamSection = (teams: TeamCategory[], title: string, color: string) => {
-    if (teams.length === 0 || teams.every(team => team.members.length === 0)) {
-        return null;
-    }
+const renderTeamSection = (teams: TeamCategory[], title: string, description: string) => {
+    if (teams.length === 0 || teams.every(team => team.members.length === 0)) return null;
 
     return (
-        <section className="w-full">
-            <div className="container mx-auto px-6 space-y-20">
+        <section className="w-full py-20 md:py-28 border-t border-white/[0.06]">
+            <div className="container mx-auto px-6">
+                {/* Section header */}
                 <ScrollReveal>
-                    <div>
-                        <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic" style={{ color }}>{title}.</h2>
+                    <div className="mb-16">
+                        <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-none mb-3">
+                            {title}
+                        </h2>
+                        <p className="text-white/40 text-sm font-medium max-w-lg">{description}</p>
                     </div>
                 </ScrollReveal>
-                {teams.map(category => {
-                    if (category.members.length === 0) return null;
-                    return (
-                        <div key={category.id} className="w-full">
-                            <ScrollReveal>
-                                <div className="mb-12">
-                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-white/40">{category.subDomain}</h3>
-                                </div>
-                            </ScrollReveal>
-                            <TeamMemberGrid members={category.members} />
-                        </div>
-                    )
-                })}
+
+                {/* Sub-domains */}
+                <div className="space-y-20">
+                    {teams.map(category => {
+                        if (category.members.length === 0) return null;
+                        return (
+                            <div key={category.id}>
+                                {category.subDomain && (
+                                    <ScrollReveal>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/25 mb-8">
+                                            {category.subDomain}
+                                        </p>
+                                    </ScrollReveal>
+                                )}
+                                <TeamMemberGrid members={category.members} />
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </section>
     );
@@ -89,28 +96,63 @@ export default async function TeamPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-black text-white font-sans">
+        <div className="flex flex-col min-h-screen bg-black text-white">
             <main className="flex-1">
-                <section className="relative w-full py-40 md:py-60 text-center overflow-hidden border-b border-white/5">
-                    <div className="glow-sphere top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#FBBC04]/10" />
-                    <div className="relative z-10 container mx-auto px-6">
-                         <div className="mb-8">
-                            <span className="text-white/50 text-sm font-black uppercase tracking-[0.4em]">The Minds Behind MLSC SVEC</span>
-                        </div>
-                        <h1 className="hero-heading">
-                            MEET THE <br/> <span className="text-[#34A853]">FORCE.</span>
-                        </h1>
-                        <p className="max-w-2xl mx-auto mt-10 text-white/60 text-xl font-medium leading-relaxed">
-                            A dedicated team of student leaders, developers, and creators building the future together.
-                        </p>
+
+                {/* ── Hero header ── */}
+                <section className="relative w-full pt-32 pb-24 overflow-hidden">
+                    <div className="glow-sphere top-[-5%] right-[-5%] w-[40%] h-[40%] bg-[#4285F4]/20" />
+                    <div className="container mx-auto px-6">
+                        <ScrollReveal>
+                            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-6">
+                                The minds behind MLSC SVEC
+                            </p>
+                            <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.9] max-w-3xl">
+                                We are a team of{" "}
+                                <span className="text-[#4285F4]">student innovators</span>{" "}
+                                and creators.
+                            </h1>
+                            <p className="mt-8 text-white/40 text-lg font-medium max-w-xl leading-relaxed">
+                                A dedicated group of leaders, developers, designers, and storytellers — building the most active tech community at SVEC.
+                            </p>
+                        </ScrollReveal>
                     </div>
                 </section>
 
-                <div className="space-y-40 py-24 md:py-40">
-                    {renderTeamSection(teamData.coreTeam, "Core Leadership", "#4285F4")}
-                    {renderTeamSection(teamData.technicalTeam, "Technical Architects", "#34A853")}
-                    {renderTeamSection(teamData.nonTechnicalTeam, "Creative Ecosystem", "#EA4335")}
-                </div>
+                {/* ── Team sections ── */}
+                {renderTeamSection(
+                    teamData.coreTeam,
+                    "Core Leadership",
+                    "The founding leaders who set the vision, culture, and direction of MLSC SVEC."
+                )}
+                {renderTeamSection(
+                    teamData.technicalTeam,
+                    "Technical Architects",
+                    "Engineers and developers building products, running workshops, and pushing technical boundaries."
+                )}
+                {renderTeamSection(
+                    teamData.nonTechnicalTeam,
+                    "Creative Ecosystem",
+                    "Designers, storytellers, event managers, and PR leads who make MLSC visible and vibrant."
+                )}
+
+                {/* ── Join CTA ── */}
+                <section className="border-t border-white/[0.06] py-24 md:py-32">
+                    <div className="container mx-auto px-6 text-center">
+                        <ScrollReveal>
+                            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-6">
+                                Want to join the team?
+                            </h2>
+                            <p className="text-white/40 text-lg font-medium mb-10 max-w-lg mx-auto">
+                                Chapter 3.0 recruitments are open. Apply now and become part of something great.
+                            </p>
+                            <Button asChild className="btn-primary">
+                                <Link href="/apply">Apply Now →</Link>
+                            </Button>
+                        </ScrollReveal>
+                    </div>
+                </section>
+
             </main>
         </div>
     );

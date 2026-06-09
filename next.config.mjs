@@ -3,26 +3,58 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: [
-      'genkit',
-      '@genkit-ai/core',
-      '@genkit-ai/googleai',
-      'handlebars',
-      'require-in-the-middle',
-      '@opentelemetry/sdk-node',
-      '@opentelemetry/instrumentation',
-    ],
-  },
+  serverExternalPackages: [
+    'genkit',
+    '@genkit-ai/core',
+    '@genkit-ai/googleai',
+    'handlebars',
+    'require-in-the-middle',
+    '@opentelemetry/sdk-node',
+    '@opentelemetry/instrumentation',
+  ],
   transpilePackages: ['framer-motion'],
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
+    localPatterns: [
+      {
+        pathname: '/api/image',
+        search: '?url=*',
+      },
+      {
+        pathname: '/logo.png',
+      },
+      {
+        pathname: '/team1.jpg',
+      },
+      {
+        pathname: '/g2.jpg',
+      },
+      {
+        pathname: '/flask.png',
+      },
+      {
+        pathname: '/blueday.png',
+      },
+      {
+        pathname: '/web.jpg',
+      },
+      {
+        pathname: '/azure.jpg',
+      },
+      {
+        pathname: '/blog1.jpg',
+      }
+
+    ],
     remotePatterns: [
       {
         protocol: "https",
         hostname: "placehold.co",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
         port: "",
         pathname: "/**",
       },
@@ -89,20 +121,6 @@ const nextConfig = {
     ],
   },
   trailingSlash: true,
-
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, must-revalidate',
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default nextConfig;

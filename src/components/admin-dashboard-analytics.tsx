@@ -180,3 +180,26 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
     </div>
   );
 }
+
+function AnalyticsSkeleton() {
+  return (
+    <div className="space-y-12 animate-pulse">
+      {/* Stat Grid Skeleton */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-32 rounded-2xl bg-white/5 border border-white/5 p-8 flex flex-col justify-between">
+            <div className="h-2 w-12 bg-white/20 rounded" />
+            <div className="h-10 w-24 bg-white/20 rounded" />
+            <div className="h-2 w-20 bg-white/20 rounded" />
+          </div>
+        ))}
+      </div>
+      {/* Charts Skeleton */}
+      <div className="grid gap-8 lg:grid-cols-2">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="h-[480px] rounded-2xl bg-white/5 border border-white/5 p-10" />
+        ))}
+      </div>
+    </div>
+  );
+}

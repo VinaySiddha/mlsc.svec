@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { ModerationTable } from './moderation-table';
 
 export default async function AdminCommunityPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
 
   if (userRole !== 'admin') {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth-context';
-import { getUserProfile, updateUserProfile, getUserRegisteredEvents } from '@/lib/user-service';
+import { getUserProfile, updateUserProfile, getUserRegisteredEvents, getUserFollowers, getUserFollowing, changeUsername } from '@/lib/user-service';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -21,14 +21,15 @@ import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Calendar, Loader2, MessageSquare, Upload } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ArrowLeft, Loader2, Upload, Users } from 'lucide-react';
 import Link from 'next/link';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Name must be at least 2 characters.'),
+  username: z.string().min(3, 'Username must be at least 3 characters.').max(15, 'Username must be under 15 characters.').regex(/^[a-z0-9_]+$/, 'Only lowercase letters, numbers, and underscores are allowed.'),
   bio: z.string().max(300, 'Bio must be under 300 characters.').optional(),
   rollNo: z.string().optional(),
   branch: z.string().optional(),
@@ -50,9 +51,15 @@ export default function UserProfilePage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
 
+  // Dialog lists state
+  const [showFollowDialog, setShowFollowDialog] = useState(false);
+  const [followDialogType, setFollowDialogType] = useState<'followers' | 'following'>('followers');
+  const [followList, setFollowList] = useState<any[]>([]);
+  const [loadingFollowList, setLoadingFollowList] = useState(false);
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { displayName: '', bio: '', rollNo: '', branch: '', yearOfStudy: '', linkedin: '' },
+    defaultValues: { displayName: '', username: '', bio: '', rollNo: '', branch: '', yearOfStudy: '', linkedin: '' },
   });
 
   useEffect(() => {
@@ -71,6 +78,7 @@ export default function UserProfilePage() {
           setEmailNotifications(p.emailNotifications);
           form.reset({
             displayName: p.displayName || '',
+            username: p.username || '',
             bio: p.bio || '',
             rollNo: p.rollNo || '',
             branch: p.branch || '',
@@ -84,17 +92,46 @@ export default function UserProfilePage() {
     }
   }, [user, authLoading, router, form]);
 
-  const onSubmit = async (values: ProfileFormValues) => {
+  const openFollowModal = async (type: 'followers' | 'following') => {
     if (!user) return;
+    setFollowDialogType(type);
+    setShowFollowDialog(true);
+    setLoadingFollowList(true);
+    const list = type === 'followers'
+      ? await getUserFollowers(user.uid)
+      : await getUserFollowing(user.uid);
+    setFollowList(list);
+    setLoadingFollowList(false);
+  };
+
+  const onSubmit = async (values: ProfileFormValues) => {
+    if (!user || !profile) return;
     setIsSubmitting(true);
-    const result = await updateUserProfile(user.uid, values);
-    if (result.success) {
-      setProfile(prev => prev ? { ...prev, ...values } : prev);
-      toast({ title: 'Profile Updated', description: 'Your profile has been saved.' });
-    } else {
-      toast({ variant: 'destructive', title: 'Error', description: result.error });
+
+    try {
+      // 1. If username changed, update it first
+      if (values.username !== profile.username) {
+        const userResult = await changeUsername(user.uid, values.username);
+        if (!userResult.success) {
+          toast({ variant: 'destructive', title: 'Username Error', description: userResult.error });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // 2. Update the rest of the profile
+      const result = await updateUserProfile(user.uid, values);
+      if (result.success) {
+        setProfile(prev => prev ? { ...prev, ...values } : prev);
+        toast({ title: 'Profile Updated', description: 'Your profile has been saved.' });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+      }
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Error', description: err.message || 'Something went wrong.' });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,102 +184,165 @@ export default function UserProfilePage() {
       </header>
 
       <main className="flex-1 p-8 md:p-12 lg:p-20 container mx-auto max-w-5xl space-y-12">
+        {/* Profile Card */}
         <div className="bento-card !p-10 border-white/10">
           <div className="flex flex-col md:flex-row items-center gap-10">
-              <div className="relative group">
-                <Avatar className="h-32 w-32 rounded-[2.5rem] ring-4 ring-white/5 border-2 border-white/10">
-                  <AvatarImage src={profile.photoURL} alt={profile.displayName} className="object-cover" />
-                  <AvatarFallback className="text-4xl font-black bg-[#4285F4]">{profile.displayName?.[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-sm">
-                  {isUploadingImage ? (
-                    <Loader2 className="h-8 w-8 animate-spin text-white" />
-                  ) : (
-                    <Upload className="h-8 w-8 text-white" />
-                  )}
-                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
-                </label>
-              </div>
-              <div className="text-center md:text-left">
-                <CardTitle className="text-4xl font-black tracking-tighter uppercase mb-2">{profile.displayName}</CardTitle>
-                <CardDescription className="text-white/50 text-lg font-medium mb-6">{profile.email}</CardDescription>
-                <Badge className="bg-[#4285F4] text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border-none">
-                    {ROLE_LABELS[profile.role] || profile.role}
-                </Badge>
-              </div>
+            <div className="relative group shrink-0">
+              <Avatar className="h-32 w-32 rounded-[2.5rem] ring-4 ring-white/5 border-2 border-white/10">
+                <AvatarImage src={profile.photoURL} alt={profile.displayName} className="object-cover" />
+                <AvatarFallback className="text-4xl font-black bg-[#4285F4]">{profile.displayName?.[0]?.toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-sm">
+                {isUploadingImage ? (
+                  <Loader2 className="h-8 w-8 animate-spin text-white" />
+                ) : (
+                  <Upload className="h-8 w-8 text-white" />
+                )}
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
+              </label>
             </div>
+            <div className="text-center md:text-left flex-1">
+              <CardTitle className="text-4xl font-black tracking-tighter uppercase mb-1">{profile.displayName}</CardTitle>
+              <CardDescription className="text-white/40 text-sm font-medium mb-3">@{profile.username || 'username'}</CardDescription>
+              <CardDescription className="text-white/50 text-base font-medium mb-4">{profile.email}</CardDescription>
+              
+              {/* Followers / Following Counts */}
+              <div className="flex gap-6 mb-5 justify-center md:justify-start">
+                <button onClick={() => openFollowModal('followers')} className="hover:text-[#4285F4] transition-colors flex items-center gap-1">
+                  <span className="font-black text-white text-lg">{profile.followersCount || 0}</span> 
+                  <span className="text-white/40 font-bold uppercase tracking-wider text-[10px]">Followers</span>
+                </button>
+                <button onClick={() => openFollowModal('following')} className="hover:text-[#4285F4] transition-colors flex items-center gap-1">
+                  <span className="font-black text-white text-lg">{profile.followingCount || 0}</span> 
+                  <span className="text-white/40 font-bold uppercase tracking-wider text-[10px]">Following</span>
+                </button>
+              </div>
+
+              <Badge className="bg-[#4285F4] text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border-none">
+                {ROLE_LABELS[profile.role] || profile.role}
+              </Badge>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bento-card border-white/5 space-y-8 h-fit">
-                <h3 className="text-2xl font-black tracking-tighter uppercase italic">Edit Details.</h3>
-                <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField control={form.control} name="displayName" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="text-[0.6rem] font-black uppercase tracking-[0.2em] text-white/40">Display Name</FormLabel>
-                        <FormControl><Input {...field} className="bg-white/5 border-white/10 rounded-xl h-12 focus:border-[#4285F4] transition-all" /></FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )} />
-                    <FormField control={form.control} name="bio" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="text-[0.6rem] font-black uppercase tracking-[0.2em] text-white/40">Bio</FormLabel>
-                        <FormControl><Textarea placeholder="Tell us about yourself..." {...field} className="bg-white/5 border-white/10 rounded-xl min-h-[100px] focus:border-[#4285F4] transition-all" /></FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )} />
-                    
-                    <Separator className="bg-white/5" />
+          <div className="bento-card border-white/5 space-y-8 h-fit">
+            <h3 className="text-2xl font-black tracking-tighter uppercase italic">Edit Details.</h3>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField control={form.control} name="displayName" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Display Name</FormLabel>
+                    <FormControl><Input {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
-                    <div className="flex items-center justify-between py-2">
-                    <div>
-                        <p className="text-sm font-bold uppercase tracking-tight">Email Notifications</p>
-                        <p className="text-[0.6rem] text-white/40 font-bold uppercase tracking-widest mt-1">Updates and announcements</p>
-                    </div>
-                    <Switch checked={emailNotifications} onCheckedChange={handleNotificationToggle} className="data-[state=checked]:bg-[#34A853]" />
-                    </div>
+                <FormField control={form.control} name="username" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Username</FormLabel>
+                    <FormControl><Input {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
-                    <Button type="submit" disabled={isSubmitting} className="btn-primary w-full h-14 !mt-8">
-                    {isSubmitting && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
-                    Save Changes
-                    </Button>
-                </form>
-                </Form>
-            </div>
+                <FormField control={form.control} name="bio" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Bio</FormLabel>
+                    <FormControl><Textarea placeholder="Tell us about yourself..." {...field} className="bg-white/5 border-white/10 rounded-xl min-h-[100px] px-5 py-4 text-sm focus:border-[#4285F4] transition-all" /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                
+                <Separator className="bg-white/5" />
 
-            <div className="space-y-8">
-                <div className="bento-card border-white/5">
-                    <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-8">Registered Events.</h3>
-                    {events.length === 0 ? (
-                    <div className="p-12 text-center border border-dashed border-white/10 rounded-2xl">
-                         <p className="text-white/30 font-bold uppercase tracking-widest text-xs">No active registrations.</p>
-                    </div>
-                    ) : (
-                    <div className="space-y-4">
-                        {events.map((evt: any) => (
-                        <div key={evt.id} className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-[#4285F4]/30 transition-all">
-                            <div>
-                            <p className="font-bold tracking-tight">{evt.eventTitle}</p>
-                            <p className="text-[0.6rem] text-white/40 font-black uppercase tracking-[0.2em] mt-1">{evt.eventDate}</p>
-                            </div>
-                            <Badge variant="outline" className="border-white/10 text-[0.5rem] font-black uppercase tracking-widest">Active</Badge>
-                        </div>
-                        ))}
-                    </div>
-                    )}
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <p className="text-sm font-bold uppercase tracking-tight">Email Notifications</p>
+                    <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Updates and announcements</p>
+                  </div>
+                  <Switch checked={emailNotifications} onCheckedChange={handleNotificationToggle} className="data-[state=checked]:bg-[#34A853]" />
                 </div>
 
-                <div className="bento-card border-white/5 bg-[#34A853]/5 border-[#34A853]/10">
-                    <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-4 text-[#34A853]">Community.</h3>
-                    <p className="text-white/60 font-medium mb-8">Participate in discussions and share your knowledge.</p>
-                    <Button asChild variant="outline" className="w-full rounded-full border-[#34A853]/20 hover:bg-[#34A853]/10 text-[#34A853] font-black uppercase tracking-widest text-xs h-12">
-                        <Link href="/community">Join Discussion</Link>
-                    </Button>
+                <Button type="submit" disabled={isSubmitting} className="btn-primary w-full h-12 !mt-8 rounded-xl font-bold bg-white text-black hover:bg-white/90">
+                  {isSubmitting && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
+                  Save Changes
+                </Button>
+              </form>
+            </Form>
+          </div>
+
+          <div className="space-y-8">
+            <div className="bento-card border-white/5">
+              <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-8">Registered Events.</h3>
+              {events.length === 0 ? (
+                <div className="p-12 text-center border border-dashed border-white/10 rounded-2xl">
+                  <p className="text-white/30 font-bold uppercase tracking-widest text-xs">No active registrations.</p>
                 </div>
+              ) : (
+                <div className="space-y-4">
+                  {events.map((evt: any) => (
+                    <div key={evt.id} className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-[#4285F4]/30 transition-all">
+                      <div>
+                        <p className="font-bold tracking-tight">{evt.eventTitle}</p>
+                        <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.2em] mt-1">{evt.eventDate}</p>
+                      </div>
+                      <Badge variant="outline" className="border-white/10 text-[10px] font-black uppercase tracking-widest">Active</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
+            <div className="bento-card border-white/5 bg-[#34A853]/5 border-[#34A853]/10">
+              <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-4 text-[#34A853]">Community.</h3>
+              <p className="text-white/60 font-medium mb-8">Participate in discussions and share your knowledge.</p>
+              <Button asChild variant="outline" className="w-full rounded-full border-[#34A853]/20 hover:bg-[#34A853]/10 text-[#34A853] font-black uppercase tracking-widest text-xs h-12">
+                <Link href="/community">Join Discussion</Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </main>
+
+      {/* Followers/Following List Dialog */}
+      <Dialog open={showFollowDialog} onOpenChange={setShowFollowDialog}>
+        <DialogContent className="bg-[#0e0e0e] border border-white/10 text-white rounded-3xl p-8 max-w-md">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-2">
+              <Users className="h-6 w-6 text-[#4285F4]" />
+              {followDialogType === 'followers' ? 'Followers' : 'Following'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {loadingFollowList ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-[#4285F4]" />
+            </div>
+          ) : followList.length === 0 ? (
+            <div className="p-8 text-center border border-dashed border-white/10 rounded-2xl">
+              <p className="text-white/40 text-sm font-semibold uppercase tracking-wider">No users found.</p>
+            </div>
+          ) : (
+            <div className="space-y-4 max-h-[300px] overflow-y-auto [scrollbar-width:none]">
+              {followList.map((userObj) => (
+                <div key={userObj.uid} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+                  <Link href={`/profile/${userObj.username}`} className="flex items-center gap-4 group" onClick={() => setShowFollowDialog(false)}>
+                    <Avatar className="h-10 w-10 border border-white/10">
+                      <AvatarImage src={userObj.photoURL} alt={userObj.displayName} />
+                      <AvatarFallback className="font-bold bg-[#4285F4]">{userObj.displayName?.[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-bold text-sm leading-none group-hover:underline">{userObj.displayName}</p>
+                      <p className="text-[10px] text-white/40 mt-1">@{userObj.username}</p>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

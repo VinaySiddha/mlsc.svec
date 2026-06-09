@@ -36,8 +36,9 @@ export const Image = (props: ImageProps) => {
   }
 
   // Use standard img tag for fallbacks or if hostname issue is suspected
-  // This is more reliable for external dynamic content like ui-avatars
-  if (hasError || (typeof processedSrc === 'string' && processedSrc.includes('ui-avatars.com'))) {
+  // This is more reliable for external dynamic content like ui-avatars and api/image proxies with query strings
+  const isApiImage = typeof processedSrc === 'string' && processedSrc.startsWith('/api/image');
+  if (hasError || (typeof processedSrc === 'string' && processedSrc.includes('ui-avatars.com')) || isApiImage) {
     const isFill = (rest as any).fill;
     return (
       <img
@@ -48,6 +49,10 @@ export const Image = (props: ImageProps) => {
           isFill ? "absolute inset-0 w-full h-full" : "",
           className
         )}
+        width={!isFill ? (rest as any).width : undefined}
+        height={!isFill ? (rest as any).height : undefined}
+        style={(rest as any).style}
+        sizes={(rest as any).sizes}
       />
     );
   }
@@ -58,6 +63,7 @@ export const Image = (props: ImageProps) => {
       src={processedSrc}
       alt={alt}
       className={className}
+      unoptimized={rest.unoptimized || (typeof processedSrc === 'string' && processedSrc.startsWith('/api/image'))}
       onError={() => {
         setHasError(true);
         const name = alt ? encodeURIComponent(alt) : 'User';

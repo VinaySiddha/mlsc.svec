@@ -27,7 +27,7 @@ export default async function SchedulePage() {
   const dynamicEvents = result.events || [];
   
   const allEvents = [
-    ...staticEvents.map(e => ({ ...e, id: e.title })),
+    ...staticEvents.map(e => ({ ...e, id: e.title, description: undefined, location: "SVEC Campus" })),
     ...dynamicEvents.map((e: any) => ({ 
         id: e.id, 
         title: e.title, 
@@ -124,7 +124,7 @@ export default async function SchedulePage() {
                                         <MapPin className="h-4 w-4" />
                                         {event.location || "Online"}
                                     </div>
-                                    <Button asChild variant="link" className="text-[#4285F4] p-0 font-black uppercase tracking-[0.2em] mt-8 hover:no-underline group-hover:translate-x-2 transition-transform">
+                                    <Button asChild variant="ghost" className="text-[#4285F4] p-0 font-black uppercase tracking-[0.2em] mt-8 hover:no-underline hover:bg-transparent group-hover:translate-x-2 transition-transform">
                                         <Link href={`/events/${event.id}`}>Details →</Link>
                                     </Button>
                                 </div>

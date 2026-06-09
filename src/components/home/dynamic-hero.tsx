@@ -1,70 +1,104 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Github } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { PointerHighlight } from "@/components/ui/pointer-highlight";
+import { FlipWords } from "@/components/ui/flip-words";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+
+const flipWords = ["Innovators.", "Builders.", "Leaders.", "Creators.", "Hackers."];
 
 export function DynamicHero({ images = [] }: { images?: any[] }) {
     return (
         <section className="relative overflow-hidden min-h-screen flex flex-col justify-center bg-black">
             {/* Background Glows */}
-            <div className="glow-sphere top-[20%] left-[20%] w-[30%] h-[30%] bg-[#4285F4]" />
-            <div className="glow-sphere bottom-[20%] right-[20%] w-[25%] h-[25%] bg-[#EA4335]" />
+            <div className="glow-sphere top-[20%] left-[10%] w-[35%] h-[35%] bg-[#4285F4]" />
+            <div className="glow-sphere bottom-[15%] right-[10%] w-[28%] h-[28%] bg-[#EA4335]" />
 
             <div className="container relative z-10 mx-auto px-4 text-center">
+
+                {/* Badge */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="mb-8"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className="mb-10 flex justify-center"
                 >
-                    <span className="text-white/50 text-sm font-black uppercase tracking-[0.4em]">Microsoft Learn Student Club SVEC Presents</span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-white/50 backdrop-blur-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#4285F4] animate-pulse" />
+                        Microsoft Learn Student Club · SVEC
+                    </span>
                 </motion.div>
 
-                <motion.h1
+                {/* Main headline */}
+                <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="hero-heading text-white"
+                    transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    MLSC <br className="hidden md:block"/>
-                    <span className="text-[#4285F4]">SVEC.</span>
-                </motion.h1>
+                    {/* Static line with PointerHighlight */}
+                    <h1 className="hero-heading text-white">
+                        <span className="block">We are</span>
 
+                        {/* FlipWords on the second line */}
+                        <span className="flex items-baseline justify-center">
+                            <FlipWords
+                                words={flipWords}
+                                duration={2500}
+                                className="text-[#4285F4] hero-heading !px-0"
+                            />
+                        </span>
+
+                        {/* PointerHighlight on the third line */}
+                        <span className="flex justify-center mt-2">
+                            <PointerHighlight
+                                rectangleClassName="border-white/15 bg-white/[0.02]"
+                                pointerClassName="text-white/50 h-5 w-5"
+                                containerClassName="inline-block"
+                            >
+                                <span className="relative z-10">MLSC SVEC.</span>
+                            </PointerHighlight>
+                        </span>
+                    </h1>
+                </motion.div>
+
+                {/* Subtitle */}
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="max-w-3xl text-xl md:text-2xl text-white/70 mx-auto mb-16 font-medium leading-relaxed"
+                    className="max-w-2xl text-lg md:text-xl text-white/50 mx-auto mt-10 mb-14 font-medium leading-relaxed"
                 >
-                    The official hub of Microsoft Learn Student Club at SVEC. <br className="hidden md:block"/>
-                    Join a community of innovators, builders, and creators.
+                    Join a community of innovators, builders, and creators at
+                    Sri Vasavi Engineering College — powered by Microsoft.
                 </motion.p>
 
+                {/* CTAs */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-8"
+                    transition={{ duration: 1, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <Button asChild className="btn-primary min-w-[200px]">
+                    <Button asChild className="btn-primary min-w-[180px]">
                         <Link href="/apply">Apply Now</Link>
                     </Button>
-                    <Button asChild variant="outline" className="btn-outline min-w-[200px]">
-                        <Link href="/schedule" className="flex items-center">
+                    <Button asChild variant="outline" className="btn-outline min-w-[180px]">
+                        <Link href="/schedule" className="flex items-center gap-2">
                             Explore Schedule
-                            <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </Link>
                     </Button>
                 </motion.div>
 
+                {/* Stats */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1.5, delay: 1, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-wrap justify-center gap-12 mt-40 pt-20 border-t border-white/5"
+                    className="flex flex-wrap justify-center gap-12 mt-32 pt-16 border-t border-white/[0.06]"
                 >
                     <div className="flex flex-col items-center">
                         <AnimatedCounter target={300} suffix="+" className="text-4xl md:text-5xl font-black text-white tracking-tighter" />

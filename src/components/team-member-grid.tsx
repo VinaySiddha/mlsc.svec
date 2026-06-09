@@ -3,6 +3,7 @@
 import { Image } from "@/components/image";
 import { cn } from "@/lib/utils";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger-container";
+import { Scales } from "@/components/ui/scales";
 
 interface TeamMember {
     id: string;
@@ -26,9 +27,7 @@ const sortMembers = (members: TeamMember[]) => {
     return [...members].sort((a, b) => {
         const aOrder = roleOrder[a.role] || (a.role.includes('Head') ? 7 : 99);
         const bOrder = roleOrder[b.role] || (b.role.includes('Head') ? 7 : 99);
-        if (aOrder !== bOrder) {
-            return aOrder - bOrder;
-        }
+        if (aOrder !== bOrder) return aOrder - bOrder;
         return a.name.localeCompare(b.name);
     });
 };
@@ -36,58 +35,69 @@ const sortMembers = (members: TeamMember[]) => {
 export function TeamMemberGrid({ members }: { members: TeamMember[] }) {
     if (members.length === 0) return null;
 
-    const containerClasses = cn(
-        "grid gap-6 md:gap-8",
-        members.length > 1
-            ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-            : "flex justify-center"
-    );
-
     return (
-        <StaggerContainer className={containerClasses}>
+        <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 md:gap-10">
             {sortMembers(members).map((member) => (
                 <StaggerItem key={member.id}>
-                    <div className="group relative w-full aspect-[3/4] overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/5 hover:border-primary/40 hover:shadow-[0_0_40px_rgba(66,133,244,0.15)] transition-all duration-500 bg-[#0A0A0A]">
-                        {/* The Image - Grayscale by default, color on hover */}
-                        <Image
-                            src={member.image}
-                            alt={member.name}
-                            fill
-                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-                            className="object-cover transition-all duration-700 grayscale group-hover:grayscale-0 group-hover:scale-110"
-                        />
-                        
-                        {/* Dark Gradient Overlay for text readability */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
-                        
-                        {/* Decorative Top-Right Corner Accent */}
-                        <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-primary/0 group-hover:border-primary/40 transition-all duration-700 rounded-tr-lg" />
-                        
-                        {/* Member Details (Overlaid at bottom) */}
-                        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-                            <h4 className="font-bold text-lg md:text-xl tracking-tighter text-white group-hover:text-primary transition-colors duration-300">
-                                {member.name}
-                            </h4>
-                            <p className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mt-1 group-hover:text-white transition-colors duration-300">
-                                {member.role}
-                            </p>
-                            
-                            {/* Profile Link (Revealed on hover) */}
-                            <div className="mt-4 pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-75">
-                                <a 
-                                    href={member.linkedin} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    className="inline-flex items-center text-[9px] md:text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-primary transition-colors font-black"
-                                >
-                                    Connect <span className="hidden md:inline ml-1">on LinkedIn</span>
-                                    <svg className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                </a>
+                    <a
+                        href={member.linkedin || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group block"
+                    >
+                        {/* Outer wrapper — gives space for the Scales frames to overflow */}
+                        <div className="relative mx-auto w-full">
+
+                            {/* ── Scales border frames on all 4 sides ── */}
+
+                            {/* Left strip */}
+                            <div className="absolute -inset-y-[15%] -left-3 h-[130%] w-5 z-10"
+                                style={{ maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)' }}>
+                                <Scales size={6} className="rounded-sm" color="rgba(255,255,255,0.25)" />
+                            </div>
+
+                            {/* Right strip */}
+                            <div className="absolute -inset-y-[15%] -right-3 h-[130%] w-5 z-10"
+                                style={{ maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)' }}>
+                                <Scales size={6} className="rounded-sm" color="rgba(255,255,255,0.25)" />
+                            </div>
+
+                            {/* Top strip */}
+                            <div className="absolute -inset-x-[15%] -top-3 h-5 w-[130%] z-10"
+                                style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%)' }}>
+                                <Scales size={6} className="rounded-sm" color="rgba(255,255,255,0.25)" />
+                            </div>
+
+                            {/* Bottom strip */}
+                            <div className="absolute -inset-x-[15%] -bottom-3 h-5 w-[130%] z-10"
+                                style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%)' }}>
+                                <Scales size={6} className="rounded-sm" color="rgba(255,255,255,0.25)" />
+                            </div>
+
+                            {/* ── Inner photo ── */}
+                            <div className="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-[#111]">
+                                <Image
+                                    src={member.image}
+                                    alt={member.name}
+                                    fill
+                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                />
+                                {/* Subtle bottom fade */}
+                                <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/20 to-transparent" />
                             </div>
                         </div>
-                    </div>
+
+                        {/* Info below card */}
+                        <div className="mt-5 px-1">
+                            <h4 className="font-bold text-base md:text-[15px] text-white tracking-tight leading-snug group-hover:text-[#4285F4] transition-colors duration-300">
+                                {member.name}
+                            </h4>
+                            <p className="text-white/40 text-xs mt-0.5 font-medium">
+                                {member.role}
+                            </p>
+                        </div>
+                    </a>
                 </StaggerItem>
             ))}
         </StaggerContainer>

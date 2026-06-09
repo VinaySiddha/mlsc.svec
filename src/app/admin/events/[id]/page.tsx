@@ -13,7 +13,7 @@ import { ArrowLeft, Loader2, Send, MessageSquareQuote, Search, X } from "lucide-
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { useEffect, useState, useMemo, useTransition } from "react";
+import { useEffect, useState, useMemo, useTransition, use } from "react";
 
 interface Registration {
     id: string;
@@ -33,7 +33,8 @@ interface EventData {
     [key: string]: any;
 }
 
-export default function EventRegistrationsPage({ params }: { params: { id: string } }) {
+export default function EventRegistrationsPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = use(params);
     const [event, setEvent] = useState<EventData | null>(null);
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export default function EventRegistrationsPage({ params }: { params: { id: strin
     const [branchFilter, setBranchFilter] = useState('all');
     const [yearFilter, setYearFilter] = useState('all');
 
-    const eventId = params.id;
+    const eventId = resolvedParams.id;
 
     useEffect(() => {
         async function loadData() {

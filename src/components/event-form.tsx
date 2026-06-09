@@ -36,9 +36,12 @@ const timelineEntrySchema = z.object({
     description: z.string().min(3, "Description is required."),
 });
 
+const EVENT_CATEGORIES = ['Workshop', 'Bootcamp', 'Hackathon', 'Community', 'Talk', 'Other'] as const;
+
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  category: z.enum(EVENT_CATEGORIES).default('Workshop'),
   date: z.date({ required_error: "An event date is required." }),
   time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
   venue: z.string().min(3, "Venue is required."),
@@ -126,6 +129,7 @@ export function EventForm({ event }: EventFormProps) {
         defaultValues: {
             title: event?.title || "",
             description: event?.description || "",
+            category: (event as any)?.category || 'Workshop',
             date: event?.date ? new Date(event.date) : new Date(),
             time: event?.time || "",
             venue: event?.venue || "",
@@ -263,6 +267,25 @@ export function EventForm({ event }: EventFormProps) {
                                     {...field}
                                 />
                             </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Event Category</FormLabel>
+                            <select
+                                {...field}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                                {EVENT_CATEGORIES.map((cat) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
                             <FormMessage />
                         </FormItem>
                     )}

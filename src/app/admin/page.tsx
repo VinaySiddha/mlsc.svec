@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/menubar"
 
 export default async function AdminPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
   const panelDomain = headersList.get('X-Panel-Domain') || undefined;
 

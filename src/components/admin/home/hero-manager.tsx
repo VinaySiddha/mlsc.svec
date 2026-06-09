@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { revalidateHomePageData } from "@/app/home-actions";
 
 interface HeroImage {
     id: string;
@@ -26,23 +27,40 @@ export function HeroManager() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        const q = query(collection(db, "home_hero"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as HeroImage[];
-            setImages(data);
-        }, (error) => {
-            console.error("Error fetching hero images:", error);
+        console.log("[HeroManager] Setting up Firestore listener for home_hero");
+        
+        try {
+            const q = query(collection(db, "home_hero"), orderBy("createdAt", "desc"));
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                console.log("[HeroManager] Successfully received data:", snapshot.docs.length, "documents");
+                const data = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as HeroImage[];
+                setImages(data);
+            }, (error: any) => {
+                console.error("[HeroManager] Firestore error details:", {
+                    code: error.code,
+                    message: error.message,
+                    customData: error.customData,
+                    fullError: error
+                });
+                toast({
+                    title: "Error",
+                    description: `Failed to load hero images. Error: ${error.code} - ${error.message}`,
+                    variant: "destructive",
+                });
+            });
+
+            return () => unsubscribe();
+        } catch (error: any) {
+            console.error("[HeroManager] Error setting up listener:", error);
             toast({
                 title: "Error",
-                description: "Failed to load hero images.",
+                description: "Failed to initialize data listener.",
                 variant: "destructive",
             });
-        });
-
-        return () => unsubscribe();
+        }
     }, []);
 
     const handleUpload = async () => {
@@ -61,6 +79,8 @@ export function HeroManager() {
                 path: storagePath,
                 createdAt: serverTimestamp()
             });
+
+            await revalidateHomePageData();
 
             setFile(null);
             if (fileInputRef.current) {
@@ -108,6 +128,7 @@ export function HeroManager() {
             }
     
             await deleteDoc(doc(db, "home_hero", image.id));
+            await revalidateHomePageData();
     
             toast({
                 title: "Success",

@@ -13,22 +13,25 @@ import { headers } from "next/headers";
 import type { Metadata, ResolvingMetadata } from 'next'
 
 type Props = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const application = await getApplicationById(params.id);
+  const resolvedParams = await params;
+  const result = await getApplicationById(resolvedParams.id);
   const previousTitle = (await parent).title?.absolute || 'Application';
 
-  if (!application) {
+  if (!result || result.error || !result.application) {
     return {
       title: `Application Not Found | ${previousTitle}`
     }
   }
  
+  const application = result.application;
+
   return {
     title: `Reviewing Application for ${application.name} (${application.id})`,
     description: `Review and process the application submitted by ${application.name}.`,
@@ -60,16 +63,18 @@ const getStatusVariant = (status?: string) => {
   }
 }
 
-export default async function ApplicationDetailPage({ params }: { params: { id: string } }) {
-  const application = await getApplicationById(params.id);
-  const headersList = headers();
+export default async function ApplicationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const result = await getApplicationById(resolvedParams.id);
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role') ?? 'panel';
 
 
-  if (!application) {
+  if (!result || result.error || !result.application) {
     notFound();
   }
   
+  const application = result.application;
   const status = application.status || 'Received';
 
   return (

@@ -9,8 +9,9 @@ import { notFound } from "next/navigation";
 // Make this page dynamic to prevent build-time Firestore access errors
 export const dynamic = 'force-dynamic';
 
-export default async function MemberIdCardPage({ params }: { params: { id: string } }) {
-    const { member, error } = await getTeamMemberById(params.id);
+export default async function MemberIdCardPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    const { member, error } = await getTeamMemberById(resolvedParams.id);
 
     if (error || !member) {
         notFound();

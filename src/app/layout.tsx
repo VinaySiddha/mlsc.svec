@@ -2,19 +2,25 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Outfit } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
 
-const outfitFont = Outfit({
+// Inter — the industry-standard clean modern font. Used by Vercel, Linear, Notion, GitHub.
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-outfit',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-inter',
   display: 'swap',
 });
+
+
 import { CelebrationPopup } from '@/components/celebration-popup';
 import { Providers } from '@/components/providers';
 import { HeaderWrapper } from '@/components/header-wrapper';
 import { SiteFooter } from '@/components/site-footer';
+import { KiriBot } from '@/components/kiri-bot';
+
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://mlscsvec.in'),
@@ -66,7 +72,7 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
     <head>
       <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
       <meta property="og:site_name" content="MLSC SVEC" />
@@ -116,12 +122,13 @@ export default function RootLayout({
       />
     </head>
 
-      <body className={cn('font-sans antialiased', outfitFont.variable, outfitFont.className)}>
+      <body className={cn('antialiased', inter.variable)}>
         <Providers>
         <HeaderWrapper />
         <CelebrationPopup />
-        <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen bg-black">{children}</main>
         <SiteFooter />
+        <KiriBot />
         </Providers>
         <Toaster />
         <Script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" strategy="lazyOnload" crossOrigin="anonymous" />

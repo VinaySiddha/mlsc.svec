@@ -12,6 +12,7 @@ import { Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { revalidateHomePageData } from "@/app/home-actions";
 
 interface GalleryImage {
     id: string;
@@ -29,23 +30,40 @@ export function GalleryManager() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        const q = query(collection(db, "home_gallery"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as GalleryImage[];
-            setImages(data);
-        }, (error) => {
-            console.error("Error fetching gallery images:", error);
+        console.log("[GalleryManager] Setting up Firestore listener for home_gallery");
+        
+        try {
+            const q = query(collection(db, "home_gallery"), orderBy("createdAt", "desc"));
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                console.log("[GalleryManager] Successfully received data:", snapshot.docs.length, "documents");
+                const data = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as GalleryImage[];
+                setImages(data);
+            }, (error: any) => {
+                console.error("[GalleryManager] Firestore error details:", {
+                    code: error.code,
+                    message: error.message,
+                    customData: error.customData,
+                    fullError: error
+                });
+                toast({
+                    title: "Error",
+                    description: `Failed to load gallery images. Error: ${error.code} - ${error.message}`,
+                    variant: "destructive",
+                });
+            });
+
+            return () => unsubscribe();
+        } catch (error: any) {
+            console.error("[GalleryManager] Error setting up listener:", error);
             toast({
                 title: "Error",
-                description: "Failed to load gallery images.",
+                description: "Failed to initialize data listener.",
                 variant: "destructive",
             });
-        });
-
-        return () => unsubscribe();
+        }
     }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +89,8 @@ export function GalleryManager() {
                 type,
                 createdAt: serverTimestamp(),
             });
+
+            await revalidateHomePageData();
 
             toast({
                 title: "Success",
@@ -118,6 +138,7 @@ export function GalleryManager() {
             }
             
             await deleteDoc(doc(db, "home_gallery", image.id));
+            await revalidateHomePageData();
     
             toast({
                 title: "Success",

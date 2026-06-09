@@ -8,7 +8,7 @@ import { Home } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-export default async function EditProfilePage({ params }: { params: { id: string } }) {
+export default async function EditProfilePage({ params }: { params: Promise<{ id: string }> }) {
     // This is a placeholder for a real session check.
     // In a real app, you would verify the user's token or session here
     // to ensure they are authorized to edit this profile.
@@ -18,7 +18,8 @@ export default async function EditProfilePage({ params }: { params: { id: string
         redirect('/login');
     }
 
-    const { member, error: memberError } = await getTeamMemberById(params.id);
+    const resolvedParams = await params;
+    const { member, error: memberError } = await getTeamMemberById(resolvedParams.id);
     const { categories, error: categoriesError } = await getTeamCategories();
 
     if (memberError || categoriesError || !member) {

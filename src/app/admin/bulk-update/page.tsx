@@ -55,13 +55,13 @@ export default function BulkUpdatePage() {
         }
 
         try {
-          const result = await bulkUpdateFromCsv(results.data as { rollNo: string }[]);
+          const result = await bulkUpdateFromCsv(results.data as { rollNo: string }[]) as any;
           if (result.error) {
             throw new Error(result.error);
           }
           toast({
             title: 'Bulk Update Started',
-            description: `${result.updatedCount} applications are being updated. Emails will be sent in the background.`,
+            description: `${result.count} applications are being updated. Emails will be sent in the background.`,
           });
           form.reset();
         } catch (error) {

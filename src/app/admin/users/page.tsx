@@ -14,7 +14,7 @@ import { UsersTable } from './users-table';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminUsersPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
 
   if (userRole !== 'admin') {

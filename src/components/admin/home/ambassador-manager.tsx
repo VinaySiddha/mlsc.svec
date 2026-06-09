@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast"; // Correct hook import
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { revalidateHomePageData } from "@/app/home-actions";
 
 interface Ambassador {
     id: string;
@@ -35,26 +36,43 @@ export function AmbassadorManager() {
     const [file, setFile] = useState<File | null>(null);
 
     useEffect(() => {
-        const q = query(collection(db, "home_ambassadors"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map((doc) => {
-                const raw = doc.data();
-                return {
-                    id: doc.id,
-                    ...raw,
-                } as Ambassador;
-            }).filter(item => item.name && item.photoUrl); // Basic validation
-            setAmbassadors(data);
-        }, (error) => {
-            console.error("Error fetching ambassadors:", error);
+        console.log("[AmbassadorManager] Setting up Firestore listener for home_ambassadors");
+        
+        try {
+            const q = query(collection(db, "home_ambassadors"), orderBy("createdAt", "desc"));
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                console.log("[AmbassadorManager] Successfully received data:", snapshot.docs.length, "documents");
+                const data = snapshot.docs.map((doc) => {
+                    const raw = doc.data();
+                    return {
+                        id: doc.id,
+                        ...raw,
+                    } as Ambassador;
+                }).filter(item => item.name && item.photoUrl); // Basic validation
+                setAmbassadors(data);
+            }, (error: any) => {
+                console.error("[AmbassadorManager] Firestore error details:", {
+                    code: error.code,
+                    message: error.message,
+                    customData: error.customData,
+                    fullError: error
+                });
+                toast({
+                    title: "Error",
+                    description: `Failed to load ambassadors. Error: ${error.code} - ${error.message}`,
+                    variant: "destructive",
+                });
+            });
+
+            return () => unsubscribe();
+        } catch (error: any) {
+            console.error("[AmbassadorManager] Error setting up listener:", error);
             toast({
                 title: "Error",
-                description: "Failed to load ambassadors.",
+                description: "Failed to initialize data listener.",
                 variant: "destructive",
             });
-        });
-
-        return () => unsubscribe();
+        }
     }, []);
 
     const resetForm = () => {
@@ -94,6 +112,8 @@ export function AmbassadorManager() {
                 photoPath: path,
                 createdAt: serverTimestamp(),
             });
+
+            await revalidateHomePageData();
 
             toast({
                 title: "Success",
@@ -139,6 +159,7 @@ export function AmbassadorManager() {
             }
             
             await deleteDoc(doc(db, "home_ambassadors", ambassador.id));
+            await revalidateHomePageData();
     
             toast({
                 title: "Success",

@@ -30,7 +30,9 @@ export default {
         '6xl': '4rem',
       },
       fontFamily: {
-        sans: ['CustomFont', 'sans-serif'],
+        sans: ['var(--font-inter)', 'Inter', 'sans-serif'],
+        display: ['var(--font-inter)', 'Inter', 'sans-serif'],
+        inter: ['var(--font-inter)', 'Inter', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

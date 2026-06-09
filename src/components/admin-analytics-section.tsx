@@ -9,5 +9,5 @@ export async function AdminAnalyticsSection({ panelDomain }: { panelDomain?: str
         return <div>Error loading analytics: {analyticsData.error}</div>;
     }
 
-    return <AdminDashboardAnalytics data={analyticsData as any} />;
+    return <AdminDashboardAnalytics data={analyticsData.analytics as any} />;
 }

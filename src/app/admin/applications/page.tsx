@@ -17,9 +17,10 @@ import { HiringToggle } from "@/components/hiring-toggle";
 export default async function ApplicationsPage({
   searchParams
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const headersList = headers();
+  const resolvedSearchParams = await searchParams;
+  const headersList = await headers();
   const panelDomain = headersList.get('X-Panel-Domain') || undefined;
   const userRole = headersList.get('X-User-Role');
 
@@ -54,8 +55,8 @@ export default async function ApplicationsPage({
       <main className="flex-1 p-8 md:p-12 lg:p-16">
         <div className="container mx-auto">
           <div className="apple-card p-0 overflow-hidden">
-            <Suspense key={JSON.stringify(searchParams)} fallback={<ApplicationsDashboardSkeleton panelDomain={panelDomain} />}>
-              <ApplicationsDashboard panelDomain={panelDomain} userRole={userRole} searchParams={searchParams} />
+            <Suspense key={JSON.stringify(resolvedSearchParams)} fallback={<ApplicationsDashboardSkeleton panelDomain={panelDomain} />}>
+              <ApplicationsDashboard panelDomain={panelDomain} userRole={userRole} searchParams={resolvedSearchParams} />
             </Suspense>
           </div>
         </div>
@@ -121,7 +122,7 @@ async function ApplicationsDashboard({
     page,
     lastVisibleId,
     attendedOnly,
-  });
+  }) as any;
 
   const filterData = {
     statuses: ['Received', 'Under Processing', 'Interviewing', 'Recommended', 'Hired', 'Rejected'],

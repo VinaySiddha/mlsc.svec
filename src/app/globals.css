@@ -60,14 +60,26 @@
   * {
     @apply border-border;
   }
+  html {
+    font-size: 15px;
+    background-color: #000000;
+  }
   body {
     @apply bg-background text-foreground;
+    background-color: #000000;
+    font-family: var(--font-inter), 'Inter', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tighter font-bold;
+    font-family: var(--font-inter), 'Inter', sans-serif;
+    @apply tracking-tight font-bold;
+  }
+
+  /* Nav, buttons, labels — Outfit for clean sharp UI */
+  button, .nav-label {
+    font-family: var(--font-inter), 'Inter', sans-serif;
   }
 }
 
@@ -85,6 +97,7 @@
     }
 
     .hero-heading {
+        font-family: var(--font-inter), 'Inter', sans-serif;
         @apply text-5xl md:text-8xl lg:text-[8.5rem] font-black tracking-tighter leading-[0.8] mb-6;
     }
 
