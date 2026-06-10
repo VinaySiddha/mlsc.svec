@@ -1,13 +1,22 @@
-import { applicationDefault, initializeApp, getApps } from 'firebase-admin/app';
+import { applicationDefault, cert, initializeApp, getApps, getApp } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 
-const adminApp = !getApps().length
-  ? (() => {
-      return initializeApp({
-        credential: applicationDefault(),
-        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      });
-    })()
-  : getApps()[0];
+export function getAdminApp() {
+  if (getApps().length) {
+    return getApp();
+  }
 
-export const adminStorage = getStorage(adminApp);
+  const credInput = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const credential = credInput && credInput.trim().startsWith('{')
+    ? cert(JSON.parse(credInput))
+    : applicationDefault();
+
+  return initializeApp({
+    credential,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  });
+}
+
+export function getAdminStorage() {
+  return getStorage(getAdminApp());
+}

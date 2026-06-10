@@ -27,22 +27,11 @@ export async function adminGoogleLoginAction(idToken: string): Promise<{
   try {
     // Verify the Firebase ID token using Firebase Admin SDK
     const { getAuth } = await import('firebase-admin/auth');
-    const { applicationDefault, initializeApp, getApps } = await import('firebase-admin/app');
-
-    // Init admin app if not already
-    let adminApp;
-    const existingApps = getApps();
-    if (existingApps.length === 0) {
-      adminApp = initializeApp({
-        credential: applicationDefault(),
-        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      });
-    } else {
-      adminApp = existingApps[0];
-    }
+    const { getAuth: getAuthFromApp } = await import('firebase-admin/auth');
+    const { getAdminApp } = await import('@/lib/firebase-admin');
 
     // Verify token
-    const decodedToken = await getAuth(adminApp).verifyIdToken(idToken);
+    const decodedToken = await getAuthFromApp(getAdminApp()).verifyIdToken(idToken);
     const uid = decodedToken.uid;
     const email = decodedToken.email || '';
     const displayName = decodedToken.name || email.split('@')[0] || 'Admin';

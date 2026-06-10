@@ -3,7 +3,7 @@
 import { unstable_cache, revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { TeamService } from '@/lib/services/team-service';
-import { adminStorage } from '@/lib/firebase-admin';
+import { getAdminStorage } from '@/lib/firebase-admin';
 import {
   teamCategorySchema,
   teamMemberSchema,
@@ -84,7 +84,7 @@ export async function deleteTeamMember(id: string) {
     const member = await TeamService.getTeamMemberById(id);
     if (member && member.image) {
       try {
-        const bucket = adminStorage.bucket();
+        const bucket = getAdminStorage().bucket();
         const relativePath = member.image.split('/o/')[1]?.split('?')[0];
         if (relativePath) {
           const filePath = decodeURIComponent(relativePath);
