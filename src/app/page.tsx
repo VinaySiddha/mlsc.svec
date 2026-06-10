@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getNotifications } from "@/app/actions";
 import { getHomePageData } from "@/app/home-actions";
 import { NotificationTicker } from "@/components/notification-ticker";
 import { DynamicHero } from "@/components/home/dynamic-hero";
 import { HeroScroll } from "@/components/home/hero-scroll";
 import { DynamicGallery } from "@/components/home/dynamic-gallery";
+import { Testimonials } from "@/components/home/testimonials";
 import { MLSCDomainsCarousel } from "@/components/home/mlsc-domains-carousel";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 
@@ -31,8 +33,26 @@ export default async function Home() {
             <main className="flex-1">
                 <DynamicHero images={homeData.heroImages} />
 
+                {/* Dynamic Notification/Ticker if needed, but keeping flow tidy */}
+                
                 {/* Cinematic scroll reveal */}
                 <HeroScroll />
+
+                {/* Trusted By / Partners section
+                <section className="py-12 bg-black border-y border-white/5 overflow-hidden">
+                    <div className="container mx-auto px-6 max-w-4xl text-center">
+                        <div className="relative w-full h-[60px] max-w-3xl mx-auto hover:scale-[1.01] transition-transform duration-500">
+                            <Image
+                                src="/moment_screenshot.png"
+                                alt="Sponsors & Partners"
+                                fill
+                                style={{ objectFit: 'contain' }}
+                                className="opacity-75 hover:opacity-100 transition-opacity duration-500"
+                                priority
+                            />
+                        </div>
+                    </div>
+                </section> */}
 
                 <section className="py-16 md:py-24 container mx-auto px-6">
                     <ScrollReveal>
@@ -47,6 +67,8 @@ export default async function Home() {
                 </section>
 
                 <DynamicGallery images={homeData.galleryImages} />
+
+                <Testimonials />
             </main>
         </div>
     );

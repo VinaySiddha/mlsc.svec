@@ -2,6 +2,7 @@
 
 import { use } from 'react';
 import { useAuth } from '@/lib/auth-context';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getUserStudyProgress, updateUserStudyProgress, getStudyLeaderboard } from '@/lib/user-service';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -548,15 +549,12 @@ export default function CourseDetailPage({ params }: Props) {
                             </span>
                             
                             {/* Avatar or Initial */}
-                            <div className="h-7 w-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                              {leader.photoURL ? (
-                                <img src={leader.photoURL} alt={leader.displayName} className="h-full w-full object-cover" />
-                              ) : (
-                                <span className="text-[10px] font-black uppercase text-white/40">
-                                  {leader.displayName.substring(0, 2)}
-                                </span>
-                              )}
-                            </div>
+                            <Avatar className="h-7 w-7 shrink-0 border border-white/10">
+                              <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
+                              <AvatarFallback className="text-[10px] font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
+                                {leader.displayName.substring(0, 2)}
+                              </AvatarFallback>
+                            </Avatar>
 
                             {/* User details */}
                             <div className="min-w-0">

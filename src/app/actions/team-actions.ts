@@ -1,6 +1,7 @@
 'use server';
 
 import { unstable_cache, revalidateTag } from 'next/cache';
+import { cookies } from 'next/headers';
 import { TeamService } from '@/lib/services/team-service';
 import { adminStorage } from '@/lib/firebase-admin';
 import {
@@ -69,7 +70,9 @@ export async function inviteTeamMember(values: any) {
     return { error: "Invalid input values." };
   }
   try {
-    await TeamService.inviteTeamMember(parsed.data);
+    const cookieStore = await cookies();
+    const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
+    await TeamService.inviteTeamMember({ ...parsed.data, chapter: adminChapter });
     return { success: true };
   } catch (error: any) {
     return { error: error.message || "Failed to invite member." };
@@ -218,7 +221,9 @@ export async function getTeamMembers() {
 
 export async function getAllTeamMembersWithCategory() {
   try {
-    const members = await TeamService.getAllTeamMembersWithCategory();
+    const cookieStore = await cookies();
+    const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
+    const members = await TeamService.getAllTeamMembersWithCategory(adminChapter);
     return { members };
   } catch (e) {
     console.error("Error fetching all team members:", e);

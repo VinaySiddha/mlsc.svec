@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTeamMembers } from "@/app/actions";
+import { getTeamMembers, getGlobalSettings } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
@@ -75,6 +75,9 @@ const renderTeamSection = (teams: TeamCategory[], title: string, description: st
 
 export default async function TeamPage() {
     const { membersByCategory, error } = await getTeamMembers();
+    const { settings } = await getGlobalSettings();
+    const activeChapter = settings?.activeChapter || '3.0';
+    const isHiringOpen = settings?.chapters?.[activeChapter]?.isHiringOpen || false;
 
     if (error || !membersByCategory) {
         return (
@@ -144,11 +147,15 @@ export default async function TeamPage() {
                                 Want to join the team?
                             </h2>
                             <p className="text-white/40 text-lg font-medium mb-10 max-w-lg mx-auto">
-                                Chapter 3.0 recruitments are open. Apply now and become part of something great.
+                                {isHiringOpen
+                                    ? `Chapter ${activeChapter} recruitments are open. Apply now and become part of something great.`
+                                    : `Chapter ${activeChapter} recruitments are currently closed. Stay tuned for future cycles!`}
                             </p>
-                            <Button asChild className="btn-primary">
-                                <Link href="/apply">Apply Now →</Link>
-                            </Button>
+                            {isHiringOpen && (
+                                <Button asChild className="btn-primary">
+                                    <Link href="/apply">Apply Now →</Link>
+                                </Button>
+                            )}
                         </ScrollReveal>
                     </div>
                 </section>

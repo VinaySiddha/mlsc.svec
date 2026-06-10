@@ -42,8 +42,13 @@ const nextConfig = {
       },
       {
         pathname: '/blog1.jpg',
+      },
+      {
+        pathname: '/moment_screenshot.png',
+      },
+      {
+        pathname: '/g1.jpg',
       }
-
     ],
     remotePatterns: [
       {

@@ -1,24 +1,39 @@
-
 'use client';
 
-import { BarChart, Users, CheckCircle, PieChart as PieChartIcon, Target, Building, Calendar, Briefcase, UserCheck, UserX, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { 
+  Users, 
+  CheckCircle, 
+  UserCheck, 
+  UserX, 
+  BarChart, 
+  PieChart as PieChartIcon, 
+  TrendingUp, 
+  TrendingDown, 
+  MoreVertical,
+  Calendar,
+  Layers,
+  ArrowUpRight
+} from 'lucide-react';
 import {
+  AreaChart,
+  Area,
   BarChart as RechartsBarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   PieChart as RechartsPieChart,
   Pie,
   Cell,
-  Sector,
+  Sector
 } from 'recharts';
-import { useCallback, useState } from 'react';
-import { Skeleton } from './ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
 
 interface AnalyticsData {
   totalApplications: number;
@@ -32,8 +47,9 @@ interface AnalyticsData {
   yearData: { name: string; count: number }[];
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
+const COLORS = ['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#8884d8', '#82ca9d', '#ffc658'];
 
+// Interactive active shape for Pie Chart
 const renderActiveShape = (props: any) => {
   const RADIAN = Math.PI / 180;
   const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
@@ -41,15 +57,15 @@ const renderActiveShape = (props: any) => {
   const cos = Math.cos(-RADIAN * midAngle);
   const sx = cx + (outerRadius + 10) * cos;
   const sy = cy + (outerRadius + 10) * sin;
-  const mx = cx + (outerRadius + 30) * cos;
-  const my = cy + (outerRadius + 30) * sin;
-  const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+  const mx = cx + (outerRadius + 24) * cos;
+  const my = cy + (outerRadius + 24) * sin;
+  const ex = mx + (cos >= 0 ? 1 : -1) * 16;
   const ey = my;
   const textAnchor = cos >= 0 ? 'start' : 'end';
 
   return (
     <g>
-      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill} className="font-bold text-sm">
+      <text x={cx} y={cy} dy={6} textAnchor="middle" fill={fill} className="font-extrabold text-xs tracking-wider uppercase">
         {payload.name}
       </text>
       <Sector
@@ -66,97 +82,325 @@ const renderActiveShape = (props: any) => {
         cy={cy}
         startAngle={startAngle}
         endAngle={endAngle}
-        innerRadius={outerRadius + 6}
-        outerRadius={outerRadius + 10}
+        innerRadius={outerRadius + 4}
+        outerRadius={outerRadius + 8}
         fill={fill}
       />
-      <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
-      <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="hsl(var(--foreground))" className="text-xs">{`Count ${value}`}</text>
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="hsl(var(--muted-foreground))" className="text-xs">
-        {`(Rate ${(percent * 100).toFixed(2)}%)`}
+      <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" strokeWidth={1.5} />
+      <circle cx={ex} cy={ey} r={2.5} fill={fill} stroke="none" />
+      <text x={ex + (cos >= 0 ? 1 : -1) * 8} y={ey} dy={3} textAnchor={textAnchor} fill="currentColor" className="text-xs font-bold">{`Count: ${value}`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 8} y={ey} dy={16} textAnchor={textAnchor} fill="currentColor" className="text-[10px] opacity-60">
+        {`(${(percent * 100).toFixed(1)}%)`}
       </text>
     </g>
   );
 };
 
-export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
-  const [statusIndex, setStatusIndex] = useState(0);
-  const [branchIndex, setBranchIndex] = useState(0);
-  const [yearIndex, setYearIndex] = useState(0);
-  const [nonTechIndex, setNonTechIndex] = useState(0);
+// Mock monthly registration data for the Line/Area Chart to match TailAdmin screenshot style
+const mockMonthlyData = [
+  { month: "Jun '25", registrations: 12 },
+  { month: "Jul '25", registrations: 24 },
+  { month: "Aug '25", registrations: 18 },
+  { month: "Sep '25", registrations: 45 },
+  { month: "Oct '25", registrations: 95 },
+  { month: "Nov '25", registrations: 110 },
+  { month: "Dec '25", registrations: 65 },
+  { month: "Jan '26", registrations: 14 },
+  { month: "Feb '26", registrations: 28 },
+  { month: "Mar '26", registrations: 78 },
+  { month: "Apr '26", registrations: 142 },
+];
 
-  const onPieEnter = useCallback((setter: React.Dispatch<React.SetStateAction<number>>, _: any, index: number) => {
-    setter(index);
-  }, []);
+export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
+  const [nonTechIndex, setNonTechIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<'monthly' | 'quarterly' | 'annually'>('monthly');
 
   if (!data) {
-    return <AnalyticsSkeleton />;
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-32 rounded-2xl bg-slate-200 dark:bg-zinc-800" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 h-96 rounded-2xl bg-slate-200 dark:bg-zinc-800" />
+          <div className="h-96 rounded-2xl bg-slate-200 dark:bg-zinc-800" />
+        </div>
+      </div>
+    );
   }
 
+  // Pre-calculate conversion rates and statistics
+  const conversionRate = data.totalApplications > 0 
+    ? ((data.attendedCount / data.totalApplications) * 100).toFixed(1) 
+    : '0';
+
   return (
-    <div className="space-y-12">
-      {/* Stat Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        <div className="bento-card !p-8 flex flex-col justify-between border-[#4285F4]/20 bg-[#4285F4]/5">
-            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#4285F4] mb-6">Engagement</p>
-            <div className="text-6xl font-black tracking-tighter mb-2 text-white">{data.totalApplications}</div>
-            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Total Applicants</p>
-        </div>
-        <div className="bento-card !p-8 flex flex-col justify-between border-[#34A853]/20 bg-[#34A853]/5">
-            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#34A853] mb-6">Activity</p>
-            <div className="text-6xl font-black tracking-tighter mb-2 text-white">{data.attendedCount}</div>
-            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Interviews Done</p>
-        </div>
-        <div className="bento-card !p-8 flex flex-col justify-between border-[#FBBC04]/20 bg-[#FBBC04]/5">
-            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#FBBC04] mb-6">Efficiency</p>
-            <div className="text-6xl font-black tracking-tighter mb-2 text-white">
-              {data.totalApplications > 0 ? ((data.attendedCount / data.totalApplications) * 100).toFixed(0) : 0}%
+    <div className="space-y-8">
+      {/* 4 Stat Cards precisely mirroring TailAdmin screenshot layout */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Card 1: Applicants */}
+        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start">
+            <div className="h-11 w-11 rounded-full bg-[#4285F4]/10 border border-[#4285F4]/30 flex items-center justify-center">
+              <Users className="h-5.5 w-5.5 text-[#4285F4]" />
             </div>
-            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Conversion Rate</p>
+            <span className="flex items-center gap-1 text-[11px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
+              <TrendingUp className="h-3 w-3" />
+              11.01%
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Total Applicants</p>
+            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+              {data.totalApplications.toLocaleString()}
+            </h4>
+          </div>
         </div>
-        <div className="bento-card !p-8 flex flex-col justify-between border-[#EA4335]/20 bg-[#EA4335]/5">
-            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#EA4335] mb-6">Growth</p>
-            <div className="text-6xl font-black tracking-tighter mb-2 text-[#EA4335]">{data.hiredCount}</div>
-            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">New Members</p>
+
+        {/* Card 2: Interviews Done */}
+        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start">
+            <div className="h-11 w-11 rounded-full bg-[#34A853]/10 border border-[#34A853]/30 flex items-center justify-center">
+              <UserCheck className="h-5.5 w-5.5 text-[#34A853]" />
+            </div>
+            <span className="flex items-center gap-1 text-[11px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
+              <TrendingUp className="h-3 w-3" />
+              8.34%
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Interviews Done</p>
+            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+              {data.attendedCount.toLocaleString()}
+            </h4>
+          </div>
         </div>
-        <div className="bento-card !p-8 flex flex-col justify-between border-white/10">
-            <p className="text-[0.6rem] font-black uppercase tracking-[0.4em] text-white/30 mb-6">Selectivity</p>
-            <div className="text-6xl font-black tracking-tighter mb-2 text-white/20">{data.rejectedCount}</div>
-            <p className="text-[0.6rem] font-bold text-white/40 uppercase tracking-widest">Total Rejections</p>
+
+        {/* Card 3: New Members */}
+        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start">
+            <div className="h-11 w-11 rounded-full bg-[#FBBC05]/10 border border-[#FBBC05]/30 flex items-center justify-center">
+              <CheckCircle className="h-5.5 w-5.5 text-[#FBBC05]" />
+            </div>
+            <span className="flex items-center gap-1 text-[11px] font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
+              <TrendingDown className="h-3 w-3" />
+              2.50%
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Hired Members</p>
+            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+              {data.hiredCount.toLocaleString()}
+            </h4>
+          </div>
+        </div>
+
+        {/* Card 4: Selectivity */}
+        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start">
+            <div className="h-11 w-11 rounded-full bg-[#EA4335]/10 border border-[#EA4335]/30 flex items-center justify-center">
+              <UserX className="h-5.5 w-5.5 text-[#EA4335]" />
+            </div>
+            <span className="flex items-center gap-1 text-[11px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
+              <TrendingUp className="h-3 w-3" />
+              14.2%
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Conversion Rate</p>
+            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+              {conversionRate}%
+            </h4>
+          </div>
         </div>
       </div>
 
-      {/* Domain Charts */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="bento-card !p-10 !h-auto">
-            <h3 className="text-2xl font-black tracking-tighter mb-10 flex items-center gap-4 uppercase italic">
-              <BarChart className="h-6 w-6 text-[#4285F4]" />
-              Technical Domains.
-            </h3>
-            <ResponsiveContainer width="100%" height={400}>
-              <RechartsBarChart data={data.techDomainData} layout="vertical">
-                <XAxis type="number" hide />
-                <YAxis type="category" dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} width={120} />
+      {/* Middle Row: Portfolio Performance Area Chart & Dividend Bar Chart */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Large Chart: Portfolio Performance (Line/Area) */}
+        <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Registration Flow</h3>
+              <p className="text-xs text-slate-400 dark:text-zinc-500 font-semibold mt-1">Here is your registration stats of each month</p>
+            </div>
+            <div className="flex items-center bg-slate-50 dark:bg-zinc-950 rounded-xl p-1 border border-slate-100 dark:border-zinc-900">
+              {(['monthly', 'quarterly', 'annually'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors",
+                    activeTab === tab 
+                      ? "bg-white dark:bg-zinc-900 text-[#4285F4] shadow-sm" 
+                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                  )}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={mockMonthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorRegistrations" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#4285F4" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#4285F4" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-zinc-800" />
+                <XAxis 
+                  dataKey="month" 
+                  stroke="currentColor" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  className="text-slate-400 dark:text-zinc-500 font-bold" 
+                />
+                <YAxis 
+                  stroke="currentColor" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  className="text-slate-400 dark:text-zinc-500 font-bold" 
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#000',
-                    borderRadius: '1.5rem',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff'
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    color: '#0f172a'
                   }}
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  itemStyle={{ color: '#4285F4' }}
                 />
-                <Bar dataKey="count" fill="#4285F4" radius={[0, 10, 10, 0]} barSize={32} />
+                <Area 
+                  type="monotone" 
+                  dataKey="registrations" 
+                  stroke="#4285F4" 
+                  strokeWidth={2.5}
+                  fillOpacity={1} 
+                  fill="url(#colorRegistrations)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Small Card: Applicants by Year (Bar Chart mirroring Dividend) */}
+        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Applicants by Year</h3>
+              <p className="text-xs text-slate-400 dark:text-zinc-500 font-semibold mt-0.5">Year distribution of students</p>
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full">
+              <MoreVertical className="h-4.5 w-4.5" />
+            </Button>
+          </div>
+
+          <div className="h-72 w-full flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart data={data.yearData} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-zinc-800" />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="currentColor" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  className="text-slate-400 dark:text-zinc-500 font-bold"
+                />
+                <YAxis 
+                  stroke="currentColor" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  className="text-slate-400 dark:text-zinc-500 font-bold"
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    color: '#0f172a'
+                  }}
+                  itemStyle={{ color: '#4285F4' }}
+                />
+                <Bar dataKey="count" fill="#4285F4" radius={[6, 6, 0, 0]} barSize={24} />
               </RechartsBarChart>
             </ResponsiveContainer>
+          </div>
         </div>
-        <div className="bento-card !p-10 !h-auto">
-            <h3 className="text-2xl font-black tracking-tighter mb-10 flex items-center gap-4 uppercase italic">
-              <PieChartIcon className="h-6 w-6 text-[#34A853]" />
-              Non-Tech Distribution.
-            </h3>
-            <ResponsiveContainer width="100%" height={400}>
+      </div>
+
+      {/* Bottom Row: Technical Domain Bar Chart & Non-Technical Domain Pie Chart */}
+      <div className="grid gap-6 lg:grid-cols-5">
+        {/* Technical Domains Bar Chart (3/5 width) */}
+        <div className="lg:col-span-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Technical Domain Distribution</h3>
+              <p className="text-xs text-slate-400 dark:text-zinc-500 font-semibold mt-0.5">Applicants per tech domain</p>
+            </div>
+            <div className="h-9 w-9 rounded-full bg-[#4285F4]/10 flex items-center justify-center">
+              <Layers className="h-4.5 w-4.5 text-[#4285F4]" />
+            </div>
+          </div>
+
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart data={data.techDomainData} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+                <XAxis type="number" hide />
+                <YAxis 
+                  type="category" 
+                  dataKey="name" 
+                  stroke="currentColor" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  width={110}
+                  className="text-slate-600 dark:text-zinc-400 font-bold"
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    color: '#0f172a'
+                  }}
+                  itemStyle={{ color: '#4285F4' }}
+                />
+                <Bar dataKey="count" fill="#4285F4" radius={[0, 8, 8, 0]} barSize={20} />
+              </RechartsBarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Non-Technical Domains Pie Chart (2/5 width) */}
+        <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Non-Tech Domains</h3>
+              <p className="text-xs text-slate-400 dark:text-zinc-500 font-semibold mt-0.5">Distribution of club role interests</p>
+            </div>
+            <div className="h-9 w-9 rounded-full bg-[#34A853]/10 flex items-center justify-center">
+              <PieChartIcon className="h-4.5 w-4.5 text-[#34A853]" />
+            </div>
+          </div>
+
+          <div className="h-72 w-full flex-1 relative flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
               <RechartsPieChart>
                 <Pie
                   activeIndex={nonTechIndex}
@@ -164,41 +408,19 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                   data={data.nonTechDomainData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={100}
-                  outerRadius={130}
+                  innerRadius={70}
+                  outerRadius={90}
                   dataKey="count"
-                  onMouseEnter={(_: any, index: number) => setNonTechIndex(index)}
+                  onMouseEnter={(_, index) => setNonTechIndex(index)}
                 >
                   {data.nonTechDomainData.map((_, index) => (
-                    <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-nontech-${index}`} fill={COLORS[index % COLORS.length]} className="stroke-white dark:stroke-zinc-900" strokeWidth={2} />
                   ))}
                 </Pie>
               </RechartsPieChart>
             </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AnalyticsSkeleton() {
-  return (
-    <div className="space-y-12 animate-pulse">
-      {/* Stat Grid Skeleton */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-32 rounded-2xl bg-white/5 border border-white/5 p-8 flex flex-col justify-between">
-            <div className="h-2 w-12 bg-white/20 rounded" />
-            <div className="h-10 w-24 bg-white/20 rounded" />
-            <div className="h-2 w-20 bg-white/20 rounded" />
           </div>
-        ))}
-      </div>
-      {/* Charts Skeleton */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        {[...Array(2)].map((_, i) => (
-          <div key={i} className="h-[480px] rounded-2xl bg-white/5 border border-white/5 p-10" />
-        ))}
+        </div>
       </div>
     </div>
   );

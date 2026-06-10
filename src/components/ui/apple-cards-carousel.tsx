@@ -235,7 +235,7 @@ export const Card = ({
         <BlurImage
           src={card.src}
           alt={card.title}
-          className="absolute inset-0 z-10 object-cover w-full h-full"
+          className="absolute inset-0 z-10 object-cover w-full h-full blur-[6px] scale-105"
         />
       </motion.button>
     </>
@@ -256,7 +256,7 @@ export const BlurImage = ({
     <img
       className={cn(
         "h-full w-full transition duration-300",
-        isLoading ? "blur-sm" : "blur-0",
+        isLoading ? "blur-xl" : "",
         className
       )}
       onLoad={() => setLoading(false)}

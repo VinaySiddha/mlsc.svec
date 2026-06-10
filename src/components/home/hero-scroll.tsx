@@ -25,7 +25,7 @@ export function HeroScroll() {
         <img
           src="/mlsc-preview.png"
           alt="MLSC SVEC platform preview"
-          className="mx-auto rounded-xl object-cover h-full w-full object-top"
+          className="mx-auto rounded-xl object-contain h-full w-full"
           draggable={false}
         />
       </ContainerScroll>

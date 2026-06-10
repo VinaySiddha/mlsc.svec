@@ -47,32 +47,49 @@ export function UserNav() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
+      <DropdownMenuContent 
+        className="w-60 bg-[#080808]/95 backdrop-blur-xl border border-white/[0.10] rounded-2xl p-2 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_24px_80px_rgba(0,0,0,0.95),0_8px_32px_rgba(0,0,0,0.7)]" 
+        align="end" 
+        sideOffset={22}
+        forceMount
+      >
+        <DropdownMenuLabel className="font-normal px-3 py-3 select-none">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.displayName}</p>
-            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+            <p className="text-sm font-semibold text-white/95 leading-none">{user.displayName}</p>
+            <p className="text-xs text-white/40 leading-none mt-0.5">{user.email}</p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
         <DropdownMenuItem asChild>
-          <Link href="/profile/me" className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" /> Profile
+          <Link 
+            href="/profile/me" 
+            className="group cursor-pointer rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+          >
+            <User className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" /> Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/community" className="cursor-pointer">
-            <MessageSquare className="mr-2 h-4 w-4" /> Community
+          <Link 
+            href="/community" 
+            className="group cursor-pointer rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+          >
+            <MessageSquare className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" /> Community
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/events" className="cursor-pointer">
-            <Calendar className="mr-2 h-4 w-4" /> Events
+          <Link 
+            href="/events" 
+            className="group cursor-pointer rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+          >
+            <Calendar className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" /> Events
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-destructive">
-          <LogOut className="mr-2 h-4 w-4" /> Sign Out
+        <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
+        <DropdownMenuItem 
+          onClick={() => signOut()} 
+          className="group cursor-pointer rounded-xl px-3 py-2.5 text-sm font-medium text-rose-500/90 hover:bg-rose-500/10 hover:text-rose-400 focus:bg-rose-500/10 focus:text-rose-400 transition-colors flex items-center gap-2.5"
+        >
+          <LogOut className="h-4 w-4 text-rose-500/50 group-hover:text-rose-500/80 group-focus:text-rose-500/80 transition-colors" /> Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

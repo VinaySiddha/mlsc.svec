@@ -4,6 +4,7 @@ import { sendInvitationEmail } from '@/ai/flows/send-invitation-email';
 import { sendProfileConfirmationEmail, ProfileConfirmationEmailInput } from '@/ai/flows/send-profile-confirmation-email';
 import { TeamMember, TeamCategory } from '@/types';
 import { TeamDb } from '@/lib/db/team-db';
+import { ApplicationDb } from '@/lib/db/application-db';
 
 export class TeamService {
   static async createTeamCategory(values: any) {
@@ -247,11 +248,29 @@ export class TeamService {
   }
 
   static async getRawTeamMembers() {
-    const [activeMembersSnapshot, teamCategoriesSnapshot] = await Promise.all([
+    const [activeMembersSnapshot, teamCategoriesSnapshot, settingsSnap] = await Promise.all([
       TeamDb.getActiveMembers(),
-      TeamDb.getTeamCategoriesOrdered()
+      TeamDb.getTeamCategoriesOrdered(),
+      ApplicationDb.getGlobalSettingsDoc()
     ]);
-    const teamMembers = activeMembersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
+
+    const settings = settingsSnap.exists() ? settingsSnap.data() : {};
+    const visibleChapters = Object.entries(settings.chapters || {})
+      .filter(([_, conf]: any) => conf.isTeamVisible)
+      .map(([chap]) => chap);
+
+    // Default to '3.0' if chapters map is empty
+    if (visibleChapters.length === 0) {
+      visibleChapters.push('3.0');
+    }
+
+    const teamMembers = activeMembersSnapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() } as TeamMember))
+      .filter(member => {
+        const memberChapter = member.chapter || '3.0';
+        return visibleChapters.includes(memberChapter);
+      });
+
     const teamCategoriesData = teamCategoriesSnapshot as TeamCategory[];
 
     return teamCategoriesData.map(category => ({
@@ -260,9 +279,15 @@ export class TeamService {
     }));
   }
 
-  static async getAllTeamMembersWithCategory() {
+  static async getAllTeamMembersWithCategory(chapter?: string) {
     const membersSnapshot = await TeamDb.getAllMembersDocs();
-    const members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
+    let members = membersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamMember));
+
+    const targetChapter = chapter || '3.0';
+    members = members.filter(member => {
+      const memberChapter = member.chapter || '3.0';
+      return memberChapter === targetChapter;
+    });
 
     const categories = await TeamDb.getTeamCategoriesOrdered();
     const categoryMap = new Map(categories.map(c => [c.id, { name: c.name, subDomain: c.subDomain }]));

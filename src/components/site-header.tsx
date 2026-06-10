@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { MLSCLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -22,6 +24,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { UserNav } from '@/components/user-nav';
+import { LiveNotificationBell } from '@/components/live-notification-bell';
 
 const navLinks = [
     { href: '/', label: 'Home' },
@@ -55,15 +58,33 @@ export function SiteHeader() {
         }, 150);
     };
 
+    const [notifications, setNotifications] = useState<any[]>([]);
+
+    // Live Firestore ticker — updates in real-time when admin adds/removes announcements
+    useEffect(() => {
+        const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'));
+        const unsub = onSnapshot(q, (snap) => {
+            const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            setNotifications(docs);
+        });
+        return () => unsub();
+    }, []);
+
+    const tickerText = notifications.length > 0
+        ? notifications.map(n => n.message).join('  •  ')
+        : 'MLSC Chapter 3.0  •  Join the future of innovation';
+
+    const fullText = `${tickerText}  •  ${tickerText}  •  ${tickerText}  •  ${tickerText}`;
+
     const isActive = (href: string) =>
         href === '/' ? pathname === '/' : pathname.startsWith(href);
 
     return (
         <div className="relative w-full sticky top-0 z-50 bg-black">
             {/* Announcement Ticker Bar */}
-            <div className="ticker-bar text-white text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-8 overflow-hidden">
-                <span className="animate-marquee inline-block whitespace-nowrap">
-                    MLSC Chapter 3.0 &nbsp;•&nbsp; Join the future of innovation &nbsp;•&nbsp; MLSC Chapter 3.0 &nbsp;•&nbsp; Join the future of innovation
+            <div className="ticker-bar text-white text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center overflow-hidden h-7 bg-[#4285F4] select-none">
+                <span className="animate-marquee-left inline-block whitespace-nowrap">
+                    {fullText}
                 </span>
             </div>
 
@@ -134,6 +155,7 @@ export function SiteHeader() {
                                 />
                             </div>
                             <div className="hidden lg:flex items-center gap-3">
+                                <LiveNotificationBell />
                                 <UserNav />
                                 <Button asChild className="rounded-xl bg-white text-black font-bold hover:bg-white/90 px-5 h-9 text-[11px] tracking-wider uppercase transition-transform active:scale-95">
                                     <Link href="/apply">Apply Now</Link>
@@ -141,6 +163,7 @@ export function SiteHeader() {
                             </div>
                             {/* Mobile hamburger */}
                             <div className="lg:hidden flex items-center gap-3">
+                                <LiveNotificationBell />
                                 <UserNav />
                                 <Sheet>
                                     <SheetTrigger asChild>

@@ -148,7 +148,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                                             {event.speakers.map((speaker: any, index: number) => (
                                                 <Card key={index} className="glass-card text-center p-4">
-                                                    <Image src={speaker.image} alt={speaker.name} width={100} height={100} className="rounded-full mx-auto mb-3 object-cover" data-ai-hint="speaker portrait" />
+                                                    <Image src={speaker.image} alt={speaker.name} width={100} height={100} className="rounded-full mx-auto mb-3 object-cover" style={{ height: 'auto' }} data-ai-hint="speaker portrait" />
                                                     <p className="font-semibold">{speaker.name}</p>
                                                     <p className="text-sm text-primary">{speaker.title}</p>
                                                 </Card>

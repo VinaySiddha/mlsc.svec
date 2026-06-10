@@ -3,6 +3,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
 
@@ -14,11 +15,87 @@ const inter = Inter({
   display: 'swap',
 });
 
+// Google Sans — Premium Google brand typography
+const googleSans = localFont({
+  src: [
+    {
+      path: '../../public/fonts/GoogleSans-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/GoogleSans-Italic.ttf',
+      weight: '400',
+      style: 'italic',
+    },
+    {
+      path: '../../public/fonts/GoogleSans-Medium.ttf',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/GoogleSans-MediumItalic.ttf',
+      weight: '500',
+      style: 'italic',
+    },
+    {
+      path: '../../public/fonts/GoogleSans-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/GoogleSans-BoldItalic.ttf',
+      weight: '700',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-google-sans',
+  display: 'swap',
+});
+
+// Google Sans Text — Optimized for reading and UI text
+const googleSansText = localFont({
+  src: [
+    {
+      path: '../../public/fonts/GoogleSansText-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/GoogleSansText-Italic.ttf',
+      weight: '400',
+      style: 'italic',
+    },
+    {
+      path: '../../public/fonts/GoogleSansText-Medium.ttf',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/GoogleSansText-MediumItalic.ttf',
+      weight: '500',
+      style: 'italic',
+    },
+    {
+      path: '../../public/fonts/GoogleSansText-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/GoogleSansText-BoldItalic.ttf',
+      weight: '700',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-google-sans-text',
+  display: 'swap',
+});
+
 
 import { CelebrationPopup } from '@/components/celebration-popup';
 import { Providers } from '@/components/providers';
 import { HeaderWrapper } from '@/components/header-wrapper';
-import { SiteFooter } from '@/components/site-footer';
+import { FooterWrapper } from '@/components/footer-wrapper';
 import { KiriBot } from '@/components/kiri-bot';
 
 
@@ -122,12 +199,12 @@ export default function RootLayout({
       />
     </head>
 
-      <body className={cn('antialiased', inter.variable)}>
+      <body className={cn('antialiased', inter.variable, googleSans.variable, googleSansText.variable)}>
         <Providers>
         <HeaderWrapper />
         <CelebrationPopup />
         <main className="min-h-screen bg-black">{children}</main>
-        <SiteFooter />
+        <FooterWrapper />
         <KiriBot />
         </Providers>
         <Toaster />

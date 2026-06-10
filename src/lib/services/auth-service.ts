@@ -43,7 +43,7 @@ export class AuthService {
     return null;
   }
 
-  static async generateToken(payload: { role: string; domain?: string; username: string }) {
+  static async generateToken(payload: { role: string; domain?: string; username: string; email?: string }) {
     const JWT_SECRET = process.env.JWT_SECRET!;
     const secret = new TextEncoder().encode(JWT_SECRET);
     const token = await new jose.SignJWT(payload)

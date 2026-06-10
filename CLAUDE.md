@@ -48,7 +48,7 @@ Community RBAC (Firestore user docs): `src/lib/roles.ts` — `PERMISSIONS`, `has
 ## Firebase
 
 - **Client:** `src/lib/firebase.ts` — `db`, `storage`, lazy `auth` (Proxy avoids build-time auth init).
-- **Admin:** `src/lib/firebase-admin.ts` — `GOOGLE_APPLICATION_CREDENTIALS` as JSON string or file path.
+- **Admin:** `src/lib/firebase-admin.ts` — Firebase Admin uses Application Default Credentials.
 
 **Never commit:** `key.json`, `service-account.json`, `.env*`. `.gitignore` already ignores `service-account.json`; add `key.json` if used locally.
 
@@ -64,7 +64,7 @@ Local: `.env.local`. Production / App Hosting: Google Secret Manager — see `do
 |----------|---------|
 | `NEXT_PUBLIC_FIREBASE_*` | Client SDK |
 | `JWT_SECRET` | Admin session |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Firebase Admin (path or inline JSON) |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Optional local ADC fallback for Firebase Admin |
 | `GOOGLE_API_KEY` | Genkit / Gemini |
 | `GMAIL_USER`, `GMAIL_APP_PASSWORD` | Nodemailer (AI flows + `lib/email.ts`) |
 | `JSEARCH_API_KEY` | Jobs page |

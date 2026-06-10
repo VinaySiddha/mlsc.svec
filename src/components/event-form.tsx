@@ -432,7 +432,7 @@ export function EventForm({ event }: EventFormProps) {
                                             <FormItem>
                                                 <FormLabel>Speaker Image</FormLabel>
                                                 <div className="flex items-center gap-2">
-                                                    {item.existingImageUrl && !value?.[0] && <Image src={item.existingImageUrl} alt="Current speaker image" width={40} height={40} className="rounded-full object-cover" />}
+                                                    {item.existingImageUrl && !value?.[0] && <Image src={item.existingImageUrl} alt="Current speaker image" width={40} height={40} className="rounded-full object-cover" style={{ height: 'auto' }} />}
                                                     <FormControl><Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} /></FormControl>
                                                 </div>
                                                 <FormMessage />

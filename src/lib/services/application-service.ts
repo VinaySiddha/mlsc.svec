@@ -20,20 +20,23 @@ export class ApplicationService {
     const rollNo_lowercase = applicationData.rollNo.toLowerCase();
     const name_lowercase = applicationData.name.toLowerCase();
 
-    const emailExists = await ApplicationDb.checkEmailExists(applicationData.email);
+    const activeChapter = await ApplicationDb.getActiveChapter();
+
+    const emailExists = await ApplicationDb.checkEmailExists(applicationData.email, activeChapter);
     if (emailExists) {
-      throw new Error('An application with this email address already exists.');
+      throw new Error('An application with this email address already exists for this recruitment cycle.');
     }
 
-    const rollNoExists = await ApplicationDb.checkRollNoExists(rollNo_lowercase);
+    const rollNoExists = await ApplicationDb.checkRollNoExists(rollNo_lowercase, activeChapter);
     if (rollNoExists) {
-      throw new Error('An application with this roll number already exists.');
+      throw new Error('An application with this roll number already exists for this recruitment cycle.');
     }
 
     const newApplication = {
       id: referenceId,
       submittedAt: new Date().toISOString(),
       isArchived: false,
+      chapter: activeChapter,
       ...applicationData,
       rollNo_lowercase,
       name_lowercase,
@@ -173,6 +176,12 @@ export class ApplicationService {
     // To match getApplications parameters:
     const applicationsDocs = await ApplicationDb.getApplicationsDocs(baseQuery);
     let applications = applicationsDocs.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() } as Application));
+
+    const targetChapter = params.chapter || '3.0';
+    applications = applications.filter(app => {
+      const appChapter = app.chapter || '3.0';
+      return appChapter === targetChapter;
+    });
 
     // Client-side sorting for simplicity and performance with firestore indexes:
     if (sortByRecommended === 'true' || sortByPerformance === 'true') {
@@ -467,11 +476,14 @@ export class ApplicationService {
   }
 
   static async getHiringStatus() {
-    return await ApplicationDb.getHiringStatus();
+    const activeChapter = await ApplicationDb.getActiveChapter();
+    const settings = await ApplicationDb.getChapterSettings(activeChapter);
+    return settings.isHiringOpen;
   }
 
   static async toggleHiringStatus(isOpen: boolean) {
-    await ApplicationDb.setHiringStatus(isOpen);
+    const activeChapter = await ApplicationDb.getActiveChapter();
+    await ApplicationDb.updateChapterSettings(activeChapter, { isHiringOpen: isOpen });
   }
 
   static async finalizeHiringCycle() {

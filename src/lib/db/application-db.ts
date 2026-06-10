@@ -66,18 +66,26 @@ export function buildFilteredQuery(params: {
 }
 
 export class ApplicationDb {
-  static async checkEmailExists(email: string) {
+  static async checkEmailExists(email: string, chapter: string = '3.0') {
     const applicationsRef = collection(db, "applications");
     const emailQuery = query(applicationsRef, where("email", "==", email));
     const snapshot = await getDocs(emailQuery);
-    return !snapshot.empty;
+    if (snapshot.empty) return false;
+    return snapshot.docs.some(doc => {
+      const docChapter = doc.data().chapter || '3.0';
+      return docChapter === chapter;
+    });
   }
 
-  static async checkRollNoExists(rollNoLowercase: string) {
+  static async checkRollNoExists(rollNoLowercase: string, chapter: string = '3.0') {
     const applicationsRef = collection(db, "applications");
     const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNoLowercase));
     const snapshot = await getDocs(rollNoQuery);
-    return !snapshot.empty;
+    if (snapshot.empty) return false;
+    return snapshot.docs.some(doc => {
+      const docChapter = doc.data().chapter || '3.0';
+      return docChapter === chapter;
+    });
   }
 
   static async addApplication(newApplication: any) {
@@ -275,5 +283,53 @@ export class ApplicationDb {
     }
 
     return membersToInvite;
+  }
+
+  static async getGlobalSettingsDoc() {
+    return await getDoc(doc(db, 'settings', 'global'));
+  }
+
+  static async getActiveChapter() {
+    const settingsSnap = await getDoc(doc(db, 'settings', 'global'));
+    if (settingsSnap.exists() && settingsSnap.data().activeChapter) {
+      return settingsSnap.data().activeChapter;
+    }
+    return '3.0';
+  }
+
+  static async setActiveChapter(chapter: string) {
+    const settingsRef = doc(db, 'settings', 'global');
+    await setDoc(settingsRef, { activeChapter: chapter }, { merge: true });
+  }
+
+  static async getChapterSettings(chapter: string) {
+    const settingsSnap = await getDoc(doc(db, 'settings', 'global'));
+    if (settingsSnap.exists() && settingsSnap.data().chapters?.[chapter]) {
+      return settingsSnap.data().chapters[chapter];
+    }
+    return {
+      isHiringOpen: false,
+      isTeamVisible: true,
+    };
+  }
+
+  static async updateChapterSettings(chapter: string, values: { isHiringOpen?: boolean; isTeamVisible?: boolean }) {
+    const settingsRef = doc(db, 'settings', 'global');
+    const settingsSnap = await getDoc(settingsRef);
+    const chapters = settingsSnap.exists() ? settingsSnap.data().chapters || {} : {};
+    
+    // Seed default configurations for legacy chapters if they do not exist
+    if (!chapters['3.0']) {
+      chapters['3.0'] = { isHiringOpen: false, isTeamVisible: true };
+    }
+    if (!chapters['4.0']) {
+      chapters['4.0'] = { isHiringOpen: true, isTeamVisible: true };
+    }
+
+    chapters[chapter] = {
+      ...(chapters[chapter] || { isHiringOpen: false, isTeamVisible: true }),
+      ...values,
+    };
+    await setDoc(settingsRef, { chapters }, { merge: true });
   }
 }

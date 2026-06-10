@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth-context';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getUserStudyProgress, getStudyLeaderboard } from '@/lib/user-service';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -112,6 +113,15 @@ export default function StudyTrackerPage() {
               <p className="mt-8 text-white/40 text-lg font-medium max-w-2xl leading-relaxed">
                 Unlock structured curriculums designed to elevate your technical prowess. Track your learning progress, reference recommended materials, and solve curated interview challenges.
               </p>
+              
+              {/* Beta Warning Banner */}
+              <div className="mt-8 flex items-start gap-4 p-5 rounded-2xl border border-yellow-500/15 bg-yellow-500/[0.02] text-yellow-500/90 text-sm font-medium leading-relaxed max-w-2xl backdrop-blur-xl">
+                <AlertCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5 animate-pulse" />
+                <div>
+                  <span className="font-extrabold uppercase tracking-wider text-[10px] bg-yellow-500/20 px-2 py-0.5 rounded mr-2">Beta Testing</span>
+                  This feature is currently under active beta testing. Soon, the full version with tracking and curated challenges will be officially out!
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -289,15 +299,12 @@ export default function StudyTrackerPage() {
                             </span>
                             
                             {/* Avatar or Initial */}
-                            <div className="h-9 w-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                              {leader.photoURL ? (
-                                <img src={leader.photoURL} alt={leader.displayName} className="h-full w-full object-cover" />
-                              ) : (
-                                <span className="text-xs font-black uppercase text-white/40">
-                                  {leader.displayName.substring(0, 2)}
-                                </span>
-                              )}
-                            </div>
+                            <Avatar className="h-9 w-9 shrink-0 border border-white/10">
+                              <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
+                              <AvatarFallback className="text-xs font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
+                                {leader.displayName.substring(0, 2)}
+                              </AvatarFallback>
+                            </Avatar>
 
                             {/* User details */}
                             <div className="min-w-0">

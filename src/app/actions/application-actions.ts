@@ -2,6 +2,7 @@
 
 import papaparse from 'papaparse';
 import { ApplicationService } from '@/lib/services/application-service';
+import { cookies } from 'next/headers';
 import {
   applicationSchema,
   internalApplicationSchema,
@@ -62,9 +63,12 @@ export async function getApplications(params: {
   lastVisibleId?: string;
   fetchAll?: boolean;
   attendedOnly?: boolean;
+  chapter?: string;
 }) {
   try {
-    const result = await ApplicationService.getApplications(params);
+    const cookieStore = await cookies();
+    const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
+    const result = await ApplicationService.getApplications({ ...params, chapter: adminChapter });
     return result;
   } catch (error: any) {
     console.error('Error fetching applications:', error);

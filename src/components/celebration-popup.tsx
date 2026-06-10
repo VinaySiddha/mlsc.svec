@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,71 +10,67 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PartyPopper } from 'lucide-react';
-import { getLatestAnnouncement } from '@/app/actions';
+import { Megaphone } from 'lucide-react';
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import Link from 'next/link';
-
-interface Announcement {
-    type: 'notification' | 'event';
-    message: string;
-    link?: string;
-}
 
 export function CelebrationPopup() {
   const [isOpen, setIsOpen] = useState(false);
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const seenRef = useRef(false);
 
   useEffect(() => {
     const hasSeenPopup = sessionStorage.getItem('hasSeenCelebrationPopup');
+    if (hasSeenPopup) return;
 
-    if (!hasSeenPopup) {
-      const fetchAnnouncement = async () => {
-        try {
-          const { announcement: latestAnnouncement, error } = await getLatestAnnouncement();
-          if (!error && latestAnnouncement) {
-            setAnnouncement(latestAnnouncement as Announcement);
-            setIsOpen(true);
-            sessionStorage.setItem('hasSeenCelebrationPopup', 'true');
-          }
-        } catch (e) {
-            console.error("Failed to fetch announcement for popup", e);
-        }
-      };
-      
-      fetchAnnouncement();
-    }
+    // Listen for the latest notification in real-time
+    const q = query(
+      collection(db, 'notifications'),
+      orderBy('createdAt', 'desc'),
+      limit(1)
+    );
+
+    const unsub = onSnapshot(q, (snap) => {
+      if (snap.empty) return;
+
+      const latest = snap.docs[0].data();
+      const msg = latest.message as string;
+
+      if (!seenRef.current && msg) {
+        seenRef.current = true;
+        setMessage(msg);
+        setIsOpen(true);
+        sessionStorage.setItem('hasSeenCelebrationPopup', 'true');
+      }
+    });
+
+    return () => unsub();
   }, []);
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  if (!isOpen || !announcement) {
-      return null;
-  }
+  if (!isOpen || !message) return null;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogContent className="glass-card">
+      <AlertDialogContent className="bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center justify-center gap-2 text-xl">
-            <PartyPopper className="h-8 w-8 text-primary animate-pulse" />
-            <span>What's New at MLSC?</span>
+          <AlertDialogTitle className="flex items-center justify-center gap-2.5 text-white text-lg font-black uppercase italic tracking-tight">
+            <div className="h-9 w-9 rounded-xl bg-[#4285F4]/10 border border-[#4285F4]/20 flex items-center justify-center">
+              <Megaphone className="h-4.5 w-4.5 text-[#4285F4]" />
+            </div>
+            What&apos;s New at MLSC?
           </AlertDialogTitle>
-          <AlertDialogDescription className="pt-4 text-lg text-foreground/90 text-center">
-            {announcement.message}
+          <AlertDialogDescription className="pt-4 text-sm text-white/60 text-center leading-relaxed">
+            {message}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className='sm:justify-center'>
-            {announcement.type === 'event' && announcement.link ? (
-                <AlertDialogAction asChild>
-                    <Link href={announcement.link} onClick={handleClose}>View Event</Link>
-                </AlertDialogAction>
-            ) : (
-                <AlertDialogAction onClick={handleClose}>
-                    Awesome!
-                </AlertDialogAction>
-            )}
+        <AlertDialogFooter className="sm:justify-center gap-3 mt-2">
+          <AlertDialogAction
+            onClick={() => setIsOpen(false)}
+            className="bg-white text-black font-bold hover:bg-white/90 rounded-xl px-8 h-10 text-xs uppercase tracking-widest"
+          >
+            Got it!
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

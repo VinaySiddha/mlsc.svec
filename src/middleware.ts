@@ -40,6 +40,8 @@ export async function middleware(req: NextRequest) {
     if (payload.role) requestHeaders.set("X-User-Role", payload.role as string);
     if (payload.username)
       requestHeaders.set("X-User-Username", payload.username as string);
+    if (payload.email)
+      requestHeaders.set("X-User-Email", payload.email as string);
     if (payload.domain)
       requestHeaders.set("X-Panel-Domain", payload.domain as string);
 

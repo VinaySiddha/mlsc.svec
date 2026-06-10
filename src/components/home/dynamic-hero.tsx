@@ -94,7 +94,7 @@ export function DynamicHero({ images = [] }: { images?: any[] }) {
                 </motion.div>
 
                 {/* Stats */}
-                <motion.div
+                {/* <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1.5, delay: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -112,7 +112,7 @@ export function DynamicHero({ images = [] }: { images?: any[] }) {
                         <AnimatedCounter target={3} className="text-4xl md:text-5xl font-black text-white tracking-tighter" />
                         <p className="text-[0.6rem] text-white/40 mt-2 font-black uppercase tracking-[0.4em]">Chapters</p>
                     </div>
-                </motion.div>
+                </motion.div> */}
             </div>
         </section>
     );

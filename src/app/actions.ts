@@ -4,3 +4,4 @@ export * from './actions/team-actions';
 export * from './actions/notification-actions';
 export * from './actions/application-actions';
 export * from './actions/job-actions';
+export * from './actions/settings-actions';

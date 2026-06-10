@@ -13,14 +13,12 @@ export const Image = (props: ImageProps) => {
 
   useEffect(() => {
     if (!src) {
-        setHasError(true);
-        const name = alt ? encodeURIComponent(alt) : 'User';
-        setImgSrc(`https://ui-avatars.com/api/?name=${name}&background=random&color=fff&size=512`);
+      setHasError(true);
     } else {
-        setImgSrc(src);
-        setHasError(false);
+      setImgSrc(src);
+      setHasError(false);
     }
-  }, [src, alt]);
+  }, [src]);
 
   const isCloudLink = typeof src === 'string' && (src.includes('drive.google.com') || src.includes('1drv.ms'));
 
@@ -35,25 +33,28 @@ export const Image = (props: ImageProps) => {
     }
   }
 
-  // Use standard img tag for fallbacks or if hostname issue is suspected
-  // This is more reliable for external dynamic content like ui-avatars and api/image proxies with query strings
-  const isApiImage = typeof processedSrc === 'string' && processedSrc.startsWith('/api/image');
-  if (hasError || (typeof processedSrc === 'string' && processedSrc.includes('ui-avatars.com')) || isApiImage) {
+  if (hasError) {
     const isFill = (rest as any).fill;
+    const initials = alt
+      ? alt.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+      : '?';
     return (
-      <img
-        src={typeof processedSrc === 'string' ? processedSrc : ''}
-        alt={alt || ''}
+      <div
         className={cn(
-          "object-cover", 
+          "bg-gradient-to-b from-zinc-900 to-black flex flex-col items-center justify-center select-none p-4",
           isFill ? "absolute inset-0 w-full h-full" : "",
           className
         )}
-        width={!isFill ? (rest as any).width : undefined}
-        height={!isFill ? (rest as any).height : undefined}
-        style={(rest as any).style}
-        sizes={(rest as any).sizes}
-      />
+        style={{
+          width: !isFill ? (rest as any).width : undefined,
+          height: !isFill ? (rest as any).height : undefined,
+          ...(rest as any).style
+        }}
+      >
+        <span className="text-xl md:text-3xl font-black tracking-widest text-white/30 uppercase">
+          {initials}
+        </span>
+      </div>
     );
   }
 
@@ -66,8 +67,6 @@ export const Image = (props: ImageProps) => {
       unoptimized={rest.unoptimized || (typeof processedSrc === 'string' && processedSrc.startsWith('/api/image'))}
       onError={() => {
         setHasError(true);
-        const name = alt ? encodeURIComponent(alt) : 'User';
-        setImgSrc(`https://ui-avatars.com/api/?name=${name}&background=random&color=fff&size=512`);
       }}
     />
   );
