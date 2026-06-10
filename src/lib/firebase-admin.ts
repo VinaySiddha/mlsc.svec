@@ -1,4 +1,5 @@
 import { applicationDefault, cert, initializeApp, getApps, getApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 
 export function getAdminApp() {
@@ -19,4 +20,8 @@ export function getAdminApp() {
 
 export function getAdminStorage() {
   return getStorage(getAdminApp());
+}
+
+export function getAdminFirestore() {
+  return getFirestore(getAdminApp());
 }
