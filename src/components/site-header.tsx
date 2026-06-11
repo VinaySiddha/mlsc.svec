@@ -28,10 +28,11 @@ import { LiveNotificationBell } from '@/components/live-notification-bell';
 
 const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/study', label: 'Study' },
+    { href: '/about', label: 'About' },
     { href: '/team', label: 'Team' },
     { href: '/events', label: 'Events' },
-    { href: '/about', label: 'About' },
+    { href: '/domains', label: 'Domains' },
+    { href: '/study', label: 'Study' },
     { href: '/blog', label: 'Blog' },
     { href: '/schedule', label: 'Schedule' },
 ];
@@ -105,41 +106,36 @@ export function SiteHeader() {
 
                         {/* ── Center Nav ── */}
                         <nav className="hidden lg:flex items-center gap-0.5 text-[11px] font-bold tracking-[0.12em] uppercase text-white/50">
-                            <Link
-                                href="/"
-                                className={cn(
-                                    "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
-                                    isActive('/') ? "bg-white/[0.08] text-white" : ""
-                                )}
-                            >
-                                Home
-                            </Link>
-
-                            {/* Domains hover trigger */}
-                            <button
-                                onMouseEnter={handleMouseEnter}
-                                onMouseLeave={handleMouseLeave}
-                                className={cn(
-                                    "flex items-center gap-1 transition-all duration-200 px-3 py-1.5 rounded-lg uppercase",
-                                    domainsOpen ? "text-white bg-white/[0.06]" : "text-white/50 hover:text-white hover:bg-white/[0.06]"
-                                )}
-                            >
-                                Domains
-                                <ChevronDown className={cn("h-3 w-3 transition-transform duration-300", domainsOpen ? "rotate-180" : "")} />
-                            </button>
-
-                            {navLinks.filter(l => l.href !== '/').map((link) => (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    className={cn(
-                                        "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
-                                        isActive(link.href) ? "bg-white/[0.08] text-white" : ""
-                                    )}
-                                >
-                                    {link.label}
-                                </Link>
-                            ))}
+                            {navLinks.map((link) => {
+                                if (link.href === '/domains') {
+                                    return (
+                                        <button
+                                            key={link.href}
+                                            onMouseEnter={handleMouseEnter}
+                                            onMouseLeave={handleMouseLeave}
+                                            className={cn(
+                                                "flex items-center gap-1 transition-all duration-200 px-3 py-1.5 rounded-lg uppercase",
+                                                domainsOpen ? "text-white bg-white/[0.06]" : "text-white/50 hover:text-white hover:bg-white/[0.06]"
+                                            )}
+                                        >
+                                            Domains
+                                            <ChevronDown className={cn("h-3 w-3 transition-transform duration-300", domainsOpen ? "rotate-180" : "")} />
+                                        </button>
+                                    );
+                                }
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        className={cn(
+                                            "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
+                                            isActive(link.href) ? "bg-white/[0.08] text-white" : ""
+                                        )}
+                                    >
+                                        {link.label}
+                                    </Link>
+                                );
+                            })}
                         </nav>
 
                         {/* ── Right Actions ── */}
@@ -171,30 +167,32 @@ export function SiteHeader() {
                                             <Menu className="h-6 w-6" />
                                         </Button>
                                     </SheetTrigger>
-                                    <SheetContent side="right" className="bg-black border-none w-full p-12">
+                                    <SheetContent side="right" className="bg-black border-none w-full p-8 flex flex-col justify-between overflow-y-auto">
                                         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                                         <SheetDescription className="sr-only">Mobile navigation links</SheetDescription>
-                                        <nav className="flex flex-col gap-10 mt-20">
-                                            {navLinks.map((link) => (
-                                                <SheetClose key={link.href} asChild>
-                                                    <Link
-                                                        href={link.href}
-                                                        className={cn(
-                                                            "text-5xl font-black tracking-tighter transition-colors",
-                                                            isActive(link.href) ? "text-[#4285F4]" : "text-white hover:text-[#4285F4]"
-                                                        )}
-                                                    >
-                                                        {link.label}
+                                        <div className="flex flex-col gap-8 my-auto py-8">
+                                            <nav className="flex flex-col gap-6">
+                                                {navLinks.map((link) => (
+                                                    <SheetClose key={link.href} asChild>
+                                                        <Link
+                                                            href={link.href}
+                                                            className={cn(
+                                                                "text-3xl sm:text-4xl font-black tracking-tighter transition-colors",
+                                                                isActive(link.href) ? "text-[#4285F4]" : "text-white hover:text-[#4285F4]"
+                                                            )}
+                                                        >
+                                                            {link.label}
+                                                        </Link>
+                                                    </SheetClose>
+                                                ))}
+                                            </nav>
+                                            <div className="mt-4">
+                                                <SheetClose asChild>
+                                                    <Link href="/apply" className="inline-flex items-center gap-2 bg-white text-black font-black text-base px-6 py-3.5 rounded-2xl uppercase tracking-wider hover:bg-white/90 transition-all">
+                                                        Apply Now <ArrowRight className="h-4 w-4" />
                                                     </Link>
                                                 </SheetClose>
-                                            ))}
-                                        </nav>
-                                        <div className="mt-12">
-                                            <SheetClose asChild>
-                                                <Link href="/apply" className="inline-flex items-center gap-2 bg-white text-black font-black text-lg px-8 py-4 rounded-2xl uppercase tracking-wider hover:bg-white/90 transition-all">
-                                                    Apply Now <ArrowRight className="h-5 w-5" />
-                                                </Link>
-                                            </SheetClose>
+                                            </div>
                                         </div>
                                     </SheetContent>
                                 </Sheet>

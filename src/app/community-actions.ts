@@ -19,8 +19,10 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import type { CommunityPost, Comment, CommunityReport } from '@/types/community';
+import { logActivityAction, logErrorAction } from './actions/log-actions';
 
 // --- Posts ---
+
 
 export async function createCommunityPost(data: {
   title: string;
@@ -276,9 +278,23 @@ export async function reportContent(data: {
       await updateDoc(doc(db, 'communityPosts', data.postId), { flagged: true });
     }
 
+    // Log activity
+    await logActivityAction(
+      `Community Content Reported`,
+      `User ${data.reporterName} reported a ${data.contentType} (ID: ${data.contentId}) for: "${data.reason}"`,
+      data.reporterId,
+      data.reporterName
+    );
+
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error reporting content:', error);
+    await logErrorAction(
+      `Content Reporting Failed`,
+      `User ${data.reporterName} tried to report ${data.contentType} (ID: ${data.contentId}). Error: ${error.message || error}`,
+      data.reporterId,
+      data.reporterName
+    );
     return { error: 'Failed to submit report.' };
   }
 }
@@ -321,9 +337,22 @@ export async function moderatePost(postId: string, action: 'dismiss' | 'delete')
     const updates = reportsSnap.docs.map((d) => updateDoc(d.ref, { resolved: true }));
     await Promise.all(updates);
 
+    // Log activity
+    await logActivityAction(
+      `Community Post Moderated`,
+      `Admin resolved post (ID: ${postId}) with action: "${action.toUpperCase()}"`,
+      undefined,
+      "Admin"
+    );
+
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error moderating post:', error);
+    await logErrorAction(
+      `Community Moderation Failed`,
+      `Failed to moderate post (ID: ${postId}) with action: ${action}. Error: ${error.message || error}`
+    );
     return { error: 'Failed to moderate post.' };
   }
 }
+

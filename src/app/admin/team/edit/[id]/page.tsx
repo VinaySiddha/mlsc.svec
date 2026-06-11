@@ -14,7 +14,7 @@ export default async function EditTeamMemberPage({ params }: { params: Promise<{
     const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin') {
         redirect('/admin');
     }
 

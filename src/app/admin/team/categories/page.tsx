@@ -13,7 +13,7 @@ export default async function TeamCategoriesPage() {
     const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin') {
         redirect('/admin');
     }
 

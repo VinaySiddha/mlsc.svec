@@ -8,6 +8,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Loader2, Trash2, Pencil, Save, X, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast"; // Correct hook import
@@ -193,31 +194,38 @@ export function AmbassadorManager() {
                                 Add a new ambassador to the home page.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="name" className="text-right">
+                        <div className="grid gap-5 py-4">
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider text-zinc-400 select-none cursor-pointer">
                                     Name
                                 </Label>
                                 <Input
                                     id="name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="col-span-3"
                                 />
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="description" className="text-right">
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wider text-zinc-400 select-none cursor-pointer">
                                     Description
                                 </Label>
-                                <Textarea
-                                    id="description"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    className="col-span-3"
-                                />
+                                <InputGroup className="bg-white/5 border-white/10">
+                                    <InputGroupTextarea
+                                        id="description"
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        placeholder="Ambassador description..."
+                                        className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                                    />
+                                    <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                                        <InputGroupText className="text-white/40 tabular-nums">
+                                            {(description || "").length} characters
+                                        </InputGroupText>
+                                    </InputGroupAddon>
+                                </InputGroup>
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="photo" className="text-right">
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="photo" className="text-xs font-bold uppercase tracking-wider text-zinc-400 select-none cursor-pointer">
                                     Photo
                                 </Label>
                                 <Input
@@ -225,7 +233,7 @@ export function AmbassadorManager() {
                                     type="file"
                                     accept="image/*"
                                     onChange={handleFileChange}
-                                    className="col-span-3"
+                                    className="bg-white/5 border-white/10 rounded-xl px-4 py-2 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 text-white/50"
                                 />
                             </div>
                         </div>

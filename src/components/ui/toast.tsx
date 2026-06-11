@@ -28,7 +28,6 @@ const toastVariants = cva(
     // Base shell
     "group pointer-events-auto relative flex w-full overflow-hidden",
     "rounded-2xl border shadow-[0_8px_32px_rgba(0,0,0,0.6)]",
-    "bg-[#0C0C0C]/95 backdrop-blur-xl",
     "transition-all duration-300 ease-out",
     // Enter / exit animations
     "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 data-[state=open]:fade-in-0 data-[state=open]:duration-300",
@@ -39,40 +38,31 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-white/[0.08]",
-        destructive: "border-[#EA4335]/20",
-        success: "border-[#34A853]/20",
-        warning: "border-[#FBBC05]/20",
+        default: "border-white/[0.08] bg-[#0C0C0C]/95 backdrop-blur-xl",
+        info: "border-blue-500/20 bg-[#050B14]/95 backdrop-blur-xl",
+        success: "border-emerald-500/20 bg-[#03140A]/95 backdrop-blur-xl",
+        warning: "border-amber-500/20 bg-[#161005]/95 backdrop-blur-xl",
+        danger: "border-red-500/20 bg-[#170505]/95 backdrop-blur-xl",
+        destructive: "border-red-500/20 bg-[#170505]/95 backdrop-blur-xl",
       },
     },
     defaultVariants: { variant: "default" },
   }
 )
 
-const accentBar: Record<string, string> = {
-  default:     "bg-[#4285F4]",
-  destructive: "bg-[#EA4335]",
-  success:     "bg-[#34A853]",
-  warning:     "bg-[#FBBC05]",
-}
-
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
 >(({ className, variant = "default", children, ...props }, ref) => {
-  const bar = accentBar[variant ?? "default"] ?? accentBar.default
   return (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
       {...props}
     >
-      {/* Left accent bar */}
-      <div className={cn("w-[3px] shrink-0 self-stretch rounded-l-2xl", bar)} />
-
       {/* Content area */}
-      <div className="flex flex-1 items-start gap-3 px-4 py-4">
+      <div className="flex flex-1 items-start gap-3.5 px-4 py-4">
         {children}
       </div>
     </ToastPrimitives.Root>
@@ -120,7 +110,7 @@ const ToastTitle = React.forwardRef<
   <ToastPrimitives.Title
     ref={ref}
     className={cn(
-      "text-[11px] font-black uppercase tracking-[0.15em] text-white",
+      "text-sm font-semibold text-white",
       className
     )}
     {...props}
@@ -134,7 +124,7 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn("text-[12px] text-white/50 leading-relaxed mt-0.5", className)}
+    className={cn("text-xs text-white/70 leading-relaxed mt-0.5", className)}
     {...props}
   />
 ))

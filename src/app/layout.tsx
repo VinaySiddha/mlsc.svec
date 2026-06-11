@@ -97,6 +97,7 @@ import { Providers } from '@/components/providers';
 import { HeaderWrapper } from '@/components/header-wrapper';
 import { FooterWrapper } from '@/components/footer-wrapper';
 import { KiriBot } from '@/components/kiri-bot';
+import { TicketFloatingButton } from '@/components/ticket-floating-button';
 
 
 export const metadata: Metadata = {
@@ -107,11 +108,11 @@ export const metadata: Metadata = {
     canonical: 'https://mlscsvec.in',
   },
   keywords: [
-    'MLSC 3.0',
+    'MLSC 4.0',
     'MLSC SVEC',
-    'MLSC 3.0 Hiring Program',
+    'MLSC 4.0 Hiring Program',
     'Microsoft Learn Student Club',
-    'MLSC Hiring 2025',
+    'MLSC Hiring 2026',
     'student club hiring',
     'tech roles SVEC',
     'non-tech roles SVEC',
@@ -140,6 +141,11 @@ export const metadata: Metadata = {
     shortcut: '/logo.png',
     apple: '/logo.png',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-4523569844866132',
+    'og:title': 'MLSC 3.0 Hiring Program X SVEC',
+    'og:site_name': 'MLSC SVEC',
+  },
 };
 
 export default function RootLayout({
@@ -150,65 +156,60 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-    <head>
-      <meta property="og:title" content="MLSC 3.0 Hiring Program X SVEC" />
-      <meta property="og:site_name" content="MLSC SVEC" />
-      <meta name="google-adsense-account" content="ca-pub-4523569844866132"></meta>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "MLSC X SVEC",
-            "url": "https://mlscsvec.in",
-            "department": [
-              {
-                "@type": "WebPage",
-                "name": "Home",
-                "url": "https://mlscsvec.in/"
-              },
-              {
-                "@type": "WebPage",
-                "name": "About",
-                "url": "https://mlscsvec.in/about"
-              },
-              {
-                "@type": "WebPage",
-                "name": "Team",
-                "url": "https://mlscsvec.in/team"
-              },
-              {
-                "@type": "WebPage",
-                "name": "Events",
-                "url": "https://mlscsvec.in/events"
-              },
-              {
-                "@type": "WebPage",
-                "name": "Blog",
-                "url": "https://mlscsvec.in/blog"
-              },
-              {
-                "@type": "WebPage",
-                "name": "Projects",
-                "url": "https://mlscsvec.in/projects"
-              },
-            ]
-          })
-        }}
-      />
-    </head>
-
       <body className={cn('antialiased', inter.variable, googleSans.variable, googleSansText.variable)}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "MLSC X SVEC",
+              "url": "https://mlscsvec.in",
+              "department": [
+                {
+                  "@type": "WebPage",
+                  "name": "Home",
+                  "url": "https://mlscsvec.in/"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "About",
+                  "url": "https://mlscsvec.in/about"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Team",
+                  "url": "https://mlscsvec.in/team"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Events",
+                  "url": "https://mlscsvec.in/events"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Blog",
+                  "url": "https://mlscsvec.in/blog"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Projects",
+                  "url": "https://mlscsvec.in/projects"
+                },
+              ]
+            })
+          }}
+        />
         <Providers>
         <HeaderWrapper />
         <CelebrationPopup />
         <main className="min-h-screen bg-black">{children}</main>
         <FooterWrapper />
         <KiriBot />
+        <TicketFloatingButton />
         </Providers>
         <Toaster />
-        <Script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" strategy="lazyOnload" crossOrigin="anonymous" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" crossOrigin="anonymous"></script>
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
           {`

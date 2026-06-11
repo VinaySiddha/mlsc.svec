@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Flag, Loader2 } from 'lucide-react';
 import { reportContent } from '@/app/community-actions';
 import { useAuth } from '@/lib/auth-context';
@@ -58,12 +59,19 @@ export function ReportDialog({ contentType, contentId, postId }: ReportDialogPro
           <DialogTitle>Report {contentType}</DialogTitle>
           <DialogDescription>Please describe why you are reporting this content.</DialogDescription>
         </DialogHeader>
-        <Textarea
-          placeholder="Reason for reporting..."
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          className="bg-background/20"
-        />
+        <InputGroup className="bg-white/5 border-white/10">
+          <InputGroupTextarea
+            placeholder="Reason for reporting..."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+          />
+          <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+            <InputGroupText className="text-white/40 tabular-nums">
+              {(reason || "").length} characters
+            </InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
         <DialogFooter>
           <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={submitting || !reason.trim()}>

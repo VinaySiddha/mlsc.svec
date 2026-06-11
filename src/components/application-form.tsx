@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
@@ -233,9 +234,9 @@ export function ApplicationForm() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Full Name *</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="John Doe" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -246,9 +247,9 @@ export function ApplicationForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Email *</FormLabel>
                   <FormControl>
-                    <Input placeholder="john.doe@example.com" {...field} />
+                    <Input placeholder="john.doe@example.com" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -259,9 +260,9 @@ export function ApplicationForm() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Phone Number *</FormLabel>
                   <FormControl>
-                    <Input placeholder="10-digit number" {...field} />
+                    <Input placeholder="10-digit number" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -272,9 +273,9 @@ export function ApplicationForm() {
               name="rollNo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roll No *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Roll No *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 22A91A4201" {...field} />
+                    <Input placeholder="e.g., 22A91A4201" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -285,15 +286,15 @@ export function ApplicationForm() {
               name="branch"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Branch *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Branch *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
                         <SelectValue placeholder="Select your branch" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                    <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
+                      {branches.map(branch => <SelectItem key={branch} value={branch} className="rounded-lg">{branch}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -305,15 +306,15 @@ export function ApplicationForm() {
               name="section"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Section *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Section *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
                         <SelectValue placeholder="Select your section" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      {sections.map(section => <SelectItem key={section} value={section}>{section}</SelectItem>)}
+                    <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
+                      {sections.map(section => <SelectItem key={section} value={section} className="rounded-lg">{section}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -325,15 +326,15 @@ export function ApplicationForm() {
               name="yearOfStudy"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Year of Study *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Current Year of Study *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
                         <SelectValue placeholder="Select your year" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                    <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
+                      {years.map(year => <SelectItem key={year} value={year} className="rounded-lg">{year}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -345,9 +346,9 @@ export function ApplicationForm() {
               name="cgpa"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current CGPA *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Current CGPA *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 8.5" type="number" step="0.01" {...field} />
+                    <Input placeholder="e.g., 8.5" type="number" step="0.01" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -358,9 +359,9 @@ export function ApplicationForm() {
               name="backlogs"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>No of Active Backlogs *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">No of Active Backlogs *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 0" type="number" {...field} />
+                    <Input placeholder="e.g., 0" type="number" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -373,13 +374,20 @@ export function ApplicationForm() {
             name="joinReason"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Why do you want to join this club? *</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Why do you want to join this club? *</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Tell us about your passion for technology and what you hope to achieve with the club. (20-1000 characters)"
-                    className="resize-none"
-                    {...field}
-                  />
+                  <InputGroup className="bg-white/5 border-white/10">
+                    <InputGroupTextarea
+                      placeholder="Tell us about your passion for technology and what you hope to achieve with the club. (20-1000 characters)"
+                      className="min-h-32 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                      {...field}
+                    />
+                    <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                      <InputGroupText className="text-white/40 tabular-nums">
+                        {(field.value || "").length}/1000 characters
+                      </InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -391,13 +399,20 @@ export function ApplicationForm() {
             name="aboutClub"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>What do you know about MLSC club? *</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">What do you know about MLSC club? *</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Share your knowledge about the club's activities, goals, etc. (20-1000 characters)"
-                    className="resize-none"
-                    {...field}
-                  />
+                  <InputGroup className="bg-white/5 border-white/10">
+                    <InputGroupTextarea
+                      placeholder="Share your knowledge about the club's activities, goals, etc. (20-1000 characters)"
+                      className="min-h-32 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                      {...field}
+                    />
+                    <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                      <InputGroupText className="text-white/40 tabular-nums">
+                        {(field.value || "").length}/1000 characters
+                      </InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -410,7 +425,7 @@ export function ApplicationForm() {
               name="technicalDomain"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Which domain are you interested in? (TECHNICAL) *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Which domain are you interested in? (TECHNICAL) *</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -418,11 +433,11 @@ export function ApplicationForm() {
                       className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                     >
                       {technicalDomains.map(item => (
-                        <FormItem key={item.id} className="flex items-center space-x-3 space-y-0">
+                        <FormItem key={item.id} className="flex items-center space-x-3 space-y-0 bg-white/5 border border-white/10 rounded-xl p-4 cursor-pointer hover:bg-white/10 transition-colors">
                           <FormControl>
-                            <RadioGroupItem value={item.id} />
+                            <RadioGroupItem value={item.id} className="border-white/30 text-[#4285F4] focus:ring-[#4285F4]" />
                           </FormControl>
-                          <FormLabel className="font-normal">{item.label}</FormLabel>
+                          <FormLabel className="font-normal text-sm text-white/80 cursor-pointer">{item.label}</FormLabel>
                         </FormItem>
                       ))}
                     </RadioGroup>
@@ -439,7 +454,7 @@ export function ApplicationForm() {
               name="nonTechnicalDomain"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Which domain are you interested in? (NON-TECHNICAL) *</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Which domain are you interested in? (NON-TECHNICAL) *</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -447,11 +462,11 @@ export function ApplicationForm() {
                       className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                     >
                       {nonTechnicalDomains.map(item => (
-                        <FormItem key={item.id} className="flex items-center space-x-3 space-y-0">
+                        <FormItem key={item.id} className="flex items-center space-x-3 space-y-0 bg-white/5 border border-white/10 rounded-xl p-4 cursor-pointer hover:bg-white/10 transition-colors">
                           <FormControl>
-                            <RadioGroupItem value={item.id} />
+                            <RadioGroupItem value={item.id} className="border-white/30 text-[#34A853] focus:ring-[#34A853]" />
                           </FormControl>
-                          <FormLabel className="font-normal">{item.label}</FormLabel>
+                          <FormLabel className="font-normal text-sm text-white/80 cursor-pointer">{item.label}</FormLabel>
                         </FormItem>
                       ))}
                     </RadioGroup>
@@ -467,9 +482,9 @@ export function ApplicationForm() {
             name="linkedin"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>LinkedIn Profile (Link)</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">LinkedIn Profile (Link)</FormLabel>
                 <FormControl>
-                  <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} />
+                  <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -481,13 +496,20 @@ export function ApplicationForm() {
             name="anythingElse"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Anything else you’d like to share?</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Anything else you’d like to share?</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Any other information you'd like us to know. (Max 1000 characters)"
-                    className="resize-none"
-                    {...field}
-                  />
+                  <InputGroup className="bg-white/5 border-white/10">
+                    <InputGroupTextarea
+                      placeholder="Any other information you'd like us to know. (Max 1000 characters)"
+                      className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                      {...field}
+                    />
+                    <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                      <InputGroupText className="text-white/40 tabular-nums">
+                        {(field.value || "").length}/1000 characters
+                      </InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -499,16 +521,17 @@ export function ApplicationForm() {
             name="resume"
             render={({ field: { onChange, value, ...rest } }) => (
               <FormItem>
-                <FormLabel>Resume *</FormLabel>
+                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Resume *</FormLabel>
                 <FormControl>
                   <Input
                     type="file"
                     accept=".pdf,.docx"
                     onChange={(e) => onChange(e.target.files)}
                     {...rest}
+                    className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 focus:border-[#4285F4] transition-all cursor-pointer flex items-center pt-2.5"
                   />
                 </FormControl>
-                <FormDescription>Upload your resume (PDF or DOCX, max 5MB).</FormDescription>
+                <FormDescription className="text-xs text-white/40">Upload your resume (PDF or DOCX, max 5MB).</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -518,18 +541,19 @@ export function ApplicationForm() {
             control={form.control}
             name="terms"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-2xl border border-white/10 bg-white/5 p-5 shadow-sm">
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    className="border-white/30 rounded-md h-5 w-5 focus-visible:ring-offset-0 focus-visible:ring-[#4285F4] data-[state=checked]:bg-[#4285F4] data-[state=checked]:border-[#4285F4]"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>
-                    I agree to the <Link href="/terms-and-conditions" className="text-primary hover:underline" target="_blank">terms and conditions</Link> *
+                  <FormLabel className="text-sm font-semibold text-white/80 cursor-pointer">
+                    I agree to the <Link href="/terms-and-conditions" className="text-[#4285F4] hover:underline" target="_blank">terms and conditions</Link> *
                   </FormLabel>
-                  <FormDescription>
+                  <FormDescription className="text-xs text-white/40">
                     By submitting this application, you agree to our data handling and privacy policies.
                   </FormDescription>
                   <FormMessage />
@@ -538,7 +562,7 @@ export function ApplicationForm() {
             )}
           />
 
-          <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+          <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto rounded-xl bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold text-xs py-5 px-8">
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

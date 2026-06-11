@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
@@ -328,11 +329,18 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       <FormItem>
                           <FormLabel>Remarks</FormLabel>
                           <FormControl>
-                          <Textarea
-                              placeholder="Add your comments about the applicant..."
-                              className="resize-y min-h-[100px]"
-                              {...field}
-                          />
+                          <InputGroup className="bg-white/5 border-white/10">
+                              <InputGroupTextarea
+                                  placeholder="Add your comments about the applicant..."
+                                  className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                                  {...field}
+                              />
+                              <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                                  <InputGroupText className="text-white/40 tabular-nums">
+                                      {(field.value || "").length} characters
+                                  </InputGroupText>
+                              </InputGroupAddon>
+                          </InputGroup>
                           </FormControl>
                           <FormMessage />
                       </FormItem>

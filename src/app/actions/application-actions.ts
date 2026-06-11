@@ -8,6 +8,7 @@ import {
   internalApplicationSchema,
   reviewSchema,
 } from '@/schemas/application';
+import { logActivityAction, logErrorAction } from './log-actions';
 
 export async function submitApplication(formData: FormData) {
   const file = formData.get('resume') as File;
@@ -24,9 +25,22 @@ export async function submitApplication(formData: FormData) {
 
   try {
     const { referenceId, summary } = await ApplicationService.submitApplication(parsed.data, file);
+    // Log real-time system activity
+    await logActivityAction(
+      `Application Submitted`,
+      `Candidate ${parsed.data.name} (${parsed.data.rollNo}) submitted application for ${parsed.data.technicalDomain} domain. Ref: ${referenceId}`,
+      undefined,
+      parsed.data.name,
+      parsed.data.email,
+      { domain: parsed.data.technicalDomain, ref: referenceId }
+    );
     return { success: true, referenceId, summary };
   } catch (error: any) {
     console.error('Error submitting application:', error);
+    await logErrorAction(
+      `Application Submission Failed`,
+      `Candidate ${parsed.data.name} (${parsed.data.rollNo}) failed to submit. Error: ${error.message || error}`
+    );
     return { error: error.message || 'An unexpected error occurred. Please try again.' };
   }
 }
@@ -41,12 +55,26 @@ export async function internalRegister(values: any) {
 
   try {
     const referenceId = await ApplicationService.internalRegister(parsed.data);
+    // Log real-time system activity
+    await logActivityAction(
+      `Internal Registration`,
+      `User ${parsed.data.name} (${parsed.data.rollNo}) registered internally for ${parsed.data.technicalDomain || parsed.data.nonTechnicalDomain} domain. Ref: ${referenceId}`,
+      undefined,
+      parsed.data.name,
+      parsed.data.email,
+      { domain: parsed.data.technicalDomain || parsed.data.nonTechnicalDomain, ref: referenceId }
+    );
     return { referenceId };
   } catch (error: any) {
     console.error('Error during internal registration:', error);
+    await logErrorAction(
+      `Internal Registration Failed`,
+      `User ${parsed.data.name} (${parsed.data.rollNo}) failed. Error: ${error.message || error}`
+    );
     return { error: error.message || 'An unexpected error occurred. Please try again.' };
   }
 }
+
 
 export async function getApplications(params: {
   panelDomain?: string;
@@ -96,12 +124,24 @@ export async function saveApplicationReview(data: any) {
 
   try {
     await ApplicationService.saveApplicationReview(parsed.data);
+    // Log real-time system activity
+    await logActivityAction(
+      `Application Reviewed`,
+      `Application ID ${parsed.data.id} was reviewed by interviewer. Status updated.`,
+      undefined,
+      "Interviewer"
+    );
     return { success: true };
   } catch (error: any) {
     console.error('Error saving review:', error);
-    return { error: error.message || 'Failed to save review.' };
+    await logErrorAction(
+      `Application Review Failed`,
+      `Failed to save review for App ID ${parsed.data.id}. Error: ${error.message || error}`
+    );
+    return { error: 'Failed to save review.' };
   }
 }
+
 
 export async function updateAttendance(firestoreId: string, attended: boolean) {
   try {
@@ -185,7 +225,9 @@ export async function exportHiredToCsv() {
 
 export async function getAnalyticsData(panelDomain?: string) {
   try {
-    const analytics = await ApplicationService.getAnalyticsData(panelDomain);
+    const cookieStore = await cookies();
+    const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
+    const analytics = await ApplicationService.getAnalyticsData(panelDomain, adminChapter);
     return { analytics };
   } catch (error: any) {
     console.error('Error fetching analytics:', error);
@@ -195,7 +237,9 @@ export async function getAnalyticsData(panelDomain?: string) {
 
 export async function getInterviewAnalyticsData() {
   try {
-    const analytics = await ApplicationService.getInterviewAnalyticsData();
+    const cookieStore = await cookies();
+    const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
+    const analytics = await ApplicationService.getInterviewAnalyticsData(adminChapter);
     return { analytics };
   } catch (error: any) {
     console.error('Error fetching interview analytics:', error);

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { ScrollReveal } from '@/components/motion/scroll-reveal';
 import { AnimatedCounter } from '@/components/motion/animated-counter';
 import { WobbleCard } from '@/components/ui/wobble-card';
-import { Target, Eye, Code, Lightbulb, Globe, Rocket } from 'lucide-react';
+import { Target, Eye, Code, Lightbulb, Globe } from 'lucide-react';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ContactForm } from "@/components/contact-form";
 
 export const metadata: Metadata = {
   title: "About — MLSC SVEC",
@@ -203,6 +204,38 @@ export default function AboutPage() {
                                 </ScrollReveal>
                             ))}
                         </div>
+                    </div>
+                </section>
+
+                {/* ── Contact Section ── */}
+                <section className="border-t border-white/[0.06] py-24 md:py-32 container mx-auto px-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
+                        <ScrollReveal>
+                            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-4">Get in touch</p>
+                            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-[0.95] mb-6">
+                                Contact our <span className="text-[#4285F4]">team.</span>
+                            </h2>
+                            <p className="text-white/40 text-base leading-relaxed font-medium mb-8">
+                                Have questions about our upcoming events, learning roadmaps, domain recruitments, or partnerships? Reach out to us directly through this form, and we will get back to you as soon as possible.
+                            </p>
+                            <div className="space-y-4 text-xs font-bold uppercase tracking-wider text-white/50">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white">
+                                        📍
+                                    </div>
+                                    <span>Sri Vasavi Engineering College, Pedatadepalli, Tadepalligudem</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white">
+                                        ✉️
+                                    </div>
+                                    <span className="normal-case">svecmlsc@outlook.com</span>
+                                </div>
+                            </div>
+                        </ScrollReveal>
+                        <ScrollReveal>
+                            <ContactForm />
+                        </ScrollReveal>
                     </div>
                 </section>
 

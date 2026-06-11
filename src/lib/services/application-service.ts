@@ -316,20 +316,20 @@ export class ApplicationService {
     });
   }
 
-  static async getAnalyticsData(panelDomain?: string) {
+  static async getAnalyticsData(panelDomain?: string, chapter: string = '3.0') {
     const params = panelDomain ? { panelDomain } : {};
     const q = buildFilteredQuery(params);
 
-    const totalApplications = await ApplicationDb.getApplicationsCount(q);
-
-    const attendedParams = panelDomain ? { panelDomain, attendedOnly: true } : { attendedOnly: true };
-    const attendedQuery = buildFilteredQuery(attendedParams);
-    const attendedCount = await ApplicationDb.getApplicationsCount(attendedQuery);
-
     const allApplicationsSnapshot = await ApplicationDb.getApplicationsDocs(q);
-    const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
+    const applications = allApplicationsSnapshot.docs
+      .map(doc => doc.data())
+      .filter(app => (app.chapter || '3.0') === chapter);
+
+    const totalApplications = applications.length;
+    const attendedCount = applications.filter(app => app.interviewAttended).length;
 
     const techDomainCounts: { [key: string]: number } = {};
+    const techDomainAttendedCounts: { [key: string]: number } = {};
     const nonTechDomainCounts: { [key: string]: number } = {};
     const statusCounts: { [key: string]: number } = {};
     const branchCounts: { [key: string]: number } = {};
@@ -351,6 +351,36 @@ export class ApplicationService {
       creativity: "Creativity",
     };
 
+    // Find all actual submission dates to establish dynamic boundaries
+    const submissionDates = applications
+      .map(app => app.submittedAt ? app.submittedAt.split('T')[0] : null)
+      .filter((d): d is string => !!d)
+      .sort();
+
+    const timelineDataMap: { [dateStr: string]: { desktop: number; mobile: number } } = {};
+
+    if (submissionDates.length > 0) {
+      const start = new Date(submissionDates[0]);
+      const end = new Date(submissionDates[submissionDates.length - 1]);
+      const current = new Date(start);
+      while (current <= end) {
+        const dateStr = current.toISOString().split('T')[0];
+        timelineDataMap[dateStr] = { desktop: 0, mobile: 0 };
+        current.setDate(current.getDate() + 1);
+      }
+    } else {
+      // Fallback: Pre-populate last 90 days with 0 counts if no data exists
+      const today = new Date();
+      for (let i = 90; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        timelineDataMap[dateStr] = { desktop: 0, mobile: 0 };
+      }
+    }
+
+    const nonTechDomainAttendedCounts: { [key: string]: number } = {};
+
     applications.forEach(app => {
       const status = app.status || 'Received';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
@@ -361,22 +391,56 @@ export class ApplicationService {
       const techDomainName = techDomainLabels[techDomainKey] || techDomainKey;
       if (techDomainName) {
         techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
+        if (app.interviewAttended) {
+          techDomainAttendedCounts[techDomainName] = (techDomainAttendedCounts[techDomainName] || 0) + 1;
+        }
       }
 
       const nonTechDomainKey = app.nonTechnicalDomain;
       const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
       if (nonTechDomainName) {
         nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
+        if (app.interviewAttended) {
+          nonTechDomainAttendedCounts[nonTechDomainName] = (nonTechDomainAttendedCounts[nonTechDomainName] || 0) + 1;
+        }
       }
 
       const branch = app.branch || 'Unknown';
       branchCounts[branch] = (branchCounts[branch] || 0) + 1;
       const year = app.yearOfStudy || 'Unknown';
       yearCounts[year] = (yearCounts[year] || 0) + 1;
+
+      if (app.submittedAt) {
+        const dateStr = app.submittedAt.split('T')[0];
+        if (timelineDataMap[dateStr] !== undefined) {
+          if (app.technicalDomain) {
+            timelineDataMap[dateStr].desktop++;
+          }
+          if (app.nonTechnicalDomain) {
+            timelineDataMap[dateStr].mobile++;
+          }
+        }
+      }
     });
 
-    const techDomainData = Object.entries(techDomainCounts).map(([name, count]) => ({ name, count }));
-    const nonTechDomainData = Object.entries(nonTechDomainCounts).map(([name, count]) => ({ name, count }));
+    const timelineData = Object.entries(timelineDataMap)
+      .map(([date, counts]) => ({
+        date,
+        desktop: counts.desktop,
+        mobile: counts.mobile,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    const techDomainData = Object.entries(techDomainCounts).map(([name, count]) => ({
+      name,
+      count,
+      attended: techDomainAttendedCounts[name] || 0
+    }));
+    const nonTechDomainData = Object.entries(nonTechDomainCounts).map(([name, count]) => ({
+      name,
+      count,
+      attended: nonTechDomainAttendedCounts[name] || 0
+    }));
     const statusData = Object.entries(statusCounts).map(([name, count]) => ({ name, count }));
     const branchData = Object.entries(branchCounts).map(([name, count]) => ({ name, count }));
     const yearData = Object.entries(yearCounts).map(([name, count]) => ({ name, count }));
@@ -391,18 +455,22 @@ export class ApplicationService {
       statusData,
       branchData,
       yearData,
+      timelineData,
     };
   }
 
-  static async getInterviewAnalyticsData() {
+  static async getInterviewAnalyticsData(chapter: string = '3.0') {
     const q = buildFilteredQuery({ attendedOnly: true });
 
-    const totalApplications = await ApplicationDb.getApplicationsCount(q);
-
     const allApplicationsSnapshot = await ApplicationDb.getApplicationsDocs(q);
-    const applications = allApplicationsSnapshot.docs.map(doc => doc.data());
+    const applications = allApplicationsSnapshot.docs
+      .map(doc => doc.data())
+      .filter(app => (app.chapter || '3.0') === chapter);
+
+    const totalApplications = applications.length;
 
     const techDomainCounts: { [key: string]: number } = {};
+    const techDomainAttendedCounts: { [key: string]: number } = {};
     const nonTechDomainCounts: { [key: string]: number } = {};
     const statusCounts: { [key: string]: number } = {};
     const branchCounts: { [key: string]: number } = {};
@@ -424,6 +492,36 @@ export class ApplicationService {
       creativity: "Creativity",
     };
 
+    // Find all actual submission dates to establish dynamic boundaries
+    const submissionDates = applications
+      .map(app => app.submittedAt ? app.submittedAt.split('T')[0] : null)
+      .filter((d): d is string => !!d)
+      .sort();
+
+    const timelineDataMap: { [dateStr: string]: { desktop: number; mobile: number } } = {};
+
+    if (submissionDates.length > 0) {
+      const start = new Date(submissionDates[0]);
+      const end = new Date(submissionDates[submissionDates.length - 1]);
+      const current = new Date(start);
+      while (current <= end) {
+        const dateStr = current.toISOString().split('T')[0];
+        timelineDataMap[dateStr] = { desktop: 0, mobile: 0 };
+        current.setDate(current.getDate() + 1);
+      }
+    } else {
+      // Fallback: Pre-populate last 90 days with 0 counts if no data exists
+      const today = new Date();
+      for (let i = 90; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        timelineDataMap[dateStr] = { desktop: 0, mobile: 0 };
+      }
+    }
+
+    const nonTechDomainAttendedCounts: { [key: string]: number } = {};
+
     applications.forEach(app => {
       const status = app.status || 'Received';
       statusCounts[status] = (statusCounts[status] || 0) + 1;
@@ -434,22 +532,54 @@ export class ApplicationService {
       const techDomainName = techDomainLabels[techDomainKey] || techDomainKey;
       if (techDomainName) {
         techDomainCounts[techDomainName] = (techDomainCounts[techDomainName] || 0) + 1;
+        // Since query is attendedOnly: true, count and attended will be same here
+        techDomainAttendedCounts[techDomainName] = (techDomainAttendedCounts[techDomainName] || 0) + 1;
       }
 
       const nonTechDomainKey = app.nonTechnicalDomain;
       const nonTechDomainName = nonTechDomainLabels[nonTechDomainKey] || nonTechDomainKey;
       if (nonTechDomainName) {
         nonTechDomainCounts[nonTechDomainName] = (nonTechDomainCounts[nonTechDomainName] || 0) + 1;
+        // Since query is attendedOnly: true, count and attended will be same here
+        nonTechDomainAttendedCounts[nonTechDomainName] = (nonTechDomainAttendedCounts[nonTechDomainName] || 0) + 1;
       }
 
       const branch = app.branch || 'Unknown';
       branchCounts[branch] = (branchCounts[branch] || 0) + 1;
       const year = app.yearOfStudy || 'Unknown';
       yearCounts[year] = (yearCounts[year] || 0) + 1;
+
+      if (app.submittedAt) {
+        const dateStr = app.submittedAt.split('T')[0];
+        if (timelineDataMap[dateStr] !== undefined) {
+          if (app.technicalDomain) {
+            timelineDataMap[dateStr].desktop++;
+          }
+          if (app.nonTechnicalDomain) {
+            timelineDataMap[dateStr].mobile++;
+          }
+        }
+      }
     });
 
-    const techDomainData = Object.entries(techDomainCounts).map(([name, count]) => ({ name, count }));
-    const nonTechDomainData = Object.entries(nonTechDomainCounts).map(([name, count]) => ({ name, count }));
+    const timelineData = Object.entries(timelineDataMap)
+      .map(([date, counts]) => ({
+        date,
+        desktop: counts.desktop,
+        mobile: counts.mobile,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    const techDomainData = Object.entries(techDomainCounts).map(([name, count]) => ({
+      name,
+      count,
+      attended: techDomainAttendedCounts[name] || 0
+    }));
+    const nonTechDomainData = Object.entries(nonTechDomainCounts).map(([name, count]) => ({
+      name,
+      count,
+      attended: nonTechDomainAttendedCounts[name] || 0
+    }));
     const statusData = Object.entries(statusCounts).map(([name, count]) => ({ name, count }));
     const branchData = Object.entries(branchCounts).map(([name, count]) => ({ name, count }));
     const yearData = Object.entries(yearCounts).map(([name, count]) => ({ name, count }));
@@ -464,6 +594,7 @@ export class ApplicationService {
       statusData,
       branchData,
       yearData,
+      timelineData,
     };
   }
 

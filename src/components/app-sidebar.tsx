@@ -13,7 +13,8 @@ import {
   Globe,
   Settings,
   HelpCircle,
-  Megaphone
+  Megaphone,
+  Activity
 } from 'lucide-react';
 
 import { NavMain } from "@/components/nav-main";
@@ -88,6 +89,33 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
         title: "Analytics",
         url: "/admin/analytics",
         icon: BarChart3,
+      },
+      {
+        title: "Operations Center",
+        url: "/admin/operations",
+        icon: Activity,
+        items: [
+          {
+            title: "System Activity",
+            url: "/admin/operations/activity",
+          },
+          {
+            title: "Error Reports",
+            url: "/admin/operations/errors",
+          },
+          {
+            title: "Bug Feedback",
+            url: "/admin/operations/bugs",
+          },
+          {
+            title: "Community Flags",
+            url: "/admin/operations/moderation",
+          },
+          {
+            title: "Latest Users",
+            url: "/admin/operations/users",
+          },
+        ]
       },
       {
         title: "Users",

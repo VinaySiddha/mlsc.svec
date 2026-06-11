@@ -5,9 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   Bell, 
-  Search, 
-  Sun, 
-  Moon, 
   ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -50,48 +47,17 @@ export function AdminLayoutShell({
   const pathname = usePathname();
   const router = useRouter();
   
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme] = useState<'light' | 'dark'>('dark');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   
   const notificationsRef = useRef<HTMLDivElement>(null);
 
-  // Initialize theme from localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('admin-theme') as 'light' | 'dark';
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      setTheme('dark');
-    }
-  }, []);
-
-  // Synchronize document element class with theme state to update portals correctly
+  // Force dark mode for administrative dashboard
   useEffect(() => {
     const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.add('light');
-      root.classList.remove('dark');
-    }
-  }, [theme]);
-
-  // Revert back to default dark mode when leaving the admin panel
-  useEffect(() => {
-    return () => {
-      const root = window.document.documentElement;
-      root.classList.add('dark');
-      root.classList.remove('light');
-    };
+    root.classList.add('dark');
+    root.classList.remove('light');
   }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    localStorage.setItem('admin-theme', nextTheme);
-  };
 
   // Close dropdowns on click outside
   useEffect(() => {
@@ -104,6 +70,7 @@ export function AdminLayoutShell({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+
   // Dynamic domain label
   const domainLabels: Record<string, string> = {
     gen_ai: "Generative AI",
@@ -114,49 +81,8 @@ export function AdminLayoutShell({
 
   const domainName = panelDomain ? domainLabels[panelDomain] || panelDomain : 'Superadmin';
 
-  // Handle Search Quick Nav
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const query = searchQuery.toLowerCase();
-      if (query.includes('dash') || query === 'home' || query === 'overview') {
-        router.push('/admin');
-      } else if (query.includes('app')) {
-        router.push('/admin/applications');
-      } else if (query.includes('event')) {
-        router.push('/admin/events');
-      } else if (query.includes('team')) {
-        router.push('/admin/team');
-      } else if (query.includes('analy')) {
-        router.push('/admin/analytics');
-      } else if (query.includes('user')) {
-        router.push('/admin/users');
-      } else if (query.includes('notif')) {
-        router.push('/admin/notifications');
-      } else if (query.includes('bulk') || query.includes('csv')) {
-        router.push('/admin/bulk-update');
-      }
-      setSearchQuery('');
-    }
-  };
-
-  // Listen to keyboard shortcut Ctrl+K / Cmd+K
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        const searchInput = document.getElementById('navbar-search') as HTMLInputElement;
-        if (searchInput) searchInput.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   // Calculate breadcrumbs dynamically based on path
+
   const pathParts = pathname.split('/').filter(Boolean);
   const breadcrumbLabels: Record<string, string> = {
     admin: "Admin",
@@ -168,6 +94,7 @@ export function AdminLayoutShell({
     team: "Team",
     analytics: "Analytics",
     users: "Users",
+    operations: "Operations Center",
     notifications: "Notifications",
     "bulk-update": "Bulk Update",
     "internal-registration": "Internal Registration",
@@ -314,7 +241,7 @@ export function AdminLayoutShell({
       {/* Sidebar Inset Content Area */}
       <SidebarInset className="flex flex-col min-h-screen bg-slate-50 dark:bg-black overflow-hidden transition-all duration-300">
         {/* Top Header Row containing triggers and toggles */}
-        <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800/80 bg-white dark:bg-black px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 z-30">
+        <header className="sticky top-0 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800/80 bg-white/95 dark:bg-black/95 backdrop-blur-md px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 z-50">
           <div className="flex items-center gap-2 px-2">
             <SidebarTrigger className="-ml-1 text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800/50" />
             <Separator
@@ -333,6 +260,7 @@ export function AdminLayoutShell({
                 {pathParts.slice(1).map((part, index, arr) => {
                   const label = breadcrumbLabels[part] || part;
                   const isLast = index === arr.length - 1;
+                  const intermediatePath = '/admin/' + pathParts.slice(1, index + 2).join('/');
                   
                   return (
                     <React.Fragment key={part}>
@@ -342,7 +270,10 @@ export function AdminLayoutShell({
                             {label}
                           </BreadcrumbPage>
                         ) : (
-                          <BreadcrumbLink className="text-xs font-semibold text-slate-400 dark:text-zinc-500 select-none">
+                          <BreadcrumbLink 
+                            href={intermediatePath} 
+                            className="text-xs font-semibold text-slate-400 dark:text-zinc-500 hover:text-[#4285F4] dark:hover:text-[#4285F4] select-none"
+                          >
                             {label}
                           </BreadcrumbLink>
                         )}
@@ -355,39 +286,8 @@ export function AdminLayoutShell({
             </Breadcrumb>
           </div>
 
-          {/* Right Action Icons (Search, Theme, Notifications) */}
+          {/* Right Action Icons (Notifications Only) */}
           <div className="flex items-center gap-4">
-            {/* Search Box */}
-            <div className="relative max-w-xs w-60 hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-500" />
-              <input
-                id="navbar-search"
-                type="text"
-                placeholder="Type command... (Ctrl+K)"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onKeyDown={handleSearchKeyDown}
-                className="w-full pl-9 pr-10 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 text-xs focus:outline-none focus:ring-1 focus:ring-[#4285F4] focus:border-transparent transition-all"
-              />
-              <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400 dark:text-zinc-500 px-1 py-0.5 rounded border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm pointer-events-none">
-                ⌘K
-              </kbd>
-            </div>
-
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-full text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800/50 h-9 w-9 shrink-0"
-            >
-              {theme === 'light' ? (
-                <Moon className="h-4.5 w-4.5" />
-              ) : (
-                <Sun className="h-4.5 w-4.5 text-yellow-500" />
-              )}
-            </Button>
-
             {/* Notification Bell */}
             <div className="relative" ref={notificationsRef}>
               <Button
@@ -420,6 +320,7 @@ export function AdminLayoutShell({
               )}
             </div>
           </div>
+
         </header>
 
         {/* Scrollable Page Content Container */}

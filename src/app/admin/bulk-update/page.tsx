@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import Papa from 'papaparse';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Field, FieldLabel, FieldError } from '@/components/ui/field';
 
 const formSchema = z.object({
   csvFile: z
@@ -126,23 +127,19 @@ export default function BulkUpdatePage() {
                 </AlertDescription>
               </Alert>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <label htmlFor="csvFile" className="block text-sm font-medium mb-2">
-                    CSV File
-                  </label>
+                <Field>
+                  <FieldLabel htmlFor="csvFile">CSV File</FieldLabel>
                   <Input
                     id="csvFile"
                     type="file"
                     accept=".csv"
                     {...form.register('csvFile')}
-                    className="file:text-foreground"
+                    className="file:text-foreground bg-white/5 border-white/10 rounded-xl px-4 py-2 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 text-white/50"
                   />
                   {form.formState.errors.csvFile && (
-                    <p className="text-sm font-medium text-destructive mt-2">
-                      {form.formState.errors.csvFile.message as string}
-                    </p>
+                    <FieldError errors={[{ message: form.formState.errors.csvFile.message as string }]} />
                   )}
-                </div>
+                </Field>
 
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                   {isSubmitting ? (

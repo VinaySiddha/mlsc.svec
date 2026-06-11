@@ -3,7 +3,9 @@
 import { unstable_cache, revalidateTag } from 'next/cache';
 import papaparse from 'papaparse';
 import { EventService } from '@/lib/services/event-service';
+import { NotificationService } from '@/lib/services/notification-service';
 import { eventFormSchema, registrationSchema } from '@/schemas/event';
+import { logActivityAction, logErrorAction } from './log-actions';
 
 export async function createEvent(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -47,14 +49,39 @@ export async function createEvent(formData: FormData) {
       notifyUsers: values.notifyUsers === 'true',
     });
 
+    // Log real-time system activity
+    await logActivityAction(
+      `Event Created`,
+      `Admin created event "${parsed.data.title}" scheduled for ${parsed.data.date.toLocaleDateString("en-IN")} at ${parsed.data.venue}. ID: ${docId}`,
+      undefined,
+      "Admin"
+    );
+
+    try {
+      const eventDateStr = parsed.data.date.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+      const announceMessage = `🚀 New Event: "${parsed.data.title}" has been scheduled for ${eventDateStr} at ${parsed.data.venue}! Check the Event Calendar to register.`;
+      await NotificationService.addNotification(announceMessage);
+    } catch (notifErr) {
+      console.error("Failed to automatically add notification for new event:", notifErr);
+    }
+
     revalidateTag('events', 'max');
     return { success: true, id: docId };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to create event:", error);
+    await logErrorAction(
+      `Event Creation Failed`,
+      `Failed to create event "${parsed.data?.title || "Unknown"}". Error: ${error.message || error}`
+    );
     const message = error instanceof Error ? error.message : String(error);
     return { error: `Failed to create event: ${message}` };
   }
 }
+
 
 export async function updateEvent(id: string, formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -162,12 +189,30 @@ export async function registerForEvent(eventId: string, values: any, userId?: st
 
   try {
     const result = await EventService.registerForEvent(eventId, parsed.data, userId);
+    if ('success' in result && result.success) {
+      // Log real-time system activity
+      await logActivityAction(
+        `Event Registration`,
+        `Student ${parsed.data.name} (${parsed.data.rollNo}) registered for event ID: ${eventId}`,
+        userId,
+        parsed.data.name,
+        parsed.data.email,
+        { eventId, branch: parsed.data.branch }
+      );
+    }
     return result;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error registering for event:", error);
+    await logErrorAction(
+      `Event Registration Failed`,
+      `Student ${parsed.data.name || "Unknown"} (${parsed.data.rollNo || "Unknown"}) failed to register for event ${eventId}. Error: ${error.message || error}`,
+      userId,
+      parsed.data.name
+    );
     return { error: 'An unexpected error occurred during registration.' };
   }
 }
+
 
 export async function sendReminderEmails(eventId: string) {
   try {

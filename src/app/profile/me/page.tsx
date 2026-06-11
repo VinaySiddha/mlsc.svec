@@ -22,6 +22,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
+import { Field, FieldGroup, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field";
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowLeft, Loader2, Upload, Users } from 'lucide-react';
@@ -230,29 +232,63 @@ export default function UserProfilePage() {
             <h3 className="text-2xl font-black tracking-tighter uppercase italic">Edit Details.</h3>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField control={form.control} name="displayName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Display Name</FormLabel>
-                    <FormControl><Input {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                <FieldGroup>
+                  <FormField control={form.control} name="displayName" render={({ field, fieldState }) => (
+                    <Field data-invalid={!!fieldState.error}>
+                      <FieldLabel htmlFor="profile-displayName">Display Name</FieldLabel>
+                      <Input
+                        {...field}
+                        id="profile-displayName"
+                        placeholder="John Doe"
+                        aria-invalid={!!fieldState.error}
+                        autoComplete="off"
+                      />
+                      {fieldState.error && (
+                        <FieldError errors={[{ message: fieldState.error.message || '' }]} />
+                      )}
+                    </Field>
+                  )} />
 
-                <FormField control={form.control} name="username" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Username</FormLabel>
-                    <FormControl><Input {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                  <FormField control={form.control} name="username" render={({ field, fieldState }) => (
+                    <Field data-invalid={!!fieldState.error}>
+                      <FieldLabel htmlFor="profile-username">Username</FieldLabel>
+                      <Input
+                        {...field}
+                        id="profile-username"
+                        placeholder="username"
+                        aria-invalid={!!fieldState.error}
+                        autoComplete="off"
+                      />
+                      {fieldState.error && (
+                        <FieldError errors={[{ message: fieldState.error.message || '' }]} />
+                      )}
+                    </Field>
+                  )} />
 
-                <FormField control={form.control} name="bio" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Bio</FormLabel>
-                    <FormControl><Textarea placeholder="Tell us about yourself..." {...field} className="bg-white/5 border-white/10 rounded-xl min-h-[100px] px-5 py-4 text-sm focus:border-[#4285F4] transition-all" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                  <FormField control={form.control} name="bio" render={({ field, fieldState }) => (
+                    <Field data-invalid={!!fieldState.error}>
+                      <FieldLabel htmlFor="profile-bio">Bio</FieldLabel>
+                      <InputGroup>
+                        <InputGroupTextarea
+                          {...field}
+                          id="profile-bio"
+                          placeholder="Tell us about yourself..."
+                          rows={4}
+                          className="min-h-24 resize-none"
+                          aria-invalid={!!fieldState.error}
+                        />
+                        <InputGroupAddon align="block-end">
+                          <InputGroupText className="tabular-nums">
+                            {(field.value || "").length}/300 characters
+                          </InputGroupText>
+                        </InputGroupAddon>
+                      </InputGroup>
+                      {fieldState.error && (
+                        <FieldError errors={[{ message: fieldState.error.message || '' }]} />
+                      )}
+                    </Field>
+                  )} />
+                </FieldGroup>
                 
                 <Separator className="bg-white/5" />
 

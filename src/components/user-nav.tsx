@@ -11,13 +11,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogIn, User, MessageSquare, Calendar, LogOut } from 'lucide-react';
+import { LogIn, User, MessageSquare, Calendar, LogOut, Bug } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { BugReportForm } from '@/components/bug-report-form';
 
 export function UserNav() {
   const { user, loading, signOut } = useAuth();
   const pathname = usePathname();
+  const [ticketOpen, setTicketOpen] = useState(false);
 
   if (loading) {
     return <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />;
@@ -38,6 +42,7 @@ export function UserNav() {
     : user.email?.[0]?.toUpperCase() || '?';
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -84,6 +89,15 @@ export function UserNav() {
             <Calendar className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" /> Events
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem 
+          onSelect={(e) => {
+            e.preventDefault();
+            setTicketOpen(true);
+          }}
+          className="group cursor-pointer rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+        >
+          <Bug className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" /> Raise Ticket
+        </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
         <DropdownMenuItem 
           onClick={() => signOut()} 
@@ -93,5 +107,23 @@ export function UserNav() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <Dialog open={ticketOpen} onOpenChange={setTicketOpen}>
+      <DialogContent className="max-w-md bg-[#080808]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.95)]">
+        <DialogHeader className="mb-4">
+          <DialogTitle className="text-lg font-black tracking-tight text-white uppercase italic flex items-center gap-2">
+            <Bug className="h-5 w-5 text-red-500" />
+            Raise Ticket / <span className="text-[#4285F4]">Report Bug</span>
+          </DialogTitle>
+          <DialogDescription className="text-xs text-zinc-400 font-medium">
+            Submit your ticket below. Our technical support leads will investigate this issue immediately.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="bg-transparent border-none p-0">
+          <BugReportForm isDialog={true} onSuccess={() => setTicketOpen(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
