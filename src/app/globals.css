@@ -63,6 +63,8 @@
   html {
     font-size: 15px;
     background-color: #000000;
+    overflow-x: hidden;
+    width: 100%;
   }
   body {
     @apply bg-background text-foreground;
@@ -70,6 +72,8 @@
     font-family: var(--font-google-sans-text), var(--font-inter), 'Inter', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     letter-spacing: -0.01em;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -98,15 +102,15 @@
 
     .hero-heading {
         font-family: var(--font-google-sans), var(--font-inter), 'Inter', sans-serif;
-        @apply text-5xl md:text-8xl lg:text-[8.5rem] font-black tracking-tighter leading-[0.8] mb-6;
+        @apply text-4xl sm:text-5xl md:text-8xl lg:text-[8.5rem] font-black tracking-tighter leading-[1.1] md:leading-[0.8] mb-6;
     }
 
     .btn-primary {
-        @apply rounded-full bg-white text-black px-8 py-6 text-lg font-bold transition-transform hover:scale-105 active:scale-95;
+        @apply rounded-full bg-white text-black px-6 py-3.5 md:px-8 md:py-6 text-sm md:text-lg font-bold transition-transform hover:scale-105 active:scale-95;
     }
 
     .btn-outline {
-        @apply rounded-full border border-white/20 px-8 py-6 text-lg font-bold transition-all hover:bg-white/5 hover:border-white/40;
+        @apply rounded-full border border-white/20 px-6 py-3.5 md:px-8 md:py-6 text-sm md:text-lg font-bold transition-all hover:bg-white/5 hover:border-white/40;
     }
 
     .ticker-bar {

@@ -19,6 +19,11 @@ export function CelebrationPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const seenRef = useRef(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const hasSeenPopup = sessionStorage.getItem('hasSeenCelebrationPopup');
@@ -48,7 +53,7 @@ export function CelebrationPopup() {
     return () => unsub();
   }, []);
 
-  if (!isOpen || !message) return null;
+  if (!mounted || !isOpen || !message) return null;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>

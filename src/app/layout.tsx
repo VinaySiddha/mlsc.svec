@@ -201,15 +201,22 @@ export default function RootLayout({
           }}
         />
         <Providers>
-        <HeaderWrapper />
-        <CelebrationPopup />
-        <main className="min-h-screen bg-black">{children}</main>
-        <FooterWrapper />
-        <KiriBot />
-        <TicketFloatingButton />
+          <div className="w-full min-h-screen flex flex-col relative">
+            <HeaderWrapper />
+            <CelebrationPopup />
+            <main className="flex-1 bg-black">{children}</main>
+            <FooterWrapper />
+            <KiriBot />
+            <TicketFloatingButton />
+          </div>
         </Providers>
         <Toaster />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132" crossOrigin="anonymous"></script>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
           {`

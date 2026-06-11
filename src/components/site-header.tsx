@@ -41,6 +41,11 @@ export function SiteHeader() {
     const pathname = usePathname();
     const [domainsOpen, setDomainsOpen] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleMouseEnter = () => {
         if (timeoutRef.current) {
@@ -81,12 +86,14 @@ export function SiteHeader() {
         href === '/' ? pathname === '/' : pathname.startsWith(href);
 
     return (
-        <div className="relative w-full sticky top-0 z-50 bg-black">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-black w-full">
             {/* Announcement Ticker Bar */}
-            <div className="ticker-bar text-white text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center overflow-hidden h-7 bg-[#4285F4] select-none">
-                <span className="animate-marquee-left inline-block whitespace-nowrap">
-                    {fullText}
-                </span>
+            <div className="w-full max-w-full overflow-hidden h-7 bg-[#4285F4] select-none relative flex items-center justify-center">
+                <div className="absolute inset-0 w-full h-full overflow-hidden flex items-center justify-center">
+                    <span className="animate-marquee-left inline-block whitespace-nowrap text-white text-[10px] font-black uppercase tracking-[0.25em]">
+                        {fullText}
+                    </span>
+                </div>
             </div>
 
             {/* Nav bar row */}
@@ -140,62 +147,66 @@ export function SiteHeader() {
 
                         {/* ── Right Actions ── */}
                         <div className="flex items-center gap-3 shrink-0">
-                            <div className="hidden lg:flex items-center">
-                                <GooeyInput
-                                    placeholder="Search..."
-                                    collapsedWidth={42}
-                                    expandedWidth={180}
-                                    expandedOffset={138}
-                                    gooeyBlur={6}
-                                    variant="dark"
-                                />
-                            </div>
+                            {mounted && (
+                                <div className="hidden lg:flex items-center">
+                                    <GooeyInput
+                                        placeholder="Search..."
+                                        collapsedWidth={42}
+                                        expandedWidth={180}
+                                        expandedOffset={138}
+                                        gooeyBlur={6}
+                                        variant="dark"
+                                    />
+                                </div>
+                            )}
                             <div className="hidden lg:flex items-center gap-3">
-                                <LiveNotificationBell />
-                                <UserNav />
+                                {mounted && <LiveNotificationBell />}
+                                {mounted && <UserNav />}
                                 <Button asChild className="rounded-xl bg-white text-black font-bold hover:bg-white/90 px-5 h-9 text-[11px] tracking-wider uppercase transition-transform active:scale-95">
                                     <Link href="/apply">Apply Now</Link>
                                 </Button>
                             </div>
                             {/* Mobile hamburger */}
                             <div className="lg:hidden flex items-center gap-3">
-                                <LiveNotificationBell />
-                                <UserNav />
-                                <Sheet>
-                                    <SheetTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-white h-9 w-9">
-                                            <Menu className="h-6 w-6" />
-                                        </Button>
-                                    </SheetTrigger>
-                                    <SheetContent side="right" className="bg-black border-none w-full p-8 flex flex-col justify-between overflow-y-auto">
-                                        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                                        <SheetDescription className="sr-only">Mobile navigation links</SheetDescription>
-                                        <div className="flex flex-col gap-8 my-auto py-8">
-                                            <nav className="flex flex-col gap-6">
-                                                {navLinks.map((link) => (
-                                                    <SheetClose key={link.href} asChild>
-                                                        <Link
-                                                            href={link.href}
-                                                            className={cn(
-                                                                "text-3xl sm:text-4xl font-black tracking-tighter transition-colors",
-                                                                isActive(link.href) ? "text-[#4285F4]" : "text-white hover:text-[#4285F4]"
-                                                            )}
-                                                        >
-                                                            {link.label}
+                                {mounted && <LiveNotificationBell />}
+                                {mounted && <UserNav />}
+                                {mounted && (
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="text-white h-9 w-9">
+                                                <Menu className="h-6 w-6" />
+                                            </Button>
+                                        </SheetTrigger>
+                                        <SheetContent side="right" className="bg-black border-none w-full p-8 flex flex-col justify-between overflow-y-auto">
+                                            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                                            <SheetDescription className="sr-only">Mobile navigation links</SheetDescription>
+                                            <div className="flex flex-col gap-8 my-auto py-8">
+                                                <nav className="flex flex-col gap-6">
+                                                    {navLinks.map((link) => (
+                                                        <SheetClose key={link.href} asChild>
+                                                            <Link
+                                                                href={link.href}
+                                                                className={cn(
+                                                                    "text-3xl sm:text-4xl font-black tracking-tighter transition-colors",
+                                                                    isActive(link.href) ? "text-[#4285F4]" : "text-white hover:text-[#4285F4]"
+                                                                )}
+                                                            >
+                                                                {link.label}
+                                                            </Link>
+                                                        </SheetClose>
+                                                    ))}
+                                                </nav>
+                                                <div className="mt-4">
+                                                    <SheetClose asChild>
+                                                        <Link href="/apply" className="inline-flex items-center gap-2 bg-white text-black font-black text-base px-6 py-3.5 rounded-2xl uppercase tracking-wider hover:bg-white/90 transition-all">
+                                                            Apply Now <ArrowRight className="h-4 w-4" />
                                                         </Link>
                                                     </SheetClose>
-                                                ))}
-                                            </nav>
-                                            <div className="mt-4">
-                                                <SheetClose asChild>
-                                                    <Link href="/apply" className="inline-flex items-center gap-2 bg-white text-black font-black text-base px-6 py-3.5 rounded-2xl uppercase tracking-wider hover:bg-white/90 transition-all">
-                                                        Apply Now <ArrowRight className="h-4 w-4" />
-                                                    </Link>
-                                                </SheetClose>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </SheetContent>
-                                </Sheet>
+                                        </SheetContent>
+                                    </Sheet>
+                                )}
                             </div>
                         </div>
                     </div>

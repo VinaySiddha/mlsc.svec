@@ -39,15 +39,15 @@ export function DynamicHero({ images = [] }: { images?: any[] }) {
                     transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
                 >
                     {/* Static line with PointerHighlight */}
-                    <h1 className="hero-heading text-white">
+                    <h1 className="hero-heading text-white flex flex-col items-center justify-center">
                         <span className="block">We are</span>
 
-                        {/* FlipWords on the second line */}
-                        <span className="flex items-baseline justify-center">
+                        {/* FlipWords on the second line with wrapper to prevent layout shift */}
+                        <span className="relative inline-flex items-center justify-center h-[1.15em] min-w-[220px] sm:min-w-[320px]">
                             <FlipWords
                                 words={flipWords}
                                 duration={2500}
-                                className="text-[#4285F4] hero-heading !px-0"
+                                className="text-[#4285F4] !p-0 !m-0 font-black tracking-tighter"
                             />
                         </span>
 

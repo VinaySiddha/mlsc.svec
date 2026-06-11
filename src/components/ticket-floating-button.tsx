@@ -10,6 +10,15 @@ import { Button } from '@/components/ui/button';
 export function TicketFloatingButton() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   // Do not show on admin pages
   if (pathname.startsWith('/admin')) {

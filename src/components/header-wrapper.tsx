@@ -9,5 +9,10 @@ export function HeaderWrapper() {
   const pathname = usePathname();
   const hide = HIDDEN_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   if (hide) return null;
-  return <SiteHeader />;
+  return (
+    <>
+      <SiteHeader />
+      <div className="h-[108px] w-full bg-black shrink-0" />
+    </>
+  );
 }
