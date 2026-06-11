@@ -33,17 +33,23 @@ export function getAdminApp() {
           console.error("Failed to load application default credentials from path:", err);
         }
       } else {
-        console.warn(`Warning: GOOGLE_APPLICATION_CREDENTIALS file not found at path: "${trimmed}". Initializing Firebase Admin without credentials (local development mode).`);
+        console.warn(`Warning: GOOGLE_APPLICATION_CREDENTIALS file not found at path: "${trimmed}". Deleting environment variable to prevent Firebase Admin crashes.`);
+        delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
       }
     }
   }
 
+  const options: any = {
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  };
+
+  if (credential) {
+    options.credential = credential;
+  }
+
   try {
-    return initializeApp({
-      credential,
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    });
+    return initializeApp(options);
   } catch (err) {
     console.error("Failed to initialize Firebase Admin app:", err);
     // Fallback: try initializing with just project id to prevent total crash
