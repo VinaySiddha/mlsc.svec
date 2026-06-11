@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { ApplicationDb } from '@/lib/db/application-db';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, unstable_cache } from 'next/cache';
 
 export async function setAdminChapterAction(chapter: string) {
   const cookieStore = await cookies();
@@ -10,21 +10,27 @@ export async function setAdminChapterAction(chapter: string) {
   return { success: true };
 }
 
+// Cached with a 60-second TTL — revalidated whenever chapter settings change
+const getCachedGlobalSettings = unstable_cache(
+  async () => {
+    const settingsSnap = await ApplicationDb.getGlobalSettingsDoc();
+    if (settingsSnap.exists()) return settingsSnap.data();
+    return {
+      activeChapter: '3.0',
+      chapters: {
+        '3.0': { isHiringOpen: false, isTeamVisible: true },
+        '4.0': { isHiringOpen: true, isTeamVisible: true },
+      },
+    };
+  },
+  ['global-settings'],
+  { tags: ['global-settings'], revalidate: 60 }
+);
+
 export async function getGlobalSettings() {
   try {
-    const settingsSnap = await ApplicationDb.getGlobalSettingsDoc();
-    if (settingsSnap.exists()) {
-      return { settings: settingsSnap.data() };
-    }
-    return {
-      settings: {
-        activeChapter: '3.0',
-        chapters: {
-          '3.0': { isHiringOpen: false, isTeamVisible: true },
-          '4.0': { isHiringOpen: true, isTeamVisible: true }
-        }
-      }
-    };
+    const settings = await getCachedGlobalSettings();
+    return { settings };
   } catch (error: any) {
     console.error('Error getting global settings:', error);
     return { error: 'Failed to retrieve settings.' };
@@ -37,7 +43,9 @@ export async function updateChapterSettingsAction(
 ) {
   try {
     await ApplicationDb.updateChapterSettings(chapter, values);
+    // Bust both caches so the team page & settings reflect the change immediately
     revalidateTag('team-members', 'max');
+    revalidateTag('global-settings', 'max');
     return { success: true };
   } catch (error: any) {
     console.error('Error updating chapter settings:', error);
@@ -48,6 +56,7 @@ export async function updateChapterSettingsAction(
 export async function setActiveChapterAction(chapter: string) {
   try {
     await ApplicationDb.setActiveChapter(chapter);
+    revalidateTag('global-settings', 'max');
     return { success: true };
   } catch (error: any) {
     console.error('Error setting active chapter:', error);
@@ -62,6 +71,8 @@ export async function createNewChapterAction(chapter: string) {
       return { error: 'Invalid chapter name. Please use format like "5.0".' };
     }
     await ApplicationDb.updateChapterSettings(trimmed, { isHiringOpen: false, isTeamVisible: true });
+    revalidateTag('global-settings', 'max');
+    revalidateTag('team-members', 'max');
     return { success: true };
   } catch (error: any) {
     console.error('Error creating new chapter:', error);

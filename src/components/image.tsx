@@ -20,14 +20,13 @@ export const Image = (props: ImageProps) => {
     }
   }, [src]);
 
-  const isCloudLink = typeof src === 'string' && (src.includes('drive.google.com') || src.includes('1drv.ms'));
-
   let processedSrc = imgSrc;
 
   if (typeof processedSrc === 'string' && !hasError) {
-    if (isCloudLink) {
-      const convertedSrc = convertGoogleDriveLink(processedSrc);
-      processedSrc = `/api/image?url=${encodeURIComponent(convertedSrc)}`;
+    if (processedSrc.includes('drive.google.com')) {
+      processedSrc = convertGoogleDriveLink(processedSrc);
+    } else if (processedSrc.includes('1drv.ms')) {
+      processedSrc = `/api/image?url=${encodeURIComponent(processedSrc)}`;
     } else {
       processedSrc = processedSrc.startsWith('http') ? processedSrc : processedSrc.startsWith('/') ? processedSrc : `/${processedSrc}`;
     }

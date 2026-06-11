@@ -255,9 +255,15 @@ export class TeamService {
     ]);
 
     const settings = settingsSnap.exists() ? settingsSnap.data() : {};
+    const activeChapter = settings.activeChapter || '3.0';
     const visibleChapters = Object.entries(settings.chapters || {})
       .filter(([_, conf]: any) => conf.isTeamVisible)
       .map(([chap]) => chap);
+
+    // Always include the active chapter if it's not explicitly set to invisible
+    if (settings.chapters?.[activeChapter]?.isTeamVisible !== false && !visibleChapters.includes(activeChapter)) {
+      visibleChapters.push(activeChapter);
+    }
 
     // Default to '3.0' if chapters map is empty
     if (visibleChapters.length === 0) {

@@ -1,76 +1,90 @@
-import { getAdminFirestore } from '@/lib/firebase-admin';
+import { db } from '@/lib/firebase';
+import {
+  collection,
+  doc,
+  addDoc,
+  getDocs,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  writeBatch
+} from 'firebase/firestore';
 
 export class TeamDb {
-  private static get db() {
-    return getAdminFirestore();
-  }
-
   // Categories Db Operations
   static async addTeamCategory(values: any) {
-    return await this.db.collection('teamCategories').add(values);
+    return await addDoc(collection(db, 'teamCategories'), values);
   }
 
   static async getTeamCategoriesOrdered() {
-    const snapshot = await this.db.collection('teamCategories').orderBy('order').get();
+    const q = query(collection(db, 'teamCategories'), orderBy('order'));
+    const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
   }
 
   static async getTeamCategoryDoc(id: string) {
-    return await this.db.collection('teamCategories').doc(id).get();
+    return await getDoc(doc(db, 'teamCategories', id));
   }
 
   static async updateTeamCategoryDoc(id: string, values: any) {
-    await this.db.collection('teamCategories').doc(id).update(values);
+    await updateDoc(doc(db, 'teamCategories', id), values);
   }
 
   static async deleteTeamCategoryDoc(id: string) {
-    await this.db.collection('teamCategories').doc(id).delete();
+    await deleteDoc(doc(db, 'teamCategories', id));
   }
 
   // Members Db Operations
   static async checkEmailExists(email: string) {
-    const snapshot = await this.db.collection('teamMembers').where('email', '==', email).get();
+    const q = query(collection(db, 'teamMembers'), where('email', '==', email));
+    const snapshot = await getDocs(q);
     return !snapshot.empty;
   }
 
   static async addTeamMember(newMemberData: any) {
-    return await this.db.collection('teamMembers').add(newMemberData);
+    return await addDoc(collection(db, 'teamMembers'), newMemberData);
   }
 
   static async getTeamMemberDoc(id: string) {
-    return await this.db.collection('teamMembers').doc(id).get();
+    return await getDoc(doc(db, 'teamMembers', id));
   }
 
   static async updateTeamMemberDoc(id: string, dataToUpdate: any) {
-    await this.db.collection('teamMembers').doc(id).update(dataToUpdate);
+    await updateDoc(doc(db, 'teamMembers', id), dataToUpdate);
   }
 
   static async deleteTeamMemberDoc(id: string) {
-    await this.db.collection('teamMembers').doc(id).delete();
+    await deleteDoc(doc(db, 'teamMembers', id));
   }
 
   static async getPendingMembers() {
-    return await this.db.collection('teamMembers').where('status', '==', 'pending').get();
+    const q = query(collection(db, 'teamMembers'), where('status', '==', 'pending'));
+    return await getDocs(q);
   }
 
   static async getActiveMembers() {
-    return await this.db.collection('teamMembers').where('status', '==', 'active').get();
+    const q = query(collection(db, 'teamMembers'), where('status', '==', 'active'));
+    return await getDocs(q);
   }
 
   static async getAllMembersDocs() {
-    return await this.db.collection('teamMembers').get();
+    return await getDocs(collection(db, 'teamMembers'));
   }
 
   static async getTeamMemberByToken(token: string) {
-    const snapshot = await this.db.collection('teamMembers').where('onboardingToken', '==', token).get();
+    const q = query(collection(db, 'teamMembers'), where('onboardingToken', '==', token));
+    const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
     return snapshot.docs[0];
   }
 
   static async bulkUpdateOnboardingTokens(updates: { memberId: string; onboardingToken: string; tokenExpiresAt: string; }[]) {
-    const batch = this.db.batch();
+    const batch = writeBatch(db);
     for (const update of updates) {
-      const docRef = this.db.collection('teamMembers').doc(update.memberId);
+      const docRef = doc(db, 'teamMembers', update.memberId);
       batch.update(docRef, {
         onboardingToken: update.onboardingToken,
         tokenExpiresAt: update.tokenExpiresAt,
@@ -79,3 +93,4 @@ export class TeamDb {
     await batch.commit();
   }
 }
+

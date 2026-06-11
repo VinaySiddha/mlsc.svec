@@ -206,7 +206,7 @@ export async function completeOnboarding(formData: FormData) {
 const getCachedTeamMembers = unstable_cache(
   async () => TeamService.getRawTeamMembers(),
   ['team-members-list'],
-  { tags: ['team-members'], revalidate: 3600 }
+  { tags: ['team-members', 'global-settings'], revalidate: 60 }
 );
 
 export async function getTeamMembers() {
