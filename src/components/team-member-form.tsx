@@ -15,6 +15,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
+import { logClientError } from "@/lib/error-logger";
+import { useAuth } from "@/lib/auth-context";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -49,6 +51,7 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const { user } = useAuth();
 
     const isUpdateMode = !!member;
     const schema = isUpdateMode ? teamMemberUpdateSchema : teamMemberSchema;
@@ -107,6 +110,12 @@ export function TeamMemberForm({ member, categories, isAdmin = true }: TeamMembe
 
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            await logClientError(
+                isUpdateMode ? `Failed to update team member: ${values.name}` : `Failed to invite team member: ${values.name}`,
+                error,
+                "TeamMemberForm",
+                user?.email || "unknown"
+            );
             toast({
                 variant: "destructive",
                 title: "Oh no! Something went wrong.",

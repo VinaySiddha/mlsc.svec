@@ -55,7 +55,7 @@ export function UserNav() {
       <DropdownMenuContent 
         className="w-60 bg-[#080808]/95 backdrop-blur-xl border border-white/[0.10] rounded-2xl p-2 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_24px_80px_rgba(0,0,0,0.95),0_8px_32px_rgba(0,0,0,0.7)]" 
         align="end" 
-        sideOffset={22}
+        sideOffset={32}
         forceMount
       >
         <DropdownMenuLabel className="font-normal px-3 py-3 select-none">

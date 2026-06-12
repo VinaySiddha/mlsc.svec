@@ -134,8 +134,104 @@ function ToastItem({ id, title, description, action, variant, indicator, actionP
   )
 }
 
+function playToastSound(variant?: string) {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const ctx = new AudioContextClass();
+    
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+
+    if (variant === 'success') {
+      // Cheerful double-note chime (C5 -> G5)
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.12, now + 0.05);
+      
+      osc.frequency.setValueAtTime(783.99, now + 0.08); // G5
+      gain.gain.setValueAtTime(0.12, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } else if (variant === 'destructive' || variant === 'danger' || variant === 'error') {
+      // Warning double tone (D4 -> G#3)
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(293.66, now); // D4
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.15, now + 0.08);
+      
+      osc.frequency.setValueAtTime(207.65, now + 0.1); // G#3 (dissonant tritonic warning)
+      gain.gain.setValueAtTime(0.15, now + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      
+      osc.start(now);
+      osc.stop(now + 0.5);
+    } else if (variant === 'warning') {
+      // Alert double tap (A4 -> A4)
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440.00, now); // A4
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      
+      osc.frequency.setValueAtTime(440.00, now + 0.12); // A4
+      gain.gain.setValueAtTime(0.12, now + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else {
+      // Default / Info: Clean neutral bubble pop (E5 -> A5)
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(659.25, now); // E5
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.1, now + 0.04);
+      
+      osc.frequency.setValueAtTime(880.00, now + 0.06); // A5
+      gain.gain.setValueAtTime(0.1, now + 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      
+      osc.start(now);
+      osc.stop(now + 0.3);
+    }
+  } catch (err) {
+    console.warn('AudioContext failed to play toast sound:', err);
+  }
+}
+
 export function Toaster() {
   const { toasts } = useToast()
+  const playedIdsRef = useRef<Set<string>>(new Set())
+
+  useEffect(() => {
+    toasts.forEach((toast) => {
+      if (!playedIdsRef.current.has(toast.id)) {
+        playedIdsRef.current.add(toast.id)
+        playToastSound(toast.variant || undefined)
+      }
+    })
+
+    const activeIds = new Set(toasts.map((t) => t.id))
+    playedIdsRef.current.forEach((id) => {
+      if (!activeIds.has(id)) {
+        playedIdsRef.current.delete(id)
+      }
+    })
+  }, [toasts])
 
   return (
     <ToastProvider>

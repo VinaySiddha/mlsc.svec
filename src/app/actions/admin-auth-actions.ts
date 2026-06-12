@@ -72,6 +72,11 @@ export async function adminGoogleLoginAction(idToken: string): Promise<{
     return { success: true };
   } catch (error: any) {
     console.error('Admin Google login error:', error);
+    const { logErrorAction } = await import('./log-actions');
+    await logErrorAction(
+      `Admin Google Login Failed`,
+      `Google OAuth verification failed for admin login. Error: ${error.message || error}`
+    );
     if (error.code === 'auth/id-token-expired') {
       return { error: 'Your session has expired. Please try signing in again.' };
     }

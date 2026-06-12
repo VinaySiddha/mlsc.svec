@@ -9,7 +9,8 @@ import {
   limit, 
   onSnapshot, 
   doc, 
-  updateDoc
+  updateDoc,
+  deleteDoc
 } from 'firebase/firestore';
 import { 
   Activity, 
@@ -20,13 +21,20 @@ import {
   Clock, 
   Users,
   Search,
-  ExternalLink
+  ExternalLink,
+  GitPullRequest,
+  CreditCard,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { resolveBugReportAction } from '@/app/actions/log-actions';
+import { approveContributorAction, mergePullRequestAction, requestMoreDetailsAction } from '@/app/actions/contributor-actions';
+import { verifyAtsPaymentAction } from '@/app/actions/ats-actions';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ConfirmDeleteDialog } from '@/components/admin/confirm-delete-dialog';
 
 interface LogEntry {
   id: string;
@@ -74,8 +82,34 @@ interface UserProfile {
   createdAt: string;
 }
 
+interface ContributorApplication {
+  id: string;
+  name: string;
+  email: string;
+  github?: string;
+  department: string;
+  skills: string;
+  message: string;
+  status: 'pending' | 'approved' | 'rejected' | 'resubmitted' | 'insufficient';
+  feedback?: string;
+  createdAt: string;
+}
+
+interface PRSubmission {
+  id: string;
+  name: string;
+  email: string;
+  prLink: string;
+  branchName: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'merged' | 'rejected';
+  createdAt: string;
+  mergedAt?: string;
+}
+
 interface OperationsCenterProps {
-  mode: 'activity' | 'errors' | 'bugs' | 'moderation' | 'users';
+  mode: 'activity' | 'errors' | 'bugs' | 'moderation' | 'users' | 'contributors' | 'pullrequests' | 'ats-payments';
 }
 
 export function OperationsCenter({ mode }: OperationsCenterProps) {
@@ -84,9 +118,21 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
   const [bugs, setBugs] = useState<BugReport[]>([]);
   const [moderation, setModeration] = useState<CommunityReport[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [contributors, setContributors] = useState<ContributorApplication[]>([]);
+  const [pullRequests, setPullRequests] = useState<PRSubmission[]>([]);
+  const [atsPayments, setAtsPayments] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [feedbackAppId, setFeedbackAppId] = useState<string | null>(null);
+  const [adminFeedback, setAdminFeedback] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+
+  // Deletion States
+  const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
+  const [deleteCollection, setDeleteCollection] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Subscribe ONLY to the active collection based on mode
   useEffect(() => {
@@ -146,6 +192,45 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
         console.error("Users listener error:", err);
         setLoading(false);
       });
+    } else if (mode === 'contributors') {
+      const q = query(collection(db, 'contributions'), orderBy('createdAt', 'desc'), limit(50));
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        const contribList: ContributorApplication[] = [];
+        snapshot.forEach((doc) => {
+          contribList.push({ id: doc.id, ...doc.data() } as ContributorApplication);
+        });
+        setContributors(contribList);
+        setLoading(false);
+      }, (err) => {
+        console.error("Contributions listener error:", err);
+        setLoading(false);
+      });
+    } else if (mode === 'pullrequests') {
+      const q = query(collection(db, 'pullRequests'), orderBy('createdAt', 'desc'), limit(50));
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        const prList: PRSubmission[] = [];
+        snapshot.forEach((doc) => {
+          prList.push({ id: doc.id, ...doc.data() } as PRSubmission);
+        });
+        setPullRequests(prList);
+        setLoading(false);
+      }, (err) => {
+        console.error("PR submissions listener error:", err);
+        setLoading(false);
+      });
+    } else if (mode === 'ats-payments') {
+      const q = query(collection(db, 'atsPayments'), orderBy('createdAt', 'desc'), limit(100));
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        const payList: any[] = [];
+        snapshot.forEach((doc) => {
+          payList.push({ id: doc.id, ...doc.data() });
+        });
+        setAtsPayments(payList);
+        setLoading(false);
+      }, (err) => {
+        console.error("ATS payments listener error:", err);
+        setLoading(false);
+      });
     }
 
     return () => unsubscribe();
@@ -174,12 +259,74 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
     }
   };
 
+  const handleReviewContribution = async (id: string) => {
+    try {
+      const res = await approveContributorAction(id);
+      if (res.success) {
+        toast.success("Contributor approved and onboarding email sent successfully!");
+      } else {
+        toast.danger("Failed to approve contributor", { description: res.error });
+      }
+    } catch (err: any) {
+      toast.danger("Failed to update contributor status", { description: err.message });
+    }
+  };
+
+  const handleMergePR = async (id: string) => {
+    try {
+      const res = await mergePullRequestAction(id);
+      if (res.success) {
+        toast.success("PR merge request marked as merged!");
+      } else {
+        toast.danger("Failed to merge PR", { description: res.error });
+      }
+    } catch (err: any) {
+      toast.danger("An unexpected error occurred", { description: err.message });
+    }
+  };
+
   const formatTime = (timeStr: string) => {
     try {
       const date = new Date(timeStr);
       return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' ' + date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
     } catch {
       return timeStr;
+    }
+  };
+
+  const handleVerifyPayment = async (paymentId: string, approve: boolean) => {
+    try {
+      const res = await verifyAtsPaymentAction(paymentId, approve);
+      if (res.success) {
+        toast.success(approve ? "Payment Approved!" : "Payment Rejected!", {
+          description: approve ? "The student now has credits to perform ATS Resume analysis." : "The reference has been marked as rejected."
+        });
+      } else {
+        toast.danger("Operation failed", { description: res.error });
+      }
+    } catch (err: any) {
+      console.error("Verification handler error:", err);
+      toast.danger("Error occurred", { description: err.message || "Failed to resolve payment request." });
+    }
+  };
+
+  const handleDeleteItem = (collectionName: string, id: string) => {
+    setDeleteCollection(collectionName);
+    setDeleteItemId(id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteCollection || !deleteItemId) return;
+    setIsDeleting(true);
+    try {
+      await deleteDoc(doc(db, deleteCollection, deleteItemId));
+      toast.success("Item deleted successfully");
+      setDeleteItemId(null);
+      setDeleteCollection(null);
+    } catch (err: any) {
+      toast.danger("Failed to delete item", { description: err.message });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -221,13 +368,46 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
         m.reporterName.toLowerCase().includes(queryLower)
       );
     }
-    const data = users;
+    if (mode === 'users') {
+      const data = users;
+      if (!queryLower) return data;
+      return data.filter(u => 
+        u.displayName.toLowerCase().includes(queryLower) || 
+        u.email.toLowerCase().includes(queryLower) || 
+        (u.username && u.username.toLowerCase().includes(queryLower)) ||
+        u.role.toLowerCase().includes(queryLower)
+      );
+    }
+    if (mode === 'contributors') {
+      const data = contributors;
+      if (!queryLower) return data;
+      return data.filter(c =>
+        c.name.toLowerCase().includes(queryLower) ||
+        c.email.toLowerCase().includes(queryLower) ||
+        c.department.toLowerCase().includes(queryLower) ||
+        c.skills.toLowerCase().includes(queryLower) ||
+        c.message.toLowerCase().includes(queryLower) ||
+        (c.github && c.github.toLowerCase().includes(queryLower))
+      );
+    }
+    if (mode === 'ats-payments') {
+      const data = atsPayments;
+      if (!queryLower) return data;
+      return data.filter(p =>
+        p.email?.toLowerCase().includes(queryLower) ||
+        p.utr?.toLowerCase().includes(queryLower) ||
+        p.status?.toLowerCase().includes(queryLower)
+      );
+    }
+    const data = pullRequests;
     if (!queryLower) return data;
-    return data.filter(u => 
-      u.displayName.toLowerCase().includes(queryLower) || 
-      u.email.toLowerCase().includes(queryLower) || 
-      (u.username && u.username.toLowerCase().includes(queryLower)) ||
-      u.role.toLowerCase().includes(queryLower)
+    return data.filter(p =>
+      p.title.toLowerCase().includes(queryLower) ||
+      p.description.toLowerCase().includes(queryLower) ||
+      p.name.toLowerCase().includes(queryLower) ||
+      p.email.toLowerCase().includes(queryLower) ||
+      p.branchName.toLowerCase().includes(queryLower) ||
+      p.prLink.toLowerCase().includes(queryLower)
     );
   };
 
@@ -264,6 +444,24 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
           title: "Latest Registered Users",
           desc: "Live list of student profiles newly onboarding onto the portal",
           icon: <Users className="h-5 w-5 text-emerald-500" />
+        };
+      case 'contributors':
+        return {
+          title: "Contributor Requests",
+          desc: "Applications from students interested in open-source contribution",
+          icon: <Users className="h-5 w-5 text-indigo-500" />
+        };
+      case 'pullrequests':
+        return {
+          title: "PR Merge Requests",
+          desc: "Pull request review and merge requests submitted by open-source contributors",
+          icon: <GitPullRequest className="h-5 w-5 text-[#34A853]" />
+        };
+      case 'ats-payments':
+        return {
+          title: "ATS Credit Payments",
+          desc: "Verify and approve UPI transaction UTR codes to unlock ATS Resume evaluation credits",
+          icon: <CreditCard className="h-5 w-5 text-indigo-500" />
         };
     }
   };
@@ -333,9 +531,20 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     </p>
                   )}
                 </div>
-                <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-650 shrink-0 select-none">
-                  {formatTime(log.timestamp)}
-                </span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-650 select-none">
+                    {formatTime(log.timestamp)}
+                  </span>
+                  <Button
+                    onClick={() => handleDeleteItem('systemLogs', log.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    title="Delete Log"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
             ))}
 
@@ -352,9 +561,20 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     </pre>
                   )}
                 </div>
-                <span className="text-[9px] font-bold text-red-400 dark:text-red-900/60 shrink-0 select-none">
-                  {formatTime(err.timestamp)}
-                </span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-[9px] font-bold text-red-400 dark:text-red-900/60 select-none">
+                    {formatTime(err.timestamp)}
+                  </span>
+                  <Button
+                    onClick={() => handleDeleteItem('systemLogs', err.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    title="Delete Error Log"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
             ))}
 
@@ -383,17 +603,28 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                   </div>
                 </div>
 
-                {bug.status === 'open' && (
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-start">
+                  {bug.status === 'open' && (
+                    <Button
+                      onClick={() => handleResolveBug(bug.id)}
+                      size="sm"
+                      variant="outline"
+                      className="h-8 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-xs font-bold uppercase tracking-wider shrink-0 gap-1.5"
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Resolve
+                    </Button>
+                  )}
                   <Button
-                    onClick={() => handleResolveBug(bug.id)}
-                    size="sm"
-                    variant="outline"
-                    className="h-8 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-xs font-bold uppercase tracking-wider shrink-0 gap-1.5"
+                    onClick={() => handleDeleteItem('bugReports', bug.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    title="Delete Bug Ticket"
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Resolve
+                    <Trash2 className="h-4 w-4" />
                   </Button>
-                )}
+                </div>
               </div>
             ))}
 
@@ -440,6 +671,15 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     <ExternalLink className="h-3.5 w-3.5" />
                     Moderate
                   </Button>
+                  <Button
+                    onClick={() => handleDeleteItem('communityReports', report.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    title="Delete Flag"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}
@@ -475,17 +715,299 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                   </div>
                 </div>
 
-                <div className="text-right shrink-0 select-none">
-                  <p className="text-[9px] font-bold text-slate-400 dark:text-zinc-650">Registered</p>
-                  <p className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 mt-0.5">
-                    {formatTime(user.createdAt)}
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right select-none">
+                    <p className="text-[9px] font-bold text-slate-400 dark:text-zinc-650">Registered</p>
+                    <p className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 mt-0.5">
+                      {formatTime(user.createdAt)}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => handleDeleteItem('users', user.uid)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    title="Delete User"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            {mode === 'contributors' && (filteredItems as ContributorApplication[]).map((app) => (
+              <div key={app.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <Badge 
+                      variant={app.status === 'approved' ? 'secondary' : 'destructive'} 
+                      className={cn(
+                        "text-[9px] uppercase tracking-wider font-bold h-4.5 px-2 border-none select-none",
+                        app.status === 'approved' && "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+                        app.status === 'pending' && "bg-red-500/10 text-red-400 border border-red-500/20",
+                        app.status === 'resubmitted' && "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20",
+                        app.status === 'insufficient' && "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                      )}
+                    >
+                      {app.status === 'insufficient' ? 'details requested' : app.status}
+                    </Badge>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">{app.name}</h4>
+                  </div>
+                  <p className="text-[11px] text-slate-700 dark:text-zinc-350 leading-relaxed font-semibold">
+                    Department: <span className="text-[#4285F4]">{app.department}</span>
                   </p>
+                  <p className="text-[11px] text-slate-600 dark:text-zinc-400 font-medium">
+                    Skills: {app.skills}
+                  </p>
+                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 leading-relaxed">
+                    Message: "{app.message}"
+                  </p>
+                  {app.feedback && (
+                    <div className="text-[11px] text-amber-500 dark:text-amber-400 bg-amber-500/[0.02] border border-amber-500/10 rounded-lg p-2.5 mt-2 max-w-lg font-medium leading-relaxed">
+                      <strong>Admin Feedback:</strong> "{app.feedback}"
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase mt-2">
+                    <span>Email: {app.email}</span>
+                    {app.github && (
+                      <>
+                        <span>•</span>
+                        <a href={`https://github.com/${app.github}`} target="_blank" rel="noreferrer" className="text-[#4285F4] hover:underline inline-flex items-center gap-0.5 lowercase normal-case tracking-normal">
+                          GitHub: @{app.github} <ExternalLink className="h-2 w-2" />
+                        </a>
+                      </>
+                    )}
+                    <span>•</span>
+                    <span>Submitted: {formatTime(app.createdAt)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-start">
+                  {(app.status === 'pending' || app.status === 'resubmitted') && (
+                    <>
+                      <Button
+                        onClick={() => setFeedbackAppId(app.id)}
+                        size="sm"
+                        variant="outline"
+                        className="h-8 border-amber-500/20 text-amber-500 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                      >
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        Request Updates
+                      </Button>
+                      <Button
+                        onClick={() => handleReviewContribution(app.id)}
+                        size="sm"
+                        variant="outline"
+                        className="h-8 border-indigo-500/20 text-indigo-500 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Approve Request
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    onClick={() => handleDeleteItem('contributions', app.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg animate-in fade-in duration-200"
+                    title="Delete Contributor Application"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            {mode === 'pullrequests' && (filteredItems as PRSubmission[]).map((pr) => (
+              <div key={pr.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <Badge variant={pr.status === 'merged' ? 'secondary' : 'destructive'} className="text-[9px] uppercase tracking-wider font-bold h-4.5 px-2 bg-white/5 text-white" style={{ backgroundColor: pr.status === 'merged' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: pr.status === 'merged' ? '#10b981' : '#ef4444' }}>
+                      {pr.status === 'merged' ? 'Merged' : 'Pending'}
+                    </Badge>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">{pr.title}</h4>
+                  </div>
+                  <p className="text-[11px] text-slate-750 dark:text-zinc-350 leading-relaxed font-semibold">
+                    Branch: <code className="bg-slate-100 dark:bg-zinc-800 px-1 rounded text-slate-800 dark:text-zinc-200">{pr.branchName}</code>
+                  </p>
+                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 leading-relaxed">
+                    Description: "{pr.description}"
+                  </p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase mt-2">
+                    <span>By: {pr.name} ({pr.email})</span>
+                    <span>•</span>
+                    <a href={pr.prLink} target="_blank" rel="noreferrer" className="text-[#4285F4] hover:underline inline-flex items-center gap-0.5 lowercase normal-case tracking-normal">
+                      PR Link: {pr.prLink} <ExternalLink className="h-2 w-2" />
+                    </a>
+                    <span>•</span>
+                    <span>Submitted: {formatTime(pr.createdAt)}</span>
+                    {pr.mergedAt && (
+                      <>
+                        <span>•</span>
+                        <span className="text-emerald-500 font-bold">Merged: {formatTime(pr.mergedAt)}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-start">
+                  {pr.status === 'pending' && (
+                    <Button
+                      onClick={() => handleMergePR(pr.id)}
+                      size="sm"
+                      variant="outline"
+                      className="h-8 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-xs font-bold uppercase tracking-wider shrink-0 gap-1.5"
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Merge / Accept
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => handleDeleteItem('pullRequests', pr.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    title="Delete PR Submission"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            {mode === 'ats-payments' && (filteredItems as any[]).map((pay) => (
+              <div key={pay.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors animate-in fade-in duration-300">
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <Badge variant={pay.status === 'approved' ? 'secondary' : 'destructive'} className="text-[9px] uppercase tracking-wider font-bold h-4.5 px-2 bg-white/5 text-white" style={{ backgroundColor: pay.status === 'approved' ? 'rgba(16,185,129,0.1)' : pay.status === 'pending' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)', color: pay.status === 'approved' ? '#10b981' : pay.status === 'pending' ? '#f59e0b' : '#ef4444' }}>
+                      {pay.status}
+                    </Badge>
+                    <h4 className="text-xs font-mono font-bold text-slate-900 dark:text-white">UTR Reference: {pay.utr}</h4>
+                  </div>
+                  <p className="text-[11px] text-slate-750 dark:text-zinc-350 leading-relaxed font-semibold">
+                    Credit Amount: <span className="text-emerald-500 font-black">₹{pay.amount}.00</span>
+                  </p>
+                  <p className="text-[11px] text-slate-600 dark:text-zinc-400 font-medium">
+                    Purchaser: {pay.email}
+                  </p>
+                  <div className="text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase mt-1">
+                    Submitted: {formatTime(pay.createdAt)}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-start">
+                  {pay.status === 'pending' && (
+                    <>
+                      <Button
+                        onClick={() => handleVerifyPayment(pay.id, false)}
+                        size="sm"
+                        variant="outline"
+                        className="h-8 border-rose-500/20 text-rose-500 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                      >
+                        Reject Reference
+                      </Button>
+                      <Button
+                        onClick={() => handleVerifyPayment(pay.id, true)}
+                        size="sm"
+                        variant="outline"
+                        className="h-8 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                      >
+                        Verify & Approve
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    onClick={() => handleDeleteItem('atsPayments', pay.id)}
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg animate-in fade-in duration-200"
+                    title="Delete Payment Reference"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+      
+      {/* Request Details Dialog */}
+      <Dialog open={feedbackAppId !== null} onOpenChange={(open) => { if(!open) setFeedbackAppId(null); }}>
+        <DialogContent className="max-w-md bg-[#080808]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.95)]">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-sm font-black tracking-tight text-white uppercase italic flex items-center gap-2">
+              <AlertCircle className="h-4.5 w-4.5 text-amber-500" /> Request Application Update
+            </DialogTitle>
+            <DialogDescription className="text-[11px] text-zinc-400 font-medium">
+              Explain what details are missing (e.g. GitHub URL, portfolio details). The applicant will receive this feedback via email along with a reverification link.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[9px] font-black uppercase tracking-widest text-white/40">Admin Feedback</label>
+              <textarea
+                value={adminFeedback}
+                onChange={(e) => setAdminFeedback(e.target.value)}
+                placeholder="Your GitHub link is incorrect, or we need more details about your Next.js experience..."
+                rows={4}
+                className="w-full bg-black border border-white/10 hover:border-white/20 focus:border-white/30 transition-all rounded-xl p-3 text-xs text-white focus:outline-none placeholder-white/20 resize-none"
+                required
+              />
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => { setFeedbackAppId(null); setAdminFeedback(''); }} 
+                className="rounded-xl h-9 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={async () => {
+                  if (!feedbackAppId || !adminFeedback.trim()) {
+                    toast.warning("Empty feedback", { description: "Please enter feedback details." });
+                    return;
+                  }
+                  setSubmittingFeedback(true);
+                  try {
+                    const res = await requestMoreDetailsAction(feedbackAppId, adminFeedback);
+                    if (res.success) {
+                      toast.success("Feedback sent successfully!", {
+                        description: "Candidate has been notified to resubmit details."
+                      });
+                      setFeedbackAppId(null);
+                      setAdminFeedback('');
+                    } else {
+                      toast.danger("Action failed", { description: res.error });
+                    }
+                  } catch (err: any) {
+                    toast.danger("An error occurred", { description: err.message });
+                  } finally {
+                    setSubmittingFeedback(false);
+                  }
+                }}
+                disabled={submittingFeedback}
+                className="rounded-xl h-9 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider disabled:opacity-40"
+              >
+                {submittingFeedback ? "Sending Request..." : "Send Feedback Request"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDeleteDialog
+        isOpen={deleteItemId !== null}
+        onClose={() => {
+          setDeleteItemId(null);
+          setDeleteCollection(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Item?"
+        description={`This action cannot be undone. This will permanently delete this record from ${deleteCollection || "the database"}.`}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

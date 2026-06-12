@@ -115,6 +115,18 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
             title: "Latest Users",
             url: "/admin/operations/users",
           },
+          {
+            title: "Contributor Requests",
+            url: "/admin/operations/contributors",
+          },
+          {
+            title: "PR Merge Requests",
+            url: "/admin/operations/pull-requests",
+          },
+          {
+            title: "ATS Payments",
+            url: "/admin/operations/ats-payments",
+          },
         ]
       },
       {

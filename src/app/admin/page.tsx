@@ -16,6 +16,7 @@ import {
   UserCheck
 } from "lucide-react";
 import Link from "next/link";
+import { DashboardCharts } from "@/components/admin/dashboard-charts";
 
 
 export const dynamic = 'force-dynamic';
@@ -208,6 +209,19 @@ export default async function AdminPage() {
           </h3>
           <p className="text-xs text-slate-400 dark:text-zinc-500 mt-2.5 font-medium">Controlled via Hiring Settings</p>
         </div>
+      </div>
+
+      {/* ── Visual Analytics & Averages Section ── */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">
+            Critical Metrics & <span className="text-[#34A853]">Averages</span>
+          </h2>
+          <p className="text-xs text-slate-400 dark:text-zinc-500 font-medium">
+            Academic standing, reviewer evaluations, talent tiers, and automated screening breakdowns
+          </p>
+        </div>
+        <DashboardCharts applications={applications} />
       </div>
 
       {/* ── Main Dashboard Layout ── */}

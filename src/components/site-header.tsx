@@ -21,10 +21,18 @@ import {
     Palette,
     ArrowRight,
     Handshake,
+    BookOpen,
+    PenTool,
 } from 'lucide-react';
 import Link from 'next/link';
 import { UserNav } from '@/components/user-nav';
 import { LiveNotificationBell } from '@/components/live-notification-bell';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const navLinks = [
     { href: '/', label: 'Home' },
@@ -32,6 +40,8 @@ const navLinks = [
     { href: '/team', label: 'Team' },
     { href: '/events', label: 'Events' },
     { href: '/domains', label: 'Domains' },
+    { href: '/services', label: 'Services' },
+    { href: '/contributors', label: 'Contributors' },
     { href: '/study', label: 'Study' },
     { href: '/blog', label: 'Blog' },
     { href: '/schedule', label: 'Schedule' },
@@ -39,6 +49,9 @@ const navLinks = [
 
 export function SiteHeader() {
     const pathname = usePathname();
+    const isMoreActive = ['/contributors', '/study', '/blog', '/schedule'].some(
+        (href) => pathname.startsWith(href)
+    );
     const [domainsOpen, setDomainsOpen] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [mounted, setMounted] = useState(false);
@@ -113,36 +126,119 @@ export function SiteHeader() {
 
                         {/* ── Center Nav ── */}
                         <nav className="hidden lg:flex items-center gap-0.5 text-[11px] font-bold tracking-[0.12em] uppercase text-white/50">
-                            {navLinks.map((link) => {
-                                if (link.href === '/domains') {
-                                    return (
-                                        <button
-                                            key={link.href}
-                                            onMouseEnter={handleMouseEnter}
-                                            onMouseLeave={handleMouseLeave}
-                                            className={cn(
-                                                "flex items-center gap-1 transition-all duration-200 px-3 py-1.5 rounded-lg uppercase",
-                                                domainsOpen ? "text-white bg-white/[0.06]" : "text-white/50 hover:text-white hover:bg-white/[0.06]"
-                                            )}
-                                        >
-                                            Domains
-                                            <ChevronDown className={cn("h-3 w-3 transition-transform duration-300", domainsOpen ? "rotate-180" : "")} />
-                                        </button>
-                                    );
-                                }
-                                return (
-                                    <Link
-                                        key={link.href}
-                                        href={link.href}
+                            {/* About */}
+                            <Link
+                                href="/about"
+                                className={cn(
+                                    "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
+                                    isActive('/about') ? "bg-white/[0.08] text-white" : ""
+                                )}
+                            >
+                                About
+                            </Link>
+
+                            {/* Team */}
+                            <Link
+                                href="/team"
+                                className={cn(
+                                    "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
+                                    isActive('/team') ? "bg-white/[0.08] text-white" : ""
+                                )}
+                            >
+                                Team
+                            </Link>
+
+                            {/* Events */}
+                            <Link
+                                href="/events"
+                                className={cn(
+                                    "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
+                                    isActive('/events') ? "bg-white/[0.08] text-white" : ""
+                                )}
+                            >
+                                Events
+                            </Link>
+
+                            {/* Domains (Hover mega-menu) */}
+                            <button
+                                onMouseEnter={handleMouseEnter}
+                                onMouseLeave={handleMouseLeave}
+                                className={cn(
+                                    "flex items-center gap-1 transition-all duration-200 px-3 py-1.5 rounded-lg uppercase outline-none focus:outline-none",
+                                    domainsOpen ? "text-white bg-white/[0.06]" : "text-white/50 hover:text-white hover:bg-white/[0.06]"
+                                )}
+                            >
+                                Domains
+                                <ChevronDown className={cn("h-3 w-3 transition-transform duration-300", domainsOpen ? "rotate-180" : "")} />
+                            </button>
+
+                            {/* Services */}
+                            <Link
+                                href="/services"
+                                className={cn(
+                                    "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
+                                    isActive('/services') ? "bg-white/[0.08] text-white" : ""
+                                )}
+                            >
+                                Services
+                            </Link>
+
+                            {/* More Dropdown */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button
                                         className={cn(
-                                            "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
-                                            isActive(link.href) ? "bg-white/[0.08] text-white" : ""
+                                            "flex items-center gap-1 transition-all duration-200 px-3 py-1.5 rounded-lg uppercase outline-none focus:outline-none",
+                                            isMoreActive ? "bg-white/[0.08] text-white" : "text-white/50 hover:text-white hover:bg-white/[0.06]"
                                         )}
                                     >
-                                        {link.label}
-                                    </Link>
-                                );
-                            })}
+                                        More
+                                        <ChevronDown className="h-3 w-3 opacity-60" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    className="w-56 bg-[#080808]/95 backdrop-blur-xl border border-white/[0.10] rounded-2xl p-2 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_24px_80px_rgba(0,0,0,0.95),0_8px_32px_rgba(0,0,0,0.7)]"
+                                    align="end"
+                                    sideOffset={34}
+                                >
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/contributors"
+                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                        >
+                                            <Handshake className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" />
+                                            Contributors
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/study"
+                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                        >
+                                            <BookOpen className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" />
+                                            Study Material
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/blog"
+                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                        >
+                                            <PenTool className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" />
+                                            Blog
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/schedule"
+                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                        >
+                                            <Calendar className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" />
+                                            Schedule
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </nav>
 
                         {/* ── Right Actions ── */}

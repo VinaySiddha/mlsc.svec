@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useAuth } from '@/lib/auth-context';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { logClientError } from '@/lib/error-logger';
 
 const branches = ["AIML", "CAI", "CIVIL", "CSDS", "CSE", "CST", "ECE", "ECT", "EEE", "MECH"];
 const years = ["1st", "2nd", "3rd", "4th"];
@@ -96,6 +97,12 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
             form.reset();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            await logClientError(
+                `Failed to register student for event ${eventId}`,
+                error,
+                "EventRegistrationForm",
+                user?.email || values.email || "unknown"
+            );
             toast({
                 variant: "destructive",
                 title: "Registration Failed",

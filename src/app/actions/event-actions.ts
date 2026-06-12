@@ -126,8 +126,12 @@ export async function updateEvent(id: string, formData: FormData) {
 
     revalidateTag('events', 'max');
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to update event:", error);
+    await logErrorAction(
+      `Event Update Failed`,
+      `Failed to update event ID ${id} (${parsed.data?.title || "unknown"}). Error: ${error.message || error}`
+    );
     const message = error instanceof Error ? error.message : String(error);
     return { error: `Failed to update event: ${message}` };
   }
@@ -138,7 +142,12 @@ export async function deleteEvent(id: string) {
     await EventService.deleteEvent(id);
     revalidateTag('events', 'max');
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Failed to delete event:", error);
+    await logErrorAction(
+      `Event Deletion Failed`,
+      `Failed to delete event ID ${id}. Error: ${error.message || error}`
+    );
     return { error: 'Failed to delete event.' };
   }
 }
@@ -218,8 +227,12 @@ export async function sendReminderEmails(eventId: string) {
   try {
     const result = await EventService.sendReminderEmails(eventId);
     return result;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending reminder emails:", error);
+    await logErrorAction(
+      `Send Reminder Emails Failed`,
+      `Failed to send reminder emails for event ID ${eventId}. Error: ${error.message || error}`
+    );
     if (error instanceof Error) {
       return { error: `Failed to send reminders: ${error.message}` };
     }
@@ -231,8 +244,12 @@ export async function sendFeedbackEmails(eventId: string) {
   try {
     const result = await EventService.sendFeedbackEmails(eventId);
     return result;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending feedback emails:", error);
+    await logErrorAction(
+      `Send Feedback Emails Failed`,
+      `Failed to send feedback emails for event ID ${eventId}. Error: ${error.message || error}`
+    );
     if (error instanceof Error) {
       return { error: `Failed to send feedback emails: ${error.message}` };
     }
@@ -261,8 +278,12 @@ export async function exportEventRegistrationsToCsv(eventId: string) {
 
     const csv = papaparse.unparse(registrations);
     return { success: true, csvData: csv };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error exporting event registrations:', error);
+    await logErrorAction(
+      `Export Event Registrations Failed`,
+      `Failed to export registrations for event ID ${eventId}. Error: ${error.message || error}`
+    );
     if (error instanceof Error) {
       return { error: `Export failed: ${error.message}` };
     }

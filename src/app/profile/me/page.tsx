@@ -127,9 +127,16 @@ export default function UserProfilePage() {
         setProfile(prev => prev ? { ...prev, ...values } : prev);
         toast({ title: 'Profile Updated', description: 'Your profile has been saved.' });
       } else {
-        toast({ variant: 'destructive', title: 'Error', description: result.error });
+        throw new Error(result.error);
       }
     } catch (err: any) {
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        'Failed to update user profile details',
+        err,
+        'UserProfileMePage',
+        user.email || 'unknown'
+      );
       toast({ variant: 'destructive', title: 'Error', description: err.message || 'Something went wrong.' });
     } finally {
       setIsSubmitting(false);
@@ -147,7 +154,14 @@ export default function UserProfilePage() {
       await updateUserProfile(user.uid, { photoURL: url });
       setProfile(prev => prev ? { ...prev, photoURL: url } : prev);
       toast({ title: 'Photo Updated', description: 'Your profile photo has been changed.' });
-    } catch {
+    } catch (err: any) {
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        'Failed to upload profile picture to storage',
+        err,
+        'UserProfileMePage',
+        user.email || 'unknown'
+      );
       toast({ variant: 'destructive', title: 'Upload Failed', description: 'Could not upload image.' });
     }
     setIsUploadingImage(false);

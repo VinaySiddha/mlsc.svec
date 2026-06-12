@@ -13,6 +13,8 @@ import { ArrowLeft, Loader2, UploadCloud, FileCheck2, AlertTriangle } from 'luci
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { logClientError } from '@/lib/error-logger';
+import { useAuth } from '@/lib/auth-context';
 import Papa from 'papaparse';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Field, FieldLabel, FieldError } from '@/components/ui/field';
@@ -29,6 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function BulkUpdatePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
@@ -67,6 +70,12 @@ export default function BulkUpdatePage() {
           form.reset();
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+          await logClientError(
+            'Bulk update from CSV failed',
+            error,
+            'BulkUpdatePage',
+            user?.email || 'unknown'
+          );
           toast({
             variant: 'destructive',
             title: 'Bulk Update Failed',

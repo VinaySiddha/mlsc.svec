@@ -11,6 +11,9 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { logClientError } from '@/lib/error-logger';
+import { useAuth } from '@/lib/auth-context';
+import { ConfirmDeleteDialog } from '@/components/admin/confirm-delete-dialog';
 
 const notificationSchema = z.object({
   message: z.string().min(1, 'Notification message cannot be empty.'),
@@ -28,7 +31,9 @@ export default function NotificationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [deleteNotificationId, setDeleteNotificationId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<NotificationFormValues>({
     resolver: zodResolver(notificationSchema),
@@ -53,28 +58,55 @@ export default function NotificationsPage() {
 
   const onSubmit = async (values: NotificationFormValues) => {
     setIsSubmitting(true);
-    const result = await addNotification(values);
-    if (result.error) {
-        toast({ variant: 'destructive', title: 'Error', description: result.error });
-    } else {
-        toast({ title: 'Success', description: 'Notification added successfully.' });
-        form.reset();
-        await fetchNotifications();
+    try {
+      const result = await addNotification(values);
+      if (result.error) {
+          throw new Error(result.error);
+      }
+      toast({ title: 'Success', description: 'Notification added successfully.' });
+      form.reset();
+      await fetchNotifications();
+    } catch (error: any) {
+      await logClientError(
+        'Failed to add announcement ticker message',
+        error,
+        'NotificationsPage',
+        user?.email || 'unknown'
+      );
+      toast({ variant: 'destructive', title: 'Error', description: error.message });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
   
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
+    setDeleteNotificationId(id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteNotificationId) return;
+    const id = deleteNotificationId;
     setIsDeleting(id);
-    const result = await deleteNotification(id);
-    if (result.error) {
-        toast({ variant: 'destructive', title: 'Error', description: result.error });
-    } else {
-        toast({ title: 'Success', description: 'Notification deleted successfully.' });
-        await fetchNotifications();
+    try {
+      const result = await deleteNotification(id);
+      if (result.error) {
+          throw new Error(result.error);
+      }
+      toast({ title: 'Success', description: 'Notification deleted successfully.' });
+      setDeleteNotificationId(null);
+      await fetchNotifications();
+    } catch (error: any) {
+      await logClientError(
+        `Failed to delete announcement ticker message ID: ${id}`,
+        error,
+        'NotificationsPage',
+        user?.email || 'unknown'
+      );
+      toast({ variant: 'destructive', title: 'Error', description: error.message });
+    } finally {
+      setIsDeleting(null);
     }
-    setIsDeleting(null);
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -159,6 +191,15 @@ export default function NotificationsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <ConfirmDeleteDialog
+        isOpen={deleteNotificationId !== null}
+        onClose={() => setDeleteNotificationId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Announcement?"
+        description="This action cannot be undone. This will permanently delete this announcement ticker message from the website header bar."
+        isLoading={isDeleting !== null}
+      />
     </div>
   );
 }

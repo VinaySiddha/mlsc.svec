@@ -63,7 +63,14 @@ export function StatusCheckForm() {
       } else {
         setError(result?.error || 'No application found with that reference ID. Please double-check and try again.');
       }
-    } catch (e) {
+    } catch (e: any) {
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        `Failed to check application status for ID: ${values.referenceId}`,
+        e,
+        "StatusCheckForm",
+        "unknown"
+      );
       setError('An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);

@@ -10,6 +10,8 @@ import { Loader2, ThumbsUp, ClipboardCopy, AlertTriangle } from "lucide-react";
 import { internalRegister } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { logClientError } from "@/lib/error-logger";
+import { useAuth } from "@/lib/auth-context";
 import {
   Form,
   FormControl,
@@ -66,6 +68,7 @@ export function InternalRegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<{ referenceId: string | null } | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -102,6 +105,12 @@ export function InternalRegistrationForm() {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      await logClientError(
+        `Failed to internally register student ${values.name}`,
+        error,
+        "InternalRegistrationForm",
+        user?.email || "unknown"
+      );
       toast({
         variant: "destructive",
         title: "Oh no! Something went wrong.",

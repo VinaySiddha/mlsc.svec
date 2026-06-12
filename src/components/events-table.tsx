@@ -7,21 +7,11 @@ import Link from "next/link";
 import { format } from 'date-fns';
 import { Button } from "./ui/button";
 import { Eye, Pencil, Trash2, Loader2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { useState, useTransition } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { deleteEvent } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { ConfirmDeleteDialog } from "@/components/admin/confirm-delete-dialog";
 
 
 interface EventsTableProps {
@@ -30,12 +20,15 @@ interface EventsTableProps {
 
 export function EventsTable({ events }: EventsTableProps) {
     const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
 
-    const handleDelete = async (eventId: string) => {
+    const handleDeleteConfirm = () => {
+        if (!deleteEventId) return;
+        const eventId = deleteEventId;
         startTransition(async () => {
             setIsDeleting(true);
             try {
@@ -47,6 +40,7 @@ export function EventsTable({ events }: EventsTableProps) {
                     title: "Event Deleted",
                     description: "The event has been successfully deleted.",
                 });
+                setDeleteEventId(null);
                 router.refresh();
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -59,7 +53,7 @@ export function EventsTable({ events }: EventsTableProps) {
                 setIsDeleting(false);
             }
         });
-    }
+    };
 
   return (
     <div className="border rounded-md">
@@ -101,29 +95,19 @@ export function EventsTable({ events }: EventsTableProps) {
                                <span className="sr-only">Edit Event</span>
                            </Link>
                         </Button>
-                         <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="icon" disabled={isDeleting || isPending}>
-                                    {(isDeleting || isPending) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                                    <span className="sr-only">Delete Event</span>
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the event
-                                    and all of its registration data.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(event.id)} disabled={isDeleting || isPending}>
-                                    {(isDeleting || isPending) ? "Deleting..." : "Continue"}
-                                </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        <Button
+                            variant="destructive"
+                            size="icon"
+                            disabled={isDeleting || isPending}
+                            onClick={() => setDeleteEventId(event.id)}
+                        >
+                            {(isDeleting || isPending) && deleteEventId === event.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Trash2 className="h-4 w-4" />
+                            )}
+                            <span className="sr-only">Delete Event</span>
+                        </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -138,6 +122,15 @@ export function EventsTable({ events }: EventsTableProps) {
           )}
         </TableBody>
       </Table>
+
+      <ConfirmDeleteDialog
+        isOpen={deleteEventId !== null}
+        onClose={() => setDeleteEventId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Event?"
+        description="This action cannot be undone. This will permanently delete the event and all of its registration data."
+        isLoading={isDeleting || isPending}
+      />
     </div>
   );
 }

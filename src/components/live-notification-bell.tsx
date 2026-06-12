@@ -3,9 +3,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { collection, query, orderBy, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Bell, Megaphone, X, ExternalLink } from 'lucide-react';
+import { Bell, Megaphone, X, ExternalLink, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface Notification {
   id: string;
@@ -18,10 +20,49 @@ interface LiveNotificationBellProps {
   initialNotifications?: Notification[];
 }
 
+function extractLink(message: string): string | null {
+  // Regex to match URLs starting with http/https
+  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+  const urlMatch = message.match(urlRegex);
+  if (urlMatch) {
+    return urlMatch[0];
+  }
+
+  // Regex to match internal routes (starts with / followed by alphanumeric/slashes)
+  const routeRegex = /(?:\s|^)(\/(?:events|contribute|services|profile|issue-tracker|auth)[a-zA-Z0-9_\-\/]*)/i;
+  const routeMatch = message.match(routeRegex);
+  if (routeMatch) {
+    return routeMatch[1].trim();
+  }
+
+  const msgLower = message.toLowerCase();
+  // If message mentions "Event Calendar" or similar, default to /events
+  if (msgLower.includes('event calendar') || msgLower.includes('new event') || msgLower.includes('scheduled for')) {
+    return '/events';
+  }
+  // If message mentions "contribute" or "contributor", default to /contribute
+  if (msgLower.includes('contribute') || msgLower.includes('contributor')) {
+    return '/contribute';
+  }
+  // If message mentions "resume" or "ats", default to /services/resume
+  if (msgLower.includes('resume') || msgLower.includes('ats')) {
+    return '/services/resume';
+  }
+  // If message mentions "bug" or "issue", default to /issue-tracker
+  if (msgLower.includes('bug') || msgLower.includes('issue')) {
+    return '/issue-tracker';
+  }
+  
+  return null;
+}
+
 export function LiveNotificationBell({ initialNotifications = [] }: LiveNotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  
   const panelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const prevCountRef = useRef(initialNotifications.length);
@@ -83,6 +124,14 @@ export function LiveNotificationBell({ initialNotifications = [] }: LiveNotifica
     setUnread(0);
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    setSelectedNotification(notification);
+    setDetailsOpen(true);
+    setOpen(false);
+  };
+
+  const detectedLink = selectedNotification ? extractLink(selectedNotification.message) : null;
+
   return (
     <div className="relative" ref={panelRef}>
       {/* Bell button */}
@@ -124,28 +173,81 @@ export function LiveNotificationBell({ initialNotifications = [] }: LiveNotifica
                 <p className="text-xs text-white/30 font-medium">No announcements yet</p>
               </div>
             ) : (
-              notifications.map((n, i) => (
-                <div
+              notifications.map((n) => (
+                <button
                   key={n.id}
-                  className="px-4 py-3 border-b border-white/[0.06] last:border-0 hover:bg-white/[0.03] transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleNotificationClick(n);
+                  }}
+                  className="w-full text-left px-4 py-3 border-b border-white/[0.06] last:border-0 hover:bg-white/[0.03] transition-colors focus:outline-none flex flex-col gap-1"
                 >
                   <div className="flex items-start gap-2.5">
-                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#4285F4] shrink-0" />
-                    <p className="text-xs text-white/70 leading-relaxed">{n.message}</p>
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#4285F4] shrink-0" />
+                    <p className="text-xs text-white/70 leading-relaxed line-clamp-2">{n.message}</p>
                   </div>
                   {n.createdAt && (
-                    <p className="text-[10px] text-white/25 mt-1 pl-4">
+                    <p className="text-[10px] text-white/25 pl-4">
                       {new Date(n.createdAt?.toDate?.() ?? n.createdAt).toLocaleDateString('en-IN', {
                         day: 'numeric', month: 'short', year: 'numeric',
                       })}
                     </p>
                   )}
-                </div>
+                </button>
               ))
             )}
           </div>
         </div>
       )}
+
+      {/* Details Dialog */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="sm:max-w-md bg-[#0A0A0A] border border-white/10 text-white rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-white">
+              <Megaphone className="h-4 w-4 text-[#4285F4]" />
+              Announcement Details
+            </DialogTitle>
+            <DialogDescription className="text-xs text-white/40">
+              {selectedNotification && selectedNotification.createdAt && (
+                <span>
+                  Posted on {new Date(selectedNotification.createdAt?.toDate?.() ?? selectedNotification.createdAt).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                  })}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2 space-y-4">
+            <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
+              {selectedNotification?.message}
+            </p>
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 border-t border-white/5 pt-4">
+            {detectedLink && (
+              <Button asChild variant="gradient" className="rounded-xl text-xs font-bold uppercase tracking-wider h-10 px-5">
+                <Link href={detectedLink} onClick={() => { setDetailsOpen(false); setOpen(false); }}>
+                  {detectedLink.startsWith('http') ? (
+                    <>
+                      Open External Link <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      Go to Page <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                    </>
+                  )}
+                </Link>
+              </Button>
+            )}
+            <DialogClose asChild>
+              <Button variant="outline" className="rounded-xl border-white/10 text-white/70 hover:bg-white/5 hover:text-white text-xs font-bold uppercase tracking-wider h-10">
+                Close
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

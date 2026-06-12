@@ -13,6 +13,8 @@ import { Calendar as CalendarIcon, Loader2, Trash2, PlusCircle, User, Clock } fr
 import { createEvent, updateEvent } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { logClientError } from "@/lib/error-logger";
+import { useAuth } from "@/lib/auth-context";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,6 +84,7 @@ interface EventFormProps {
 
 export function EventForm({ event }: EventFormProps) {
     const router = useRouter();
+    const { user } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [notifyUsers, setNotifyUsers] = useState(false);
     const [seatLimitsEnabled, setSeatLimitsEnabled] = useState(
@@ -228,6 +231,12 @@ export function EventForm({ event }: EventFormProps) {
 
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            await logClientError(
+                event ? `Failed to update event: ${values.title}` : `Failed to create event: ${values.title}`,
+                error,
+                "EventForm",
+                user?.email || "unknown"
+            );
             toast({
                 variant: "destructive",
                 title: "Something went wrong.",

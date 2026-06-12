@@ -76,6 +76,13 @@ export function ContactForm() {
         });
       }
     } catch (err: any) {
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        `Failed to submit contact form: ${output.subject}`,
+        err,
+        "ContactForm",
+        output.email
+      );
       toast.danger("An unexpected error occurred", {
         description: err.message || "Please try again later.",
       });

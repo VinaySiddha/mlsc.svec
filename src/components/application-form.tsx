@@ -10,6 +10,8 @@ import { Loader2, ThumbsUp, ClipboardCopy, AlertTriangle } from "lucide-react";
 import { submitApplication } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { logClientError } from "@/lib/error-logger";
+import { useAuth } from "@/lib/auth-context";
 import {
   Form,
   FormControl,
@@ -90,6 +92,7 @@ export function ApplicationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<{ name: string, referenceId: string | null, summary: string | null } | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -139,6 +142,12 @@ export function ApplicationForm() {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      await logClientError(
+        `Failed to submit application for ${values.name}`,
+        error,
+        "ApplicationForm",
+        user?.email || values.email || "unknown"
+      );
       toast({
         variant: "destructive",
         title: "Oh no! Something went wrong.",

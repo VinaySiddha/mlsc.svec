@@ -10,6 +10,7 @@ import { Loader2, Star } from "lucide-react";
 import { saveApplicationReview } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
 import {
   Form,
   FormControl,
@@ -113,6 +114,7 @@ const StarRating = ({ value, onChange, disabled = false }: { value: number; onCh
 export function ApplicationReviewForm({ application, userRole }: ApplicationReviewFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(reviewSchema),
@@ -177,6 +179,13 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        `Failed to save application review for applicant ID ${application.id}`,
+        error,
+        "ApplicationReviewForm",
+        user?.email || "unknown"
+      );
       toast({
         variant: "destructive",
         title: "Oh no! Something went wrong.",

@@ -66,6 +66,13 @@ function LoginContent() {
       toast({ title: 'Welcome Back!', description: 'You have signed in successfully.' });
       router.push(redirectTo);
     } catch (error: any) {
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        `Email sign-in failed for: ${values.email}`,
+        error,
+        "UserLoginPage",
+        values.email
+      );
       toast({
         variant: 'destructive',
         title: 'Sign-in Failed',
@@ -83,6 +90,13 @@ function LoginContent() {
       toast({ title: 'Account Created!', description: 'Welcome to MLSC SVEC.' });
       router.push(redirectTo);
     } catch (error: any) {
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        `Email registration failed for: ${values.email}`,
+        error,
+        "UserLoginPage",
+        values.email
+      );
       toast({
         variant: 'destructive',
         title: 'Registration Failed',
@@ -102,6 +116,13 @@ function LoginContent() {
       router.push(redirectTo);
     } catch (error: any) {
       if (error?.code !== 'auth/popup-closed-by-user') {
+        const { logClientError } = await import("@/lib/error-logger");
+        await logClientError(
+          `OAuth sign-in failed with provider: ${provider}`,
+          error,
+          "UserLoginPage",
+          "unknown"
+        );
         toast({
           variant: 'destructive',
           title: 'Sign-in Failed',

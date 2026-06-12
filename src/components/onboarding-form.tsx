@@ -57,6 +57,13 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        "Failed to complete profile onboarding",
+        error,
+        "OnboardingForm",
+        "unknown"
+      );
       toast({
         variant: "destructive",
         title: "Oh no! Something went wrong.",

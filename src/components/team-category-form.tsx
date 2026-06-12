@@ -11,6 +11,8 @@ import { Loader2 } from "lucide-react";
 import { createTeamCategory, updateTeamCategory } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { logClientError } from "@/lib/error-logger";
+import { useAuth } from "@/lib/auth-context";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -34,6 +36,7 @@ export function TeamCategoryForm({ category }: TeamCategoryFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const { user } = useAuth();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(teamCategorySchema),
@@ -67,6 +70,12 @@ export function TeamCategoryForm({ category }: TeamCategoryFormProps) {
 
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            await logClientError(
+                category ? `Failed to update team category: ${values.subDomain}` : `Failed to create team category: ${values.subDomain}`,
+                error,
+                "TeamCategoryForm",
+                user?.email || "unknown"
+            );
             toast({
                 variant: "destructive",
                 title: "Oh no! Something went wrong.",

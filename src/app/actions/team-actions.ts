@@ -61,7 +61,11 @@ export async function updateTeamCategory(id: string, values: any) {
     await TeamService.updateTeamCategory(id, parsed.data);
     revalidateTag('team-members', 'max');
     return { success: true };
-  } catch (e) {
+  } catch (e: any) {
+    await logErrorAction(
+      `Category Update Failed`,
+      `Failed to update team category ID ${id} (${parsed.data?.name || "unknown"}). Error: ${e.message || e}`
+    );
     return { error: 'Failed to update category.' };
   }
 }
@@ -71,7 +75,11 @@ export async function deleteTeamCategory(id: string) {
     await TeamService.deleteTeamCategory(id);
     revalidateTag('team-members', 'max');
     return { success: true };
-  } catch (e) {
+  } catch (e: any) {
+    await logErrorAction(
+      `Category Deletion Failed`,
+      `Failed to delete team category ID ${id}. Error: ${e.message || e}`
+    );
     return { error: "Failed to delete category." };
   }
 }
@@ -116,16 +124,24 @@ export async function deleteTeamMember(id: string) {
           const file = bucket.file(filePath);
           await file.delete();
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to delete member profile photo from storage:", err);
+        await logErrorAction(
+          `Member Profile Photo Deletion Failed`,
+          `Failed to delete profile photo for member ID ${id}. Error: ${err.message || err}`
+        );
       }
     }
 
     await TeamService.deleteTeamMember(id);
     revalidateTag('team-members', 'max');
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting team member:", error);
+    await logErrorAction(
+      `Team Member Deletion Failed`,
+      `Failed to delete team member ID ${id}. Error: ${error.message || error}`
+    );
     return { error: "Failed to delete team member." };
   }
 }
@@ -187,6 +203,10 @@ export async function updateTeamMember(id: string, formData: FormData) {
     revalidateTag('team-members', 'max');
     return { success: true };
   } catch (error: any) {
+    await logErrorAction(
+      `Team Member Update Failed`,
+      `Failed to update team member ID ${id} (${parsed.data?.name || "unknown"}). Error: ${error.message || error}`
+    );
     if (error?.code === 'storage/unauthorized') {
       return { error: "Permission denied. Please ensure the 'Storage Object Admin' role is granted." };
     }

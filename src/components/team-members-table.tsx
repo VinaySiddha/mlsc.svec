@@ -4,17 +4,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Pencil, Trash2, Loader2, Link as LinkIcon, MailWarning, Send, Mail, Search, Sparkles } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
@@ -23,6 +12,7 @@ import { deleteTeamMember, resendInvitation, sendProfileEditLink, bulkResendInvi
 import { useRouter } from "next/navigation";
 import { Image } from "@/components/image";
 import { Badge } from "./ui/badge";
+import { ConfirmDeleteDialog } from "@/components/admin/confirm-delete-dialog";
 
 interface TeamMembersTableProps {
     members: any[];
@@ -32,6 +22,7 @@ interface TeamMembersTableProps {
 
 export function TeamMembersTable({ members, hasPending, hasActive }: TeamMembersTableProps) {
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const [deleteMemberId, setDeleteMemberId] = useState<string | null>(null);
     const [isSendingEmail, setIsSendingEmail] = useState<string | null>(null);
     const [isBulkSending, setIsBulkSending] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -40,7 +31,9 @@ export function TeamMembersTable({ members, hasPending, hasActive }: TeamMembers
     const { toast } = useToast();
     const router = useRouter();
 
-    const handleDelete = async (memberId: string) => {
+    const handleDeleteConfirm = async () => {
+        if (!deleteMemberId) return;
+        const memberId = deleteMemberId;
         setIsDeleting(memberId);
         try {
             const result = await deleteTeamMember(memberId);
@@ -51,6 +44,7 @@ export function TeamMembersTable({ members, hasPending, hasActive }: TeamMembers
                 title: "Member Deleted",
                 description: "The team member has been successfully deleted.",
             });
+            setDeleteMemberId(null);
             router.refresh();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -250,28 +244,16 @@ export function TeamMembersTable({ members, hasPending, hasActive }: TeamMembers
                                                 </Link>
                                             </Button>
 
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive" size="icon" className="h-8 w-8 rounded-lg" disabled={isDeleting === member.id}>
-                                                        {isDeleting === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                                                        <span className="sr-only">Delete Member</span>
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently remove the member profile and delete their data from the website team roster.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDelete(member.id)} className="bg-red-600 hover:bg-red-700 text-white" disabled={!!isDeleting}>
-                                                            {isDeleting ? "Removing..." : "Delete Member"}
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
+                                            <Button
+                                                 variant="destructive"
+                                                 size="icon"
+                                                 className="h-8 w-8 rounded-lg"
+                                                 disabled={isDeleting !== null}
+                                                 onClick={() => setDeleteMemberId(member.id)}
+                                             >
+                                                 {isDeleting === member.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                                                 <span className="sr-only">Delete Member</span>
+                                             </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -347,6 +329,15 @@ export function TeamMembersTable({ members, hasPending, hasActive }: TeamMembers
                     </TabsContent>
                 ))}
             </Tabs>
+
+            <ConfirmDeleteDialog
+                isOpen={deleteMemberId !== null}
+                onClose={() => setDeleteMemberId(null)}
+                onConfirm={handleDeleteConfirm}
+                title="Remove Team Member?"
+                description="This action cannot be undone. This will permanently remove the member profile and delete their data from the website team roster."
+                isLoading={isDeleting !== null}
+            />
         </div>
     );
 }

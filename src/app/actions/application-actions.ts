@@ -149,6 +149,10 @@ export async function updateAttendance(firestoreId: string, attended: boolean) {
     return { success: true };
   } catch (error: any) {
     console.error('Error updating attendance:', error);
+    await logErrorAction(
+      `Attendance Update Failed`,
+      `Failed to update attendance status for application ID ${firestoreId}. Error: ${error.message || error}`
+    );
     return { error: 'Failed to update attendance status.' };
   }
 }
@@ -159,6 +163,10 @@ export async function bulkUpdateStatus(filters: any, newStatus: string) {
     return { success: true, ...result };
   } catch (error: any) {
     console.error('Error during bulk status update:', error);
+    await logErrorAction(
+      `Bulk Status Update Failed`,
+      `Failed to perform bulk status update to "${newStatus}". Error: ${error.message || error}`
+    );
     return { error: error.message || 'Failed to complete status update.' };
   }
 }
@@ -169,6 +177,10 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
     return { success: true, count: updatedCount };
   } catch (error: any) {
     console.error('Error during CSV bulk update:', error);
+    await logErrorAction(
+      `CSV Bulk Update Failed`,
+      `Failed to perform CSV bulk update. Error: ${error.message || error}`
+    );
     return { error: error.message || 'Failed to complete CSV import.' };
   }
 }
@@ -263,6 +275,10 @@ export async function setDeadline(deadline: Date) {
     return { success: true };
   } catch (error: any) {
     console.error('Error setting deadline:', error);
+    await logErrorAction(
+      `Set Deadline Failed`,
+      `Failed to set recruitment application deadline to ${deadline.toISOString()}. Error: ${error.message || error}`
+    );
     return { error: 'Failed to set deadline.' };
   }
 }
@@ -293,6 +309,10 @@ export async function toggleHiringStatus(isOpen: boolean) {
     return { success: true };
   } catch (error: any) {
     console.error('Error toggling hiring status:', error);
+    await logErrorAction(
+      `Toggle Hiring Status Failed`,
+      `Failed to toggle hiring status to ${isOpen ? 'Open' : 'Closed'}. Error: ${error.message || error}`
+    );
     return { error: 'Failed to change hiring status.' };
   }
 }
@@ -303,6 +323,10 @@ export async function finalizeHiringCycle() {
     return { success: true };
   } catch (error: any) {
     console.error('Error finalizing hiring cycle:', error);
+    await logErrorAction(
+      `Finalize Hiring Cycle Failed`,
+      `Failed to finalize recruitment hiring cycle. Error: ${error.message || error}`
+    );
     return { error: error.message || 'Failed to finalize hiring cycle.' };
   }
 }
