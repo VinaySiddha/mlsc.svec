@@ -4,6 +4,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   serverExternalPackages: [
+    'nodemailer',
     'genkit',
     '@genkit-ai/core',
     '@genkit-ai/googleai',

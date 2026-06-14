@@ -86,7 +86,8 @@ export async function submitBugReportAction(
   userName?: string,
   userEmail?: string,
   severity = 'medium',
-  category = 'other'
+  category = 'other',
+  imageUrl = ''
 ) {
   try {
     const reportData = {
@@ -97,6 +98,7 @@ export async function submitBugReportAction(
       userEmail: userEmail || '',
       severity,
       category,
+      imageUrl,
       upvotedBy: [] as string[],
       comments: [] as any[],
       status: 'open',
@@ -231,6 +233,56 @@ export async function resolveBugReportAction(id: string) {
   }
 }
 
+export async function reopenBugReportAction(id: string, identifier: string) {
+  try {
+    const docRef = doc(db, 'bugReports', id);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      return { success: false, error: 'Bug report not found.' };
+    }
+    
+    const bug = docSnap.data();
+    
+    // Check if identifier matches either userId or userEmail
+    const matchesUser = 
+      (bug.userId && bug.userId !== 'anonymous' && bug.userId === identifier) ||
+      (bug.userEmail && bug.userEmail.toLowerCase() === identifier.toLowerCase());
+      
+    if (!matchesUser) {
+      return { success: false, error: 'Unauthorized: Only the reporter of this bug can reopen it.' };
+    }
+    
+    const reopenedComment = {
+      id: Math.random().toString(36).substring(2, 10),
+      userName: bug.userName || 'Reporter',
+      userEmail: 'system@mlscsvec.org',
+      content: 'reopened this issue',
+      createdAt: new Date().toISOString(),
+    };
+    
+    const comments = bug.comments || [];
+    
+    await updateDoc(docRef, { 
+      status: 'open',
+      comments: [...comments, reopenedComment]
+    });
+    
+    // Log as activity
+    await logActivityAction(
+      `Bug Report Reopened`,
+      `Bug report #${id} has been reopened by the reporter (${bug.userName || 'Reporter'})`
+    );
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error reopening bug report:', error);
+    await logErrorAction(`Failed to reopen bug report #${id}`, error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+
 export async function getCommunityReportsAction(limitCount = 50) {
   try {
     const q = query(collection(db, 'communityReports'), orderBy('createdAt', 'desc'), limit(limitCount));
@@ -316,3 +368,40 @@ export async function toggleBugUpvoteAction(bugId: string, userEmail: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function getSystemHealthAction() {
+  try {
+    // 1. Measure Firestore Latency
+    const startDb = Date.now();
+    const q = query(collection(db, 'systemLogs'), limit(1));
+    await getDocs(q);
+    const dbLatency = Date.now() - startDb;
+
+    // 2. Check AI Engine config
+    const aiAvailable = !!process.env.GEMINI_API_KEY;
+
+    // 3. Check Mail sender config
+    const mailAvailable = !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+
+    return {
+      success: true,
+      dbStatus: 'operational',
+      dbLatency,
+      aiStatus: aiAvailable ? 'operational' : 'offline',
+      mailStatus: mailAvailable ? 'operational' : 'offline',
+      serverTime: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    console.error('Error in getSystemHealthAction:', error);
+    return {
+      success: false,
+      error: error.message,
+      dbStatus: 'degraded',
+      dbLatency: -1,
+      aiStatus: process.env.GEMINI_API_KEY ? 'operational' : 'offline',
+      mailStatus: (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) ? 'operational' : 'offline',
+      serverTime: new Date().toISOString(),
+    };
+  }
+}
+

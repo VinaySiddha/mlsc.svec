@@ -34,7 +34,7 @@ const footerColumns = [
             { href: '/issue-tracker', label: 'Issue Tracker' },
             { href: '/contribute', label: 'Contribute' },
             { href: '/contributors', label: 'Contributors Circle' },
-            { href: 'https://mlscsvec.openstatus.dev/', label: 'Site Status', external: true },
+            { href: '/status', label: 'Site Status' },
         ],
     },
     {
