@@ -7,6 +7,7 @@ import { Github, Award, ShieldCheck, Heart, Terminal, Compass, LayoutGrid } from
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { OpenSourceButton } from '@/components/ui/open-source-button';
 
 interface Contributor {
   id: string;
@@ -302,9 +303,9 @@ export default function ContributorsPage() {
             <p className="text-xs text-white/50 max-w-sm leading-relaxed font-medium">
               Want your avatar here? Join the club open source initiative and help us build amazing student platforms.
             </p>
-            <Button asChild className="rounded-xl bg-white hover:bg-white/95 text-black font-black px-6 h-10 text-xs tracking-wider uppercase transition-all shadow-md mt-2">
-              <a href="/contribute">Contribute Now</a>
-            </Button>
+            <OpenSourceButton href="/contribute" className="mt-2 h-10 px-6">
+              Contribute Now
+            </OpenSourceButton>
           </div>
         )}
 

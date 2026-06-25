@@ -9,6 +9,7 @@ export interface UserProfile {
   username?: string;
   followersCount?: number;
   followingCount?: number;
+  coins?: number;
   bio?: string;
   rollNo?: string;
   branch?: string;

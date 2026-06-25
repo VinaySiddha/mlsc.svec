@@ -11,13 +11,16 @@ export async function ensureUserProfile(uid: string, profile: {
   displayName: string;
   email: string;
   photoURL: string;
+  username?: string;
 }): Promise<{ isNewUser: boolean }> {
   const userRef = doc(db, 'users', uid);
   const userDoc = await getDoc(userRef);
 
   if (!userDoc.exists()) {
-    // Generate unique username from email
-    let baseUsername = profile.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+    // Generate unique username from email or use the provided one
+    let baseUsername = profile.username
+      ? profile.username.toLowerCase().trim().replace(/[^a-z0-9_]/g, '')
+      : profile.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
     if (!baseUsername) baseUsername = 'user';
     let username = baseUsername;
     let counter = 1;
@@ -45,9 +48,11 @@ export async function ensureUserProfile(uid: string, profile: {
       createdAt: new Date().toISOString(),
     });
 
-    // Fire-and-forget welcome email
+    // Send welcome email (awaited to prevent truncation in serverless environment)
     const { subject, html } = welcomeEmailTemplate(profile.displayName);
-    sendEmail({ to: profile.email, subject, html }).catch(() => {});
+    await sendEmail({ to: profile.email, subject, html }).catch((err) => {
+      console.error('Failed to send welcome email:', err);
+    });
 
     return { isNewUser: true };
   }

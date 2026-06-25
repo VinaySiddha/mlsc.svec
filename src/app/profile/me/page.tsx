@@ -26,7 +26,7 @@ import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from 
 import { Field, FieldGroup, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field";
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, Loader2, Upload, Users } from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, Users, Coins } from 'lucide-react';
 import Link from 'next/link';
 
 const profileSchema = z.object({
@@ -222,8 +222,32 @@ export default function UserProfilePage() {
               <CardDescription className="text-white/40 text-sm font-medium mb-3">@{profile.username || 'username'}</CardDescription>
               <CardDescription className="text-white/50 text-base font-medium mb-4">{profile.email}</CardDescription>
               
+              {/* Public Profile Sharing Actions */}
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-5">
+                <Button asChild variant="outline" size="sm" className="rounded-xl border-white/15 text-[10px] font-black uppercase tracking-wider h-8 px-4">
+                  <Link href={`/profile/${profile.username}`} target="_blank">
+                    View Public Profile
+                  </Link>
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const profileUrl = `${window.location.origin}/profile/${profile.username}`;
+                    navigator.clipboard.writeText(profileUrl);
+                    toast({
+                      title: "Link Copied",
+                      description: "Public profile link copied to clipboard.",
+                    });
+                  }}
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-white/15 text-[10px] font-black uppercase tracking-wider h-8 px-4"
+                >
+                  Copy Link
+                </Button>
+              </div>
+
               {/* Followers / Following Counts */}
-              <div className="flex gap-6 mb-5 justify-center md:justify-start">
+              <div className="flex flex-wrap items-center gap-6 mb-5 justify-center md:justify-start">
                 <button onClick={() => openFollowModal('followers')} className="hover:text-[#4285F4] transition-colors flex items-center gap-1">
                   <span className="font-black text-white text-lg">{profile.followersCount || 0}</span> 
                   <span className="text-white/40 font-bold uppercase tracking-wider text-[10px]">Followers</span>
@@ -232,6 +256,9 @@ export default function UserProfilePage() {
                   <span className="font-black text-white text-lg">{profile.followingCount || 0}</span> 
                   <span className="text-white/40 font-bold uppercase tracking-wider text-[10px]">Following</span>
                 </button>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 font-black text-xs uppercase tracking-widest">
+                  <Coins className="h-3.5 w-3.5 text-yellow-400 shrink-0" /> {profile.coins || 0} Coins
+                </div>
               </div>
 
               <Badge className="bg-[#4285F4] text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border-none">

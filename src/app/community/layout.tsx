@@ -33,7 +33,7 @@ export default function CommunityLayout({ children }: { children: React.ReactNod
           </Button>
         </div>
       </header>
-      <main className="flex-1 p-4 container mx-auto max-w-3xl">
+      <main className="flex-1 p-4 container mx-auto max-w-7xl">
         {children}
       </main>
     </div>

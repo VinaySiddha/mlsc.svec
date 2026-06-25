@@ -20,7 +20,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithGithub: () => Promise<void>;
-  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, displayName: string, username?: string) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const signUpWithEmail = useCallback(async (email: string, password: string, displayName: string) => {
+  const signUpWithEmail = useCallback(async (email: string, password: string, displayName: string, username?: string) => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const u = result.user;
     await updateProfile(u, { displayName });
@@ -77,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName,
       email,
       photoURL: '',
+      username,
     });
   }, []);
 

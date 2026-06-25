@@ -42,6 +42,12 @@ const nextConfig = {
         pathname: '/azure.jpg',
       },
       {
+        pathname: '/images/event-placeholder.png',
+      },
+      {
+        pathname: '/',
+      },
+      {
         pathname: '/blog1.jpg',
       },
       {
@@ -124,6 +130,7 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      
     ],
   },
   trailingSlash: true,

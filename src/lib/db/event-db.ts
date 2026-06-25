@@ -119,4 +119,19 @@ export class EventDb {
     const yearCount = await getCountFromServer(yearQuery);
     return yearCount.data().count;
   }
+
+  static async getEventRegistration(eventId: string, registrationId: string) {
+    const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
+    const snap = await getDoc(registrationRef);
+    if (!snap.exists()) return null;
+    return {
+      ...snap.data(),
+      id: snap.id,
+    } as any;
+  }
+
+  static async updateEventRegistration(eventId: string, registrationId: string, dataToUpdate: any) {
+    const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
+    await updateDoc(registrationRef, dataToUpdate);
+  }
 }

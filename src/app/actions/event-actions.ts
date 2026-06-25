@@ -19,6 +19,7 @@ export async function createEvent(formData: FormData) {
     registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
     registrationOpen: values.registrationOpen === 'true',
     registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
+    registrationFee: values.registrationFee ? parseFloat(values.registrationFee as string) : 0,
   });
 
   if (!parsed.success) {
@@ -95,6 +96,7 @@ export async function updateEvent(id: string, formData: FormData) {
     registrationDeadline: values.registrationDeadline ? new Date(values.registrationDeadline as string) : undefined,
     registrationOpen: values.registrationOpen === 'true',
     registrationLimit: values.registrationLimit ? parseInt(values.registrationLimit as string, 10) : 0,
+    registrationFee: values.registrationFee ? parseFloat(values.registrationFee as string) : 0,
   });
 
   if (!parsed.success) {
@@ -288,5 +290,47 @@ export async function exportEventRegistrationsToCsv(eventId: string) {
       return { error: `Export failed: ${error.message}` };
     }
     return { error: 'An unexpected error occurred during export.' };
+  }
+}
+
+export async function checkInRegistrantAction(eventId: string, registrationId: string, status: boolean) {
+  try {
+    const registration = await EventService.getEventRegistration(eventId, registrationId);
+    if (!registration) {
+      return { error: "Registration ticket not found for this event." };
+    }
+    
+    await EventService.checkInRegistrant(eventId, registrationId, status);
+    
+    // Log activity
+    await logActivityAction(
+      "Attendee Check-In",
+      `Attendee ${registration.name} (${registration.rollNo || 'N/A'}) was checked ${status ? 'in' : 'out'} for event ID ${eventId}.`
+    );
+    
+    return { 
+      success: true, 
+      registration: {
+        ...registration,
+        checkedIn: status,
+        checkedInAt: status ? new Date().toISOString() : null
+      }
+    };
+  } catch (error: any) {
+    console.error("Error during check-in:", error);
+    return { error: error.message || "An unexpected error occurred during check-in." };
+  }
+}
+
+export async function getEventRegistrationAction(eventId: string, registrationId: string) {
+  try {
+    const registration = await EventService.getEventRegistration(eventId, registrationId);
+    if (!registration) {
+      return { error: "Registration ticket not found." };
+    }
+    return { success: true, registration };
+  } catch (error: any) {
+    console.error("Error fetching registration:", error);
+    return { error: error.message || "An unexpected error occurred." };
   }
 }

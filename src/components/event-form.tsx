@@ -56,6 +56,7 @@ const eventFormSchema = z.object({
   registrationOpen: z.boolean().default(false),
   registrationDeadline: z.date().optional(),
   registrationLimit: z.coerce.number().min(0, "Registration limit must be a positive number.").optional(),
+  registrationFee: z.coerce.number().min(0, "Registration fee must be 0 or a positive number.").default(0),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -145,6 +146,7 @@ export function EventForm({ event }: EventFormProps) {
             registrationOpen: event?.registrationOpen || false,
             registrationDeadline: event?.registrationDeadline ? new Date(event.registrationDeadline) : undefined,
             registrationLimit: event?.registrationLimit || 0,
+            registrationFee: (event as any)?.registrationFee || 0,
             speakers: getInitialSpeakers(),
             timeline: getInitialTimeline(),
         },
@@ -602,6 +604,18 @@ export function EventForm({ event }: EventFormProps) {
                                 <FormLabel>Registration Limit (Optional)</FormLabel>
                                 <FormControl><Input type="number" placeholder="e.g., 100" {...field} /></FormControl>
                                 <FormDescription>Set to 0 for unlimited registrations.</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="registrationFee"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Registration Fee (INR)</FormLabel>
+                                <FormControl><Input type="number" placeholder="e.g., 50 (0 for free)" {...field} /></FormControl>
+                                <FormDescription>Set to 0 if the event is free to register.</FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}

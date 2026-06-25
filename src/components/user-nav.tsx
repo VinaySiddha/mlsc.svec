@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogIn, User, MessageSquare, Calendar, LogOut, Bug } from 'lucide-react';
+import { LogIn, User, MessageSquare, Calendar, LogOut, Bug, Verified as VerifiedIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -45,11 +45,16 @@ export function UserNav() {
     <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
+        <Button variant="ghost" interactive={false} className="relative h-8 w-8 rounded-full p-0 hover:bg-transparent !overflow-visible">
+          <div className="relative h-8 w-8">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <span className="absolute -right-1 -bottom-1 flex size-3 items-center justify-center rounded-full bg-black">
+              <VerifiedIcon className="size-full fill-blue-500 text-white" />
+            </span>
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 

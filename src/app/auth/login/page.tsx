@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { LegalModal } from '@/components/legal-modal';
+import { checkUsernameAvailable } from '@/lib/user-service';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -25,6 +26,10 @@ const loginSchema = z.object({
 
 const signupSchema = z.object({
   displayName: z.string().min(2, 'Name must be at least 2 characters.'),
+  username: z.string()
+    .min(3, 'Username must be at least 3 characters.')
+    .max(15, 'Username must be under 15 characters.')
+    .regex(/^[a-z0-9_]+$/, 'Only lowercase letters, numbers, and underscores are allowed.'),
   email: z.string().email('Please enter a valid email address.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
@@ -50,7 +55,7 @@ function LoginContent() {
 
   const signupForm = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { displayName: '', email: '', password: '' },
+    defaultValues: { displayName: '', username: '', email: '', password: '' },
   });
 
   useEffect(() => {
@@ -86,7 +91,19 @@ function LoginContent() {
   const onSignupSubmit = async (values: SignupFormValues) => {
     setIsSubmitting(true);
     try {
-      await signUpWithEmail(values.email, values.password, values.displayName);
+      // Check if username is available first
+      const isAvailable = await checkUsernameAvailable(values.username);
+      if (!isAvailable) {
+        toast({
+          variant: 'destructive',
+          title: 'Username Taken',
+          description: 'This username is already in use. Please choose another one.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      await signUpWithEmail(values.email, values.password, values.displayName, values.username);
       toast({ title: 'Account Created!', description: 'Welcome to MLSC SVEC.' });
       router.push(redirectTo);
     } catch (error: any) {
@@ -178,6 +195,28 @@ function LoginContent() {
                           <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Full Name</FormLabel>
                           <FormControl>
                             <Input placeholder="John Doe" {...field} className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Username</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="username" 
+                              {...field}
+                              onChange={(e) => {
+                                // Enforce lowercase alphanumeric and underscores in real-time
+                                const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                                field.onChange(val);
+                              }}
+                              className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

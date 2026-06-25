@@ -1,0 +1,8 @@
+{
+  "id": "b8f4004c-a9b7-4c62-9514-af2e118ced3a",
+  "status": "failed",
+  "topic": "React and Next.js Core Features",
+  "timeframe": "3 days",
+  "result": null,
+  "error": "Roadmap generator crew failed completely: Google Gen AI native provider not available, to install: uv add \"crewai[google-genai]\""
+}

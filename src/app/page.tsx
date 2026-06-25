@@ -9,7 +9,9 @@ import { DynamicGallery } from "@/components/home/dynamic-gallery";
 import { Testimonials } from "@/components/home/testimonials";
 import { MLSCDomainsCarousel } from "@/components/home/mlsc-domains-carousel";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
-import { Code2, ArrowUpRight } from "lucide-react";
+import { Code2, ArrowUpRight, Bug } from "lucide-react";
+import { OpenSourceButton } from "@/components/ui/open-source-button";
+import { FundraiseButton } from "@/components/fundraise-button";
 
 export const metadata: Metadata = {
   title: "MLSC SVEC — Microsoft Learn Student Club",
@@ -92,18 +94,16 @@ export default async function Home() {
                         </ScrollReveal>
                         <ScrollReveal>
                             <div className="flex flex-wrap justify-center gap-4 pt-4">
-                                <a 
-                                    href="/contribute" 
-                                    className="inline-flex items-center gap-2 rounded-xl bg-white hover:bg-white/95 text-black font-black px-8 h-12 text-xs tracking-wider uppercase transition-all shadow-lg hover:scale-105 active:scale-95"
-                                >
-                                    Contribute Now <ArrowUpRight className="h-4 w-4" />
-                                </a>
-                                <a 
+                                <OpenSourceButton href="/contribute" className="min-w-[180px]">
+                                    Contribute Now
+                                </OpenSourceButton>
+                                <FundraiseButton 
                                     href="/issue-tracker" 
-                                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 hover:border-white/20 bg-[#0A0A0A] hover:bg-[#111] transition-all px-8 h-12 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:scale-105 active:scale-95"
-                                >
-                                    View Issue Tracker
-                                </a>
+                                    playText="View" 
+                                    nowText="Tracker" 
+                                    icon={<Bug className="h-5 w-5" />}
+                                    className="min-w-[180px] h-12 text-shadow-none"
+                                />
                             </div>
                         </ScrollReveal>
                     </div>

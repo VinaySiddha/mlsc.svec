@@ -5,6 +5,7 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { MLSCLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { InteractiveButton } from '@/components/ui/interactive-button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { GooeyInput } from '@/components/ui/gooey-input';
 import { cn } from '@/lib/utils';
@@ -23,6 +24,7 @@ import {
     Handshake,
     BookOpen,
     PenTool,
+    Heart,
 } from 'lucide-react';
 import Link from 'next/link';
 import { UserNav } from '@/components/user-nav';
@@ -45,6 +47,7 @@ const navLinks = [
     { href: '/study', label: 'Study' },
     { href: '/blog', label: 'Blog' },
     { href: '/schedule', label: 'Schedule' },
+    { href: '/donate', label: 'Donate' },
 ];
 
 export function SiteHeader() {
@@ -237,6 +240,15 @@ export function SiteHeader() {
                                             Schedule
                                         </Link>
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/donate"
+                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                        >
+                                            <Heart className="h-4 w-4 text-rose-500/80 group-hover:text-rose-500 group-focus:text-rose-500 transition-colors" />
+                                            Donate
+                                        </Link>
+                                    </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </nav>
@@ -258,9 +270,9 @@ export function SiteHeader() {
                             <div className="hidden lg:flex items-center gap-3">
                                 {mounted && <LiveNotificationBell />}
                                 {mounted && <UserNav />}
-                                <Button asChild className="rounded-xl bg-white text-black font-bold hover:bg-white/90 px-5 h-9 text-[11px] tracking-wider uppercase transition-transform active:scale-95">
-                                    <Link href="/apply">Apply Now</Link>
-                                </Button>
+                                <InteractiveButton href="/apply" className="px-5 h-9 text-[11px] tracking-wider uppercase">
+                                    Apply Now
+                                </InteractiveButton>
                             </div>
                             {/* Mobile hamburger */}
                             <div className="lg:hidden flex items-center gap-3">
@@ -294,9 +306,9 @@ export function SiteHeader() {
                                                 </nav>
                                                 <div className="mt-4">
                                                     <SheetClose asChild>
-                                                        <Link href="/apply" className="inline-flex items-center gap-2 bg-white text-black font-black text-base px-6 py-3.5 rounded-2xl uppercase tracking-wider hover:bg-white/90 transition-all">
-                                                            Apply Now <ArrowRight className="h-4 w-4" />
-                                                        </Link>
+                                                        <InteractiveButton href="/apply" className="text-base px-6 py-3.5 w-full justify-center">
+                                                            Apply Now
+                                                        </InteractiveButton>
                                                     </SheetClose>
                                                 </div>
                                             </div>
@@ -401,9 +413,9 @@ export function SiteHeader() {
                                     Step into the future of tech, collaboration, and learning.
                                 </p>
                             </div>
-                            <Link href="/apply" className="group/btn flex items-center justify-between w-full px-4 py-2.5 rounded-xl bg-white text-black text-[11px] font-black uppercase tracking-wider hover:bg-white/90 transition-all mt-5">
-                                Apply Now <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-1" />
-                            </Link>
+                            <InteractiveButton href="/apply" className="w-full justify-center mt-5 text-[11px] py-2.5 h-auto">
+                                                                Apply Now
+                                                            </InteractiveButton>
                         </div>
                     </div>
                 </div>

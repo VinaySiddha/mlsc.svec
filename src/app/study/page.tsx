@@ -136,7 +136,7 @@ export default function StudyTrackerPage() {
                   You are tracking your study paths anonymously. <span className="text-yellow-500 font-bold">Sign in now</span> to back up your achievements and synchronize progress across all of your devices.
                 </p>
               </div>
-              <Button asChild size="sm" className="rounded-xl bg-yellow-500 text-black font-bold hover:bg-yellow-500/90 tracking-wide uppercase text-xs h-9 px-5 shrink-0 transition-transform active:scale-95">
+              <Button asChild size="sm" className="rounded-xl tracking-wide uppercase text-xs h-9 px-5 shrink-0">
                 <Link href="/auth/login?redirect=/study">Sign In</Link>
               </Button>
             </div>
@@ -232,7 +232,7 @@ export default function StudyTrackerPage() {
 
                           <Button 
                             asChild
-                            className="w-full rounded-2xl bg-white text-black hover:bg-white/95 font-bold uppercase text-xs tracking-wider h-12 transition-all"
+                            className="w-full rounded-2xl font-bold uppercase text-xs tracking-wider h-12"
                           >
                             <Link href={`/study/${course.id}`} className="flex items-center justify-center gap-2">
                               Enter Study Path <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -292,32 +292,57 @@ export default function StudyTrackerPage() {
                               : 'border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/10'
                           }`}
                         >
-                          <div className="flex items-center gap-3.5 min-w-0">
-                            {/* Rank Badge */}
-                            <span className={`text-sm font-black w-5 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
-                              {index + 1}
-                            </span>
-                            
-                            {/* Avatar or Initial */}
-                            <Avatar className="h-9 w-9 shrink-0 border border-white/10">
-                              <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
-                              <AvatarFallback className="text-xs font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
-                                {leader.displayName.substring(0, 2)}
-                              </AvatarFallback>
-                            </Avatar>
+                          {leader.username ? (
+                            <Link 
+                              href={`/profile/${leader.username}`} 
+                              className="flex items-center gap-3.5 min-w-0 group hover:opacity-80 transition-opacity"
+                            >
+                              {/* Rank Badge */}
+                              <span className={`text-sm font-black w-5 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
+                                {index + 1}
+                              </span>
+                              
+                              {/* Avatar or Initial */}
+                              <Avatar className="h-9 w-9 shrink-0 border border-white/10">
+                                <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
+                                <AvatarFallback className="text-xs font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
+                                  {leader.displayName.substring(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
 
-                            {/* User details */}
-                            <div className="min-w-0">
-                              <h4 className="text-xs font-bold text-white truncate max-w-[130px] leading-tight">
-                                {leader.displayName}
-                              </h4>
-                              {leader.username && (
+                              {/* User details */}
+                              <div className="min-w-0">
+                                <h4 className="text-xs font-bold text-white truncate max-w-[130px] leading-tight group-hover:underline">
+                                  {leader.displayName}
+                                </h4>
                                 <p className="text-[10px] text-white/30 truncate leading-none mt-0.5">
                                   @{leader.username}
                                 </p>
-                              )}
+                              </div>
+                            </Link>
+                          ) : (
+                            <div className="flex items-center gap-3.5 min-w-0">
+                              {/* Rank Badge */}
+                              <span className={`text-sm font-black w-5 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
+                                {index + 1}
+                              </span>
+                              
+                              {/* Avatar or Initial */}
+                              <Avatar className="h-9 w-9 shrink-0 border border-white/10">
+                                <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
+                                <AvatarFallback className="text-xs font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
+                                  {leader.displayName.substring(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+
+                              {/* User details */}
+                              <div className="min-w-0">
+                                <h4 className="text-xs font-bold text-white truncate max-w-[130px] leading-tight">
+                                  {leader.displayName}
+                                </h4>
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Problems Solved Badge */}
                           <div className="text-right shrink-0 pl-2">

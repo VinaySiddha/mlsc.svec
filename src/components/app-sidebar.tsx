@@ -14,7 +14,8 @@ import {
   Settings,
   HelpCircle,
   Megaphone,
-  Activity
+  Activity,
+  Coins
 } from 'lucide-react';
 
 import { NavMain } from "@/components/nav-main";
@@ -86,6 +87,21 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
         icon: Users,
       },
       {
+        title: "Payments",
+        url: "/admin/payments",
+        icon: Coins,
+        items: [
+          {
+            title: "Overview & Reports",
+            url: "/admin/payments",
+          },
+          {
+            title: "Donation Ledger",
+            url: "/admin/payments/ledger",
+          }
+        ]
+      },
+      {
         title: "Analytics",
         url: "/admin/analytics",
         icon: BarChart3,
@@ -155,6 +171,10 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
           {
             title: "Internal Reg.",
             url: "/admin/internal-registration",
+          },
+          {
+            title: "Quiz Manager",
+            url: "/admin/quizzes",
           },
           {
             title: "Community",

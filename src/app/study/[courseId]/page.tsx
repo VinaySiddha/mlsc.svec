@@ -542,32 +542,57 @@ export default function CourseDetailPage({ params }: Props) {
                               : 'border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/10'
                           }`}
                         >
-                          <div className="flex items-center gap-2 min-w-0">
-                            {/* Rank Badge */}
-                            <span className={`text-xs font-black w-4 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
-                              {index + 1}
-                            </span>
-                            
-                            {/* Avatar or Initial */}
-                            <Avatar className="h-7 w-7 shrink-0 border border-white/10">
-                              <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
-                              <AvatarFallback className="text-[10px] font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
-                                {leader.displayName.substring(0, 2)}
-                              </AvatarFallback>
-                            </Avatar>
+                          {leader.username ? (
+                            <Link 
+                              href={`/profile/${leader.username}`} 
+                              className="flex items-center gap-2 min-w-0 group hover:opacity-80 transition-opacity"
+                            >
+                              {/* Rank Badge */}
+                              <span className={`text-xs font-black w-4 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
+                                {index + 1}
+                              </span>
+                              
+                              {/* Avatar or Initial */}
+                              <Avatar className="h-7 w-7 shrink-0 border border-white/10">
+                                <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
+                                <AvatarFallback className="text-[10px] font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
+                                  {leader.displayName.substring(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
 
-                            {/* User details */}
-                            <div className="min-w-0">
-                              <h4 className="text-[11px] font-bold text-white truncate max-w-[90px] leading-tight">
-                                {leader.displayName}
-                              </h4>
-                              {leader.username && (
+                              {/* User details */}
+                              <div className="min-w-0">
+                                <h4 className="text-[11px] font-bold text-white truncate max-w-[90px] leading-tight group-hover:underline">
+                                  {leader.displayName}
+                                </h4>
                                 <p className="text-[9px] text-white/30 truncate leading-none mt-0.5">
                                   @{leader.username}
                                 </p>
-                              )}
+                              </div>
+                            </Link>
+                          ) : (
+                            <div className="flex items-center gap-2 min-w-0">
+                              {/* Rank Badge */}
+                              <span className={`text-xs font-black w-4 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
+                                {index + 1}
+                              </span>
+                              
+                              {/* Avatar or Initial */}
+                              <Avatar className="h-7 w-7 shrink-0 border border-white/10">
+                                <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
+                                <AvatarFallback className="text-[10px] font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
+                                  {leader.displayName.substring(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+
+                              {/* User details */}
+                              <div className="min-w-0">
+                                <h4 className="text-[11px] font-bold text-white truncate max-w-[90px] leading-tight">
+                                  {leader.displayName}
+                                </h4>
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Problems Solved Badge */}
                           <div className="text-right shrink-0 pl-1">

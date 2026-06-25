@@ -1,7 +1,13 @@
 
 'use client';
 
-import { getEventRegistrations, getEventById, sendReminderEmails, sendFeedbackEmails } from "@/app/actions";
+import { 
+    getEventRegistrations, 
+    getEventById, 
+    sendReminderEmails, 
+    sendFeedbackEmails,
+    checkInRegistrantAction
+} from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +15,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Send, MessageSquareQuote, Search, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { QRScanner } from "@/components/admin/qr-scanner";
+import { 
+    ArrowLeft, 
+    Loader2, 
+    Send, 
+    MessageSquareQuote, 
+    Search, 
+    X,
+    ScanLine,
+    Users,
+    UserCheck,
+    Ticket
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
@@ -24,6 +43,8 @@ interface Registration {
     branch: string;
     yearOfStudy: string;
     registeredAt: string;
+    checkedIn?: boolean;
+    checkedInAt?: string;
 }
 
 interface EventData {
@@ -46,6 +67,10 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
     const [searchQuery, setSearchQuery] = useState('');
     const [branchFilter, setBranchFilter] = useState('all');
     const [yearFilter, setYearFilter] = useState('all');
+
+    // QR scanner state
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [togglingId, setTogglingId] = useState<string | null>(null);
 
     const eventId = resolvedParams.id;
 
@@ -101,12 +126,52 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
         });
     }, [registrations, branchFilter, yearFilter, searchQuery]);
 
+    // Live checked in counts
+    const checkedInCount = useMemo(() => {
+        return registrations.filter(r => r.checkedIn).length;
+    }, [registrations]);
+
     const hasActiveFilters = searchQuery || branchFilter !== 'all' || yearFilter !== 'all';
 
     const clearFilters = () => {
         setSearchQuery('');
         setBranchFilter('all');
         setYearFilter('all');
+    };
+
+    // Callback when scanner or manual toggle updates a registrant
+    const handleCheckInSuccess = (updatedReg: any) => {
+        setRegistrations(prev => prev.map(reg => reg.id === updatedReg.id ? { ...reg, ...updatedReg } : reg));
+    };
+
+    const handleToggleCheckIn = async (registrationId: string, currentStatus: boolean) => {
+        setTogglingId(registrationId);
+        try {
+            const newStatus = !currentStatus;
+            const result = await checkInRegistrantAction(eventId, registrationId, newStatus);
+            if (result.error) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Operation Failed',
+                    description: result.error
+                });
+            } else if (result.registration) {
+                handleCheckInSuccess(result.registration);
+                toast({
+                    title: newStatus ? 'Attendee Checked In' : 'Attendance Cancelled',
+                    description: `${result.registration.name} has been marked ${newStatus ? 'present' : 'absent'}.`
+                });
+            }
+        } catch (err: any) {
+            console.error("Manual toggle failed:", err);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'An unexpected error occurred.'
+            });
+        } finally {
+            setTogglingId(null);
+        }
     };
 
     const handleSendReminders = () => {
@@ -177,7 +242,7 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
     return (
         <div className="flex flex-col min-h-screen">
             <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-                <div className="container mx-auto flex items-center justify-between gap-4">
+                <div className="container mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <MLSCLogo className="h-10 w-10 text-primary" />
                         <div className="flex flex-col">
@@ -187,7 +252,14 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             <p className="text-sm text-muted-foreground">{event?.title}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button 
+                            onClick={() => setIsScannerOpen(true)} 
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-sm shadow-emerald-950/20"
+                        >
+                            <ScanLine className="mr-2 h-4 w-4" />
+                            Scan Tickets
+                        </Button>
                         <Button onClick={handleSendReminders} variant="outline" disabled={isSending}>
                             {isSending && actionType === 'reminders' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Send Reminders
@@ -206,7 +278,49 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                 </div>
             </header>
             <main className="flex-1 p-4 sm:p-6 md:p-8">
-                <div className="container mx-auto space-y-8">
+                <div className="container mx-auto space-y-6">
+                    
+                    {/* Live Count Statistics cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <Card className="glass-card border-zinc-800/40 bg-zinc-900/20 backdrop-blur-xs">
+                            <CardContent className="p-6 flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Total Registrations</p>
+                                    <h3 className="text-3xl font-extrabold text-zinc-100">{registrations.length}</h3>
+                                </div>
+                                <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                                    <Users className="h-6 w-6" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="glass-card border-zinc-800/40 bg-zinc-900/20 backdrop-blur-xs">
+                            <CardContent className="p-6 flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Checked In (Attended)</p>
+                                    <h3 className="text-3xl font-extrabold text-emerald-400">{checkedInCount}</h3>
+                                </div>
+                                <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                                    <UserCheck className="h-6 w-6" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="glass-card border-zinc-800/40 bg-zinc-900/20 backdrop-blur-xs">
+                            <CardContent className="p-6 flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Attendance Rate</p>
+                                    <h3 className="text-3xl font-extrabold text-zinc-100">
+                                        {registrations.length > 0 
+                                            ? `${Math.round((checkedInCount / registrations.length) * 100)}%` 
+                                            : '0%'}
+                                    </h3>
+                                </div>
+                                <div className="p-3 bg-zinc-500/10 text-zinc-400 rounded-xl border border-zinc-750">
+                                    <Ticket className="h-6 w-6" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
                     <Card className="glass-card">
                         <CardHeader>
                             <div className="flex items-center justify-between">
@@ -259,7 +373,7 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="border rounded-md">
+                            <div className="border rounded-md overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -270,24 +384,58 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                             <TableHead>Branch</TableHead>
                                             <TableHead>Year</TableHead>
                                             <TableHead>Registered At</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {filteredRegistrations.length > 0 ? (
                                             filteredRegistrations.map(reg => (
                                                 <TableRow key={reg.id}>
-                                                    <TableCell className="font-medium">{reg.name}</TableCell>
-                                                    <TableCell>{reg.email}</TableCell>
-                                                    <TableCell>{reg.rollNo}</TableCell>
-                                                    <TableCell>{reg.phone}</TableCell>
-                                                    <TableCell>{reg.branch}</TableCell>
-                                                    <TableCell>{reg.yearOfStudy}</TableCell>
-                                                    <TableCell>{format(new Date(reg.registeredAt), "PPP p")}</TableCell>
+                                                    <TableCell className="font-medium whitespace-nowrap">{reg.name}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">{reg.email}</TableCell>
+                                                    <TableCell className="whitespace-nowrap font-mono text-xs">{reg.rollNo}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">{reg.phone}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">{reg.branch}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">{reg.yearOfStudy}</TableCell>
+                                                    <TableCell className="whitespace-nowrap">{format(new Date(reg.registeredAt), "PPP p")}</TableCell>
+                                                    <TableCell>
+                                                        {reg.checkedIn ? (
+                                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/15 border-emerald-500/20 whitespace-nowrap">
+                                                                Checked In
+                                                            </Badge>
+                                                        ) : (
+                                                            <Badge variant="outline" className="bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/15 border-zinc-700 whitespace-nowrap">
+                                                                Absent
+                                                            </Badge>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right whitespace-nowrap">
+                                                        <Button
+                                                            onClick={() => handleToggleCheckIn(reg.id, !!reg.checkedIn)}
+                                                            variant="outline"
+                                                            size="sm"
+                                                            disabled={togglingId === reg.id}
+                                                            className={`h-8 px-2.5 text-xs font-medium transition-all ${
+                                                                reg.checkedIn
+                                                                    ? 'hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30'
+                                                                    : 'hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/30'
+                                                            }`}
+                                                        >
+                                                            {togglingId === reg.id ? (
+                                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                            ) : reg.checkedIn ? (
+                                                                'Undo'
+                                                            ) : (
+                                                                'Check In'
+                                                            )}
+                                                        </Button>
+                                                    </TableCell>
                                                 </TableRow>
                                             ))
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={7} className="text-center h-24">
+                                                <TableCell colSpan={9} className="text-center h-24">
                                                     {hasActiveFilters ? 'No registrations match the current filters.' : 'No registrations yet.'}
                                                 </TableCell>
                                             </TableRow>
@@ -299,6 +447,24 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                     </Card>
                 </div>
             </main>
+
+            {/* Mobile Floating Action Button (FAB) for quick-scanning */}
+            <div className="fixed bottom-6 right-6 z-40 md:hidden">
+                <Button 
+                    onClick={() => setIsScannerOpen(true)} 
+                    className="h-14 w-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg flex items-center justify-center p-0 active:scale-95 transition-transform border border-emerald-500/30"
+                >
+                    <ScanLine className="h-6 w-6" />
+                </Button>
+            </div>
+
+            {/* Live QR Scanner Dialog */}
+            <QRScanner
+                eventId={eventId}
+                isOpen={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onCheckInSuccess={handleCheckInSuccess}
+            />
         </div>
     );
 }

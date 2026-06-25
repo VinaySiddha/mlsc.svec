@@ -12,6 +12,7 @@ export const eventFormSchema = z.object({
   registrationOpen: z.boolean().default(true),
   registrationDeadline: z.date().optional(),
   registrationLimit: z.number().int().nonnegative().default(0),
+  registrationFee: z.coerce.number().nonnegative().default(0),
   feedbackLink: z.string().url("A valid URL is required for the feedback link.").optional().or(z.literal("")),
   eventLink: z.string().url("A valid URL is required for the event link.").optional().or(z.literal("")),
   bannerImage: z.any().optional(),

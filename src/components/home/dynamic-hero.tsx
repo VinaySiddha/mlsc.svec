@@ -7,6 +7,7 @@ import { PointerHighlight } from "@/components/ui/pointer-highlight";
 import { FlipWords } from "@/components/ui/flip-words";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { InteractiveButton } from "@/components/ui/interactive-button";
 
 const flipWords = ["Innovators.", "Builders.", "Leaders.", "Creators.", "Hackers."];
 
@@ -82,9 +83,9 @@ export function DynamicHero({ images = [] }: { images?: any[] }) {
                     transition={{ duration: 1, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <Button asChild className="btn-primary min-w-[180px]">
-                        <Link href="/apply">Apply Now</Link>
-                    </Button>
+                    <InteractiveButton href="/apply" className="min-w-[180px]">
+                        Apply Now
+                    </InteractiveButton>
                     <Button asChild variant="outline" className="btn-outline min-w-[180px]">
                         <Link href="/schedule" className="flex items-center gap-2">
                             Explore Schedule

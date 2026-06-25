@@ -12,6 +12,7 @@ const footerColumns = [
             { href: '/services', label: 'Services Hub' },
             { href: '/blog', label: 'Blog' },
             { href: '/schedule', label: 'Schedule' },
+            { href: '/donate', label: 'Donate' },
         ],
     },
     {

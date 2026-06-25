@@ -27,6 +27,7 @@ export function RichTextEditor({ content = '', onChange, placeholder = 'Write so
       }),
       Placeholder.configure({ placeholder }),
     ],
+    immediatelyRender: false,
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML(), editor.getText());

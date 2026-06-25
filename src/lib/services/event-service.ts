@@ -16,6 +16,7 @@ export class EventService {
     registrationOpen: boolean;
     registrationDeadline?: Date;
     registrationLimit?: number;
+    registrationFee?: number;
     feedbackLink?: string;
     eventLink?: string;
     bannerImageFile: File | null;
@@ -65,6 +66,7 @@ export class EventService {
       registrationOpen: data.registrationOpen,
       registrationDeadline: data.registrationDeadline || null,
       registrationLimit: data.registrationLimit || 0,
+      registrationFee: data.registrationFee || 0,
       feedbackLink: data.feedbackLink || '',
       eventLink: data.eventLink || '',
       speakers: data.speakersData,
@@ -101,6 +103,7 @@ export class EventService {
     registrationOpen: boolean;
     registrationDeadline?: Date;
     registrationLimit?: number;
+    registrationFee?: number;
     feedbackLink?: string;
     eventLink?: string;
     bannerImageFile: File | null;
@@ -119,6 +122,7 @@ export class EventService {
       registrationOpen: data.registrationOpen,
       registrationDeadline: data.registrationDeadline || null,
       registrationLimit: data.registrationLimit || 0,
+      registrationFee: data.registrationFee || 0,
       feedbackLink: data.feedbackLink || '',
       eventLink: data.eventLink || '',
     };
@@ -241,7 +245,7 @@ export class EventService {
       registeredAt: new Date().toISOString(),
     };
 
-    await EventDb.addEventRegistration(eventId, registrationData);
+    const docRef = await EventDb.addEventRegistration(eventId, registrationData);
 
     if (userId) {
       await EventDb.addUserEventRegistration(userId, eventId, {
@@ -252,12 +256,20 @@ export class EventService {
       });
     }
 
+    const eventDateStr = eventData.date instanceof Date 
+      ? eventData.date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+      : (eventData.date?.toDate?.()?.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) || new Date().toLocaleDateString());
+
     const emailInput: EventConfirmationEmailInput = {
       name: values.name,
       email: values.email,
       eventName: eventData.title,
-      eventDate: eventData.date.toDate().toLocaleDateString(),
+      eventDate: eventDateStr,
       eventLink: eventData.eventLink || undefined,
+      orderId: docRef.id,
+      venue: eventData.venue || 'Sri Vasavi Engineering College',
+      time: eventData.time || '10:00 AM',
+      amount: 0,
     };
     await sendEventConfirmationEmail(emailInput);
 
@@ -341,5 +353,18 @@ export class EventService {
 
   static async getEventRegistrations(eventId: string) {
     return await EventDb.getEventRegistrationsList(eventId);
+  }
+
+  static async getEventRegistration(eventId: string, registrationId: string) {
+    return await EventDb.getEventRegistration(eventId, registrationId);
+  }
+
+  static async checkInRegistrant(eventId: string, registrationId: string, status: boolean) {
+    const data = {
+      checkedIn: status,
+      checkedInAt: status ? new Date().toISOString() : null,
+    };
+    await EventDb.updateEventRegistration(eventId, registrationId, data);
+    return { success: true };
   }
 }

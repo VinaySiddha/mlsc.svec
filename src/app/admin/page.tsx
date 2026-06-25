@@ -13,10 +13,13 @@ import {
   Clock, 
   ChevronRight,
   TrendingUp,
-  UserCheck
+  UserCheck,
+  Coins
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardCharts } from "@/components/admin/dashboard-charts";
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 
 export const dynamic = 'force-dynamic';
@@ -109,6 +112,32 @@ export default async function AdminPage() {
     getTeamMembers(),
     getGlobalSettings()
   ]);
+
+  // Fetch donations
+  let donations: any[] = [];
+  let totalDonationsAmount = 0;
+  let paidDonationsCount = 0;
+  let pendingDonationsCount = 0;
+  try {
+    const donationsSnap = await getDocs(collection(db, 'donations'));
+    donationsSnap.forEach(doc => {
+      const data = doc.data();
+      donations.push({ id: doc.id, ...data });
+      if (data.status === 'PAID') {
+        totalDonationsAmount += Number(data.amount) || 0;
+        paidDonationsCount++;
+      } else if (data.status === 'PENDING') {
+        pendingDonationsCount++;
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching donations for admin dashboard:', err);
+  }
+
+  const recentDonations = donations
+    .filter(d => d.status === 'PAID')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
 
   const applications = 'applications' in appsResult ? appsResult.applications || [] : [];
   const membersByCategory = 'membersByCategory' in teamResult ? teamResult.membersByCategory || [] : [];
@@ -314,6 +343,14 @@ export default async function AdminPage() {
           <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 shadow-sm">
             <h3 className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-4">Quick Actions</h3>
             <div className="space-y-3">
+              <Link href="/admin/payments/ledger" className="flex items-center justify-between p-3.5 rounded-xl border border-slate-150 dark:border-[#34A853]/25 bg-slate-50/50 dark:bg-[#34A853]/5 hover:bg-slate-50 dark:hover:bg-[#34A853]/10 hover:border-[#34A853]/35 dark:hover:border-[#34A853]/40 transition-all group">
+                <div className="flex items-center gap-3">
+                  <Coins className="h-4 w-4 text-[#34A853]" />
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-zinc-300">View Payments Ledger</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-[#34A853] group-hover:translate-x-0.5 transition-transform shrink-0" />
+              </Link>
+
               <Link href="/admin/team/new" className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/40 hover:bg-slate-50 dark:hover:bg-zinc-950 hover:border-slate-200 dark:hover:border-zinc-700 transition-all group">
                 <div className="flex items-center gap-3">
                   <Users className="h-4 w-4 text-[#4285F4]" />
@@ -344,6 +381,68 @@ export default async function AdminPage() {
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">Toggle Hiring Gate</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Community Funding Overview Card */}
+          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Community Funding</h3>
+                <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase mt-0.5">Donations Summary</p>
+              </div>
+              <span className="text-xs font-black text-[#34A853] bg-[#34A853]/10 px-2 py-0.5 rounded border border-[#34A853]/20 uppercase">
+                Active
+              </span>
+            </div>
+
+            <div className="border-t border-slate-100 dark:border-zinc-800/80 pt-4 pb-4 space-y-3">
+              <div>
+                <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Total Funds Raised</p>
+                <p className="text-2xl font-black text-[#34A853] tracking-tight mt-1">₹{totalDonationsAmount.toLocaleString('en-IN')}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 border-t border-slate-50 dark:border-zinc-850 pt-3">
+                <div>
+                  <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Cleared PG</p>
+                  <p className="text-sm font-black text-slate-700 dark:text-zinc-300 mt-0.5">{paidDonationsCount} payments</p>
+                </div>
+                <div>
+                  <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Awaiting</p>
+                  <p className="text-sm font-black text-yellow-500 mt-0.5">{pendingDonationsCount} pending</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Sponsors list */}
+            {recentDonations.length > 0 && (
+              <div className="border-t border-slate-100 dark:border-zinc-800/80 pt-4 space-y-3">
+                <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider mb-2">Recent Cleared Receipts</p>
+                <div className="space-y-2.5">
+                  {recentDonations.map((don: any) => (
+                    <div key={don.id} className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50/50 dark:bg-zinc-950/40 border border-slate-100/50 dark:border-zinc-800/30 text-xs">
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-700 dark:text-zinc-300 truncate max-w-[120px]">{don.customerName}</p>
+                        <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-mono leading-none mt-0.5">{new Date(don.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
+                      </div>
+                      <span className="font-black text-[#34A853] text-right shrink-0">
+                        ₹{don.amount}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* View Ledger Button Link */}
+            <div className="border-t border-slate-100 dark:border-zinc-800/80 mt-4 pt-4">
+              <Link 
+                href="/admin/payments/ledger"
+                className="w-full h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 dark:bg-zinc-950/40 dark:border-zinc-800 dark:hover:bg-zinc-800 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 transition-all shadow-sm group"
+              >
+                <Coins className="h-4 w-4 text-[#34A853] group-hover:scale-110 transition-transform" />
+                View Payments Ledger
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
           </div>
