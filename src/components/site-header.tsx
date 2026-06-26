@@ -25,6 +25,7 @@ import {
     BookOpen,
     PenTool,
     Heart,
+    CreditCard,
 } from 'lucide-react';
 import Link from 'next/link';
 import { UserNav } from '@/components/user-nav';

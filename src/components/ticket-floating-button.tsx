@@ -20,8 +20,8 @@ export function TicketFloatingButton() {
     return null;
   }
 
-  // Do not show on admin pages
-  if (pathname.startsWith('/admin')) {
+  // Do not show on admin pages or payment pages
+  if (pathname.startsWith('/admin') || pathname.startsWith('/mlsc-pay')) {
     return null;
   }
 

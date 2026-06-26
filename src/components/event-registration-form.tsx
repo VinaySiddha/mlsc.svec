@@ -89,35 +89,27 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
         setIsSubmitting(true);
         try {
             if (registrationFee && registrationFee > 0) {
-                const originUrl = window.location.origin;
-                const res = await createEventRegistrationOrderAction({
-                    eventId,
-                    userId: user?.uid,
-                    registrationData: values,
-                    originUrl
+                toast({
+                    title: "Redirecting to Payment Gateway",
+                    description: "Loading secure MLSC checkout portal...",
                 });
-
-                if (!res.success || !res.paymentSessionId) {
-                    throw new Error(res.error || "Failed to initialize registration payment.");
-                }
-
-                if (res.isMock) {
-                    toast({
-                        title: "Demo Checkout Initialized",
-                        description: "Redirecting to simulated registration checkout...",
-                    });
-                    setTimeout(() => {
-                        window.location.href = `/donate/status?order_id=${res.orderId}`;
-                    }, 1500);
-                } else {
-                    const cashfree = (window as any).Cashfree({
-                        mode: res.mode || "sandbox"
-                    });
-                    cashfree.checkout({
-                        paymentSessionId: res.paymentSessionId,
-                        redirectTarget: "_self"
-                    });
-                }
+                
+                const redirectUrl = `/mlsc-pay?type=event` +
+                    `&eventId=${eventId}` +
+                    `&amount=${registrationFee}` +
+                    `&purpose=${encodeURIComponent('Event Ticket Registration')}` +
+                    `&name=${encodeURIComponent(values.name)}` +
+                    `&email=${encodeURIComponent(values.email)}` +
+                    `&phone=${encodeURIComponent(values.phone)}` +
+                    `&rollNo=${encodeURIComponent(values.rollNo)}` +
+                    `&branch=${encodeURIComponent(values.branch)}` +
+                    `&yearOfStudy=${encodeURIComponent(values.yearOfStudy)}`;
+                
+                setTimeout(() => {
+                    window.open(redirectUrl, '_blank');
+                    setIsSubmitting(false);
+                    setOpen(false);
+                }, 1000);
             } else {
                 const result = await registerForEvent(eventId, values, user?.uid);
                 if (result.error) {

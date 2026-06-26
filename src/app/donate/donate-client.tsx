@@ -172,41 +172,23 @@ export function DonateClient() {
 
     setIsSubmitting(true);
     try {
-      const originUrl = window.location.origin;
-      const res = await createCashfreeOrderAction({
-        amount: finalAmount,
-        customerName: name,
-        customerEmail: email,
-        customerPhone: phone,
-        originUrl,
-        purpose: selectedCustomPayment ? selectedCustomPayment.purpose : undefined,
+      toast({
+        title: "Redirecting to Payment Gateway",
+        description: "Loading secure MLSC checkout portal...",
       });
 
-      if (!res.success || !res.paymentSessionId) {
-        throw new Error(res.error || "Failed to initialize checkout.");
-      }
+      const purposeText = selectedCustomPayment ? selectedCustomPayment.purpose : 'General Donation';
+      const redirectUrl = `/mlsc-pay?type=donation` +
+        `&amount=${finalAmount}` +
+        `&purpose=${encodeURIComponent(purposeText)}` +
+        `&name=${encodeURIComponent(name)}` +
+        `&email=${encodeURIComponent(email)}` +
+        `&phone=${encodeURIComponent(phone)}`;
 
-      if (res.isMock) {
-        // Sandbox / Demo mode fallback
-        toast({
-          title: "Demo Checkout Initialized",
-          description: "Redirecting to simulated checkout terminal...",
-        });
-        
-        setTimeout(() => {
-          window.location.href = `/donate/status?order_id=${res.orderId}`;
-        }, 1500);
-      } else {
-        // Real Cashfree checkout redirect
-        const cashfree = (window as any).Cashfree({
-          mode: res.mode || "sandbox"
-        });
-        
-        cashfree.checkout({
-          paymentSessionId: res.paymentSessionId,
-          redirectTarget: "_self"
-        });
-      }
+      setTimeout(() => {
+        window.open(redirectUrl, '_blank');
+        setIsSubmitting(false);
+      }, 1000);
     } catch (err: any) {
       setIsSubmitting(false);
       toast({

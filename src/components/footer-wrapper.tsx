@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { SiteFooter } from './site-footer';
 
-const HIDDEN_PREFIXES = ['/admin', '/auth'];
+const HIDDEN_PREFIXES = ['/admin', '/auth', '/mlsc-pay'];
 
 export function FooterWrapper() {
   const pathname = usePathname();

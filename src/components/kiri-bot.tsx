@@ -5,6 +5,7 @@ import { Bot, X, Send, Sparkles, MessageSquare, HelpCircle, ArrowRight, User } f
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { usePathname } from 'next/navigation';
 
 interface Message {
   id: string;
@@ -37,6 +38,7 @@ const SUGGESTIONS = [
 ];
 
 export function KiriBot() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -108,6 +110,11 @@ export function KiriBot() {
       setIsTyping(false);
     }, 800);
   };
+
+  // Do not show on admin or payment pages
+  if (pathname.startsWith('/admin') || pathname.startsWith('/mlsc-pay')) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans">

@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { SiteHeader } from './site-header';
 
-const HIDDEN_PREFIXES = ['/admin', '/community', '/profile', '/auth'];
+const HIDDEN_PREFIXES = ['/admin', '/community', '/profile', '/auth', '/mlsc-pay'];
 
 export function HeaderWrapper() {
   const pathname = usePathname();
