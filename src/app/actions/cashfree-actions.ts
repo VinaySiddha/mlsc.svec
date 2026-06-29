@@ -47,28 +47,7 @@ export async function createCashfreeOrderAction(data: {
 
     // Check if Cashfree API keys are configured
     if (!CASHFREE_APP_ID || !CASHFREE_SECRET_KEY) {
-      console.warn('Cashfree credentials are not configured. Running in DEMO mode.');
-      
-      // Save a pending mock donation in Firestore
-      await setDoc(doc(db, 'donations', orderId), {
-        orderId,
-        amount,
-        currency: 'INR',
-        customerName,
-        customerEmail,
-        customerPhone: cleanPhone,
-        status: 'PENDING',
-        createdAt: new Date().toISOString(),
-        isMock: true,
-        purpose: purpose || null,
-      });
-
-      return {
-        success: true,
-        isMock: true,
-        orderId,
-        paymentSessionId: `mock_session_${orderId}`,
-      };
+      return { success: false, error: 'Online payment gateway is not configured.' };
     }
 
     console.log('Cashfree API Call Config:', {
@@ -79,6 +58,11 @@ export async function createCashfreeOrderAction(data: {
       secretKeyLength: CASHFREE_SECRET_KEY?.length,
       secretKeyStart: CASHFREE_SECRET_KEY?.substring(0, 12) + '...',
     });
+
+    let returnUrl = `${originUrl}/donate/status?order_id={order_id}`;
+    if (CASHFREE_MODE === 'production' && returnUrl.startsWith('http://')) {
+      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.in').replace(/^http:\/\//, 'https://');
+    }
 
     // Call real Cashfree PG API
     const response = await fetch(`${API_BASE}/orders`, {
@@ -100,7 +84,7 @@ export async function createCashfreeOrderAction(data: {
           customer_phone: cleanPhone,
         },
         order_meta: {
-          return_url: `${originUrl}/donate/status?order_id={order_id}`,
+          return_url: returnUrl,
         },
       }),
     });
@@ -389,13 +373,12 @@ export async function createEventRegistrationOrderAction(data: {
     else if (cleanPhone.length > 10) cleanPhone = cleanPhone.slice(-10);
     
     if (!CASHFREE_APP_ID || !CASHFREE_SECRET_KEY) {
-      console.warn('Cashfree credentials are not configured. Running event checkout in DEMO mode.');
-      return {
-        success: true,
-        isMock: true,
-        orderId,
-        paymentSessionId: `mock_session_${orderId}`,
-      };
+      return { success: false, error: 'Online payment gateway is not configured.' };
+    }
+    
+    let returnUrl = `${originUrl}/donate/status?order_id=${orderId}`;
+    if (CASHFREE_MODE === 'production' && returnUrl.startsWith('http://')) {
+      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.in').replace(/^http:\/\//, 'https://');
     }
     
     const response = await fetch(`${API_BASE}/orders`, {
@@ -417,7 +400,7 @@ export async function createEventRegistrationOrderAction(data: {
           customer_phone: cleanPhone,
         },
         order_meta: {
-          return_url: `${originUrl}/donate/status?order_id=${orderId}`,
+          return_url: returnUrl,
         },
       }),
     });
@@ -474,10 +457,13 @@ export async function verifyEventRegistrationPaymentAction(orderId: string) {
     let verifiedPaid = false;
     let isMock = !!pendingData.isMock;
     
-    if (pendingData.isMock || !CASHFREE_APP_ID || !CASHFREE_SECRET_KEY) {
+    if (pendingData.isMock) {
       verifiedPaid = true;
       isMock = true;
     } else {
+      if (!CASHFREE_APP_ID || !CASHFREE_SECRET_KEY) {
+        return { success: false, error: 'Cashfree credentials not configured.' };
+      }
       const response = await fetch(`${API_BASE}/orders/${orderId}`, {
         method: 'GET',
         headers: {

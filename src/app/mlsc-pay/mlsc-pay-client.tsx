@@ -49,10 +49,10 @@ export function MLSCPayClient() {
   const queryYearOfStudy = searchParams.get('yearOfStudy') || '';
 
   // 2. State Variables
-  const [selectedGateway, setSelectedGateway] = useState<'cashfree' | 'mlsc_pay' | null>(null);
+  const [selectedGateway, setSelectedGateway] = useState<'cashfree' | 'mlsc_pay' | null>('cashfree');
   const [gatewaySettings, setGatewaySettings] = useState<any>({
     cashfree: { enabled: true, message: 'Secure Online Payments' },
-    mlscPay: { enabled: true, message: 'Manual UPI / QR Transfer' }
+    mlscPay: { enabled: false, message: 'Manual UPI / QR Transfer' }
   });
   const [settingsLoading, setSettingsLoading] = useState<boolean>(true);
   
@@ -83,8 +83,10 @@ export function MLSCPayClient() {
         if (res.success && res.settings) {
           setGatewaySettings(res.settings);
           
-          // If Cashfree is disabled, default selection to MLSC Pay to save a click
-          if (!res.settings.cashfree.enabled) {
+          // Pre-select gateway if only one is enabled to save a click
+          if (res.settings.cashfree.enabled && !res.settings.mlscPay.enabled) {
+            setSelectedGateway('cashfree');
+          } else if (!res.settings.cashfree.enabled && res.settings.mlscPay.enabled) {
             setSelectedGateway('mlsc_pay');
           }
         }
@@ -312,7 +314,7 @@ export function MLSCPayClient() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className={`grid grid-cols-1 ${gatewaySettings.mlscPay.enabled ? 'sm:grid-cols-2' : ''} gap-4`}>
                     
                     {/* OPTION 1: CASHFREE ONLINE PAYMENTS */}
                     <div 
@@ -366,32 +368,56 @@ export function MLSCPayClient() {
                     </div>
 
                     {/* OPTION 2: MLSC PAY (MANUAL QR & UPI) */}
-                    <div 
-                      onClick={() => setSelectedGateway('mlsc_pay')}
-                      className="relative rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100/60 hover:border-blue-300 hover:shadow-sm cursor-pointer p-5 flex flex-col justify-between text-left transition-all duration-300 min-h-[160px]"
-                    >
-                      <div className="space-y-2.5">
-                        <div className="flex items-center justify-between">
-                          <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
-                            <QrCode className="h-5 w-5" />
+                    {gatewaySettings.mlscPay.enabled && (
+                      <div 
+                        onClick={() => {
+                          if (gatewaySettings.mlscPay.enabled) {
+                            setSelectedGateway('mlsc_pay');
+                          }
+                        }}
+                        className={`relative rounded-xl border p-5 flex flex-col justify-between text-left transition-all duration-300 min-h-[160px]
+                          ${gatewaySettings.mlscPay.enabled 
+                            ? 'border-slate-200 bg-slate-50 hover:bg-slate-100/60 hover:border-blue-300 hover:shadow-sm cursor-pointer' 
+                            : 'border-slate-200 bg-slate-50/50 opacity-60 cursor-not-allowed'
+                          }`}
+                      >
+                        <div className="space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <div className={`p-2 rounded-lg ${gatewaySettings.mlscPay.enabled ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
+                              <QrCode className="h-5 w-5" />
+                            </div>
+                            {gatewaySettings.mlscPay.enabled ? (
+                              <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                                Manual QR
+                              </span>
+                            ) : (
+                              <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-100">
+                                Paused / Disabled
+                              </span>
+                            )}
                           </div>
-                          <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-                            Manual QR
-                          </span>
+                          <div>
+                            <h4 className="text-xs font-black uppercase text-slate-800">MLSC Pay (UPI QR)</h4>
+                            <p className="text-[10px] text-slate-400 leading-normal font-medium mt-1">
+                              Scan our merchant QR code and submit UTR reference.
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="text-xs font-black uppercase text-slate-800">MLSC Pay (UPI QR)</h4>
-                          <p className="text-[10px] text-slate-400 leading-normal font-medium mt-1">
-                            Scan our merchant QR code and submit UTR reference.
-                          </p>
-                        </div>
-                      </div>
 
-                      <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[9px] font-bold text-blue-600 uppercase tracking-wider">
-                        <span>Scan & Submit Ref</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
+                        <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider">
+                          {gatewaySettings.mlscPay.enabled ? (
+                            <>
+                              <span className="text-blue-600">Scan & Submit Ref</span>
+                              <ArrowRight className="h-3.5 w-3.5 text-blue-600" />
+                            </>
+                          ) : (
+                            <span className="text-red-500 text-[8px] leading-tight font-semibold">
+                              {gatewaySettings.mlscPay.message || 'Offline / Disabled.'}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                   </div>
                 </div>
@@ -407,14 +433,14 @@ export function MLSCPayClient() {
                       <button 
                         type="button" 
                         onClick={() => {
-                          // Only allow going back to selector if Cashfree was actually active
-                          if (gatewaySettings.cashfree.enabled) {
+                          // Only allow going back to selector if both are enabled
+                          if (gatewaySettings.cashfree.enabled && gatewaySettings.mlscPay.enabled) {
                             setSelectedGateway(null);
                           }
                         }}
-                        disabled={!gatewaySettings.cashfree.enabled}
+                        disabled={!gatewaySettings.cashfree.enabled || !gatewaySettings.mlscPay.enabled}
                         className={`inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors
-                          ${gatewaySettings.cashfree.enabled 
+                          ${(gatewaySettings.cashfree.enabled && gatewaySettings.mlscPay.enabled) 
                             ? 'text-slate-400 hover:text-slate-800' 
                             : 'text-slate-300 cursor-not-allowed'}`}
                       >

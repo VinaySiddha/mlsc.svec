@@ -33,7 +33,7 @@ export async function getGatewaySettingsAction() {
     // Default Settings
     const defaultSettings = {
       cashfree: { enabled: true, message: 'Secure Online Payments' },
-      mlscPay: { enabled: true, message: 'Manual UPI / QR Transfer' }
+      mlscPay: { enabled: false, message: 'Manual UPI / QR Transfer' }
     };
 
     // Save default settings
@@ -45,7 +45,7 @@ export async function getGatewaySettingsAction() {
       success: true,
       settings: {
         cashfree: { enabled: true, message: 'Secure Online Payments' },
-        mlscPay: { enabled: true, message: 'Manual UPI / QR Transfer' }
+        mlscPay: { enabled: false, message: 'Manual UPI / QR Transfer' }
       }
     };
   }
@@ -102,34 +102,14 @@ export async function initiateMLSCPaymentAction(data: InitiatePaymentData) {
     if (cleanPhone.length < 10) cleanPhone = '9999999999';
     else if (cleanPhone.length > 10) cleanPhone = cleanPhone.slice(-10);
 
-    // If Cashfree credentials are not configured, fallback to demo mode
+    // Check if Cashfree API keys are configured
     if (!CASHFREE_APP_ID || !CASHFREE_SECRET_KEY) {
-      const paymentRecord = {
-        orderId,
-        amount,
-        currency: 'INR',
-        customerName,
-        customerEmail,
-        customerPhone: cleanPhone,
-        purpose,
-        status: 'PENDING',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isMock: true,
-        type: type || 'donation',
-        eventId: eventId || null,
-        registrationData: registrationData || null
-      };
+      return { success: false, error: 'Online payment gateway is not configured.' };
+    }
 
-      await setDoc(doc(db, 'mlsc_payments', orderId), paymentRecord);
-
-      return {
-        success: true,
-        orderId,
-        amount,
-        isMock: true,
-        paymentSessionId: `mock_session_${orderId}`
-      };
+    let returnUrl = `${originUrl}/mlsc-pay/status?order_id={order_id}`;
+    if (CASHFREE_MODE === 'production' && returnUrl.startsWith('http://')) {
+      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.in').replace(/^http:\/\//, 'https://');
     }
 
     // Call Real Cashfree PG API
@@ -152,7 +132,7 @@ export async function initiateMLSCPaymentAction(data: InitiatePaymentData) {
           customer_phone: cleanPhone,
         },
         order_meta: {
-          return_url: `${originUrl}/mlsc-pay/status?order_id={order_id}`,
+          return_url: returnUrl,
         },
       }),
     });
@@ -218,6 +198,12 @@ export async function submitMLSCManualPaymentAction(data: {
 }) {
   try {
     const { amount, customerName, customerEmail, customerPhone, purpose, utr, type, eventId, registrationData } = data;
+
+    // Check if MLSC Pay is enabled in settings
+    const settingsRes = await getGatewaySettingsAction();
+    if (!settingsRes.settings.mlscPay.enabled) {
+      return { success: false, error: 'Manual UPI payments are currently disabled. Please use Online Payment.' };
+    }
 
     if (amount <= 0) {
       return { success: false, error: 'Invalid payment amount.' };
@@ -482,6 +468,125 @@ export async function verifyMLSCPaymentAction(orderId: string) {
     }
 
     const paymentData = paymentSnap.data();
+
+    // If it's still pending and not manual, call Cashfree API to verify
+    if (paymentData.status === 'PENDING' && paymentData.paymentMethod !== 'mlsc_pay') {
+      if (!CASHFREE_APP_ID || !CASHFREE_SECRET_KEY) {
+        return { success: false, error: 'Cashfree credentials not configured.' };
+      }
+
+      const response = await fetch(`${API_BASE}/orders/${orderId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-version': '2023-08-01',
+          'x-client-id': CASHFREE_APP_ID,
+          'x-client-secret': CASHFREE_SECRET_KEY,
+        },
+      });
+
+      if (!response.ok) {
+        return { success: false, error: `Failed to fetch Cashfree order status: ${response.status}` };
+      }
+
+      const orderData = await response.json();
+      const cfStatus = orderData.order_status; // PAID, ACTIVE, FAILED, etc.
+
+      let newStatus = 'PENDING';
+      if (cfStatus === 'PAID') {
+        newStatus = 'PAID';
+      } else if (cfStatus === 'ACTIVE') {
+        newStatus = 'PENDING';
+      } else {
+        newStatus = 'FAILED';
+      }
+
+      if (newStatus !== 'PENDING') {
+        const now = new Date().toISOString();
+        
+        // Update database status
+        await updateDoc(paymentRef, {
+          status: newStatus,
+          cfStatusData: orderData,
+          updatedAt: now
+        });
+
+        // Update local memory value to return correct status
+        paymentData.status = newStatus;
+        paymentData.cfStatusData = orderData;
+        paymentData.updatedAt = now;
+
+        // Perform post-payment logic if it transitioned to PAID
+        if (newStatus === 'PAID') {
+          if (paymentData.type === 'event' && paymentData.eventId && paymentData.registrationData) {
+            const eventId = paymentData.eventId;
+            const registrationData = paymentData.registrationData;
+            const amount = paymentData.amount;
+            
+            const eventRef = doc(db, 'events', eventId);
+            const eventSnap = await getDoc(eventRef);
+            const eventData = eventSnap.exists() ? eventSnap.data() : { title: 'MLSC Event', venue: 'SVEC Campus', time: '10:00 AM', date: new Date() };
+            const eventTitle = eventData.title;
+
+            const regCol = collection(db, 'events', eventId, 'registrations');
+            const dupQ = query(regCol, where('email', '==', registrationData.email));
+            const dupSnap = await getDocs(dupQ);
+
+            if (dupSnap.empty) {
+              const finalRegData = {
+                ...registrationData,
+                registeredAt: now,
+                orderId,
+                paymentStatus: 'PAID',
+                amountPaid: amount
+              };
+
+              await addDoc(regCol, finalRegData);
+
+              // Send event confirmation email
+              const eventDateStr = eventData.date instanceof Date 
+                ? eventData.date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+                : (eventData.date?.toDate?.()?.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) || new Date().toLocaleDateString());
+
+              const { subject, html } = eventRegistrationConfirmationTemplate({
+                customerName: registrationData.name,
+                eventTitle,
+                amount,
+                orderId,
+                date: eventDateStr,
+                venue: eventData.venue || 'SVEC Campus',
+                time: eventData.time || '10:00 AM',
+                eventLink: eventData.eventLink || undefined
+              });
+
+              await sendEmail({
+                to: registrationData.email,
+                subject,
+                html
+              }).catch(err => console.error('Failed to send event confirmation email:', err));
+            }
+          } else if (paymentData.type === 'donation' || !paymentData.type) {
+            const { subject, html } = donationReceiptEmailTemplate({
+              customerName: paymentData.customerName,
+              amount: paymentData.amount,
+              orderId: orderId,
+              purpose: paymentData.purpose || 'General Donation',
+              date: new Date().toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+              })
+            });
+
+            await sendEmail({
+              to: paymentData.customerEmail,
+              subject,
+              html
+            }).catch(err => console.error('Failed to send donation receipt email:', err));
+          }
+        }
+      }
+    }
 
     // Return current record (covers PAID, REFUNDED, FAILED, and PENDING_APPROVAL!)
     return {

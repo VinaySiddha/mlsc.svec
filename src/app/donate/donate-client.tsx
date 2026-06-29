@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import React, { useState } from "react";
@@ -170,25 +172,52 @@ export function DonateClient() {
       return;
     }
 
+    if (!name || !email || !phone) {
+      toast({
+        variant: "destructive",
+        title: "Missing Details",
+        description: "Please fill in your name, email, and phone number to proceed with the donation.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       toast({
-        title: "Redirecting to Payment Gateway",
-        description: "Loading secure MLSC checkout portal...",
+        title: "Initializing Payment",
+        description: "Connecting to secure Cashfree portal...",
       });
 
       const purposeText = selectedCustomPayment ? selectedCustomPayment.purpose : 'General Donation';
-      const redirectUrl = `/mlsc-pay?type=donation` +
-        `&amount=${finalAmount}` +
-        `&purpose=${encodeURIComponent(purposeText)}` +
-        `&name=${encodeURIComponent(name)}` +
-        `&email=${encodeURIComponent(email)}` +
-        `&phone=${encodeURIComponent(phone)}`;
+      const originUrl = window.location.origin;
 
-      setTimeout(() => {
-        window.open(redirectUrl, '_blank');
+      const res = await createCashfreeOrderAction({
+        amount: finalAmount,
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        originUrl,
+        purpose: purposeText,
+      });
+
+      if (!res.success || !res.paymentSessionId) {
         setIsSubmitting(false);
-      }, 1000);
+        toast({
+          variant: "destructive",
+          title: "Checkout Error",
+          description: res.error || "Failed to initialize payment order.",
+        });
+        return;
+      }
+
+      const cashfree = (window as any).Cashfree({
+        mode: res.mode || 'production',
+      });
+      
+      cashfree.checkout({
+        paymentSessionId: res.paymentSessionId,
+        redirectTarget: '_self'
+      });
     } catch (err: any) {
       setIsSubmitting(false);
       toast({
@@ -205,8 +234,8 @@ export function DonateClient() {
       a: "100% of all contributions are directly invested back into our student community. The funds pay for cloud server costs, domain renewals, workshop materials, and prize pools for student hackathons. We maintain a public transparency record of all expenses."
     },
     {
-      q: "Is this a real payment portal?",
-      a: "No. This is a secure demonstration portal for the Microsoft Learn Student Club SVEC open-source website. No real money will be charged, and card details are processed only locally on your browser for this mockup."
+      q: "Is this a secure payment portal?",
+      a: "Yes. All payments are processed securely via our production Cashfree Payments integration. We support UPI, Credit/Debit Cards, and Net Banking."
     },
     {
       q: "Can I donate my technical skills instead?",
@@ -420,7 +449,7 @@ export function DonateClient() {
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-white/80">Secured Contribution Processing</h4>
                   <p className="text-[10px] text-white/40 leading-relaxed mt-1 font-medium">
-                    This is a secure 256-bit encrypted demonstration. No real banking details are uploaded or stored. All entries are simulated locally.
+                    All transaction data is processed using a secure 256-bit encrypted SSL link. No card or sensitive banking credentials are saved on our servers.
                   </p>
                 </div>
               </div>

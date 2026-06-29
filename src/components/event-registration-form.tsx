@@ -90,26 +90,36 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
         try {
             if (registrationFee && registrationFee > 0) {
                 toast({
-                    title: "Redirecting to Payment Gateway",
-                    description: "Loading secure MLSC checkout portal...",
+                    title: "Initializing Payment",
+                    description: "Connecting to secure Cashfree portal...",
                 });
                 
-                const redirectUrl = `/mlsc-pay?type=event` +
-                    `&eventId=${eventId}` +
-                    `&amount=${registrationFee}` +
-                    `&purpose=${encodeURIComponent('Event Ticket Registration')}` +
-                    `&name=${encodeURIComponent(values.name)}` +
-                    `&email=${encodeURIComponent(values.email)}` +
-                    `&phone=${encodeURIComponent(values.phone)}` +
-                    `&rollNo=${encodeURIComponent(values.rollNo)}` +
-                    `&branch=${encodeURIComponent(values.branch)}` +
-                    `&yearOfStudy=${encodeURIComponent(values.yearOfStudy)}`;
-                
-                setTimeout(() => {
-                    window.open(redirectUrl, '_blank');
+                const originUrl = window.location.origin;
+                const res = await createEventRegistrationOrderAction({
+                    eventId,
+                    userId: user?.uid,
+                    registrationData: values,
+                    originUrl,
+                });
+
+                if (!res.success || !res.paymentSessionId) {
                     setIsSubmitting(false);
-                    setOpen(false);
-                }, 1000);
+                    toast({
+                        variant: "destructive",
+                        title: "Checkout Error",
+                        description: res.error || "Failed to initialize payment order.",
+                    });
+                    return;
+                }
+
+                const cashfree = (window as any).Cashfree({
+                    mode: res.mode || 'production',
+                });
+                
+                cashfree.checkout({
+                    paymentSessionId: res.paymentSessionId,
+                    redirectTarget: '_self'
+                });
             } else {
                 const result = await registerForEvent(eventId, values, user?.uid);
                 if (result.error) {
