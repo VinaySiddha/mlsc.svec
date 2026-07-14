@@ -133,6 +133,11 @@ const nextConfig = {
       
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
+  },
   trailingSlash: true,
 };
 

@@ -441,7 +441,7 @@ export function QRScanner({ eventId, isOpen, onClose, onCheckInSuccess }: QRScan
             </div>
           )}
 
-          {jsQrLoaded && cameraPermission === 'granted' && (
+          {jsQrLoaded && cameraPermission !== 'denied' && (
             <>
               <video 
                 ref={videoRef} 
@@ -450,6 +450,13 @@ export function QRScanner({ eventId, isOpen, onClose, onCheckInSuccess }: QRScan
                 muted 
               />
               <canvas ref={canvasRef} className="hidden" />
+
+              {!scanning && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-400 bg-zinc-950">
+                  <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+                  <p className="text-sm">Connecting to camera...</p>
+                </div>
+              )}
 
               {/* Glowing Scan HUD Overlay */}
               <div className="absolute inset-0 border-[30px] border-black/60 pointer-events-none flex items-center justify-center">

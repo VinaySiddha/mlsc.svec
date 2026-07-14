@@ -48,11 +48,24 @@ export class EventDb {
     const eventSnapshot = await getDocs(q);
     return eventSnapshot.docs.map(doc => {
       const data = doc.data();
+      const dateStr = data.date && typeof data.date.toDate === 'function'
+        ? data.date.toDate().toISOString()
+        : (data.date instanceof Date ? data.date.toISOString() : (typeof data.date === 'string' ? new Date(data.date).toISOString() : new Date().toISOString()));
+
+      const deadlineStr = data.registrationDeadline && typeof data.registrationDeadline.toDate === 'function'
+        ? data.registrationDeadline.toDate().toISOString()
+        : (data.registrationDeadline instanceof Date ? data.registrationDeadline.toISOString() : (typeof data.registrationDeadline === 'string' ? new Date(data.registrationDeadline).toISOString() : null));
+
+      const createdAtStr = data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate().toISOString()
+        : (data.createdAt instanceof Date ? data.createdAt.toISOString() : (typeof data.createdAt === 'string' ? new Date(data.createdAt).toISOString() : null));
+
       return {
         ...data,
         id: doc.id,
-        date: data.date.toDate().toISOString(),
-        registrationDeadline: data.registrationDeadline?.toDate().toISOString() || null,
+        date: dateStr,
+        registrationDeadline: deadlineStr,
+        createdAt: createdAtStr,
       };
     });
   }

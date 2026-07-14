@@ -13,7 +13,7 @@ const getCachedNotifications = unstable_cache(
 export async function getNotifications() {
   try {
     const notifications = await getCachedNotifications();
-    return { notifications: notifications as { id: string, message: string }[] };
+    return { notifications: notifications as unknown as { id: string, message: string }[] };
   } catch (e) {
     console.error("Error fetching notifications:", e);
     return { error: "Failed to fetch notifications." };

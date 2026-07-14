@@ -6,7 +6,18 @@ export class NotificationDb {
     const notificationsCol = collection(db, 'notifications');
     const q = query(notificationsCol, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      const createdAtStr = data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate().toISOString()
+        : (data.createdAt instanceof Date ? data.createdAt.toISOString() : (typeof data.createdAt === 'string' ? new Date(data.createdAt).toISOString() : null));
+
+      return {
+        ...data,
+        id: doc.id,
+        createdAt: createdAtStr,
+      };
+    });
   }
 
   static async addNotification(message: string) {

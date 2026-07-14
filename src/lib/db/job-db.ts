@@ -50,10 +50,19 @@ export class JobDb {
     const jobsSnapshot = await getDocs(jobsQuery);
     return jobsSnapshot.docs.map(doc => {
       const data = doc.data();
+      const postedOnStr = data.posted_on && typeof data.posted_on.toDate === 'function'
+        ? data.posted_on.toDate().toISOString()
+        : (data.posted_on instanceof Date ? data.posted_on.toISOString() : (typeof data.posted_on === 'string' ? new Date(data.posted_on).toISOString() : new Date().toISOString()));
+
+      const createdAtStr = data.created_at && typeof data.created_at.toDate === 'function'
+        ? data.created_at.toDate().toISOString()
+        : (data.created_at instanceof Date ? data.created_at.toISOString() : (typeof data.created_at === 'string' ? new Date(data.created_at).toISOString() : null));
+
       return {
-        id: doc.id,
         ...data,
-        posted_on: data.posted_on.toDate().toISOString(),
+        id: doc.id,
+        posted_on: postedOnStr,
+        created_at: createdAtStr,
       };
     });
   }
