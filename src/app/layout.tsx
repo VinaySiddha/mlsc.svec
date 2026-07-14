@@ -217,13 +217,13 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-E51L2CC5ZZ" strategy="afterInteractive" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-N2QXBXX4J4" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-E51L2CC5ZZ');
+            gtag('config', 'G-N2QXBXX4J4');
           `}
         </Script>
       </body>
