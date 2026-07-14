@@ -202,6 +202,22 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
         loadData();
     }, [eventId]);
 
+    useEffect(() => {
+        // Prevent Radix UI from locking pointer-events on body when dialogs or dropdowns close
+        const restorePointerEvents = () => {
+            if (!isScannerOpen && !isAnalyticsOpen && !isBulkCheckInOpen && !isResetConfirmOpen) {
+                if (document.body.style.pointerEvents === 'none') {
+                    document.body.style.pointerEvents = 'auto';
+                }
+            }
+        };
+
+        restorePointerEvents();
+        
+        const interval = setInterval(restorePointerEvents, 500);
+        return () => clearInterval(interval);
+    }, [isScannerOpen, isAnalyticsOpen, isBulkCheckInOpen, isResetConfirmOpen]);
+
     const branches = useMemo(() => {
         const set = new Set(registrations.map(r => r.branch).filter(Boolean));
         return Array.from(set).sort();
