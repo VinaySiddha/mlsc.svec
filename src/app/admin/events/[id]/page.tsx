@@ -6,7 +6,8 @@ import {
     sendReminderEmails, 
     sendFeedbackEmails,
     checkInRegistrantAction,
-    exportEventRegistrationsToCsv
+    exportEventRegistrationsToCsv,
+    deleteEventRegistrationAction
 } from "@/app/actions";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,8 @@ import {
     ClipboardCheck,
     BarChart3,
     CheckSquare,
-    RotateCcw
+    RotateCcw,
+    Trash2
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -169,6 +171,7 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
     const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
     const [isBulkCheckInOpen, setIsBulkCheckInOpen] = useState(false);
     const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+    const [deletingReg, setDeletingReg] = useState<{ id: string, name: string, userId?: string } | null>(null);
     const [togglingId, setTogglingId] = useState<string | null>(null);
 
     // Bulk check in inputs
@@ -205,7 +208,7 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
     useEffect(() => {
         // Prevent Radix UI from locking pointer-events on body when dialogs or dropdowns close
         const restorePointerEvents = () => {
-            if (!isScannerOpen && !isAnalyticsOpen && !isBulkCheckInOpen && !isResetConfirmOpen) {
+            if (!isScannerOpen && !isAnalyticsOpen && !isBulkCheckInOpen && !isResetConfirmOpen && !deletingReg) {
                 if (document.body.style.pointerEvents === 'none') {
                     document.body.style.pointerEvents = 'auto';
                 }
@@ -216,7 +219,7 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
         
         const interval = setInterval(restorePointerEvents, 500);
         return () => clearInterval(interval);
-    }, [isScannerOpen, isAnalyticsOpen, isBulkCheckInOpen, isResetConfirmOpen]);
+    }, [isScannerOpen, isAnalyticsOpen, isBulkCheckInOpen, isResetConfirmOpen, deletingReg]);
 
     const branches = useMemo(() => {
         const set = new Set(registrations.map(r => r.branch).filter(Boolean));
@@ -506,6 +509,39 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
             title: 'Attendance Reset',
             description: `Successfully reset check-in status to absent for ${resetCount} participant(s).`
         });
+    };
+
+    const handleDeleteParticipant = async () => {
+        if (!deletingReg) return;
+        const targetId = deletingReg.id;
+        const targetName = deletingReg.name;
+        const targetUserId = deletingReg.userId;
+        
+        setDeletingReg(null);
+        
+        try {
+            const result = await deleteEventRegistrationAction(eventId, targetId, targetUserId);
+            if (result.error) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Deletion Failed',
+                    description: result.error
+                });
+            } else {
+                setRegistrations(prev => prev.filter(r => r.id !== targetId));
+                toast({
+                    title: 'Participant Removed',
+                    description: `${targetName} has been successfully deregistered.`
+                });
+            }
+        } catch (err: any) {
+            console.error("Deregistration failed:", err);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'An unexpected error occurred during deletion.'
+            });
+        }
     };
 
     // Copy email utilities
@@ -922,6 +958,15 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                                     {/* Actions */}
                                                     <TableCell className="text-right pr-6 py-4">
                                                         <div className="flex items-center justify-end gap-2">
+                                                            <Button 
+                                                                onClick={() => setDeletingReg({ id: reg.id, name: reg.name, userId: (reg as any).userId })} 
+                                                                variant="ghost" 
+                                                                size="icon" 
+                                                                className="h-8 w-8 rounded-lg text-zinc-500 hover:text-red-500 hover:bg-zinc-900 border border-transparent hover:border-zinc-800"
+                                                                title={`Remove ${reg.name}`}
+                                                            >
+                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                            </Button>
                                                             <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-zinc-500 hover:text-[#4285F4] hover:bg-zinc-900 border border-transparent hover:border-zinc-800" title={`Call ${reg.name}`}>
                                                                 <a href={`tel:${reg.phone}`}>
                                                                     <Phone className="h-3.5 w-3.5" />
@@ -1002,6 +1047,15 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
 
                                             {/* Action footer */}
                                             <div className="flex justify-end gap-2 pt-1">
+                                                <Button 
+                                                    onClick={() => setDeletingReg({ id: reg.id, name: reg.name, userId: (reg as any).userId })}
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className="h-8 border-zinc-900 bg-zinc-950 hover:bg-red-950/20 hover:text-red-500 rounded-lg text-zinc-400 text-xs w-10 p-0" 
+                                                    title={`Remove ${reg.name}`}
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </Button>
                                                 <Button asChild variant="outline" size="sm" className="h-8 border-zinc-800 bg-zinc-950 hover:bg-zinc-900 rounded-lg text-zinc-400 text-xs w-10 p-0" title={`Call ${reg.name}`}>
                                                     <a href={`tel:${reg.phone}`}>
                                                         <Phone className="h-3.5 w-3.5" />
@@ -1231,6 +1285,32 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             className="bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider px-6"
                         >
                             Reset Attendance
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* 4. Confirm Delete Participant Alert */}
+            <AlertDialog open={deletingReg !== null} onOpenChange={(open) => !open && setDeletingReg(null)}>
+                <AlertDialogContent className="bg-zinc-950 text-zinc-100 border-zinc-900 rounded-2xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-zinc-100 flex items-center gap-2 text-lg">
+                            <Trash2 className="h-5 w-5 text-red-500" />
+                            Remove Participant?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-zinc-400 text-xs leading-relaxed">
+                            Are you sure you want to remove **{deletingReg?.name}** from the event? This will cancel their registration ticket and remove it from their profile. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="border-zinc-850 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider">
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={handleDeleteParticipant}
+                            className="bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider px-6"
+                        >
+                            Remove Participant
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

@@ -154,6 +154,32 @@ export async function deleteEvent(id: string) {
   }
 }
 
+export async function deleteEventRegistrationAction(eventId: string, registrationId: string, userId?: string) {
+  try {
+    const registration = await EventService.getEventRegistration(eventId, registrationId);
+    if (!registration) {
+      return { error: "Registration not found." };
+    }
+    
+    await EventService.deleteEventRegistration(eventId, registrationId, userId);
+    
+    // Log activity
+    await logActivityAction(
+      "Attendee Deregistration",
+      `Attendee ${registration.name} (${registration.rollNo || 'N/A'}) was removed/deregistered from event ID ${eventId}.`
+    );
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to delete event registration:", error);
+    await logErrorAction(
+      `Deregistration Failed`,
+      `Failed to delete registration ID ${registrationId} for event ID ${eventId}. Error: ${error.message || error}`
+    );
+    return { error: error.message || "Failed to delete participant." };
+  }
+}
+
 const getCachedEvents = unstable_cache(
   async () => EventService.getRawEvents(),
   ['events-list'],
@@ -300,7 +326,7 @@ export async function checkInRegistrantAction(eventId: string, registrationId: s
       return { error: "Registration ticket not found for this event." };
     }
     
-    await EventService.checkInRegistrant(eventId, registrationId, status);
+    await EventService.checkInRegistrant(eventId, registration.id, status);
     
     // Log activity
     await logActivityAction(

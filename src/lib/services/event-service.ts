@@ -380,4 +380,12 @@ export class EventService {
     await EventDb.updateEventRegistration(eventId, registrationId, data);
     return { success: true };
   }
+
+  static async deleteEventRegistration(eventId: string, registrationId: string, userId?: string) {
+    await EventDb.deleteEventRegistration(eventId, registrationId);
+    if (userId) {
+      await EventDb.removeUserEventRegistration(userId, eventId);
+    }
+    return { success: true };
+  }
 }

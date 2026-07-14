@@ -134,17 +134,43 @@ export class EventDb {
   }
 
   static async getEventRegistration(eventId: string, registrationId: string) {
+    // 1. Try to get direct document by ID (covers free events and direct ID scans)
     const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
     const snap = await getDoc(registrationRef);
-    if (!snap.exists()) return null;
-    return {
-      ...snap.data(),
-      id: snap.id,
-    } as any;
+    if (snap.exists()) {
+      return {
+        ...snap.data(),
+        id: snap.id,
+      } as any;
+    }
+
+    // 2. Fallback: Query by orderId field (covers paid events where QR encodes Cashfree order ID)
+    const registrationsCol = collection(db, 'events', eventId, 'registrations');
+    const orderQuery = query(registrationsCol, where('orderId', '==', registrationId));
+    const querySnap = await getDocs(orderQuery);
+    if (!querySnap.empty) {
+      const matchDoc = querySnap.docs[0];
+      return {
+        ...matchDoc.data(),
+        id: matchDoc.id,
+      } as any;
+    }
+
+    return null;
   }
 
   static async updateEventRegistration(eventId: string, registrationId: string, dataToUpdate: any) {
     const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
     await updateDoc(registrationRef, dataToUpdate);
+  }
+
+  static async deleteEventRegistration(eventId: string, registrationId: string) {
+    const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
+    await deleteDoc(registrationRef);
+  }
+
+  static async removeUserEventRegistration(userId: string, eventId: string) {
+    const userEventRef = doc(db, 'users', userId, 'registeredEvents', eventId);
+    await deleteDoc(userEventRef);
   }
 }
