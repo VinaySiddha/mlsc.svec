@@ -15,7 +15,7 @@ export function eventAnnouncementTemplate(eventName: string, eventDate: string, 
           <p style="margin: 0;">${description}</p>
         </div>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://mlscsvec.in/events" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">View Events</a>
+          <a href="https://mlscsvec.com/events" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">View Events</a>
         </div>
         <p style="font-size: 12px; color: #888; margin-top: 30px;">You're receiving this because you have email notifications enabled. Manage preferences in your profile settings.</p>
       </div>

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Apply — MLSC SVEC",
     description: "Apply to join Microsoft Learn Student Club SVEC. Be part of a community of student innovators, tech enthusiasts, and future leaders.",
-    url: "https://mlscsvec.in/apply",
+    url: "https://mlscsvec.com/apply",
   },
 };
 

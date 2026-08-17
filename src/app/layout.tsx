@@ -1,13 +1,23 @@
-
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster"
+
+import { Toaster } from '@/components/ui/toaster';
 import { Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
 
-// Inter — the industry-standard clean modern font. Used by Vercel, Linear, Notion, GitHub.
+import { CelebrationPopup } from '@/components/celebration-popup';
+import { Providers } from '@/components/providers';
+import { HeaderWrapper } from '@/components/header-wrapper';
+import { FooterWrapper } from '@/components/footer-wrapper';
+import { KiriBot } from '@/components/kiri-bot';
+import { TicketFloatingButton } from '@/components/ticket-floating-button';
+
+/* =========================================================
+   FONTS
+========================================================= */
+
 const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900'],
@@ -15,7 +25,6 @@ const inter = Inter({
   display: 'swap',
 });
 
-// Google Sans — Premium Google brand typography
 const googleSans = localFont({
   src: [
     {
@@ -53,7 +62,6 @@ const googleSans = localFont({
   display: 'swap',
 });
 
-// Google Sans Text — Optimized for reading and UI text
 const googleSansText = localFont({
   src: [
     {
@@ -91,23 +99,35 @@ const googleSansText = localFont({
   display: 'swap',
 });
 
-
-import { CelebrationPopup } from '@/components/celebration-popup';
-import { Providers } from '@/components/providers';
-import { HeaderWrapper } from '@/components/header-wrapper';
-import { FooterWrapper } from '@/components/footer-wrapper';
-import { KiriBot } from '@/components/kiri-bot';
-import { TicketFloatingButton } from '@/components/ticket-floating-button';
-
+/* =========================================================
+   SEO / METADATA
+========================================================= */
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://mlscsvec.in'),
-  title: 'MLSC X SVEC',
-  description: "Welcome to the official site of Microsoft Learn Student Club SVEC — a vibrant community of student innovators, tech enthusiasts, and future leaders from Sri Vasavi Engineering College (SVEC)",
-  alternates: {
-    canonical: 'https://mlscsvec.in',
+  metadataBase: new URL('https://mlscsvec.com'),
+
+  title: {
+    default: 'MLSC X SVEC — Where Curiosity Becomes Capability',
+    template: '%s | MLSC X SVEC',
   },
+
+  description:
+    'MLSC X SVEC is a student-led technology community where curious minds learn, build, collaborate, and create solutions for the world beyond the classroom.',
+
+  applicationName: 'MLSC X SVEC',
+
+  authors: [
+    {
+      name: 'Microsoft Learn Student Club SVEC',
+    },
+  ],
+
+  creator: 'MLSC X SVEC',
+  publisher: 'MLSC X SVEC',
+
   keywords: [
+    'MLSC SVEC',
+    'MLSC X SVEC',
     'MLSC 4.0',
     'MLSC SVEC',
     'MLSC 4.0 Hiring Program',
@@ -118,111 +138,261 @@ export const metadata: Metadata = {
     'non-tech roles SVEC',
     'SVEC student opportunities',
     'Sri Vasavi Engineering College',
-   
+    // 'Microsoft Learn Student Club',
+    'Microsoft Learn Student Club SVEC',
+    'student technology community',
+    'student developers',
+    'student innovators',
+    'student builders',
+    'technology community SVEC',
+    'hackathons SVEC',
+    'technical events SVEC',
+    'student projects',
+    'Microsoft student community',
+    'Sri Vasavi Engineering College',
+    'SVEC',
+    'student opportunities',
+    'technology events',
+    'coding community',
+    'AI community',
+    'developer community',
   ],
+
+  alternates: {
+    canonical: 'https://mlscsvec.com',
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+
   openGraph: {
-    title: 'MLSC X SVEC',
-    description: "Welcome to the official site of Microsoft Learn Student Club SVEC — a vibrant community of student innovators, tech enthusiasts, and future leaders from Sri Vasavi Engineering College (SVEC)",
-    url: 'https://mlscsvec.in',
-    siteName: 'MLSC SVEC',
+    title: 'MLSC X SVEC — Where Curiosity Becomes Capability',
+
+    description:
+      'A student-led technology community turning curiosity into skills, ideas into projects, and students into builders.',
+
+    url: 'https://mlscsvec.com',
+
+    siteName: 'MLSC X SVEC',
+
     images: [
       {
-        url: 'https://mlscsvec.in/logo.png',
+        url: 'https://mlscsvec.com/logo.png',
         width: 1200,
         height: 630,
-        alt: 'MLSC SVEC Logo',
+        alt: 'MLSC X SVEC — Where Curiosity Becomes Capability',
       },
     ],
+
     locale: 'en_US',
     type: 'website',
   },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MLSC X SVEC — Where Curiosity Becomes Capability',
+    description:
+      'Learn. Build. Collaborate. Create what comes next with MLSC X SVEC.',
+    images: ['https://mlscsvec.com/logo.png'],
+  },
+
   icons: {
     icon: '/logo.png',
     shortcut: '/logo.png',
     apple: '/logo.png',
   },
+
   other: {
     'google-adsense-account': 'ca-pub-4523569844866132',
-    'og:title': 'MLSC 3.0 Hiring Program X SVEC',
-    'og:site_name': 'MLSC SVEC',
   },
 };
+
+/* =========================================================
+   ROOT LAYOUT
+========================================================= */
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={cn('antialiased', inter.variable, googleSans.variable, googleSansText.variable)}>
+    <html
+      lang="en"
+      className="dark"
+      suppressHydrationWarning
+    >
+      <body
+        className={cn(
+          'antialiased',
+          inter.variable,
+          googleSans.variable,
+          googleSansText.variable
+        )}
+      >
+        {/* =====================================================
+            STRUCTURED DATA
+        ===================================================== */}
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "MLSC X SVEC",
-              "url": "https://mlscsvec.in",
-              "department": [
+              '@context': 'https://schema.org',
+
+              '@type': 'Organization',
+
+              name: 'MLSC X SVEC',
+
+              alternateName:
+                'Microsoft Learn Student Club - Sri Vasavi Engineering College',
+
+              url: 'https://mlscsvec.com',
+
+              description:
+                'A student-led technology community where curious minds learn, build, collaborate, and create solutions for the world beyond the classroom.',
+
+              slogan: 'Where Curiosity Becomes Capability.',
+
+              brand: {
+                '@type': 'Brand',
+                name: 'MLSC X SVEC',
+              },
+
+              department: [
                 {
-                  "@type": "WebPage",
-                  "name": "Home",
-                  "url": "https://mlscsvec.in/"
+                  '@type': 'WebPage',
+                  name: 'Home',
+                  description:
+                    'Discover MLSC X SVEC and the student technology community.',
+                  url: 'https://mlscsvec.com/',
                 },
+
                 {
-                  "@type": "WebPage",
-                  "name": "About",
-                  "url": "https://mlscsvec.in/about"
+                  '@type': 'WebPage',
+                  name: 'About',
+                  description:
+                    'Learn about the vision, community, and mission of MLSC X SVEC.',
+                  url: 'https://mlscsvec.com/about',
                 },
+
                 {
-                  "@type": "WebPage",
-                  "name": "Team",
-                  "url": "https://mlscsvec.in/team"
+                  '@type': 'WebPage',
+                  name: 'Team',
+                  description:
+                    'Meet the students building and leading MLSC X SVEC.',
+                  url: 'https://mlscsvec.com/team',
                 },
+
                 {
-                  "@type": "WebPage",
-                  "name": "Events",
-                  "url": "https://mlscsvec.in/events"
+                  '@type': 'WebPage',
+                  name: 'Events',
+                  description:
+                    'Explore workshops, hackathons, technical sessions, and community events.',
+                  url: 'https://mlscsvec.com/events',
                 },
+
                 {
-                  "@type": "WebPage",
-                  "name": "Blog",
-                  "url": "https://mlscsvec.in/blog"
+                  '@type': 'WebPage',
+                  name: 'Blog',
+                  description:
+                    'Stories, insights, technical knowledge, and experiences from the community.',
+                  url: 'https://mlscsvec.com/blog',
                 },
+
                 {
-                  "@type": "WebPage",
-                  "name": "Projects",
-                  "url": "https://mlscsvec.in/projects"
+                  '@type': 'WebPage',
+                  name: 'Projects',
+                  description:
+                    'Explore projects and ideas built by MLSC X SVEC members.',
+                  url: 'https://mlscsvec.com/projects',
                 },
-              ]
-            })
+              ],
+            }),
           }}
         />
+
+        {/* =====================================================
+            APPLICATION
+        ===================================================== */}
+
         <Providers>
           <div className="w-full min-h-screen flex flex-col relative">
+            
+            {/* Navigation */}
             <HeaderWrapper />
+
+            {/* Announcements / Celebrations */}
             <CelebrationPopup />
-            <main className="flex-1 bg-black">{children}</main>
+
+            {/* =================================================
+                MAIN CONTENT
+            ================================================= */}
+
+            <main className="flex-1 bg-black">
+              {children}
+            </main>
+
+            {/* =================================================
+                FOOTER
+            ================================================= */}
+
             <FooterWrapper />
+
+            {/* =================================================
+                FLOATING COMPONENTS
+            ================================================= */}
+
             <KiriBot />
+
             <TicketFloatingButton />
           </div>
         </Providers>
+
+        {/* Toast Notifications */}
         <Toaster />
+
+        {/* =====================================================
+            GOOGLE ADSENSE
+        ===================================================== */}
+
+              <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
+        crossOrigin="anonymous"
+      />
+
+        {/* =====================================================
+            GOOGLE ANALYTICS
+        ===================================================== */}
+
         <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
-          crossOrigin="anonymous"
+          src="https://www.googletagmanager.com/gtag/js?id=G-N2QXBXX4J4"
           strategy="afterInteractive"
         />
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-N2QXBXX4J4" strategy="afterInteractive" />
-        <Script id="google-analytics" strategy="afterInteractive">
+
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+        >
           {`
             window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
+
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+
             gtag('js', new Date());
+
             gtag('config', 'G-N2QXBXX4J4');
           `}
         </Script>

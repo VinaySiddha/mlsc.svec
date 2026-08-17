@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Jobs — MLSC SVEC",
     description: "Browse the latest tech job listings and internship opportunities curated for MLSC SVEC members.",
-    url: "https://mlscsvec.in/jobs",
+    url: "https://mlscsvec.com/jobs",
   },
 };
 import { JobCard, JobCardSkeleton } from "@/components/job-card";

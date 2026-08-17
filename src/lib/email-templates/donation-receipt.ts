@@ -63,7 +63,7 @@ export function donationReceiptEmailTemplate(data: {
         </p>
 
         <div style="text-align: center; margin: 25px 0 10px 0;">
-          <a href="https://mlscsvec.in/study" target="_blank" style="display: inline-block; background-color: #7C3AED; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Explore Roadmaps</a>
+          <a href="https://mlscsvec.com/study" target="_blank" style="display: inline-block; background-color: #7C3AED; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Explore Roadmaps</a>
         </div>
 
         <p style="margin-top: 30px; font-size: 13px; color: #444; border-t: 1px solid #eee; padding-top: 20px;">

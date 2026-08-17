@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Read the privacy policy for the Microsoft Learn Student Club SVEC website.",
   openGraph: {
     title: "Privacy Policy — MLSC SVEC",
-    url: "https://mlscsvec.in/privacy-policy",
+    url: "https://mlscsvec.com/privacy-policy",
   },
 };
 

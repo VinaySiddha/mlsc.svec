@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             title: event.title,
             description: event.description?.slice(0, 160),
             images: event.bannerImage ? [{ url: event.bannerImage }] : undefined,
-            url: `https://mlscsvec.in/events/${resolvedParams.id}`,
+            url: `https://mlscsvec.com/events/${resolvedParams.id}`,
         },
     };
 }

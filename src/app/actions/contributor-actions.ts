@@ -137,7 +137,7 @@ export async function approveContributorAction(appId: string) {
           </p>
           
           <div style="text-align: center; margin: 25px 0;">
-            <a href="https://mlscsvec.in/contribute/dashboard" target="_blank" style="background-color: #10b981; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; display: inline-block;">
+            <a href="https://mlscsvec.com/contribute/dashboard" target="_blank" style="background-color: #10b981; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; display: inline-block;">
               Access Contributor Dashboard
             </a>
           </div>
@@ -310,7 +310,7 @@ export async function requestMoreDetailsAction(appId: string, feedback: string) 
 
     // Send email to Contributor
     const subject = `Action Required: Contributor Application details need update - MLSC SVEC`;
-    const reverifyLink = `https://mlscsvec.in/contribute/reverify?id=${appId}`;
+    const reverifyLink = `https://mlscsvec.com/contribute/reverify?id=${appId}`;
     
     const userHtml = `
       <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">

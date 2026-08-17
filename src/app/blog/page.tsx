@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Blog — MLSC SVEC",
     description: "Read articles, tutorials, and updates from the Microsoft Learn Student Club SVEC community.",
-    url: "https://mlscsvec.in/blog",
+    url: "https://mlscsvec.com/blog",
   },
 };
 

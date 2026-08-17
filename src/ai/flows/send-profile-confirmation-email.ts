@@ -44,7 +44,7 @@ export async function sendProfileConfirmationEmail(input: ProfileConfirmationEma
       },
   });
 
-  const idCardLink = `https://mlscsvec.in/id/${memberId}`;
+  const idCardLink = `https://mlscsvec.com/id/${memberId}`;
   const subject = `Your MLSC Profile is Active!`;
   const htmlBody = `
   <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #d4edda; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">

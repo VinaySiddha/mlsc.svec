@@ -16,7 +16,7 @@ export function welcomeEmailTemplate(name: string): { subject: string; html: str
           <li>Complete your <strong>profile</strong> to let others know about you</li>
         </ul>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://mlscsvec.in/community" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Visit Community</a>
+          <a href="https://mlscsvec.com/community" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Visit Community</a>
         </div>
         <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>MLSC Team</strong></p>
       </div>

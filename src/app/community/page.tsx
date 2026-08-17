@@ -259,7 +259,7 @@ export default function CommunityPage() {
                   {user.displayName || 'MLSC Innovator'}
                 </h3>
                 <p className="text-xs text-white/50 truncate max-w-full mt-1">
-                  {user.email || 'member@mlscsvec.in'}
+                  {user.email || 'member@mlscsvec.com'}
                 </p>
               </div>
 

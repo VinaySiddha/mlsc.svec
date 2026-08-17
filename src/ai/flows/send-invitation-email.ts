@@ -44,7 +44,7 @@ export async function sendInvitationEmail(input: InvitationEmailInput): Promise<
       },
   });
   
-  const onboardingLink = `https://mlscsvec.in/onboard/${onboardingToken}`;
+  const onboardingLink = `https://mlscsvec.com/onboard/${onboardingToken}`;
 
   const subject = `Welcome to the MLSC Team, ${name}!`;
   const htmlBody = `

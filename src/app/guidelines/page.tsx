@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Read the community code of conduct and guidelines for MLSC SVEC.",
   openGraph: {
     title: "Community Guidelines — MLSC SVEC",
-    url: "https://mlscsvec.in/guidelines",
+    url: "https://mlscsvec.com/guidelines",
   },
 };
 

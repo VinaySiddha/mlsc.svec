@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Community — MLSC SVEC",
     description: "Join the MLSC SVEC community — share posts, discuss ideas, and connect with fellow student innovators.",
-    url: "https://mlscsvec.in/community",
+    url: "https://mlscsvec.com/community",
   },
 };
 import { Button } from '@/components/ui/button';

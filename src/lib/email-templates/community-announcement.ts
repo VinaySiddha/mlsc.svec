@@ -8,7 +8,7 @@ export function communityAnnouncementTemplate(title: string, message: string): {
         <h2 style="color: #222; font-size: 20px; font-weight: 600;">${title}</h2>
         <p style="font-size: 16px;">${message}</p>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://mlscsvec.in" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Visit MLSC Hub</a>
+          <a href="https://mlscsvec.com" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Visit MLSC Hub</a>
         </div>
         <p style="font-size: 12px; color: #888; margin-top: 30px;">You're receiving this because you have email notifications enabled. Manage preferences in your profile settings.</p>
       </div>

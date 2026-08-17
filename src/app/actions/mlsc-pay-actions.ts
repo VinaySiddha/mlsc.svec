@@ -109,7 +109,7 @@ export async function initiateMLSCPaymentAction(data: InitiatePaymentData) {
 
     let returnUrl = `${originUrl}/mlsc-pay/status?order_id={order_id}`;
     if (CASHFREE_MODE === 'production' && returnUrl.startsWith('http://')) {
-      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.in').replace(/^http:\/\//, 'https://');
+      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.com').replace(/^http:\/\//, 'https://');
     }
 
     // Call Real Cashfree PG API

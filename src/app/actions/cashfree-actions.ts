@@ -61,7 +61,7 @@ export async function createCashfreeOrderAction(data: {
 
     let returnUrl = `${originUrl}/donate/status?order_id={order_id}`;
     if (CASHFREE_MODE === 'production' && returnUrl.startsWith('http://')) {
-      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.in').replace(/^http:\/\//, 'https://');
+      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.com').replace(/^http:\/\//, 'https://');
     }
 
     // Call real Cashfree PG API
@@ -378,7 +378,7 @@ export async function createEventRegistrationOrderAction(data: {
     
     let returnUrl = `${originUrl}/donate/status?order_id=${orderId}`;
     if (CASHFREE_MODE === 'production' && returnUrl.startsWith('http://')) {
-      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.in').replace(/^http:\/\//, 'https://');
+      returnUrl = returnUrl.replace(/^http:\/\/localhost:\d+/, 'https://mlscsvec.com').replace(/^http:\/\//, 'https://');
     }
     
     const response = await fetch(`${API_BASE}/orders`, {

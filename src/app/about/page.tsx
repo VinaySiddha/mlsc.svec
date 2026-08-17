@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About — MLSC SVEC",
     description: "Learn about Microsoft Learn Student Club at Sri Vasavi Engineering College — our mission, history, and the team driving student innovation.",
-    url: "https://mlscsvec.in/about",
+    url: "https://mlscsvec.com/about",
   },
 };
 

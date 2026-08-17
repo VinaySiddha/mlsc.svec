@@ -113,7 +113,7 @@ export class TeamService {
       name: member.name,
       email: member.email,
       memberId: member.id,
-      editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+      editLink: `https://mlscsvec.com/profile/edit/${member.id}`,
     });
   }
 
@@ -169,7 +169,7 @@ export class TeamService {
         name: member.name,
         email: member.email,
         memberId: member.id,
-        editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+        editLink: `https://mlscsvec.com/profile/edit/${member.id}`,
       });
       count++;
     }
@@ -236,7 +236,7 @@ export class TeamService {
           name: updatedMember.name,
           email: updatedMember.email,
           memberId: member.id,
-          editLink: `https://mlscsvec.in/profile/edit/${member.id}`,
+          editLink: `https://mlscsvec.com/profile/edit/${member.id}`,
         };
         await sendProfileConfirmationEmail(emailInput);
       } catch (emailError) {

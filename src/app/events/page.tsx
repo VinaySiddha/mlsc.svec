@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Events — MLSC SVEC",
     description: "Explore upcoming and past events hosted by Microsoft Learn Student Club SVEC — workshops, hackathons, bootcamps, and more.",
-    url: "https://mlscsvec.in/events",
+    url: "https://mlscsvec.com/events",
   },
 };
 
