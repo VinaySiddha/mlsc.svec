@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { blogPosts } from "@/lib/blog-posts";
+
 const posts = [
   {
     slug: "inauguration",
@@ -27,26 +29,16 @@ const posts = [
     url: "https://link.medium.com/4aHNce3OlEb",
     isMedium: true,
   },
-  {
-    slug: "generative-ai-roadmap",
-    title: "Getting Started with Generative AI: A Beginner's Guide",
-    description: "Unlock the potential of Large Language Models. Learn the essential tools, prompts, and frameworks to build your first AI agent.",
-    image: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?q=80&w=2832&auto=format&fit=crop",
-    date: "June 2026",
-    category: "Tech Roadmap",
-    url: "/domains/generative-ai/",
+  ...blogPosts.map(p => ({
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    image: p.image,
+    date: p.date,
+    category: p.category,
+    url: `/blog/${p.slug}`,
     isMedium: false,
-  },
-  {
-    slug: "azure-student-benefits",
-    title: "Azure Student Benefits: Cloud for Free",
-    description: "Discover free student credits on Microsoft Azure, how to deploy serverless applications, and how to jumpstart your cloud journey.",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2944&auto=format&fit=crop",
-    date: "May 2026",
-    category: "Cloud Guide",
-    url: "/domains/cloud-devops/",
-    isMedium: false,
-  }
+  }))
 ];
 
 export default function BlogPage() {
@@ -162,7 +154,7 @@ export default function BlogPage() {
                     ) : (
                       <Button asChild className="rounded-xl bg-white text-black font-bold hover:bg-white/90 px-5 h-10 text-[10px] tracking-wider uppercase transition-transform active:scale-95 w-fit">
                         <Link href={post.url} className="flex items-center gap-1.5">
-                          View Roadmap <ArrowRight className="h-3.5 w-3.5" />
+                          Read Article <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </Button>
                     )}
