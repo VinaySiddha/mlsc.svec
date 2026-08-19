@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -365,9 +366,11 @@ function LoginContent() {
 
             {/* ── Right: image panel ── */}
             <div className="relative hidden md:block min-h-[500px]">
-              <img
+              <Image
                 src="/mlsc-preview.png"
                 alt="MLSC SVEC"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               {/* Dark overlay */}

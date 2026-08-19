@@ -40,72 +40,72 @@ const data = [
   {
     category: "Technical Domain",
     title: "GENERATIVE AI & LLMs",
-    src: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?q=80&w=2832&auto=format&fit=crop",
+    src: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?q=70&w=800&auto=format&fit=crop",
     content: (
       <DomainContent
         slug="generative-ai"
         description="Dive into the world of Large Language Models, prompt engineering, AI agents, and real-world GenAI deployments. Build the future with Microsoft Azure AI and Copilot."
-        image="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2765&auto=format&fit=crop"
+        image="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=70&w=800&auto=format&fit=crop"
       />
     ),
   },
   {
     category: "Technical Domain",
     title: "DATA SCIENCE & ML",
-    src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2940&auto=format&fit=crop",
+    src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=70&w=800&auto=format&fit=crop",
     content: (
       <DomainContent
         slug="data-science"
         description="Master predictive analytics, neural networks, and machine learning pipelines. Work with real datasets and learn to build intelligent systems from scratch."
-        image="https://images.unsplash.com/photo-1518186285589-2f7649de83e0?q=80&w=2874&auto=format&fit=crop"
+        image="https://images.unsplash.com/photo-1518186285589-2f7649de83e0?q=70&w=800&auto=format&fit=crop"
       />
     ),
   },
   {
     category: "Technical Domain",
     title: "CLOUD & DEVOPS",
-    src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2944&auto=format&fit=crop",
+    src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=70&w=800&auto=format&fit=crop",
     content: (
       <DomainContent
         slug="cloud-devops"
         description="Learn Azure cloud architecture, CI/CD pipelines, containerization with Docker & Kubernetes, and enterprise-grade DevOps workflows."
-        image="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2940&auto=format&fit=crop"
+        image="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=70&w=800&auto=format&fit=crop"
       />
     ),
   },
   {
     category: "Technical Domain",
     title: "WEB & APP DEVELOPMENT",
-    src: "https://images.unsplash.com/photo-1547658719-da2b51169166?q=80&w=2864&auto=format&fit=crop",
+    src: "https://images.unsplash.com/photo-1547658719-da2b51169166?q=70&w=800&auto=format&fit=crop",
     content: (
       <DomainContent
         slug="web-development"
         description="Build modern, scalable web applications using React, Next.js, and cutting-edge frontend tooling. From pixel-perfect UIs to full-stack deployments."
-        image="https://images.unsplash.com/photo-1593720213428-28a5b9e94613?q=80&w=2940&auto=format&fit=crop"
+        image="https://images.unsplash.com/photo-1593720213428-28a5b9e94613?q=70&w=800&auto=format&fit=crop"
       />
     ),
   },
   {
     category: "Non-Technical Domain",
     title: "MEDIA & MARKETING",
-    src: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=2874&auto=format&fit=crop",
+    src: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=70&w=800&auto=format&fit=crop",
     content: (
       <DomainContent
         slug="media-marketing"
         description="Shape the MLSC brand through social media strategy, content creation, graphic design, and digital campaigns that reach thousands of students."
-        image="https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?q=80&w=2874&auto=format&fit=crop"
+        image="https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?q=70&w=800&auto=format&fit=crop"
       />
     ),
   },
   {
     category: "Non-Technical Domain",
     title: "EVENTS & OPERATIONS",
-    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2940&auto=format&fit=crop",
+    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=70&w=800&auto=format&fit=crop",
     content: (
       <DomainContent
         slug="events-operations"
         description="Plan and execute world-class hackathons, workshops, and speaker sessions. The backbone of every successful MLSC event — logistics, coordination, and flawless execution."
-        image="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2912&auto=format&fit=crop"
+        image="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=70&w=800&auto=format&fit=crop"
       />
     ),
   },

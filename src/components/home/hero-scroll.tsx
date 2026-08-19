@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+import Image from "next/image";
 
 export function HeroScroll() {
   return (
@@ -22,12 +23,17 @@ export function HeroScroll() {
           </div>
         }
       >
-        <img
-          src="/mlsc-preview.png"
-          alt="MLSC SVEC platform preview"
-          className="mx-auto rounded-xl object-contain h-full w-full"
-          draggable={false}
-        />
+        <div className="h-full w-full relative">
+          <Image
+            src="/mlsc-preview.png"
+            alt="MLSC SVEC platform preview"
+            fill
+            sizes="(max-width: 768px) 100vw, 1200px"
+            className="mx-auto rounded-xl object-contain"
+            draggable={false}
+            priority
+          />
+        </div>
       </ContainerScroll>
     </div>
   );
