@@ -11,7 +11,7 @@ const ADMIN_ROLES: readonly Role[] = [
   ROLES.SUPER_ADMIN,
   ROLES.EVENT_ADMIN,
   ROLES.COMMUNITY_MODERATOR,
-  ROLES.CONTENT_MANAGER,
+  ROLES.PANEL,
 ];
 
 /**
@@ -52,11 +52,12 @@ export async function adminGoogleLoginAction(idToken: string): Promise<{
       return { error: 'Access denied. You do not have admin privileges. Contact the Super Admin to get access.' };
     }
 
-    // Issue a session JWT with the user's actual RBAC role
+    // Issue a session JWT with the user's actual RBAC role and domain (if panel member)
     const token = await AuthService.generateToken({
       role: userRole,
       username: displayName,
       email: email,
+      domain: userData.domain || undefined,
     });
 
     const cookieStore = await cookies();

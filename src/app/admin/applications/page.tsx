@@ -47,6 +47,10 @@ function ApplicationsDashboardSkeleton({ panelDomain }: { panelDomain?: string }
     ds_ml: "Data Science & ML",
     azure: "Azure Cloud",
     web_app: "Web & App Development",
+    event_management: "Event Management",
+    public_relations: "Public Relations",
+    media_marketing: "Media Marketing",
+    creativity: "Creativity",
   };
   const description = panelDomain
     ? `Applications for the ${domainLabels[panelDomain]} domain.`
@@ -104,7 +108,7 @@ async function ApplicationsDashboard({
     statuses: ['Received', 'Under Processing', 'Interviewing', 'Recommended', 'Hired', 'Rejected'],
     years: ["2nd", "3rd"],
     branches: ["AIML", "CAI", "CSE", "CST", "ECE", "Others"],
-    domains: ['gen_ai', 'ds_ml', 'azure', 'web_app']
+    domains: ['gen_ai', 'ds_ml', 'azure', 'web_app', 'event_management', 'public_relations', 'media_marketing', 'creativity']
   };
 
   const domainLabels: Record<string, string> = {
@@ -112,6 +116,10 @@ async function ApplicationsDashboard({
     ds_ml: "Data Science & ML",
     azure: "Azure Cloud",
     web_app: "Web & App Development",
+    event_management: "Event Management",
+    public_relations: "Public Relations",
+    media_marketing: "Media Marketing",
+    creativity: "Creativity",
   };
 
   const description = panelDomain

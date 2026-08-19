@@ -2,6 +2,7 @@
 'use server';
 
 import nodemailer from 'nodemailer';
+import { buildEmailHtml, emailSignature } from '@/lib/email-base';
 
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.warn("GMAIL_USER or GMAIL_APP_PASSWORD is not set in .env. Event feedback emails will not be sent.");
@@ -30,30 +31,38 @@ export async function sendFeedbackEmail(input: EventFeedbackEmailInput): Promise
       },
   });
 
-  const subject = `We Value Your Feedback for ${eventName}!`;
-  const htmlBody = `
-  <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <div style="background-color: #0056b3; height: 6px;"></div>
-    <div style="padding: 20px;">
-      <h2 style="color: #222; font-size: 20px; font-weight: 600;">Hi ${name},</h2>
-      <p style="font-size: 16px;">
-        Thank you for attending <strong>${eventName}</strong>. We hope you had a great time and learned a lot!
-      </p>
-      <p>Your feedback is very important to us and helps us improve our future events. Please take a moment to fill out our feedback form.</p>
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${feedbackLink}" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Share Your Feedback</a>
-      </div>
-      <p>We appreciate your valuable input and look forward to seeing you at our next event.</p>
-      <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>The MLSC Team</strong></p>
-    </div>
-  </div>
+  const subject = `We Value Your Feedback for ${eventName}! 💬`;
+
+  const bodyHtml = `
+    <p style="margin:0 0 16px 0;">Hello <strong>${name}</strong>,</p>
+    <p style="margin:0 0 16px 0;">
+      Thank you for attending <strong>${eventName}</strong>. We hope you had a fantastic time and took away valuable experiences!
+    </p>
+    <p style="margin:0 0 24px 0;">
+      Your feedback is incredibly valuable to us — it helps us improve every future event. Please take just 2 minutes to share your thoughts:
+    </p>
+    <ul style="margin:0 0 24px 0;padding-left:20px;color:#3c4043;line-height:26px;">
+      <li style="padding-bottom:6px;">What did you enjoy most about the event?</li>
+      <li style="padding-bottom:6px;">What could we improve for next time?</li>
+      <li style="padding-bottom:6px;">Would you recommend MLSC events to peers?</li>
+    </ul>
+    <p style="margin:0 0 24px 0;">We appreciate your valuable input and look forward to seeing you at our next event.</p>
+    ${emailSignature('MLSC Events Team')}
   `;
-  
+
+  const htmlBody = buildEmailHtml({
+    eyebrow: '#MLSC4.0 · Post-Event Feedback',
+    headline: `How was ${eventName}? 💬`,
+    ctaLabel: 'Share Your Feedback →',
+    ctaUrl: feedbackLink,
+    accentColor: '#34A853',
+    bodyHtml,
+  });
+
   const mailOptions = {
       from: `"MLSC Events" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: subject,
+      subject,
       html: htmlBody,
   };
 

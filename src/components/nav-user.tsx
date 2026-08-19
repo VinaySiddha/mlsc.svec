@@ -55,8 +55,7 @@ export function NavUser({
       title: "Logged Out",
       description: "You have been successfully logged out.",
     });
-    router.push('/login');
-    router.refresh();
+    window.location.href = '/login';
   };
 
   const initials = user.name ? user.name.charAt(0).toUpperCase() : 'A';

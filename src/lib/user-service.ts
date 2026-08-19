@@ -103,10 +103,16 @@ export async function getAllUsers(): Promise<{ users: UserProfile[]; error?: str
   }
 }
 
-export async function assignUserRole(userId: string, role: Role): Promise<{ success: boolean; error?: string }> {
+export async function assignUserRole(userId: string, role: Role, domain?: string | null): Promise<{ success: boolean; error?: string }> {
   try {
     const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, { role, updatedAt: new Date().toISOString() });
+    const updateData: Record<string, any> = { role, updatedAt: new Date().toISOString() };
+    if (role === 'panel') {
+      updateData.domain = domain || null;
+    } else {
+      updateData.domain = null;
+    }
+    await updateDoc(userRef, updateData);
     return { success: true };
   } catch (error) {
     console.error('Error assigning role:', error);

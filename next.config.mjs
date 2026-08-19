@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: [
+    '192.168.1.30',
+    '10.5.0.2',
+    'localhost',
+    '127.0.0.1',
+  ],
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -21,40 +27,7 @@ const nextConfig = {
         search: '?url=*',
       },
       {
-        pathname: '/logo.png',
-      },
-      {
-        pathname: '/team1.jpg',
-      },
-      {
-        pathname: '/g2.jpg',
-      },
-      {
-        pathname: '/flask.png',
-      },
-      {
-        pathname: '/blueday.png',
-      },
-      {
-        pathname: '/web.jpg',
-      },
-      {
-        pathname: '/azure.jpg',
-      },
-      {
-        pathname: '/images/event-placeholder.png',
-      },
-      {
-        pathname: '/',
-      },
-      {
-        pathname: '/blog1.jpg',
-      },
-      {
-        pathname: '/moment_screenshot.png',
-      },
-      {
-        pathname: '/g1.jpg',
+        pathname: '/**',
       }
     ],
     remotePatterns: [

@@ -2,6 +2,7 @@
 'use server';
 
 import nodemailer from 'nodemailer';
+import { buildEmailHtml, emailInfoBox, emailDetailRow, emailSignature } from '@/lib/email-base';
 
 export interface EventReminderEmailInput {
   name: string;
@@ -33,39 +34,57 @@ export async function sendEventReminderEmail(input: EventReminderEmailInput): Pr
       },
   });
 
-  const subject = `Reminder: ${eventName} is tomorrow!`;
-  const htmlBody = `
-  <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <div style="background-color: #0056b3; height: 6px;"></div>
-    <div style="padding: 20px;">
-      <h2 style="color: #222; font-size: 20px; font-weight: 600;">Hi ${name},</h2>
-      <p style="font-size: 16px;">
-        This is a friendly reminder that the event, <strong>${eventName}</strong>, is happening soon!
-      </p>
-      <div style="background-color: #f1f5f9; border-left: 4px solid #007bff; padding: 15px; margin: 20px 0;">
-        <p style="margin: 0 0 8px 0;"><strong>Event Details:</strong></p>
-        <p style="margin: 0;"><strong>Event:</strong> ${eventName}</p>
-        <p style="margin: 0;"><strong>Date:</strong> ${eventDate}</p>
-        <p style="margin: 0;"><strong>Time:</strong> ${eventTime}</p>
-        <p style="margin: 0;"><strong>Venue:</strong> ${eventVenue}</p>
-      </div>
-      ${eventLink ? `
-      <div style="text-align: center; margin: 30px 0;">
-        <p>If you haven't already, please join the event group or save the meeting link:</p>
-        <a href="${eventLink}" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Access Event Link</a>
-      </div>
-      ` : ''}
-      <p>We are excited to see you there and hope you have a great time.</p>
-      <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>MLSC Team</strong></p>
-    </div>
-  </div>
+  const subject = `Reminder: ${eventName} is Tomorrow! ⏰`;
+
+  const detailsTable = `
+    <table width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tbody>
+        ${emailDetailRow('Event', eventName)}
+        ${emailDetailRow('Date', eventDate)}
+        ${emailDetailRow('Time', eventTime)}
+        ${emailDetailRow('Venue', eventVenue)}
+      </tbody>
+    </table>`;
+
+  const bodyHtml = `
+    <p style="margin:0 0 16px 0;">Hello <strong>${name}</strong>,</p>
+    <p style="margin:0 0 20px 0;">
+      This is a friendly reminder that <strong>${eventName}</strong> is happening soon. Make sure you're prepared and on time!
+    </p>
+    ${emailInfoBox(`
+      <p style="margin:0 0 12px 0;font-family:'Google Sans',Arial,sans-serif;font-size:11px;font-weight:500;color:#5f6368;letter-spacing:1.5px;text-transform:uppercase;">Event Details</p>
+      ${detailsTable}
+    `)}
+    ${eventLink ? `
+    <p style="margin:0 0 16px 0;">If you haven't already, please join the event group or save the meeting link:</p>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px 0;">
+      <tr>
+        <td align="center" bgcolor="#25D366" style="border-radius:6px;padding:10px 20px;">
+          <a href="${eventLink}" target="_blank"
+            style="font-size:14px;font-family:'Google Sans',Arial,sans-serif;
+              color:#ffffff;text-decoration:none;font-weight:500;display:inline-block;">
+            Join Event Group →
+          </a>
+        </td>
+      </tr>
+    </table>` : ''}
+    <p style="margin:0 0 24px 0;">We are excited to see you there and hope you have a great time.</p>
+    ${emailSignature('MLSC Events Team')}
   `;
-  
+
+  const htmlBody = buildEmailHtml({
+    eyebrow: '#MLSC4.0 · Event Reminder',
+    headline: `${eventName} is Tomorrow! ⏰`,
+    ctaLabel: eventLink ? 'Access Event Link →' : undefined,
+    ctaUrl: eventLink,
+    accentColor: '#4285F4',
+    bodyHtml,
+  });
+
   const mailOptions = {
       from: `"MLSC Events" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: subject,
+      subject,
       html: htmlBody,
   };
 

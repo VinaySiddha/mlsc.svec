@@ -21,15 +21,19 @@ import {
 } from "@/components/ui/sidebar";
 
 export function ChapterSwitcher({
+  userRole,
   currentChapter,
   chapters = ['3.0', '4.0']
 }: {
+  userRole: string;
   currentChapter: string;
   chapters?: string[];
 }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const { toast } = useToast();
+
+  const isSuperAdmin = userRole === 'super_admin';
 
   const chaptersList = chapters.map(chap => ({
     name: `Chapter ${chap}`,
@@ -59,6 +63,24 @@ export function ChapterSwitcher({
       });
     }
   };
+
+  if (!isSuperAdmin) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" className="hover:bg-transparent cursor-default">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <FolderGit2 className="size-4" />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">{activeChapter.name}</span>
+              <span className="text-xs text-slate-500 uppercase font-black tracking-widest text-[9px] mt-0.5">Chapter View</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
 
   return (
     <SidebarMenu>

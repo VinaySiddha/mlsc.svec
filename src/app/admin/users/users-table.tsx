@@ -12,6 +12,18 @@ import { useToast } from '@/hooks/use-toast';
 import { ROLES, ROLE_LABELS, type Role } from '@/lib/roles';
 import type { UserProfile } from '@/types/user';
 import { Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
+
+const DOMAIN_OPTIONS = [
+  { value: 'gen_ai', label: 'Generative AI' },
+  { value: 'ds_ml', label: 'Data Science & ML' },
+  { value: 'azure', label: 'Azure Cloud' },
+  { value: 'web_app', label: 'Web & App Dev' },
+  { value: 'event_management', label: 'Event Management' },
+  { value: 'public_relations', label: 'Public Relations' },
+  { value: 'media_marketing', label: 'Media & Marketing' },
+  { value: 'creativity', label: 'Creativity' },
+];
 
 export function UsersTable({ users: initialUsers }: { users: UserProfile[] }) {
   const [users, setUsers] = useState(initialUsers);
@@ -20,10 +32,26 @@ export function UsersTable({ users: initialUsers }: { users: UserProfile[] }) {
 
   const handleRoleChange = async (userId: string, newRole: Role) => {
     setLoadingId(userId);
-    const result = await assignUserRole(userId, newRole);
+    const user = users.find(u => u.uid === userId);
+    const domain = newRole === 'panel' ? (user?.domain || 'gen_ai') : null;
+    const result = await assignUserRole(userId, newRole, domain);
     if (result.success) {
-      setUsers(prev => prev.map(u => u.uid === userId ? { ...u, role: newRole } : u));
+      setUsers(prev => prev.map(u => u.uid === userId ? { ...u, role: newRole, domain } : u));
       toast({ title: 'Role Updated', description: `User role changed to ${ROLE_LABELS[newRole]}.` });
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    }
+    setLoadingId(null);
+  };
+
+  const handleDomainChange = async (userId: string, domain: string) => {
+    setLoadingId(userId);
+    const user = users.find(u => u.uid === userId);
+    if (!user) return;
+    const result = await assignUserRole(userId, user.role, domain);
+    if (result.success) {
+      setUsers(prev => prev.map(u => u.uid === userId ? { ...u, domain } : u));
+      toast({ title: 'Domain Updated', description: `User panel domain set to ${DOMAIN_OPTIONS.find(d => d.value === domain)?.label || domain}.` });
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
     }
@@ -75,23 +103,44 @@ export function UsersTable({ users: initialUsers }: { users: UserProfile[] }) {
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">{user.email}</TableCell>
               <TableCell>
-                <Select
-                  value={user.role}
-                  onValueChange={(value) => handleRoleChange(user.uid, value as Role)}
-                  disabled={loadingId === user.uid}
-                >
-                  <SelectTrigger className="w-[180px] h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>{label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-col gap-2">
+                  <Select
+                    value={user.role}
+                    onValueChange={(value) => handleRoleChange(user.uid, value as Role)}
+                    disabled={loadingId === user.uid}
+                  >
+                    <SelectTrigger className="w-[180px] h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {user.role === 'panel' && (
+                    <Select
+                      value={user.domain || 'gen_ai'}
+                      onValueChange={(value) => handleDomainChange(user.uid, value)}
+                      disabled={loadingId === user.uid}
+                    >
+                      <SelectTrigger className="w-[180px] h-8 text-xs bg-slate-50 dark:bg-zinc-800">
+                        <SelectValue placeholder="Select Domain" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DOMAIN_OPTIONS.map((d) => (
+                          <SelectItem key={d.value} value={d.value} className="text-xs">
+                            {d.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
-                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                {user.createdAt ? format(new Date(user.createdAt), "dd/MM/yyyy") : 'N/A'}
               </TableCell>
               <TableCell>
                 <Switch

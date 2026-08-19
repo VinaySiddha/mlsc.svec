@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import Link from "next/link";
+import { copyToClipboardSafe } from "@/lib/utils";
 
 const branches = ["AIML", "CAI", "CSE", "CST", "ECE", "Others"];
 const sections = ["A", "B", "C", "D", "E"];
@@ -122,9 +123,17 @@ export function InternalRegistrationForm() {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      description: "Reference ID copied to clipboard!",
+    copyToClipboardSafe(text).then((success) => {
+      if (success) {
+        toast({
+          description: "Reference ID copied to clipboard!",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Failed to copy reference ID. Please select and copy it manually.",
+        });
+      }
     });
   }
 

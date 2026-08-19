@@ -175,6 +175,10 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     ds_ml: "Data Science & ML",
     azure: "Azure Cloud",
     web_app: "Web & App Development",
+    event_management: "Event Management",
+    public_relations: "Public Relations",
+    media_marketing: "Media Marketing",
+    creativity: "Creativity",
   };
   
   const getDomainForPdf = () => {
@@ -195,7 +199,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
             attendedOnly 
         };
         // For 'registered' PDF, if no domain is specified by admin, fetch all
-        if (!attendedOnly && userRole === 'admin' && !domain) {
+        if (!attendedOnly && (userRole === 'admin' || userRole === 'super_admin') && !domain) {
           delete params.domain;
         }
 
@@ -226,7 +230,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
         let title = `MLSC Hiring - ${docTitle}`;
         if (domain) {
           title = `${docTitle} - ${domainLabels[domain] || domain} Domain`;
-        } else if(userRole === 'admin') {
+        } else if(userRole === 'admin' || userRole === 'super_admin') {
           title = `${docTitle} - All Domains`
         }
 
@@ -273,7 +277,6 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     }
   };
 
-
   const resetFilters = () => {
     setSearch('');
     setSearchBy('rollNo');
@@ -287,7 +290,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
   
   const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
 
-  const showPdfButtonsForAdmin = userRole === 'admin';
+  const showPdfButtonsForAdmin = userRole === 'admin' || userRole === 'super_admin';
   const showPdfButtonsForPanel = userRole === 'panel';
 
   return (
@@ -304,7 +307,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
               disabled={isPending || isBulkUpdating}
             />
           </div>
-           {userRole === 'admin' && (
+           {(userRole === 'admin' || userRole === 'super_admin') && (
               <Select value={searchBy} onValueChange={setSearchBy} disabled={isPending || isBulkUpdating}>
                 <SelectTrigger className="w-[140px] shrink-0">
                   <SelectValue placeholder="Search by" />
@@ -350,13 +353,13 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
             ))}
           </SelectContent>
         </Select>
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'super_admin') && (
           <Select onValueChange={(value) => handleFilterChange('domain', value)} value={currentFilters.domain || 'all'} disabled={isPending || isBulkUpdating}>
               <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Technical Domain" />
+                  <SelectValue placeholder="Domain" />
               </SelectTrigger>
               <SelectContent>
-                  <SelectItem value="all">All Tech Domains</SelectItem>
+                  <SelectItem value="all">All Domains</SelectItem>
                   {filterData.domains.map((d) => (
                       <SelectItem key={d} value={d}>{domainLabels[d] || d}</SelectItem>
                   ))}
@@ -365,7 +368,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
         )}
       </div>
       <div className="flex flex-wrap items-center gap-4">
-         {userRole === 'admin' && (
+         {(userRole === 'admin' || userRole === 'super_admin') && (
           <>
             <Button variant={currentFilters.sortByPerformance === 'true' ? 'glass' : 'glass'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
                 {(isPending && searchParams.get('sortByPerformance') === 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}

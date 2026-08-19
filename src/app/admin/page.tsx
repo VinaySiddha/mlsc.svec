@@ -1,26 +1,8 @@
 import { getApplications, getTeamMembers, getGlobalSettings } from "@/app/actions";
 import { headers, cookies } from "next/headers";
-import { 
-  Shield, 
-  Users, 
-  Calendar, 
-  Megaphone, 
-  Settings, 
-  Activity, 
-  FileText, 
-  CheckCircle2, 
-  PlayCircle, 
-  Clock, 
-  ChevronRight,
-  TrendingUp,
-  UserCheck,
-  Coins
-} from "lucide-react";
-import Link from "next/link";
-import { DashboardCharts } from "@/components/admin/dashboard-charts";
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-
+import { AdminDashboardClient } from "./dashboard-client";
 
 export const dynamic = 'force-dynamic';
 
@@ -80,24 +62,6 @@ const CHAPTER_ROADMAPS: Record<string, {
   }
 };
 
-function formatRelativeTime(dateStr: string) {
-  try {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${diffDays}d ago`;
-  } catch (e) {
-    return 'Recently';
-  }
-}
-
 export default async function AdminPage() {
   const headersList = await headers();
   const userRole = headersList.get('X-User-Role') || 'panel';
@@ -113,25 +77,27 @@ export default async function AdminPage() {
     getGlobalSettings()
   ]);
 
-  // Fetch donations
+  // Fetch donations (only for super_admin and admin)
   let donations: any[] = [];
   let totalDonationsAmount = 0;
   let paidDonationsCount = 0;
   let pendingDonationsCount = 0;
-  try {
-    const donationsSnap = await getDocs(collection(db, 'donations'));
-    donationsSnap.forEach(doc => {
-      const data = doc.data();
-      donations.push({ id: doc.id, ...data });
-      if (data.status === 'PAID') {
-        totalDonationsAmount += Number(data.amount) || 0;
-        paidDonationsCount++;
-      } else if (data.status === 'PENDING') {
-        pendingDonationsCount++;
-      }
-    });
-  } catch (err) {
-    console.error('Error fetching donations for admin dashboard:', err);
+  if (userRole === 'super_admin' || userRole === 'admin') {
+    try {
+      const donationsSnap = await getDocs(collection(db, 'donations'));
+      donationsSnap.forEach(doc => {
+        const data = doc.data();
+        donations.push({ id: doc.id, ...data });
+        if (data.status === 'PAID') {
+          totalDonationsAmount += Number(data.amount) || 0;
+          paidDonationsCount++;
+        } else if (data.status === 'PENDING') {
+          pendingDonationsCount++;
+        }
+      });
+    } catch (err) {
+      console.error('Error fetching donations for admin dashboard:', err);
+    }
   }
 
   const recentDonations = donations
@@ -156,17 +122,6 @@ export default async function AdminPage() {
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
     .slice(0, 5);
 
-  const domainLabels: Record<string, string> = {
-    gen_ai: "Generative AI",
-    ds_ml: "Data Science & ML",
-    azure: "Azure Cloud",
-    web_app: "Web & App Development",
-  };
-
-  const title = panelDomain 
-    ? `${domainLabels[panelDomain] || 'Panel'} Dashboard — Chapter ${adminChapter}` 
-    : `SUPERADMIN CONTROL CENTER — Chapter ${adminChapter}`;
-
   const roadmap = CHAPTER_ROADMAPS[adminChapter] || {
     title: `Chapter ${adminChapter}: Community Expansion`,
     desc: "Focusing on outreach, technical workshops, and expanding student developer channels.",
@@ -181,301 +136,22 @@ export default async function AdminPage() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* ── Page Header ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
-            Dashboard <span className="text-[#4285F4]">Overview</span>
-          </h1>
-          <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-            {title}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${roadmap.color} border ${roadmap.borderColor}`}>
-            Chapter {adminChapter} Active
-          </span>
-        </div>
-      </div>
-
-      {/* ── Overview Statistics Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 transition-all duration-300 hover:scale-[1.01] hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <FileText className="h-16 w-16 text-[#4285F4]" />
-          </div>
-          <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Total Applications</p>
-          <h3 className="text-3xl font-black text-slate-950 dark:text-white mt-2 tracking-tight">{totalApps}</h3>
-          <p className="text-xs text-slate-400 dark:text-zinc-500 mt-2 font-medium">Recruitment cycle candidates</p>
-        </div>
-
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 transition-all duration-300 hover:scale-[1.01] hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Users className="h-16 w-16 text-[#34A853]" />
-          </div>
-          <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Active Team Size</p>
-          <h3 className="text-3xl font-black text-slate-950 dark:text-white mt-2 tracking-tight">{totalTeamSize}</h3>
-          <p className="text-xs text-slate-400 dark:text-zinc-500 mt-2 font-medium">Onboarded chapter members</p>
-        </div>
-
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 transition-all duration-300 hover:scale-[1.01] hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <UserCheck className="h-16 w-16 text-[#FBBC05]" />
-          </div>
-          <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Hired Candidates</p>
-          <h3 className="text-3xl font-black text-slate-950 dark:text-white mt-2 tracking-tight">{hiredApps}</h3>
-          <p className="text-xs text-slate-400 dark:text-zinc-500 mt-2 font-medium">{pendingApps} pending evaluation</p>
-        </div>
-
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 transition-all duration-300 hover:scale-[1.01] hover:border-slate-300 dark:hover:border-zinc-700 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Activity className="h-16 w-16 text-[#EA4335]" />
-          </div>
-          <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Hiring Gate Status</p>
-          <h3 className={`text-2xl font-black mt-3 tracking-tight ${isHiringOpen ? 'text-[#34A853]' : 'text-red-500'}`}>
-            {isHiringOpen ? 'OPEN & RUNNING' : 'CLOSED'}
-          </h3>
-          <p className="text-xs text-slate-400 dark:text-zinc-500 mt-2.5 font-medium">Controlled via Hiring Settings</p>
-        </div>
-      </div>
-
-      {/* ── Visual Analytics & Averages Section ── */}
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">
-            Critical Metrics & <span className="text-[#34A853]">Averages</span>
-          </h2>
-          <p className="text-xs text-slate-400 dark:text-zinc-500 font-medium">
-            Academic standing, reviewer evaluations, talent tiers, and automated screening breakdowns
-          </p>
-        </div>
-        <DashboardCharts applications={applications} />
-      </div>
-
-      {/* ── Main Dashboard Layout ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Side: Chapter Roadmap & Recent Applications */}
-        <div className="lg:col-span-2 space-y-8">
-          
-          {/* Chapter Roadmap Card */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 md:p-8 shadow-sm">
-            <div className="mb-6">
-              <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">
-                {roadmap.title}
-              </h2>
-              <p className="text-xs text-slate-400 dark:text-zinc-500 mt-1 font-medium leading-relaxed">
-                {roadmap.desc}
-              </p>
-            </div>
-
-            {/* Vertical Timeline */}
-            <div className="relative border-l border-slate-100 dark:border-zinc-800 ml-3 pl-6 space-y-6 py-2">
-              {roadmap.milestones.map((milestone, idx) => (
-                <div key={idx} className="relative group">
-                  {/* Timeline bullet icon */}
-                  <span className="absolute -left-[35px] top-1.5 flex h-5.5 w-5.5 items-center justify-center rounded-full bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 z-10 transition-all group-hover:scale-110">
-                    {milestone.status === 'completed' && <CheckCircle2 className="h-3.5 w-3.5 text-[#34A853] fill-[#34A853]/15" />}
-                    {milestone.status === 'active' && <PlayCircle className="h-3.5 w-3.5 text-[#4285F4] animate-pulse" />}
-                    {milestone.status === 'planned' && <Clock className="h-3 w-3 text-slate-400 dark:text-zinc-600" />}
-                  </span>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <h4 className="text-sm font-bold text-slate-800 dark:text-zinc-200">
-                      {milestone.name}
-                    </h4>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-                      {milestone.date}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400 dark:text-zinc-500 mt-1 leading-relaxed max-w-xl font-medium">
-                    {milestone.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Applications Feed */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 md:p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Recent Applications</h2>
-                <p className="text-xs text-slate-400 dark:text-zinc-500 font-medium">Latest submissions waiting for evaluation</p>
-              </div>
-              <Link href="/admin/applications" className="text-xs font-bold text-[#4285F4] hover:underline flex items-center gap-0.5">
-                View All <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
-
-            {recentApplications.length > 0 ? (
-              <div className="divide-y divide-slate-100 dark:divide-zinc-800/60">
-                {recentApplications.map((app: any) => (
-                  <div key={app.firestoreId} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
-                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-slate-800 dark:text-zinc-200">{app.name}</p>
-                      <div className="flex flex-wrap gap-2 items-center">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500">{app.rollNo}</span>
-                        <span className="text-[9px] bg-slate-100 dark:bg-zinc-850 px-2 py-0.5 rounded-md text-slate-600 dark:text-zinc-400 font-bold uppercase tracking-wider">
-                          {domainLabels[app.technicalDomain] || app.technicalDomain}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 shrink-0">
-                      {formatRelativeTime(app.submittedAt)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-slate-400 dark:text-zinc-500 text-xs py-8 font-semibold uppercase tracking-wider">
-                No applications found for Chapter {adminChapter}.
-              </p>
-            )}
-          </div>
-
-        </div>
-
-        {/* Right Side: Quick Actions & Status */}
-        <div className="space-y-8">
-          
-          {/* Quick Actions Panel */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <Link href="/admin/payments/ledger" className="flex items-center justify-between p-3.5 rounded-xl border border-slate-150 dark:border-[#34A853]/25 bg-slate-50/50 dark:bg-[#34A853]/5 hover:bg-slate-50 dark:hover:bg-[#34A853]/10 hover:border-[#34A853]/35 dark:hover:border-[#34A853]/40 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Coins className="h-4 w-4 text-[#34A853]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-zinc-300">View Payments Ledger</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-[#34A853] group-hover:translate-x-0.5 transition-transform shrink-0" />
-              </Link>
-
-              <Link href="/admin/team/new" className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/40 hover:bg-slate-50 dark:hover:bg-zinc-950 hover:border-slate-200 dark:hover:border-zinc-700 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Users className="h-4 w-4 text-[#4285F4]" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">Invite Team Member</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-
-              <Link href="/admin/events/new" className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/40 hover:bg-slate-50 dark:hover:bg-zinc-950 hover:border-slate-200 dark:hover:border-zinc-700 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-[#34A853]" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">Create Event</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-
-              <Link href="/admin/notifications" className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/40 hover:bg-slate-50 dark:hover:bg-zinc-950 hover:border-slate-200 dark:hover:border-zinc-700 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Megaphone className="h-4 w-4 text-[#FBBC05]" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">New Announcement</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-
-              <Link href="/admin/hiring-settings" className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/40 hover:bg-slate-50 dark:hover:bg-zinc-950 hover:border-slate-200 dark:hover:border-zinc-700 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Settings className="h-4 w-4 text-[#EA4335]" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">Toggle Hiring Gate</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Community Funding Overview Card */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Community Funding</h3>
-                <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase mt-0.5">Donations Summary</p>
-              </div>
-              <span className="text-xs font-black text-[#34A853] bg-[#34A853]/10 px-2 py-0.5 rounded border border-[#34A853]/20 uppercase">
-                Active
-              </span>
-            </div>
-
-            <div className="border-t border-slate-100 dark:border-zinc-800/80 pt-4 pb-4 space-y-3">
-              <div>
-                <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Total Funds Raised</p>
-                <p className="text-2xl font-black text-[#34A853] tracking-tight mt-1">₹{totalDonationsAmount.toLocaleString('en-IN')}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4 border-t border-slate-50 dark:border-zinc-850 pt-3">
-                <div>
-                  <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Cleared PG</p>
-                  <p className="text-sm font-black text-slate-700 dark:text-zinc-300 mt-0.5">{paidDonationsCount} payments</p>
-                </div>
-                <div>
-                  <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Awaiting</p>
-                  <p className="text-sm font-black text-yellow-500 mt-0.5">{pendingDonationsCount} pending</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Sponsors list */}
-            {recentDonations.length > 0 && (
-              <div className="border-t border-slate-100 dark:border-zinc-800/80 pt-4 space-y-3">
-                <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider mb-2">Recent Cleared Receipts</p>
-                <div className="space-y-2.5">
-                  {recentDonations.map((don: any) => (
-                    <div key={don.id} className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50/50 dark:bg-zinc-950/40 border border-slate-100/50 dark:border-zinc-800/30 text-xs">
-                      <div className="min-w-0">
-                        <p className="font-bold text-slate-700 dark:text-zinc-300 truncate max-w-[120px]">{don.customerName}</p>
-                        <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-mono leading-none mt-0.5">{new Date(don.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
-                      </div>
-                      <span className="font-black text-[#34A853] text-right shrink-0">
-                        ₹{don.amount}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* View Ledger Button Link */}
-            <div className="border-t border-slate-100 dark:border-zinc-800/80 mt-4 pt-4">
-              <Link 
-                href="/admin/payments/ledger"
-                className="w-full h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 dark:bg-zinc-950/40 dark:border-zinc-800 dark:hover:bg-zinc-800 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 transition-all shadow-sm group"
-              >
-                <Coins className="h-4 w-4 text-[#34A853] group-hover:scale-110 transition-transform" />
-                View Payments Ledger
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-          </div>
-
-          {/* System Status Indicators */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest mb-4">System Status</h3>
-            <div className="flex items-center gap-3">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34A853] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#34A853]"></span>
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">All Systems Operational</span>
-            </div>
-            
-            <div className="border-t border-slate-100 dark:border-zinc-800/80 mt-6 pt-4 space-y-2.5">
-              <div>
-                <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Database Engine</p>
-                <p className="text-xs font-bold text-slate-700 dark:text-zinc-300 mt-0.5">Online (99.98% uptime)</p>
-              </div>
-              <div>
-                <p className="text-[9px] text-slate-400 dark:text-zinc-500 font-bold uppercase">Hiring Gate</p>
-                <p className="text-xs font-bold text-slate-700 dark:text-zinc-300 mt-0.5">
-                  {isHiringOpen ? 'Active & Processing Applications' : 'Closed — Resting Stage'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-
-    </div>
+    <AdminDashboardClient
+      userRole={userRole}
+      panelDomain={panelDomain}
+      adminChapter={adminChapter}
+      totalApps={totalApps}
+      totalTeamSize={totalTeamSize}
+      hiredApps={hiredApps}
+      pendingApps={pendingApps}
+      isHiringOpen={isHiringOpen}
+      recentApplications={recentApplications}
+      roadmap={roadmap}
+      totalDonationsAmount={totalDonationsAmount}
+      paidDonationsCount={paidDonationsCount}
+      pendingDonationsCount={pendingDonationsCount}
+      recentDonations={recentDonations}
+      applications={applications}
+    />
   );
 }

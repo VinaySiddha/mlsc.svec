@@ -1,3 +1,5 @@
+import { buildEmailHtml, emailDetailRow, emailSignature } from '@/lib/email-base';
+
 export function donationReceiptEmailTemplate(data: {
   customerName: string;
   amount: number;
@@ -6,72 +8,56 @@ export function donationReceiptEmailTemplate(data: {
   purpose?: string;
 }): { subject: string; html: string } {
   const purposeText = data.purpose ? ` for "${data.purpose}"` : '';
-  const subjectLine = data.purpose 
+  const subjectLine = data.purpose
     ? `Payment Receipt - ${data.purpose} - MLSC SVEC`
-    : 'Donation Receipt - Thank you for supporting MLSC SVEC';
+    : 'Donation Receipt - Thank you for supporting MLSC SVEC! 💜';
+
+  const detailsTable = `
+    <table width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tbody>
+        ${emailDetailRow('Receipt Number', data.orderId)}
+        ${data.purpose ? emailDetailRow('Purpose', data.purpose.toUpperCase()) : ''}
+        ${emailDetailRow('Amount Received', `₹${data.amount}`)}
+        ${emailDetailRow('Date', data.date)}
+        ${emailDetailRow('Payment Gateway', 'Cashfree PG')}
+        ${emailDetailRow('Status', '✅ Successful')}
+      </tbody>
+    </table>`;
+
+  const bodyHtml = `
+    <p style="margin:0 0 16px 0;">Hello <strong>${data.customerName}</strong>,</p>
+    <p style="margin:0 0 20px 0;">
+      We have successfully received your contribution of 
+      <strong style="color:#7C3AED;font-size:17px;">₹${data.amount}</strong>${purposeText} to the 
+      <strong>Microsoft Learn Student Chapter SVEC</strong>. Your support directly helps us fund 
+      cloud server hosting, hands-on hardware workshop kits, and prizes for student hackathons.
+    </p>
+    <table width="100%" cellspacing="0" cellpadding="0" border="0"
+      style="border-radius:10px;border:1px solid #e0e0e0;background:#f8f9fa;margin:0 0 24px 0;">
+      <tbody>
+        <tr>
+          <td style="padding:20px;">
+            <p style="margin:0 0 12px 0;font-family:'Google Sans',Arial,sans-serif;font-size:11px;font-weight:500;color:#5f6368;letter-spacing:1.5px;text-transform:uppercase;">Transaction Details</p>
+            ${detailsTable}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin:0 0 24px 0;font-size:14px;color:#5f6368;text-align:center;">
+      As a supporter, you are featured on our website's supporters ledger. Thank you for empowering student developers!
+    </p>
+    ${emailSignature('MLSC SVEC Team')}
+  `;
 
   return {
     subject: subjectLine,
-    html: `
-    <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-      <div style="background-color: #7C3AED; height: 6px;"></div>
-      <div style="padding: 30px; background-color: #ffffff;">
-        <div style="text-align: center; margin-bottom: 25px;">
-          <h1 style="color: #7C3AED; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">MLSC SVEC</h1>
-          <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin: 5px 0 0 0; font-weight: 700;">Community Fundraising Portal</p>
-        </div>
-        
-        <h2 style="color: #222; font-size: 18px; font-weight: 700; margin-top: 0;">Thank you, ${data.customerName}!</h2>
-        <p style="font-size: 14px; color: #555;">
-          We have successfully received your contribution/payment of <strong style="color: #7C3AED; font-size: 16px;">₹${data.amount}</strong>${purposeText} to the Microsoft Learn Student Chapter SVEC. Your support directly helps us fund cloud server hosting, hands-on hardware workshop kits, and prizes for student hackathons.
-        </p>
-
-        <div style="margin: 25px 0; padding: 20px; background-color: #f9f9f9; border-radius: 8px; border: 1px solid #f0f0f0;">
-          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 8px;">Transaction Details</h3>
-          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-            <tr>
-              <td style="padding: 6px 0; color: #777; font-weight: 500;">Receipt Number:</td>
-              <td style="padding: 6px 0; text-align: right; color: #222; font-family: monospace; font-weight: 700;">${data.orderId}</td>
-            </tr>
-            ${data.purpose ? `
-            <tr>
-              <td style="padding: 6px 0; color: #777; font-weight: 500;">Purpose:</td>
-              <td style="padding: 6px 0; text-align: right; color: #222; font-weight: 700; text-transform: uppercase; font-size: 11px; tracking-wide: 0.5px;">${data.purpose}</td>
-            </tr>
-            ` : ''}
-            <tr>
-              <td style="padding: 6px 0; color: #777; font-weight: 500;">Amount Received:</td>
-              <td style="padding: 6px 0; text-align: right; color: #7C3AED; font-weight: 700; font-size: 14px;">₹${data.amount}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; color: #777; font-weight: 500;">Date:</td>
-              <td style="padding: 6px 0; text-align: right; color: #222; font-weight: 600;">${data.date}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; color: #777; font-weight: 500;">Payment Gateway:</td>
-              <td style="padding: 6px 0; text-align: right; color: #222; font-weight: 600;">Cashfree PG</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; color: #777; font-weight: 500;">Status:</td>
-              <td style="padding: 6px 0; text-align: right; color: #10B981; font-weight: 700; text-transform: uppercase;">Successful</td>
-            </tr>
-          </table>
-        </div>
-
-        <p style="font-size: 13px; color: #666; text-align: center; margin: 25px 0;">
-          As a supporter, you are featured on our website's supporters ledger. Thank you for empowering student developers!
-        </p>
-
-        <div style="text-align: center; margin: 25px 0 10px 0;">
-          <a href="https://mlscsvec.com/study" target="_blank" style="display: inline-block; background-color: #7C3AED; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Explore Roadmaps</a>
-        </div>
-
-        <p style="margin-top: 30px; font-size: 13px; color: #444; border-t: 1px solid #eee; padding-top: 20px;">
-          Warm regards,<br>
-          <strong>MLSC SVEC</strong><br>
-          <span style="color: #888; font-size: 11px;">Admin</span>
-        </p>
-      </div>
-    </div>`,
+    html: buildEmailHtml({
+      eyebrow: '#MLSC4.0 · Donation Receipt',
+      headline: `Thank you, ${data.customerName}! 💜`,
+      ctaLabel: 'Explore Roadmaps →',
+      ctaUrl: 'https://mlscsvec.com/study',
+      accentColor: '#7C3AED',
+      bodyHtml,
+    }),
   };
 }

@@ -10,6 +10,7 @@ import { Loader2, Star } from "lucide-react";
 import { saveApplicationReview } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { SlideToConfirmButton } from "./ui/slide-to-confirm";
 import { useAuth } from "@/lib/auth-context";
 import {
   Form,
@@ -25,7 +26,7 @@ import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+// RadioGroup removed — suitability now uses pill buttons
 import { Checkbox } from "./ui/checkbox";
 
 
@@ -41,6 +42,9 @@ const reviewSchema = z.object({
     technical: z.number().min(0).max(5),
     problemSolving: z.number().min(0).max(5),
     teamFit: z.number().min(0).max(5),
+    confidence: z.number().min(0).max(5),
+    growthMindset: z.number().min(0).max(5),
+    leadership: z.number().min(0).max(5),
     overall: z.number().min(0).max(5),
   }),
   remarks: z.string().optional(),
@@ -51,6 +55,7 @@ type FormValues = z.infer<typeof reviewSchema>;
 interface ApplicationReviewFormProps {
   application: {
     id: string;
+    firestoreId?: string;
     status: string;
     isRecommended?: boolean;
     suitability?: {
@@ -62,6 +67,9 @@ interface ApplicationReviewFormProps {
       technical: number;
       problemSolving: number;
       teamFit: number;
+      confidence?: number;
+      growthMindset?: number;
+      leadership?: number;
       overall: number;
     };
     remarks?: string;
@@ -69,12 +77,33 @@ interface ApplicationReviewFormProps {
   userRole: string;
 }
 
-const adminStatuses = ['Received', 'Under Processing', 'Interviewing', 'Recommended', 'Hired', 'Rejected'];
-const panelStatuses = ['Received', 'Under Processing', 'Interviewing'];
+const adminStatuses = [
+  'Received', 
+  'Shortlisted', 
+  'Under Processing', 
+  'Interview Scheduled', 
+  'Interviewing', 
+  'Interview Completed', 
+  'On Hold', 
+  'Recommended', 
+  'Waitlisted', 
+  'Hired', 
+  'Rejected'
+];
+
+const panelStatuses = [
+  'Received', 
+  'Shortlisted', 
+  'Under Processing', 
+  'Interview Scheduled', 
+  'Interviewing', 
+  'Interview Completed', 
+  'On Hold'
+];
 
 
 const ratingCategories: (keyof Omit<FormValues['ratings'], 'overall'>)[] = [
-  'communication', 'technical', 'problemSolving', 'teamFit'
+  'communication', 'technical', 'problemSolving', 'teamFit', 'confidence', 'growthMindset', 'leadership'
 ];
 
 const categoryLabels: Record<keyof FormValues['ratings'], string> = {
@@ -82,6 +111,9 @@ const categoryLabels: Record<keyof FormValues['ratings'], string> = {
   technical: "Technical Skills",
   problemSolving: "Problem-Solving",
   teamFit: "Team Fit",
+  confidence: "Confidence & Attitude",
+  growthMindset: "Growth Mindset",
+  leadership: "Leadership & Initiative",
   overall: "Overall Rating",
 };
 
@@ -130,6 +162,9 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
         technical: application.ratings?.technical ?? 0,
         problemSolving: application.ratings?.problemSolving ?? 0,
         teamFit: application.ratings?.teamFit ?? 0,
+        confidence: application.ratings?.confidence ?? 0,
+        growthMindset: application.ratings?.growthMindset ?? 0,
+        leadership: application.ratings?.leadership ?? 0,
         overall: application.ratings?.overall ?? 0,
       },
       remarks: application.remarks ?? "",
@@ -140,8 +175,8 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
   const isRecommended = form.watch('isRecommended');
 
   useEffect(() => {
-      const { communication, technical, problemSolving, teamFit } = ratings;
-      const individualRatings = [communication, technical, problemSolving, teamFit].filter(r => r > 0);
+      const { communication, technical, problemSolving, teamFit, confidence, growthMindset, leadership } = ratings;
+      const individualRatings = [communication, technical, problemSolving, teamFit, confidence, growthMindset, leadership].filter(r => r > 0);
       
       if (individualRatings.length > 0) {
           const sum = individualRatings.reduce((acc, curr) => acc + curr, 0);
@@ -151,7 +186,16 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
           form.setValue('ratings.overall', 0, { shouldValidate: true });
       }
 
-  }, [ratings.communication, ratings.technical, ratings.problemSolving, ratings.teamFit, form]);
+  }, [
+    ratings.communication, 
+    ratings.technical, 
+    ratings.problemSolving, 
+    ratings.teamFit, 
+    ratings.confidence, 
+    ratings.growthMindset, 
+    ratings.leadership, 
+    form
+  ]);
 
 
   const onSubmit = async (values: FormValues) => {
@@ -159,7 +203,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
     
     try {
       const payload = {
-        id: application.id,
+        id: application.firestoreId || application.id,
         ...values,
       };
 
@@ -211,83 +255,120 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
               <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   
-                  <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Application Status</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value} 
-                                // Disable status changes if recommended, as it's now a special status
-                                disabled={isRecommended || (userRole === 'panel' && (field.value === 'Hired' || field.value === 'Rejected' || field.value === 'Recommended'))}
-                              >
-                                  <FormControl>
-                                      <SelectTrigger>
-                                          <SelectValue placeholder="Update status" />
-                                      </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                      {applicationStatuses.map(status => (
-                                          <SelectItem key={status} value={status}>{status}</SelectItem>
-                                      ))}
-                                  </SelectContent>
-                              </Select>
-                              {isRecommended && <FormDescription>Status is locked to 'Recommended'. Uncheck recommendation to change.</FormDescription>}
-                              <FormMessage />
-                          </FormItem>
-                      )}
-                  />
+                   <FormField
+                       control={form.control}
+                       name="status"
+                       render={({ field }) => (
+                           <FormItem className="space-y-3">
+                               <FormLabel>Application Status</FormLabel>
+                               <FormControl>
+                                 <div className="grid grid-cols-2 gap-2">
+                                   {applicationStatuses.map(status => {
+                                     const isSelected = field.value === status;
+                                     const isDisabled = isRecommended || (userRole === 'panel' && (field.value === 'Hired' || field.value === 'Rejected' || field.value === 'Recommended'));
+                                     
+                                     let activeClass = "bg-[#4285F4]/10 border-[#4285F4]/30 text-[#4285F4]";
+                                     if (status === 'Hired' || status === 'Recommended') {
+                                       activeClass = "bg-[#34A853]/10 border-[#34A853]/35 text-[#34A853]";
+                                     } else if (status === 'Rejected') {
+                                       activeClass = "bg-red-500/10 border-red-500/30 text-red-400";
+                                     } else if (status === 'On Hold' || status === 'Waitlisted') {
+                                       activeClass = "bg-yellow-500/10 border-yellow-500/30 text-yellow-400";
+                                     }
+
+                                     return (
+                                       <button
+                                         key={status}
+                                         type="button"
+                                         disabled={isDisabled}
+                                         onClick={() => field.onChange(status)}
+                                         className={cn(
+                                           "px-3 py-2.5 rounded-xl border text-center font-bold text-[10px] uppercase tracking-wider transition-all duration-255",
+                                           isSelected 
+                                             ? activeClass 
+                                             : "bg-white/[0.01] border-white/5 text-white/50 hover:bg-white/5 hover:text-white",
+                                           isDisabled && "opacity-50 cursor-not-allowed"
+                                         )}
+                                       >
+                                         {status}
+                                       </button>
+                                     );
+                                   })}
+                                 </div>
+                               </FormControl>
+                               {isRecommended && <FormDescription>Status is locked to 'Recommended'. Uncheck recommendation to change.</FormDescription>}
+                               <FormMessage />
+                           </FormItem>
+                       )}
+                   />
 
                   <div className="space-y-4">
+                    {/* Suitable for Technical Role */}
                     <FormField
                       control={form.control}
                       name="suitability.technical"
                       render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel>Suitable for technical role?</FormLabel>
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-sm font-semibold">Suitable for technical role?</FormLabel>
                           <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex items-center space-x-4"
-                            >
-                              <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl><RadioGroupItem value="yes" /></FormControl>
-                                <FormLabel className="font-normal">Yes</FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl><RadioGroupItem value="no" /></FormControl>
-                                <FormLabel className="font-normal">No</FormLabel>
-                              </FormItem>
-                            </RadioGroup>
+                            <div className="flex items-center gap-2">
+                              {['yes', 'no', 'undecided'].map(val => {
+                                const isSelected = field.value === val;
+                                const activeClass =
+                                  val === 'yes' ? 'bg-[#34A853]/10 border-[#34A853]/40 text-[#34A853]' :
+                                  val === 'no' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+                                  'bg-yellow-500/10 border-yellow-500/30 text-yellow-400';
+                                return (
+                                  <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() => field.onChange(val)}
+                                    className={cn(
+                                      "px-4 py-2 rounded-xl border font-bold text-[10px] uppercase tracking-wider transition-all duration-200 capitalize",
+                                      isSelected ? activeClass : "bg-white/[0.01] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                    )}
+                                  >
+                                    {val}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    {/* Suitable for Non-Technical Role */}
                     <FormField
                       control={form.control}
                       name="suitability.nonTechnical"
                       render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel>Suitable for non-technical role?</FormLabel>
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-sm font-semibold">Suitable for non-technical role?</FormLabel>
                           <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex items-center space-x-4"
-                            >
-                              <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl><RadioGroupItem value="yes" /></FormControl>
-                                <FormLabel className="font-normal">Yes</FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-2 space-y-0">
-                                <FormControl><RadioGroupItem value="no" /></FormControl>
-                                <FormLabel className="font-normal">No</FormLabel>
-                              </FormItem>
-                            </RadioGroup>
+                            <div className="flex items-center gap-2">
+                              {['yes', 'no', 'undecided'].map(val => {
+                                const isSelected = field.value === val;
+                                const activeClass =
+                                  val === 'yes' ? 'bg-[#34A853]/10 border-[#34A853]/40 text-[#34A853]' :
+                                  val === 'no' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+                                  'bg-yellow-500/10 border-yellow-500/30 text-yellow-400';
+                                return (
+                                  <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() => field.onChange(val)}
+                                    className={cn(
+                                      "px-4 py-2 rounded-xl border font-bold text-[10px] uppercase tracking-wider transition-all duration-200 capitalize",
+                                      isSelected ? activeClass : "bg-white/[0.01] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                    )}
+                                  >
+                                    {val}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -380,16 +461,15 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                     )}
                   />
 
-                  <Button type="submit" disabled={isSubmitting} className="w-full">
-                      {isSubmitting ? (
-                      <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
-                      </>
-                      ) : (
-                      "Save Review"
-                      )}
-                  </Button>
+                  <SlideToConfirmButton
+                    label="Slide to save review"
+                    confirmedLabel="Saving review..."
+                    onConfirm={form.handleSubmit(onSubmit)}
+                    disabled={isSubmitting}
+                    isConfirmed={isSubmitting}
+                    autoResetDelay={0}
+                    className="w-full max-w-none"
+                  />
                   </form>
               </Form>
           </CardContent>

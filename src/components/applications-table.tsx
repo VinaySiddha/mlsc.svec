@@ -62,7 +62,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
     return <ApplicationsTableSkeleton />;
   }
 
-  const canEditAttendance = userRole === 'admin' || userRole === 'panel';
+  const canEditAttendance = userRole === 'admin' || userRole === 'super_admin' || userRole === 'panel';
 
   return (
     <div className="border rounded-md">
@@ -72,7 +72,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
             <TableHead>Name</TableHead>
             <TableHead className="hidden md:table-cell">Submitted</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="hidden sm:table-cell">Technical Domain</TableHead>
+            <TableHead className="hidden sm:table-cell">Domain(s)</TableHead>
             <TableHead>Performance</TableHead>
             <TableHead>Attended</TableHead>
           </TableRow>
@@ -86,7 +86,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                        {app.isRecommended && <Award className="h-4 w-4 text-primary" />}
-                      <Link href={`/admin/application/${app.id}`} className="hover:underline">
+                      <Link href={`/admin/application/${app.id}`} target="_blank" className="hover:underline">
                         {app.name}
                       </Link>
                     </div>
@@ -99,7 +99,18 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                   <TableCell>
                     <Badge variant={getStatusVariant(status)}>{status}</Badge>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">{domainLabels[app.technicalDomain] || app.technicalDomain}</TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium text-xs sm:text-sm text-slate-800 dark:text-zinc-200">
+                        {domainLabels[app.technicalDomain] || app.technicalDomain}
+                      </span>
+                      {app.nonTechnicalDomain && (
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                          Non-Tech: {domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Star className={`h-4 w-4 ${app.ratings?.overall > 0 ? 'text-primary fill-primary' : 'text-muted-foreground'}`}/>

@@ -43,7 +43,7 @@ const navLinks = [
     { href: '/team', label: 'Team' },
     { href: '/events', label: 'Events' },
     { href: '/domains', label: 'Domains' },
-    { href: '/services', label: 'Services' },
+    { href: '/track', label: 'Track' },
     { href: '/contributors', label: 'Contributors' },
     { href: '/study', label: 'Study' },
     { href: '/blog', label: 'Blog' },
@@ -176,15 +176,15 @@ export function SiteHeader() {
                                 <ChevronDown className={cn("h-3 w-3 transition-transform duration-300", domainsOpen ? "rotate-180" : "")} />
                             </button>
 
-                            {/* Services */}
+                            {/* Track */}
                             <Link
-                                href="/services"
+                                href="/track"
                                 className={cn(
                                     "transition-all duration-200 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/[0.06]",
-                                    isActive('/services') ? "bg-white/[0.08] text-white" : ""
+                                    isActive('/track') ? "bg-white/[0.08] text-white" : ""
                                 )}
                             >
-                                Services
+                                Track
                             </Link>
 
                             {/* More Dropdown */}

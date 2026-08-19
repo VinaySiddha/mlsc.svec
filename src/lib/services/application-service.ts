@@ -55,6 +55,9 @@ export class ApplicationService {
         technical: 0,
         problemSolving: 0,
         teamFit: 0,
+        confidence: 0,
+        growthMindset: 0,
+        leadership: 0,
         overall: 0,
       },
       remarks: '',
@@ -221,6 +224,9 @@ export class ApplicationService {
   }
 
   static async saveApplicationReview(data: any) {
+    // Fetch applicant details needed for the status email
+    const existing = await ApplicationDb.getApplicationByFirestoreId(data.id);
+
     await ApplicationDb.updateApplicationDoc(data.id, {
       status: data.status,
       isRecommended: data.isRecommended,
@@ -228,6 +234,22 @@ export class ApplicationService {
       ratings: data.ratings,
       remarks: data.remarks || '',
     });
+
+    // Send status update email in background whenever status changes
+    if (existing && existing.email && existing.status !== data.status) {
+      (async () => {
+        try {
+          await sendStatusUpdateEmail({
+            name: existing.name,
+            email: existing.email,
+            status: data.status,
+            referenceId: existing.id,
+          });
+        } catch (emailError) {
+          console.error(`Failed to send status update email to ${existing.email}:`, emailError);
+        }
+      })();
+    }
   }
 
   static async updateAttendance(firestoreId: string, attended: boolean) {

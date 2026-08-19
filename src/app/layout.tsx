@@ -28,32 +28,32 @@ const inter = Inter({
 const googleSans = localFont({
   src: [
     {
-      path: '../../public/fonts/GoogleSans-Regular.ttf',
+      path: '../../public/fonts/GoogleSans-Regular.woff2',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/GoogleSans-Italic.ttf',
+      path: '../../public/fonts/GoogleSans-Italic.woff2',
       weight: '400',
       style: 'italic',
     },
     {
-      path: '../../public/fonts/GoogleSans-Medium.ttf',
+      path: '../../public/fonts/GoogleSans-Medium.woff2',
       weight: '500',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/GoogleSans-MediumItalic.ttf',
+      path: '../../public/fonts/GoogleSans-MediumItalic.woff2',
       weight: '500',
       style: 'italic',
     },
     {
-      path: '../../public/fonts/GoogleSans-Bold.ttf',
+      path: '../../public/fonts/GoogleSans-Bold.woff2',
       weight: '700',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/GoogleSans-BoldItalic.ttf',
+      path: '../../public/fonts/GoogleSans-BoldItalic.woff2',
       weight: '700',
       style: 'italic',
     },
@@ -65,32 +65,32 @@ const googleSans = localFont({
 const googleSansText = localFont({
   src: [
     {
-      path: '../../public/fonts/GoogleSansText-Regular.ttf',
+      path: '../../public/fonts/GoogleSansText-Regular.woff2',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/GoogleSansText-Italic.ttf',
+      path: '../../public/fonts/GoogleSansText-Italic.woff2',
       weight: '400',
       style: 'italic',
     },
     {
-      path: '../../public/fonts/GoogleSansText-Medium.ttf',
+      path: '../../public/fonts/GoogleSansText-Medium.woff2',
       weight: '500',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/GoogleSansText-MediumItalic.ttf',
+      path: '../../public/fonts/GoogleSansText-MediumItalic.woff2',
       weight: '500',
       style: 'italic',
     },
     {
-      path: '../../public/fonts/GoogleSansText-Bold.ttf',
+      path: '../../public/fonts/GoogleSansText-Bold.woff2',
       weight: '700',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/GoogleSansText-BoldItalic.ttf',
+      path: '../../public/fonts/GoogleSansText-BoldItalic.woff2',
       weight: '700',
       style: 'italic',
     },

@@ -42,16 +42,18 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 // Roles that can see all admin nav items
-const FULL_ACCESS_ROLES: string[] = [ROLES.SUPER_ADMIN];
+const FULL_ACCESS_ROLES: string[] = [ROLES.SUPER_ADMIN, 'admin'];
 // Roles that can see event-related nav
-const EVENT_ACCESS_ROLES: string[] = [ROLES.SUPER_ADMIN, ROLES.EVENT_ADMIN];
+const EVENT_ACCESS_ROLES: string[] = [ROLES.SUPER_ADMIN, 'admin', ROLES.EVENT_ADMIN];
 // Roles that can see community/content nav
-const CONTENT_ACCESS_ROLES: string[] = [ROLES.SUPER_ADMIN, ROLES.CONTENT_MANAGER, ROLES.COMMUNITY_MODERATOR];
+const CONTENT_ACCESS_ROLES: string[] = [ROLES.SUPER_ADMIN, 'admin', ROLES.COMMUNITY_MODERATOR];
 
 export function AppSidebar({ userRole, username, userEmail, panelDomain, adminChapter = '3.0', chapters = ['3.0', '4.0'], ...props }: AppSidebarProps) {
   const isFullAdmin = FULL_ACCESS_ROLES.includes(userRole);
   const canSeeEvents = EVENT_ACCESS_ROLES.includes(userRole);
   const canSeeContent = CONTENT_ACCESS_ROLES.includes(userRole);
+
+  const canSeeApplications = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel';
 
   // Main Platform Links — shown based on role
   const navMainItems = [
@@ -61,18 +63,22 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
       icon: LayoutDashboard,
       isActive: true,
     },
-    {
-      title: "Applications",
-      url: "/admin/applications",
-      icon: Briefcase,
-      ...(isFullAdmin ? {
-        items: [
+    ...(canSeeApplications ? [
+      {
+        title: "Applications",
+        url: "/admin/applications",
+        icon: Briefcase,
+        items: isFullAdmin ? [
           { title: "All Applications", url: "/admin/applications" },
+          { title: "Attendance Tracker", url: "/admin/attendance" },
           { title: "Hiring Settings", url: "/admin/hiring-settings" },
           { title: "Set Deadline", url: "/admin/deadline" },
+        ] : [
+          { title: "All Applications", url: "/admin/applications" },
+          { title: "Attendance Tracker", url: "/admin/attendance" },
         ]
-      } : {})
-    },
+      }
+    ] : []),
     ...(canSeeEvents ? [
       {
         title: "Events",
@@ -220,7 +226,7 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ChapterSwitcher currentChapter={adminChapter} chapters={chapters} />
+        <ChapterSwitcher userRole={userRole} currentChapter={adminChapter} chapters={chapters} />
         <TeamSwitcher userRole={userRole} panelDomain={panelDomain} />
       </SidebarHeader>
       

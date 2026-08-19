@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from "react";
-import { ChevronsUpDown, Shield, Bot, BarChart3, Cloud, Code2 } from "lucide-react";
+import { ChevronsUpDown, Shield, Bot, BarChart3, Cloud, Code2, Calendar, Megaphone, Share2, Paintbrush } from "lucide-react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import {
@@ -35,9 +35,10 @@ export function TeamSwitcher({
     {
       name: "All Domains",
       logo: Shield,
-      plan: "Superadmin View",
+      plan: "Chapter Admin View",
       value: "all"
     },
+    // Technical Wings
     {
       name: "Generative AI",
       logo: Bot,
@@ -61,13 +62,38 @@ export function TeamSwitcher({
       logo: Code2,
       plan: "Web & App Panel",
       value: "web_app"
+    },
+    // Non-Technical Wings
+    {
+      name: "Event Management",
+      logo: Calendar,
+      plan: "Events Panel",
+      value: "event_management"
+    },
+    {
+      name: "Public Relations",
+      logo: Megaphone,
+      plan: "PR Panel",
+      value: "public_relations"
+    },
+    {
+      name: "Media & Marketing",
+      logo: Share2,
+      plan: "Media Panel",
+      value: "media_marketing"
+    },
+    {
+      name: "Creativity",
+      logo: Paintbrush,
+      plan: "Creativity Panel",
+      value: "creativity"
     }
   ];
 
-  // If the user is a domain admin (panel), they can only see their own domain
-  const filteredDomains = userRole === 'admin' 
-    ? domains 
-    : domains.filter(d => d.value === panelDomain);
+  const canSwitch = userRole === 'admin' || userRole === 'super_admin' || userRole === 'panel';
+
+  // Everyone can see and switch domains
+  const filteredDomains = domains;
 
   // Find currently active domain item
   const currentDomainValue = panelDomain || 'all';
@@ -111,10 +137,10 @@ export function TeamSwitcher({
                 <span className="truncate font-semibold">{activeDomain.name}</span>
                 <span className="truncate text-xs">{activeDomain.plan}</span>
               </div>
-              {userRole === 'admin' && <ChevronsUpDown className="ml-auto size-4 text-slate-400" />}
+              {canSwitch && <ChevronsUpDown className="ml-auto size-4 text-slate-400" />}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          {userRole === 'admin' && (
+          {canSwitch && (
             <DropdownMenuContent
               className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg"
               align="start"

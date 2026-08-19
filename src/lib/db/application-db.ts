@@ -36,10 +36,11 @@ export function buildFilteredQuery(params: {
     where("isArchived", "==", false)
   ];
 
-  if (panelDomain) {
-    constraints.push(where('technicalDomain', '==', panelDomain));
-  } else if (domain) {
-    constraints.push(where('technicalDomain', '==', domain));
+  const nonTechDomains = ['event_management', 'public_relations', 'media_marketing', 'creativity'];
+
+  if (domain && domain !== 'all') {
+    const isNonTech = nonTechDomains.includes(domain);
+    constraints.push(where(isNonTech ? 'nonTechnicalDomain' : 'technicalDomain', '==', domain));
   }
 
   if (status && status !== 'all') {

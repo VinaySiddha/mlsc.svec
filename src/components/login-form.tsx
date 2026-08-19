@@ -21,9 +21,11 @@ export function LoginForm({
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);
+    setIsOAuthLoading(true);
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -36,8 +38,7 @@ export function LoginForm({
           description: `Welcome, ${result.user.displayName?.split(' ')[0] || 'Admin'}.`,
         });
         await auth.signOut();
-        router.push('/admin');
-        router.refresh();
+        window.location.href = '/admin';
       } else {
         await auth.signOut();
         throw new Error(response.error || 'Access denied.');
@@ -48,6 +49,7 @@ export function LoginForm({
         error.code === 'auth/cancelled-popup-request'
       ) {
         setIsSubmitting(false);
+        setIsOAuthLoading(false);
         return;
       }
       toast({
@@ -57,6 +59,7 @@ export function LoginForm({
       });
     } finally {
       setIsSubmitting(false);
+      setIsOAuthLoading(false);
     }
   };
 
@@ -91,7 +94,7 @@ export function LoginForm({
                 disabled={isSubmitting}
                 className="w-full h-12 bg-white hover:bg-white/90 text-black font-bold rounded-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-lg"
               >
-                {isSubmitting ? (
+                {isOAuthLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-black" />
                 ) : (
                   <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
@@ -101,7 +104,7 @@ export function LoginForm({
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                   </svg>
                 )}
-                {isSubmitting ? 'Verifying...' : 'Continue with Google'}
+                {isOAuthLoading ? 'Verifying...' : 'Continue with Google'}
               </Button>
 
               {/* Divider */}

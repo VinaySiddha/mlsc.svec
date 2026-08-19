@@ -77,6 +77,10 @@ export function AdminLayoutShell({
     ds_ml: "Data Science & ML",
     azure: "Azure Cloud",
     web_app: "Web & App Dev",
+    event_management: "Event Management",
+    public_relations: "Public Relations",
+    media_marketing: "Media Marketing",
+    creativity: "Creativity",
   };
 
   const domainName = panelDomain ? domainLabels[panelDomain] || panelDomain : 'Superadmin';
@@ -88,6 +92,7 @@ export function AdminLayoutShell({
     admin: "Admin",
     applications: "Applications",
     application: "Applications",
+    attendance: "Attendance Tracker",
     "hiring-settings": "Hiring Settings",
     deadline: "Deadline",
     events: "Events",
