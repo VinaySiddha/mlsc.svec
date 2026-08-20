@@ -90,7 +90,7 @@ export function TeamSwitcher({
     }
   ];
 
-  const canSwitch = userRole === 'admin' || userRole === 'super_admin' || userRole === 'panel';
+  const canSwitch = userRole === 'admin' || userRole === 'super_admin' || userRole === 'panel' || userRole === 'common_panel';
 
   // Everyone can see and switch domains
   const filteredDomains = domains;

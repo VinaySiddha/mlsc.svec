@@ -1,7 +1,9 @@
 export const ROLES = {
   SUPER_ADMIN: 'super_admin',
+  ADMIN: 'admin',
   EVENT_ADMIN: 'event_admin',
   COMMUNITY_MODERATOR: 'community_moderator',
+  COMMON_PANEL: 'common_panel',
   PANEL: 'panel',
   USER: 'user',
 } as const;
@@ -10,16 +12,20 @@ export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export const ROLE_LABELS: Record<Role, string> = {
   super_admin: 'Super Admin',
+  admin: 'Admin',
   event_admin: 'Event Admin',
   community_moderator: 'Community Moderator',
-  panel: 'Interview Panel',
+  common_panel: 'Common Interview Panel (All Domains)',
+  panel: 'Support Panel (Domain Specific)',
   user: 'User',
 };
 
 export const ROLE_HIERARCHY: Record<Role, number> = {
   super_admin: 100,
+  admin: 90,
   event_admin: 80,
   community_moderator: 60,
+  common_panel: 35,
   panel: 30,
   user: 10,
 };

@@ -14,8 +14,9 @@ export default async function ApplicationsPage({
 }) {
   const resolvedSearchParams = await searchParams;
   const headersList = await headers();
-  const panelDomain = headersList.get('X-Panel-Domain') || undefined;
+  const rawDomain = headersList.get('X-Panel-Domain') || undefined;
   const userRole = headersList.get('X-User-Role');
+  const panelDomain = userRole === 'common_panel' ? undefined : rawDomain;
 
   if (!userRole) {
     redirect('/login');
@@ -30,6 +31,22 @@ export default async function ApplicationsPage({
           </h1>
           <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Review applications and toggle hiring statuses</p>
         </div>
+        {(userRole === 'admin' || userRole === 'super_admin') && (
+          <div className="flex items-center gap-2">
+            <a 
+              href="/admin/internal-registration" 
+              className="flex items-center gap-2 px-4 py-2 bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4] rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-[#4285F4]/20 transition-colors"
+            >
+              + Register Applicant
+            </a>
+            <a 
+              href="/admin/applications/recommended" 
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-500 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-yellow-500/20 transition-colors"
+            >
+              ★ Recommended Finalists
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-0 overflow-hidden shadow-sm">
@@ -105,7 +122,7 @@ async function ApplicationsDashboard({
   }) as any;
 
   const filterData = {
-    statuses: ['Received', 'Under Processing', 'Interviewing', 'Recommended', 'Hired', 'Rejected'],
+    statuses: ['Received', 'Invited to Interview', 'Interview Done', 'Thank You For Attending', 'Hired', 'Rejected'],
     years: ["2nd", "3rd"],
     branches: ["AIML", "CAI", "CSE", "CST", "ECE", "Others"],
     domains: ['gen_ai', 'ds_ml', 'azure', 'web_app', 'event_management', 'public_relations', 'media_marketing', 'creativity']

@@ -291,7 +291,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
   const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
 
   const showPdfButtonsForAdmin = userRole === 'admin' || userRole === 'super_admin';
-  const showPdfButtonsForPanel = userRole === 'panel';
+  const showPdfButtonsForPanel = userRole === 'panel' || userRole === 'common_panel';
 
   return (
     <div className="flex flex-col gap-4">
@@ -307,7 +307,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
               disabled={isPending || isBulkUpdating}
             />
           </div>
-           {(userRole === 'admin' || userRole === 'super_admin') && (
+           {(userRole === 'admin' || userRole === 'super_admin' || userRole === 'common_panel') && (
               <Select value={searchBy} onValueChange={setSearchBy} disabled={isPending || isBulkUpdating}>
                 <SelectTrigger className="w-[140px] shrink-0">
                   <SelectValue placeholder="Search by" />

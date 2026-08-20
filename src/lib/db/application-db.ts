@@ -7,6 +7,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -99,6 +100,11 @@ export class ApplicationDb {
   static async updateApplicationDoc(firestoreId: string, dataToUpdate: any) {
     const docRef = doc(db, 'applications', firestoreId);
     await updateDoc(docRef, dataToUpdate);
+  }
+
+  static async deleteApplicationDoc(firestoreId: string) {
+    const docRef = doc(db, 'applications', firestoreId);
+    await deleteDoc(docRef);
   }
 
   static async getApplicationByRefId(refId: string) {
@@ -296,6 +302,38 @@ export class ApplicationDb {
       return settingsSnap.data().activeChapter;
     }
     return '3.0';
+  }
+
+  static async getDomainPanelMembers(domain: string) {
+    const usersRef = collection(db, "users");
+    const q = query(
+      usersRef, 
+      where("role", "==", "panel"), 
+      where("domain", "==", domain),
+      where("disabled", "==", false)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+  }
+
+  static async getPanelAssignmentCounts(domain: string, activeChapter: string) {
+    const appsRef = collection(db, "applications");
+    const q = query(
+      appsRef,
+      where("isArchived", "==", false),
+      where("chapter", "==", activeChapter)
+    );
+    // Since we can't easily query by domain and chapter and group by without a composite index,
+    // we'll just fetch active apps in the chapter and filter/count manually. This is fast enough for ~500 apps.
+    const snapshot = await getDocs(q);
+    const counts: Record<string, number> = {};
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.assignedTo && data.technicalDomain === domain) {
+        counts[data.assignedTo] = (counts[data.assignedTo] || 0) + 1;
+      }
+    });
+    return counts;
   }
 
   static async setActiveChapter(chapter: string) {

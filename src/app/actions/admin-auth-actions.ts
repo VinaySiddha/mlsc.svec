@@ -9,8 +9,10 @@ import { db } from '@/lib/firebase';
 // Admin-eligible roles — any of these can log into the admin panel
 const ADMIN_ROLES: readonly Role[] = [
   ROLES.SUPER_ADMIN,
+  ROLES.ADMIN,
   ROLES.EVENT_ADMIN,
   ROLES.COMMUNITY_MODERATOR,
+  ROLES.COMMON_PANEL,
   ROLES.PANEL,
 ];
 

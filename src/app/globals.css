@@ -242,3 +242,17 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.75);
 }
+
+@keyframes ios-spinner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.animate-ios-spinner {
+  animation: ios-spinner 1s linear infinite;
+}
+

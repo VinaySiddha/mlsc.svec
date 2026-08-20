@@ -13,6 +13,8 @@ import { HeaderWrapper } from '@/components/header-wrapper';
 import { FooterWrapper } from '@/components/footer-wrapper';
 import { KiriBot } from '@/components/kiri-bot';
 import { TicketFloatingButton } from '@/components/ticket-floating-button';
+import { NavigationLoader } from '@/components/navigation-loader';
+import { Suspense } from 'react';
 
 /* =========================================================
    FONTS
@@ -355,6 +357,11 @@ export default function RootLayout({
             <KiriBot />
 
             <TicketFloatingButton />
+
+            {/* Global Route Transition iOS Loader */}
+            <Suspense fallback={null}>
+              <NavigationLoader />
+            </Suspense>
           </div>
         </Providers>
 

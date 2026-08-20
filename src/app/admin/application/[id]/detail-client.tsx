@@ -14,12 +14,39 @@ import {
   HelpCircle, 
   CheckSquare, 
   PenTool,
-  ToggleLeft
+  ToggleLeft,
+  Edit2,
+  Trash2,
+  Loader2,
+  UserCheck
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApplicationReviewForm } from "@/components/application-review-form";
 import { cn } from "@/lib/utils";
+import { toggleRecommendation, deleteApplicationAction, updateApplicantDetailsAction } from "@/app/actions/application-actions";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { IosLoader } from "@/components/ui/ios-loader";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ApplicationDetailClientProps {
   application: any;
@@ -111,6 +138,97 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
   const nonTechQuestions = application.nonTechnicalDomain ? (domainQuestions[application.nonTechnicalDomain] || []) : [];
   const generalQuestions = domainQuestions.general;
 
+  const { toast } = useToast();
+  const router = useRouter();
+  const [isTogglingRec, setIsTogglingRec] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Edit Applicant Modal State
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: application.name || '',
+    email: application.email || '',
+    phone: application.phone || '',
+    rollNo: application.rollNo || '',
+    branch: application.branch || '',
+    section: application.section || '',
+    yearOfStudy: application.yearOfStudy || '',
+    cgpa: application.cgpa || '',
+    backlogs: application.backlogs || 0,
+    technicalDomain: application.technicalDomain || 'gen_ai',
+    nonTechnicalDomain: application.nonTechnicalDomain || '',
+    linkedin: application.linkedin || '',
+    remarks: application.remarks || '',
+  });
+
+  const handleToggleRec = async () => {
+    setIsTogglingRec(true);
+    try {
+      const newStatus = !application.isRecommended;
+      const res = await toggleRecommendation(application.id, newStatus);
+      if (res.error) throw new Error(res.error);
+      toast({
+        title: newStatus ? "Candidate Recommended" : "Recommendation Removed",
+        description: `Candidate is ${newStatus ? 'now' : 'no longer'} recommended for the final round.`,
+      });
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err.message || "Failed to toggle recommendation.",
+      });
+    } finally {
+      setIsTogglingRec(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await deleteApplicationAction(application.firestoreId || application.id);
+      if (res.error) throw new Error(res.error);
+      toast({
+        title: "Application Deleted",
+        description: `Application for ${application.name} has been permanently removed.`,
+      });
+      setIsDeleteDialogOpen(false);
+      router.push("/admin/applications");
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Delete Failed",
+        description: err.message || "Failed to delete application.",
+      });
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsEditLoading(true);
+    try {
+      const res = await updateApplicantDetailsAction(application.firestoreId || application.id, editForm);
+      if (res.error) throw new Error(res.error);
+      toast({
+        title: "Applicant Updated",
+        description: "Candidate information updated successfully.",
+      });
+      setIsEditOpen(false);
+      setTimeout(() => window.location.reload(), 800);
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: err.message || "Failed to update details.",
+      });
+    } finally {
+      setIsEditLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       
@@ -176,10 +294,58 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                       </CardDescription>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant={getStatusVariant(status)} className="text-[10px] font-black uppercase tracking-wider px-3 py-1">
-                      {status}
-                    </Badge>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {application.isRecommended && (
+                        <Badge variant="secondary" className="text-[10px] bg-yellow-500/10 text-yellow-500 border-yellow-500/20 font-black uppercase tracking-wider px-3 py-1">
+                          ★ Recommended
+                        </Badge>
+                      )}
+                      <Badge variant={getStatusVariant(status)} className="text-[10px] font-black uppercase tracking-wider px-3 py-1">
+                        {status}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-1">
+                      {(userRole === "admin" || userRole === "super_admin") && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setIsEditOpen(true)}
+                            className="h-7 text-xs border-white/10 bg-white/5 hover:bg-white/10 text-white gap-1.5"
+                          >
+                            <Edit2 className="h-3 w-3" />
+                            Edit Info
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => setIsDeleteDialogOpen(true)}
+                            disabled={isDeleting}
+                            className="h-7 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 gap-1.5"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            Delete
+                          </Button>
+                        </>
+                      )}
+
+                      {(userRole === "admin" || userRole === "super_admin" || userRole === "panel" || userRole === "common_panel") && (
+                        <button
+                          onClick={handleToggleRec}
+                          disabled={isTogglingRec}
+                          className={cn(
+                            "px-3 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider transition-all h-7 flex items-center",
+                            application.isRecommended 
+                              ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
+                              : "bg-yellow-500/10 border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/20"
+                          )}
+                        >
+                          {isTogglingRec ? "Wait..." : application.isRecommended ? "Un-Recommend" : "★ Recommend"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -451,6 +617,185 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
         </div>
 
       </div>
+
+      {/* Edit Applicant Modal */}
+      {isEditOpen && (
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="max-w-xl bg-zinc-900 border-white/10 text-white max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">Edit Candidate Details</DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs">
+                Update application profile information for {application.name}.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Full Name *</Label>
+                  <Input 
+                    value={editForm.name}
+                    onChange={(e) => setEditForm(p => ({ ...p, name: e.target.value }))}
+                    required
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Roll Number *</Label>
+                  <Input 
+                    value={editForm.rollNo}
+                    onChange={(e) => setEditForm(p => ({ ...p, rollNo: e.target.value }))}
+                    required
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email Address *</Label>
+                  <Input 
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm(p => ({ ...p, email: e.target.value }))}
+                    required
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Phone Number *</Label>
+                  <Input 
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm(p => ({ ...p, phone: e.target.value }))}
+                    required
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Branch</Label>
+                  <Input 
+                    value={editForm.branch}
+                    onChange={(e) => setEditForm(p => ({ ...p, branch: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Section</Label>
+                  <Input 
+                    value={editForm.section}
+                    onChange={(e) => setEditForm(p => ({ ...p, section: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Year of Study</Label>
+                  <Input 
+                    value={editForm.yearOfStudy}
+                    onChange={(e) => setEditForm(p => ({ ...p, yearOfStudy: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">CGPA</Label>
+                  <Input 
+                    value={editForm.cgpa}
+                    onChange={(e) => setEditForm(p => ({ ...p, cgpa: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Active Backlogs</Label>
+                  <Input 
+                    type="number"
+                    value={editForm.backlogs}
+                    onChange={(e) => setEditForm(p => ({ ...p, backlogs: Number(e.target.value) }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Technical Track</Label>
+                  <Select 
+                    value={editForm.technicalDomain} 
+                    onValueChange={(val) => setEditForm(p => ({ ...p, technicalDomain: val }))}
+                  >
+                    <SelectTrigger className="bg-black/40 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(domainLabels).map(([val, label]) => (
+                        <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Non-Technical Track</Label>
+                  <Select 
+                    value={editForm.nonTechnicalDomain || 'none'} 
+                    onValueChange={(val) => setEditForm(p => ({ ...p, nonTechnicalDomain: val === 'none' ? '' : val }))}
+                  >
+                    <SelectTrigger className="bg-black/40 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none" className="text-xs">None</SelectItem>
+                      {Object.entries(domainLabels).map(([val, label]) => (
+                        <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">LinkedIn Profile</Label>
+                <Input 
+                  value={editForm.linkedin}
+                  onChange={(e) => setEditForm(p => ({ ...p, linkedin: e.target.value }))}
+                  placeholder="https://linkedin.com/in/..."
+                  className="bg-black/40 border-white/10"
+                />
+              </div>
+
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="ghost" onClick={() => setIsEditOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isEditLoading} className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold flex items-center gap-2">
+                  {isEditLoading ? (
+                    <>
+                      <IosLoader size="xs" color="text-white" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Dedicated Delete Applicant Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title="Delete Candidate Application"
+        description="This will permanently delete this applicant's submission, resume data, and live interview ratings."
+        itemName={application.name}
+        itemDetails={application.rollNo ? `Roll No: ${application.rollNo} • ID: ${application.id}` : `ID: ${application.id}`}
+        isLoading={isDeleting}
+      />
 
     </div>
   );

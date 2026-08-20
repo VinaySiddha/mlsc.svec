@@ -29,6 +29,7 @@ export const internalApplicationSchema = applicationSchema.omit({
 export const reviewSchema = z.object({
   id: z.string(),
   status: z.string(),
+  assignedTo: z.string().optional(),
   isRecommended: z.boolean(),
   suitability: z.object({
     technical: z.string().optional(),

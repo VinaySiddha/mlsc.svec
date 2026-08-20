@@ -1,6 +1,6 @@
 'use server';
 
-import { doc, getDoc, setDoc, updateDoc, getDocs, collection, query, orderBy, where, serverTimestamp, writeBatch, increment, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, getDocs, collection, query, orderBy, where, serverTimestamp, writeBatch, increment, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Role } from '@/lib/roles';
 import type { UserProfile } from '@/types/user';
@@ -34,12 +34,14 @@ export async function ensureUserProfile(uid: string, profile: {
       counter++;
     }
 
+    const isSuperAdminEmail = profile.email === 'vinaysiddha19@gmail.com';
+    
     await setDoc(userRef, {
       displayName: profile.displayName,
       email: profile.email,
       photoURL: profile.photoURL,
       username: username,
-      role: 'user' as Role,
+      role: isSuperAdminEmail ? 'super_admin' : ('user' as Role),
       bio: '',
       emailNotifications: true,
       disabled: false,
@@ -106,6 +108,11 @@ export async function getAllUsers(): Promise<{ users: UserProfile[]; error?: str
 export async function assignUserRole(userId: string, role: Role, domain?: string | null): Promise<{ success: boolean; error?: string }> {
   try {
     const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    if (userDoc.exists() && userDoc.data().email === 'vinaysiddha19@gmail.com') {
+       return { success: false, error: 'This user is permanently a Super Admin and cannot be modified.' };
+    }
+
     const updateData: Record<string, any> = { role, updatedAt: new Date().toISOString() };
     if (role === 'panel') {
       updateData.domain = domain || null;
@@ -123,11 +130,153 @@ export async function assignUserRole(userId: string, role: Role, domain?: string
 export async function disableUser(userId: string, disabled: boolean): Promise<{ success: boolean; error?: string }> {
   try {
     const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    if (userDoc.exists() && userDoc.data().email === 'vinaysiddha19@gmail.com') {
+       return { success: false, error: 'This user is permanently active and cannot be disabled.' };
+    }
+
     await updateDoc(userRef, { disabled, updatedAt: new Date().toISOString() });
     return { success: true };
   } catch (error) {
     console.error('Error disabling user:', error);
     return { success: false, error: 'Failed to update user status.' };
+  }
+}
+
+export async function createUserManually(data: {
+  displayName: string;
+  email: string;
+  username?: string;
+  role: Role;
+  domain?: string | null;
+  phone?: string;
+  rollNo?: string;
+  branch?: string;
+}): Promise<{ success: boolean; user?: UserProfile; error?: string }> {
+  try {
+    const emailLower = data.email.toLowerCase().trim();
+    
+    // Check if email already exists
+    const qEmail = query(collection(db, 'users'), where('email', '==', emailLower));
+    const snapEmail = await getDocs(qEmail);
+    if (!snapEmail.empty) {
+      return { success: false, error: 'A user with this email already exists.' };
+    }
+
+    let baseUsername = data.username
+      ? data.username.toLowerCase().trim().replace(/[^a-z0-9_]/g, '')
+      : emailLower.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (!baseUsername) baseUsername = 'user';
+    let username = baseUsername;
+    let counter = 1;
+
+    while (true) {
+      const q = query(collection(db, 'users'), where('username', '==', username));
+      const snap = await getDocs(q);
+      if (snap.empty) break;
+      username = `${baseUsername}${counter}`;
+      counter++;
+    }
+
+    const isSuperAdminEmail = emailLower === 'vinaysiddha19@gmail.com';
+    const role = isSuperAdminEmail ? 'super_admin' : data.role;
+    const domain = role === 'panel' ? (data.domain || null) : null;
+
+    const userDocRef = doc(collection(db, 'users'));
+    const newUser: Record<string, any> = {
+      uid: userDocRef.id,
+      displayName: data.displayName.trim(),
+      email: emailLower,
+      username: username,
+      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+      role: role,
+      domain: domain,
+      bio: '',
+      phone: data.phone || '',
+      rollNo: data.rollNo || '',
+      branch: data.branch || '',
+      emailNotifications: true,
+      disabled: false,
+      followersCount: 0,
+      followingCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await setDoc(userDocRef, newUser);
+    return { success: true, user: newUser as UserProfile };
+  } catch (error: any) {
+    console.error('Error creating user manually:', error);
+    return { success: false, error: error.message || 'Failed to create user.' };
+  }
+}
+
+export async function adminUpdateUser(userId: string, data: {
+  displayName?: string;
+  email?: string;
+  username?: string;
+  role?: Role;
+  domain?: string | null;
+  phone?: string;
+  rollNo?: string;
+  branch?: string;
+  bio?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) {
+      return { success: false, error: 'User not found.' };
+    }
+
+    const currentEmail = userDoc.data().email;
+    const isSuperAdmin = currentEmail === 'vinaysiddha19@gmail.com';
+
+    const cleanData: Record<string, any> = { updatedAt: new Date().toISOString() };
+    
+    if (data.displayName !== undefined) cleanData.displayName = data.displayName.trim();
+    if (data.bio !== undefined) cleanData.bio = data.bio;
+    if (data.phone !== undefined) cleanData.phone = data.phone;
+    if (data.rollNo !== undefined) cleanData.rollNo = data.rollNo;
+    if (data.branch !== undefined) cleanData.branch = data.branch;
+
+    if (!isSuperAdmin) {
+      if (data.email !== undefined) cleanData.email = data.email.toLowerCase().trim();
+      if (data.username !== undefined) cleanData.username = data.username.toLowerCase().trim();
+      if (data.role !== undefined) {
+        cleanData.role = data.role;
+        cleanData.domain = data.role === 'panel' ? (data.domain || null) : null;
+      }
+    } else {
+      // Ensure superadmin role cannot be changed
+      cleanData.role = 'super_admin';
+    }
+
+    await updateDoc(userRef, cleanData);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating user:', error);
+    return { success: false, error: error.message || 'Failed to update user.' };
+  }
+}
+
+export async function deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) {
+      return { success: false, error: 'User not found.' };
+    }
+
+    if (userDoc.data().email === 'vinaysiddha19@gmail.com') {
+      return { success: false, error: 'Cannot delete the permanent Super Admin account.' };
+    }
+
+    await deleteDoc(userRef);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting user:', error);
+    return { success: false, error: error.message || 'Failed to delete user.' };
   }
 }
 

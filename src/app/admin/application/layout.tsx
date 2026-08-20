@@ -12,7 +12,7 @@ export default async function CandidateApplicationLayout({
   const headersList = await headers();
   const userRole = headersList.get('X-User-Role') || 'panel';
 
-  const isAuthorized = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel';
+  const isAuthorized = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'common_panel';
 
   if (!isAuthorized) {
     return (

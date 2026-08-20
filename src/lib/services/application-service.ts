@@ -32,8 +32,31 @@ export class ApplicationService {
       throw new Error('An application with this roll number already exists for this recruitment cycle.');
     }
 
+    // Round-robin assignment
+    const domainPanels = await ApplicationDb.getDomainPanelMembers(applicationData.technicalDomain);
+    let assignedTo = null;
+    let assignedPanelEmail = null;
+    let assignedPanelName = null;
+
+    if (domainPanels.length > 0) {
+      const panelCounts = await ApplicationDb.getPanelAssignmentCounts(applicationData.technicalDomain, activeChapter);
+      let minCount = Infinity;
+      let selectedPanel = domainPanels[0];
+      for (const panel of domainPanels) {
+        const count = panelCounts[panel.uid] || 0;
+        if (count < minCount) {
+          minCount = count;
+          selectedPanel = panel;
+        }
+      }
+      assignedTo = selectedPanel.uid;
+      assignedPanelEmail = selectedPanel.email;
+      assignedPanelName = selectedPanel.displayName || 'Panel Member';
+    }
+
     const newApplication = {
       id: referenceId,
+      assignedTo,
       submittedAt: new Date().toISOString(),
       isArchived: false,
       chapter: activeChapter,
@@ -78,6 +101,24 @@ export class ApplicationService {
         console.error(`Email sending failed for ${referenceId}:`, emailError);
       }
     })();
+
+    // Send assignment notification email in background
+    if (assignedPanelEmail) {
+      (async () => {
+        try {
+          const { sendAssignmentEmail } = await import('@/ai/flows/send-assignment-email');
+          await sendAssignmentEmail({
+            panelMemberName: assignedPanelName || 'Panel Member',
+            panelMemberEmail: assignedPanelEmail,
+            applicantName: newApplication.name,
+            applicantDomain: newApplication.technicalDomain,
+            referenceId
+          });
+        } catch (emailError) {
+          console.error(`Assignment email sending failed for ${referenceId}:`, emailError);
+        }
+      })();
+    }
 
     // Process resume and evaluate candidate using AI synchronously
     let resumeSummary = null;
@@ -223,9 +264,39 @@ export class ApplicationService {
     return await ApplicationDb.getPanels();
   }
 
+  static async toggleRecommendation(id: string, isRecommended: boolean) {
+    await ApplicationDb.updateApplicationDoc(id, { isRecommended });
+    return { success: true };
+  }
+
+  static async updateApplicantDetails(id: string, data: any) {
+    const cleanData: Record<string, any> = { updatedAt: new Date().toISOString() };
+    const allowedFields = [
+      'name', 'email', 'phone', 'rollNo', 'branch', 'section', 'yearOfStudy',
+      'cgpa', 'backlogs', 'technicalDomain', 'nonTechnicalDomain', 'linkedin',
+      'assignedTo', 'status', 'remarks'
+    ];
+    for (const field of allowedFields) {
+      if (data[field] !== undefined) {
+        cleanData[field] = data[field];
+      }
+    }
+    if (data.name) cleanData.name_lowercase = data.name.toLowerCase();
+    if (data.rollNo) cleanData.rollNo_lowercase = data.rollNo.toLowerCase();
+
+    await ApplicationDb.updateApplicationDoc(id, cleanData);
+    return { success: true };
+  }
+
+  static async deleteApplication(id: string) {
+    await ApplicationDb.deleteApplicationDoc(id);
+    return { success: true };
+  }
+
   static async saveApplicationReview(data: any) {
     // Fetch applicant details needed for the status email
-    const existing = await ApplicationDb.getApplicationByFirestoreId(data.id);
+    const docSnap = await ApplicationDb.getApplicationDoc(data.id);
+    const existing = docSnap.exists() ? docSnap.data() : null;
 
     await ApplicationDb.updateApplicationDoc(data.id, {
       status: data.status,

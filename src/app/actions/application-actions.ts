@@ -141,6 +141,65 @@ export async function saveApplicationReview(data: any) {
     return { error: 'Failed to save review.' };
   }
 }
+export async function toggleRecommendation(id: string, isRecommended: boolean) {
+  try {
+    await ApplicationService.toggleRecommendation(id, isRecommended);
+    await logActivityAction(
+      `Candidate Recommendation Toggled`,
+      `Application ID ${id} was marked as recommended: ${isRecommended}`,
+      undefined,
+      "System Admin"
+    );
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error toggling recommendation:', error);
+    await logErrorAction(
+      `Recommendation Toggle Failed`,
+      `Failed to toggle recommendation for App ID ${id}. Error: ${error.message || error}`
+    );
+    return { error: 'Failed to toggle recommendation.' };
+  }
+}
+
+export async function updateApplicantDetailsAction(id: string, data: any) {
+  try {
+    await ApplicationService.updateApplicantDetails(id, data);
+    await logActivityAction(
+      `Applicant Details Updated`,
+      `Application ID ${id} was updated with new details.`,
+      undefined,
+      "System Admin"
+    );
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating applicant details:', error);
+    await logErrorAction(
+      `Applicant Update Failed`,
+      `Failed to update applicant ID ${id}. Error: ${error.message || error}`
+    );
+    return { error: error.message || 'Failed to update applicant details.' };
+  }
+}
+
+export async function deleteApplicationAction(id: string) {
+  try {
+    await ApplicationService.deleteApplication(id);
+    await logActivityAction(
+      `Application Deleted`,
+      `Application ID ${id} was permanently deleted from the database.`,
+      undefined,
+      "System Admin"
+    );
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting application:', error);
+    await logErrorAction(
+      `Application Deletion Failed`,
+      `Failed to delete application ID ${id}. Error: ${error.message || error}`
+    );
+    return { error: error.message || 'Failed to delete application.' };
+  }
+}
 
 
 export async function updateAttendance(firestoreId: string, attended: boolean) {
@@ -182,6 +241,27 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
       `Failed to perform CSV bulk update. Error: ${error.message || error}`
     );
     return { error: error.message || 'Failed to complete CSV import.' };
+  }
+}
+
+export async function bulkProcessList(ids: string[], newStatus: string) {
+  try {
+    const { ApplicationDb } = await import('@/lib/db/application-db');
+    let updatedCount = 0;
+    for (const id of ids) {
+      await ApplicationDb.updateApplicationDoc(id, { status: newStatus });
+      updatedCount++;
+    }
+    await logActivityAction(
+      `Bulk Processed Recommended Candidates`,
+      `Updated ${updatedCount} candidates to status: ${newStatus}`,
+      undefined,
+      "System Admin"
+    );
+    return { success: true, count: updatedCount };
+  } catch (error: any) {
+    console.error('Error bulk processing list:', error);
+    return { error: error.message || 'Failed to complete bulk processing.' };
   }
 }
 
