@@ -306,14 +306,33 @@ export class ApplicationDb {
 
   static async getDomainPanelMembers(domain: string) {
     const usersRef = collection(db, "users");
-    const q = query(
-      usersRef, 
-      where("role", "==", "panel"), 
-      where("domain", "==", domain),
-      where("disabled", "==", false)
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+    try {
+      const q = query(
+        usersRef, 
+        where("role", "in", ["panel", "common_panel"])
+      );
+      const snapshot = await getDocs(q);
+      const allPanels = snapshot.docs
+        .map(doc => ({ uid: doc.id, ...doc.data() } as any))
+        .filter(user => !user.disabled && user.email);
+
+      // First check for domain-matched panels
+      const domainMatches = allPanels.filter(p => p.role === 'panel' && p.domain === domain);
+      if (domainMatches.length > 0) {
+        return domainMatches;
+      }
+
+      // Fallback to common panel members if no domain-specific panel exists
+      const commonMatches = allPanels.filter(p => p.role === 'common_panel');
+      if (commonMatches.length > 0) {
+        return commonMatches;
+      }
+
+      return allPanels;
+    } catch (e) {
+      console.error("Error fetching domain panel members:", e);
+      return [];
+    }
   }
 
   static async getPanelAssignmentCounts(domain: string, activeChapter: string) {

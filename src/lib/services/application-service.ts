@@ -1,4 +1,5 @@
 import { sendConfirmationEmail, ConfirmationEmailInput } from '@/ai/flows/send-confirmation-email';
+import { sendAssignmentEmail } from '@/ai/flows/send-assignment-email';
 import { sendStatusUpdateEmail, StatusUpdateEmailInput } from '@/ai/flows/send-status-update-email';
 import { evaluateCandidate, EvaluateCandidateInput } from '@/ai/flows/evaluate-candidate';
 import { TeamService } from '@/lib/services/team-service';
@@ -88,37 +89,36 @@ export class ApplicationService {
 
     const docRef = await ApplicationDb.addApplication(newApplication);
 
-    // Send confirmation email in background
-    (async () => {
-      try {
-        const emailInput: ConfirmationEmailInput = {
-          name: newApplication.name,
-          email: newApplication.email,
-          referenceId
-        };
-        await sendConfirmationEmail(emailInput);
-      } catch (emailError) {
-        console.error(`Email sending failed for ${referenceId}:`, emailError);
-      }
-    })();
+    // Send confirmation email to applicant & notification email to assigned panel member
+    const emailPromises: Promise<any>[] = [];
 
-    // Send assignment notification email in background
+    const emailInput: ConfirmationEmailInput = {
+      name: newApplication.name,
+      email: newApplication.email,
+      referenceId
+    };
+    emailPromises.push(
+      sendConfirmationEmail(emailInput).catch(err => {
+        console.error(`Confirmation email failed for ${referenceId}:`, err);
+      })
+    );
+
     if (assignedPanelEmail) {
-      (async () => {
-        try {
-          const { sendAssignmentEmail } = await import('@/ai/flows/send-assignment-email');
-          await sendAssignmentEmail({
-            panelMemberName: assignedPanelName || 'Panel Member',
-            panelMemberEmail: assignedPanelEmail,
-            applicantName: newApplication.name,
-            applicantDomain: newApplication.technicalDomain,
-            referenceId
-          });
-        } catch (emailError) {
-          console.error(`Assignment email sending failed for ${referenceId}:`, emailError);
-        }
-      })();
+      emailPromises.push(
+        sendAssignmentEmail({
+          panelMemberName: assignedPanelName || 'Panel Member',
+          panelMemberEmail: assignedPanelEmail,
+          applicantName: newApplication.name,
+          applicantDomain: newApplication.technicalDomain,
+          referenceId
+        }).catch(err => {
+          console.error(`Assignment email failed for ${referenceId}:`, err);
+        })
+      );
     }
+
+    // Await all email dispatches to prevent serverless process cutoff
+    await Promise.allSettled(emailPromises);
 
     // Process resume and evaluate candidate using AI synchronously
     let resumeSummary = null;

@@ -20,21 +20,24 @@ export async function sendAssignmentEmail(input: AssignmentEmailInput) {
   try {
     const parsedInput = AssignmentEmailInputSchema.parse(input);
 
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      console.log(`[Email Mock] Assignment email to ${parsedInput.panelMemberEmail} for applicant ${parsedInput.applicantName}`);
+    const gmailUser = process.env.GMAIL_USER?.replace(/^["']|["']$/g, '').trim();
+    const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(/^["']|["']$/g, '').trim();
+
+    if (!gmailUser || !gmailPass) {
+      console.warn(`[Email Mock] Assignment email skipped because GMAIL credentials are not configured in .env.`);
       return { success: true, message: 'Mock email sent (credentials missing)' };
     }
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
+        user: gmailUser,
+        pass: gmailPass,
       },
     });
 
     const mailOptions = {
-      from: `"MLSC SVEC Hiring" <${process.env.GMAIL_USER}>`,
+      from: `"MLSC SVEC Hiring" <${gmailUser}>`,
       to: parsedInput.panelMemberEmail,
       subject: `New Applicant Assigned: ${parsedInput.applicantName} (${parsedInput.applicantDomain})`,
       html: `

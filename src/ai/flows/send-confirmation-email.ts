@@ -31,9 +31,12 @@ export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema
 export async function sendConfirmationEmail(input: ConfirmationEmailInput): Promise<void> {
   const { name, email, referenceId } = ConfirmationEmailInputSchema.parse(input);
 
+  const gmailUser = process.env.GMAIL_USER?.replace(/^["']|["']$/g, '').trim();
+  const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(/^["']|["']$/g, '').trim();
+
   // Check for credentials at the time of execution.
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.log(`Skipping email to ${email} because GMAIL credentials are not configured in .env.`);
+  if (!gmailUser || !gmailPass) {
+    console.warn(`Skipping email to ${email} because GMAIL credentials are not configured in .env.`);
     return;
   }
 
@@ -41,8 +44,8 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
   const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-          user: process.env.GMAIL_USER,
-          pass: process.env.GMAIL_APP_PASSWORD, 
+          user: gmailUser,
+          pass: gmailPass, 
       },
   });
 
@@ -313,7 +316,7 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
 </html>`;
   
   const mailOptions = {
-      from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`,
+      from: `"MLSC SVEC Hiring" <${gmailUser}>`,
       to: email,
       subject: subject,
       html: htmlBody,
@@ -321,9 +324,8 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Successfully sent email to ${email}`);
+    console.log(`Successfully sent confirmation email to ${email} (Ref: ${referenceId})`);
   } catch (error) {
-    console.error(`Failed to send email to ${email} via Nodemailer:`, error);
-    // We'll just log it and not throw an error to avoid halting the parent process.
+    console.error(`Failed to send confirmation email to ${email} via Nodemailer:`, error);
   }
 }
