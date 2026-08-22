@@ -140,6 +140,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
 
   const { toast } = useToast();
   const router = useRouter();
+  const [isRecommended, setIsRecommended] = useState<boolean>(application.isRecommended || false);
   const [isTogglingRec, setIsTogglingRec] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -165,15 +166,19 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
 
   const handleToggleRec = async () => {
     setIsTogglingRec(true);
+    const newStatus = !isRecommended;
+    setIsRecommended(newStatus); // Optimistic UI update
     try {
-      const newStatus = !application.isRecommended;
-      const res = await toggleRecommendation(application.id, newStatus);
-      if (res.error) throw new Error(res.error);
+      const res = await toggleRecommendation(application.firestoreId || application.id, newStatus);
+      if (res.error) {
+        setIsRecommended(!newStatus); // Rollback
+        throw new Error(res.error);
+      }
       toast({
         title: newStatus ? "Candidate Recommended" : "Recommendation Removed",
         description: `Candidate is ${newStatus ? 'now' : 'no longer'} recommended for the final round.`,
       });
-      setTimeout(() => window.location.reload(), 1000);
+      router.refresh();
     } catch (err: any) {
       toast({
         variant: "destructive",
@@ -293,10 +298,9 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                         Submitted on {format(new Date(application.submittedAt), "MMMM d, yyyy 'at' h:mm a")}
                       </CardDescription>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
+                                     <div className="flex flex-col items-end gap-2">
                     <div className="flex flex-wrap gap-2">
-                      {application.isRecommended && (
+                      {isRecommended && (
                         <Badge variant="secondary" className="text-[10px] bg-yellow-500/10 text-yellow-500 border-yellow-500/20 font-black uppercase tracking-wider px-3 py-1">
                           ★ Recommended
                         </Badge>
@@ -337,16 +341,16 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                           disabled={isTogglingRec}
                           className={cn(
                             "px-3 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider transition-all h-7 flex items-center",
-                            application.isRecommended 
+                            isRecommended 
                               ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
                               : "bg-yellow-500/10 border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/20"
                           )}
                         >
-                          {isTogglingRec ? "Wait..." : application.isRecommended ? "Un-Recommend" : "★ Recommend"}
+                          {isTogglingRec ? "Wait..." : isRecommended ? "Un-Recommend" : "★ Recommend"}
                         </button>
                       )}
                     </div>
-                  </div>
+                  </div>      </div>
                 </div>
                 
                 {/* Short action buttons */}

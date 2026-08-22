@@ -180,7 +180,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                     <div className="flex items-center justify-end gap-1.5">
                       {canRecommend && (
                         <button
-                          onClick={() => handleToggleRec(app.id, app.isRecommended || false)}
+                          onClick={() => handleToggleRec(app.firestoreId || app.id, app.isRecommended || false)}
                           disabled={isPending}
                           className={`px-2 py-1 text-[10px] font-bold uppercase rounded border ${app.isRecommended ? 'text-red-500 border-red-500/20 hover:bg-red-500/10' : 'text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/10'} transition-colors`}
                         >

@@ -372,11 +372,12 @@ export default function RootLayout({
             GOOGLE ADSENSE
         ===================================================== */}
 
-              <script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
-        crossOrigin="anonymous"
-      />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
 
         {/* =====================================================
             GOOGLE ANALYTICS

@@ -97,14 +97,46 @@ export class ApplicationDb {
     return docRef;
   }
 
-  static async updateApplicationDoc(firestoreId: string, dataToUpdate: any) {
-    const docRef = doc(db, 'applications', firestoreId);
-    await updateDoc(docRef, dataToUpdate);
+  static async updateApplicationDoc(idOrRefId: string, dataToUpdate: any) {
+    if (!idOrRefId) throw new Error("No application ID provided.");
+    
+    // First try direct firestoreId
+    const directDocRef = doc(db, 'applications', idOrRefId);
+    const directSnap = await getDoc(directDocRef);
+    if (directSnap.exists()) {
+      await updateDoc(directDocRef, dataToUpdate);
+      return;
+    }
+
+    // Fallback search by reference ID (id field)
+    const q = query(collection(db, 'applications'), where('id', '==', idOrRefId), limit(1));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      await updateDoc(querySnapshot.docs[0].ref, dataToUpdate);
+      return;
+    }
+
+    throw new Error(`Application not found with ID: ${idOrRefId}`);
   }
 
-  static async deleteApplicationDoc(firestoreId: string) {
-    const docRef = doc(db, 'applications', firestoreId);
-    await deleteDoc(docRef);
+  static async deleteApplicationDoc(idOrRefId: string) {
+    if (!idOrRefId) throw new Error("No application ID provided.");
+    
+    const directDocRef = doc(db, 'applications', idOrRefId);
+    const directSnap = await getDoc(directDocRef);
+    if (directSnap.exists()) {
+      await deleteDoc(directDocRef);
+      return;
+    }
+
+    const q = query(collection(db, 'applications'), where('id', '==', idOrRefId), limit(1));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      await deleteDoc(querySnapshot.docs[0].ref);
+      return;
+    }
+
+    throw new Error(`Application not found with ID: ${idOrRefId}`);
   }
 
   static async getApplicationByRefId(refId: string) {
