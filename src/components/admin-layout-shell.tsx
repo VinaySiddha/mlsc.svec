@@ -107,6 +107,7 @@ export function AdminLayoutShell({
     quizzes: "Quiz Manager",
     community: "Community",
     home: "Home Page Config",
+    alumni: "Alumni Words",
     new: "Create New",
     edit: "Modify"
   };

@@ -9,4 +9,5 @@ export * from './actions/log-actions';
 export * from './actions/contact-actions';
 export * from './actions/contributor-actions';
 export * from './actions/service-actions';
+export * from './actions/alumni-actions';
 

@@ -171,7 +171,7 @@ export default async function Home() {
             TESTIMONIALS
         ===================================================== */}
 
-        <Testimonials />
+        <Testimonials testimonials={homeData.alumniTestimonials} />
 
         {/* =====================================================
             BUILDERS STATEMENT

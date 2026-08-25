@@ -6,14 +6,10 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { HeroManager } from "@/components/admin/home/hero-manager";
-
 import { AmbassadorManager } from "@/components/admin/home/ambassador-manager";
-import { GalleryManager } from "@/components/admin/home/gallery-manager"; // Anticipating next step
-import { ChapterManager } from "@/components/admin/home/chapter-manager"; // Anticipating next step
-
-// Placeholder components
-// HeroManager is already imported
-// Ambassadors imported above
+import { GalleryManager } from "@/components/admin/home/gallery-manager";
+import { ChapterManager } from "@/components/admin/home/chapter-manager";
+import { AlumniManager } from "@/components/admin/home/alumni-manager";
 
 export default function HomeManagementPage() {
     return (
@@ -36,11 +32,12 @@ export default function HomeManagementPage() {
 
             <main className="flex-1 p-4 container mx-auto space-y-6">
                 <Tabs defaultValue="hero" className="w-full space-y-4">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
                         <TabsTrigger value="hero">Hero Section</TabsTrigger>
                         <TabsTrigger value="ambassadors">Ambassadors</TabsTrigger>
                         <TabsTrigger value="gallery">Gallery</TabsTrigger>
                         <TabsTrigger value="chapters">Chapters</TabsTrigger>
+                        <TabsTrigger value="alumni">Alumni Words</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="hero">
@@ -87,6 +84,18 @@ export default function HomeManagementPage() {
                             </CardHeader>
                             <CardContent>
                                 <ChapterManager />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="alumni">
+                        <Card className="glass-card">
+                            <CardHeader>
+                                <CardTitle>Alumni Words & Testimonials</CardTitle>
+                                <CardDescription>Review, approve, edit, feature, or add alumni testimonials displayed on the website.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <AlumniManager />
                             </CardContent>
                         </Card>
                     </TabsContent>

@@ -189,6 +189,10 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
           {
             title: "Home Page Config",
             url: "/admin/home",
+          },
+          {
+            title: "Alumni Words",
+            url: "/admin/alumni",
           }
         ]
       }

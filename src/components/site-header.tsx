@@ -26,6 +26,7 @@ import {
     PenTool,
     Heart,
     CreditCard,
+    MessageSquareQuote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { UserNav } from '@/components/user-nav';
@@ -42,6 +43,7 @@ const navLinks = [
     { href: '/about', label: 'About' },
     { href: '/team', label: 'Team' },
     { href: '/events', label: 'Events' },
+    { href: '/what-our-alumni-say', label: 'Alumni Words' },
     { href: '/domains', label: 'Domains' },
     { href: '/track', label: 'Track' },
     { href: '/contributors', label: 'Contributors' },
@@ -53,7 +55,7 @@ const navLinks = [
 
 export function SiteHeader() {
     const pathname = usePathname();
-    const isMoreActive = ['/contributors', '/study', '/blog', '/schedule'].some(
+    const isMoreActive = ['/contributors', '/study', '/blog', '/schedule', '/what-our-alumni-say'].some(
         (href) => pathname.startsWith(href)
     );
     const [domainsOpen, setDomainsOpen] = useState(false);
@@ -205,6 +207,15 @@ export function SiteHeader() {
                                     align="end"
                                     sideOffset={34}
                                 >
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href="/what-our-alumni-say"
+                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                        >
+                                            <MessageSquareQuote className="h-4 w-4 text-[#4285F4] group-hover:text-[#4285F4] group-focus:text-[#4285F4] transition-colors" />
+                                            Alumni Words
+                                        </Link>
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
                                         <Link
                                             href="/contributors"

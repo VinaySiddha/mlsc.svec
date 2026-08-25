@@ -9,6 +9,7 @@ const footerColumns = [
             { href: '/about', label: 'About' },
             { href: '/team', label: 'Team' },
             { href: '/events', label: 'Events' },
+            { href: '/what-our-alumni-say', label: 'Alumni Stories' },
             { href: '/services', label: 'Services Hub' },
             { href: '/blog', label: 'Blog' },
             { href: '/schedule', label: 'Schedule' },
