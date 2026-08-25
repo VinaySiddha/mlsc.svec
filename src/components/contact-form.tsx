@@ -92,37 +92,40 @@ export function ContactForm() {
   }
 
   return (
-    <Card className="w-full bg-[#080808]/40 border border-white/[0.08] backdrop-blur-xl rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.95)] text-white p-2">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-black tracking-tight text-white uppercase italic flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-[#4285F4]" />
-          Drop us a <span className="text-[#4285F4]">message.</span>
-        </CardTitle>
-        <CardDescription className="text-xs text-zinc-400 font-medium">
+    <div className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#4285F4] p-6 md:p-8 font-sans">
+      <div className="pb-6 border-b-2 border-black mb-6">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#4285F4] text-white text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000] mb-3">
+          [ 01 // DIRECT MESSAGE ]
+        </div>
+        <h3 className="text-2xl font-display font-black tracking-tight text-black uppercase italic flex items-center gap-2">
+          <MessageSquare className="h-5 w-5 text-[#4285F4] stroke-[2.5]" />
+          DROP US A <span className="text-[#4285F4]">MESSAGE.</span>
+        </h3>
+        <p className="text-xs text-zinc-700 font-medium mt-1">
           Have a query, suggestion, or collaboration idea? Fill out the form and our team will get in touch with you.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div>
         <Form of={form} id="contact-form-formisch" onSubmit={handleSubmit}>
           <FieldGroup className="space-y-4">
             <FormischField of={form} path={["name"]}>
               {(field) => (
                 <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contact-name" className="text-xs font-bold text-zinc-300">Name</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon align="block-start" className="pl-3 pr-0 py-2">
-                      <User className="h-3.5 w-3.5 text-zinc-500" />
-                    </InputGroupAddon>
+                  <FieldLabel htmlFor="contact-name" className="text-xs font-black uppercase tracking-wider text-black">Full Name</FieldLabel>
+                  <div className="relative mt-1">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <User className="h-4 w-4 text-zinc-500" />
+                    </div>
                     <Input
                       {...field.props}
                       id="contact-name"
                       value={field.input ?? ""}
                       aria-invalid={field.errors !== null}
-                      placeholder="Your Name"
-                      className="bg-transparent border-none text-white placeholder-zinc-650 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-10 pl-2"
+                      placeholder="Enter your name"
+                      className="bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[4px_4px_0px_0px_#4285F4] text-xs h-11 pl-10 transition-all rounded-none"
                       autoComplete="name"
                     />
-                  </InputGroup>
+                  </div>
                   {field.errors && (
                     <FieldError
                       errors={field.errors.map((message) => ({ message }))}
@@ -135,11 +138,11 @@ export function ContactForm() {
             <FormischField of={form} path={["email"]}>
               {(field) => (
                 <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contact-email" className="text-xs font-bold text-zinc-300">Email</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon align="block-start" className="pl-3 pr-0 py-2">
-                      <Mail className="h-3.5 w-3.5 text-zinc-500" />
-                    </InputGroupAddon>
+                  <FieldLabel htmlFor="contact-email" className="text-xs font-black uppercase tracking-wider text-black">Email Address</FieldLabel>
+                  <div className="relative mt-1">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <Mail className="h-4 w-4 text-zinc-500" />
+                    </div>
                     <Input
                       {...field.props}
                       id="contact-email"
@@ -147,10 +150,10 @@ export function ContactForm() {
                       value={field.input ?? ""}
                       aria-invalid={field.errors !== null}
                       placeholder="your.email@example.com"
-                      className="bg-transparent border-none text-white placeholder-zinc-650 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-10 pl-2"
+                      className="bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[4px_4px_0px_0px_#4285F4] text-xs h-11 pl-10 transition-all rounded-none"
                       autoComplete="email"
                     />
-                  </InputGroup>
+                  </div>
                   {field.errors && (
                     <FieldError
                       errors={field.errors.map((message) => ({ message }))}
@@ -163,21 +166,21 @@ export function ContactForm() {
             <FormischField of={form} path={["subject"]}>
               {(field) => (
                 <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contact-subject" className="text-xs font-bold text-zinc-300">Subject</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon align="block-start" className="pl-3 pr-0 py-2">
-                      <Tag className="h-3.5 w-3.5 text-zinc-500" />
-                    </InputGroupAddon>
+                  <FieldLabel htmlFor="contact-subject" className="text-xs font-black uppercase tracking-wider text-black">Subject</FieldLabel>
+                  <div className="relative mt-1">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <Tag className="h-4 w-4 text-zinc-500" />
+                    </div>
                     <Input
                       {...field.props}
                       id="contact-subject"
                       value={field.input ?? ""}
                       aria-invalid={field.errors !== null}
                       placeholder="What is this regarding?"
-                      className="bg-transparent border-none text-white placeholder-zinc-650 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-10 pl-2"
+                      className="bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[4px_4px_0px_0px_#4285F4] text-xs h-11 pl-10 transition-all rounded-none"
                       autoComplete="off"
                     />
-                  </InputGroup>
+                  </div>
                   {field.errors && (
                     <FieldError
                       errors={field.errors.map((message) => ({ message }))}
@@ -190,23 +193,23 @@ export function ContactForm() {
             <FormischField of={form} path={["message"]}>
               {(field) => (
                 <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contact-message" className="text-xs font-bold text-zinc-300">Message</FieldLabel>
-                  <InputGroup>
-                    <InputGroupTextarea
+                  <FieldLabel htmlFor="contact-message" className="text-xs font-black uppercase tracking-wider text-black">Message</FieldLabel>
+                  <div className="relative mt-1">
+                    <textarea
                       {...field.props}
                       id="contact-message"
                       value={field.input ?? ""}
                       placeholder="Type your message here..."
                       rows={5}
-                      className="min-h-24 resize-none bg-transparent border-none text-white placeholder-zinc-650 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm p-3"
+                      className="w-full min-h-28 resize-none bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[4px_4px_0px_0px_#4285F4] text-xs p-3 transition-all rounded-none outline-none"
                       aria-invalid={field.errors !== null}
                     />
-                    <InputGroupAddon align="block-end" className="pr-3 pb-2">
-                      <InputGroupText className="tabular-nums text-[9px] text-zinc-500 font-bold">
+                    <div className="text-right pr-2 pb-1">
+                      <span className="tabular-nums text-[10px] text-zinc-600 font-bold">
                         {(field.input ?? "").length}/500 characters
-                      </InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
+                      </span>
+                    </div>
+                  </div>
                   {field.errors && (
                     <FieldError
                       errors={field.errors.map((message) => ({ message }))}
@@ -217,25 +220,24 @@ export function ContactForm() {
             </FormischField>
           </FieldGroup>
 
-          <div className="flex items-center justify-end gap-2 pt-5 mt-4 border-t border-white/5">
-            <Button
+          <div className="flex items-center justify-end gap-3 pt-4 mt-4 border-t-2 border-black">
+            <button
               type="button"
-              variant="ghost"
               onClick={() => reset(form)}
-              className="rounded-xl h-10 px-4 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+              className="px-4 py-2.5 text-xs font-black uppercase tracking-wider text-zinc-600 hover:text-black border-2 border-transparent hover:border-black transition-all cursor-pointer"
             >
               Reset
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
               disabled={submitting}
-              className="rounded-xl h-10 px-6 bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold text-xs uppercase tracking-wider transition-all"
+              className="px-6 py-2.5 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_#000000] transition-all cursor-pointer disabled:opacity-50"
             >
-              {submitting ? "Sending..." : "Send Message"}
-            </Button>
+              {submitting ? "SENDING..." : "SEND MESSAGE [↗]"}
+            </button>
           </div>
         </Form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

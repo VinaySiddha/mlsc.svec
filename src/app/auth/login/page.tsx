@@ -161,26 +161,29 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-black p-4 md:p-10">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-black p-4 md:p-10 font-sans">
       <div className="w-full max-w-sm md:max-w-4xl">
-        <Card className="overflow-hidden p-0 border-0 shadow-2xl">
-          <CardContent className="grid p-0 md:grid-cols-2">
+        <div className="bg-[#0E0E10] border-2 border-white/20 shadow-[10px_10px_0px_0px_#4285F4] overflow-hidden">
+          <div className="grid md:grid-cols-2">
 
             {/* ── Left: form panel ── */}
-            <div className="p-8 md:p-10 flex flex-col justify-center gap-6 bg-[#0A0A0A]">
+            <div className="p-8 md:p-10 flex flex-col justify-center gap-6 bg-[#0E0E10] border-b-2 md:border-b-0 md:border-r-2 border-white/20">
               {/* Logo + heading */}
               <div className="flex flex-col items-center gap-2 text-center">
-                <Link href="/" className="inline-block hover:opacity-80 transition-opacity mb-1">
-                  <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/10">
-                    <MLSCLogo className="h-8 w-8 text-white" />
+                <Link href="/" className="inline-block hover:translate-x-[1px] hover:translate-y-[1px] transition-transform mb-1">
+                  <div className="inline-flex h-14 w-14 items-center justify-center bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_#FFFFFF]">
+                    <MLSCLogo className="h-8 w-8 text-black" />
                   </div>
                 </Link>
-                <h1 className="text-2xl font-black uppercase italic tracking-tighter text-white">
-                  {isSignUp ? 'Join ' : 'Sign '}
-                  <span className="text-[#4285F4]">{isSignUp ? 'Us.' : 'In.'}</span>
+                <div className="inline-block px-3 py-1 bg-[#4285F4] text-white text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF]">
+                  [ SVEC COMMUNITY PORTAL ]
+                </div>
+                <h1 className="text-3xl font-display font-black uppercase italic tracking-tighter text-white">
+                  {isSignUp ? 'CREATE ' : 'USER '}
+                  <span className="text-[#FFE600]">{isSignUp ? 'ACCOUNT.' : 'LOGIN.'}</span>
                 </h1>
-                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
-                  {isSignUp ? 'Create your MLSC SVEC account' : 'Access your MLSC SVEC account'}
+                <p className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">
+                  {isSignUp ? 'Join the MLSC developer network' : 'Access your member dashboard'}
                 </p>
               </div>
 
@@ -193,11 +196,11 @@ function LoginContent() {
                       name="displayName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Full Name</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Full Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="John Doe" {...field} className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" />
+                            <Input placeholder="John Doe" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-400 text-[11px]" />
                         </FormItem>
                       )}
                     />
@@ -206,20 +209,19 @@ function LoginContent() {
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Username</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Username</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="username" 
                               {...field}
                               onChange={(e) => {
-                                // Enforce lowercase alphanumeric and underscores in real-time
                                 const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
                                 field.onChange(val);
                               }}
-                              className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" 
+                              className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" 
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-400 text-[11px]" />
                         </FormItem>
                       )}
                     />
@@ -228,11 +230,11 @@ function LoginContent() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Email Address</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Email Address</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="john@example.com" {...field} className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" />
+                            <Input type="email" placeholder="john@example.com" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-400 text-[11px]" />
                         </FormItem>
                       )}
                     />
@@ -241,18 +243,22 @@ function LoginContent() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Password</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Password</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" />
+                            <Input type="password" placeholder="••••••••" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-400 text-[11px]" />
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full h-11 bg-white text-black font-bold hover:bg-white/90 rounded-xl mt-2" disabled={isSubmitting}>
-                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Register
-                    </Button>
+                    <button 
+                      type="submit" 
+                      className="w-full h-11 bg-[#00FF66] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                      REGISTER ACCOUNT [↗]
+                    </button>
                   </form>
                 </Form>
               ) : (
@@ -263,11 +269,11 @@ function LoginContent() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Email Address</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Email Address</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="john@example.com" {...field} className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" />
+                            <Input type="email" placeholder="john@example.com" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-400 text-[11px]" />
                         </FormItem>
                       )}
                     />
@@ -276,41 +282,45 @@ function LoginContent() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Password</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Password</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} className="bg-white/5 border-white/10 rounded-xl h-11 px-4 text-sm focus:border-[#4285F4] transition-all" />
+                            <Input type="password" placeholder="••••••••" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-400 text-[11px]" />
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full h-11 bg-white text-black font-bold hover:bg-white/90 rounded-xl mt-2" disabled={isSubmitting}>
-                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Sign In
-                    </Button>
+                    <button 
+                      type="submit" 
+                      className="w-full h-11 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                      SIGN IN NOW [→]
+                    </button>
                   </form>
                 </Form>
               )}
 
               {/* Divider */}
-              <div className="relative">
+              <div className="relative my-2">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10" />
+                  <div className="w-full border-t-2 border-white/10" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-[#0A0A0A] px-3 text-[10px] font-bold uppercase tracking-widest text-white/30">
-                    Or continue with
+                  <span className="bg-[#0E0E10] px-3 text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
+                    OR INSTANT AUTH
                   </span>
                 </div>
               </div>
 
               {/* OAuth buttons */}
               <div className="grid grid-cols-2 gap-3">
-                <Button
+                <button
+                  type="button"
                   onClick={() => handleOAuthSignIn('google')}
                   disabled={isOAuthSigningIn !== null}
-                  variant="outline"
-                  className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-white rounded-xl h-11 flex items-center justify-center gap-2 text-xs font-bold"
+                  className="bg-black border-2 border-white/20 hover:border-white text-white h-11 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all"
                 >
                   {isOAuthSigningIn === 'google' ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -323,12 +333,12 @@ function LoginContent() {
                     </svg>
                   )}
                   Google
-                </Button>
-                <Button
+                </button>
+                <button
+                  type="button"
                   onClick={() => handleOAuthSignIn('github')}
                   disabled={isOAuthSigningIn !== null}
-                  variant="outline"
-                  className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-white rounded-xl h-11 flex items-center justify-center gap-2 text-xs font-bold"
+                  className="bg-black border-2 border-white/20 hover:border-white text-white h-11 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all"
                 >
                   {isOAuthSigningIn === 'github' ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -338,64 +348,73 @@ function LoginContent() {
                     </svg>
                   )}
                   GitHub
-                </Button>
+                </button>
               </div>
 
               {/* Toggle sign in / sign up */}
-              <p className="text-center text-xs text-white/40">
-                {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+              <p className="text-center text-xs text-zinc-400">
+                {isSignUp ? 'Already registered?' : "Don't have an account?"}{' '}
                 <button
+                  type="button"
                   onClick={() => setIsSignUp(!isSignUp)}
-                  className="text-[#4285F4] hover:underline font-bold"
+                  className="text-[#FFE600] underline font-bold uppercase tracking-wider text-xs ml-1"
                 >
-                  {isSignUp ? 'Sign In' : 'Sign Up'}
+                  {isSignUp ? 'Sign In [→]' : 'Create Account [↗]'}
                 </button>
               </p>
 
               {/* Terms */}
-              <p className="text-center text-[10px] text-white/20 leading-relaxed">
-                By signing in, you agree to our{' '}
-                <LegalModal type="terms" className="text-white/30 hover:text-white/60">
-                  Terms of Service
+              <p className="text-center text-[11px] text-zinc-500 leading-relaxed">
+                By accessing, you agree to our{' '}
+                <LegalModal type="terms" className="text-zinc-400 underline">
+                  Terms
                 </LegalModal>{' '}and{' '}
-                <LegalModal type="privacy" className="text-white/30 hover:text-white/60">
+                <LegalModal type="privacy" className="text-zinc-400 underline">
                   Privacy Policy
                 </LegalModal>.
               </p>
             </div>
 
             {/* ── Right: image panel ── */}
-            <div className="relative hidden md:block min-h-[500px]">
-              <Image
-                src="/mlsc-preview.png"
-                alt="MLSC SVEC"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              {/* Dark overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-              {/* Bottom branding */}
-              <div className="absolute bottom-8 left-8 right-8">
-                <p className="text-white font-black text-xl uppercase italic tracking-tight leading-tight drop-shadow-lg">
-                  Microsoft Learn<br />
-                  <span className="text-[#4285F4]">Student Chapter</span>
+            <div className="relative hidden md:flex flex-col justify-between p-10 bg-black">
+              <div className="absolute inset-0 z-0">
+                <Image
+                  src="/mlsc-preview.png"
+                  alt="MLSC SVEC"
+                  fill
+                  sizes="50vw"
+                  className="object-cover opacity-30 grayscale"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+              </div>
+              
+              <div className="relative z-10">
+                <div className="inline-block px-3 py-1 bg-[#00FF66] text-black text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF] mb-4">
+                  [ ⚡ CORE ECOSYSTEM ]
+                </div>
+              </div>
+
+              <div className="relative z-10">
+                <p className="text-white font-display font-black text-3xl uppercase italic tracking-tight leading-[0.9]">
+                  SRI VASAVI<br />
+                  <span className="text-[#FFE600]">ENGINEERING COLLEGE</span>
                 </p>
-                <p className="text-white/50 text-xs font-bold uppercase tracking-widest mt-1">SVEC · Community Hub</p>
+                <p className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-400 mt-2">
+                  MICROSOFT LEARN STUDENT CHAPTER · AP, INDIA
+                </p>
               </div>
             </div>
 
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Bottom links */}
-        <div className="mt-6 flex items-center justify-center gap-6">
-          <Link href="/login" className="text-white/30 hover:text-white/60 text-[10px] font-bold uppercase tracking-widest transition-colors">
-            Admin Login
+        <div className="mt-8 flex items-center justify-center gap-4">
+          <Link href="/login" className="px-4 py-2 bg-zinc-900 border-2 border-white/20 hover:border-white text-zinc-400 hover:text-white text-xs font-black uppercase tracking-wider transition-all">
+            [ ADMIN PORTAL ]
           </Link>
-          <span className="text-white/20 text-xs">·</span>
-          <Link href="/" className="text-white/30 hover:text-white/60 text-[10px] font-bold uppercase tracking-widest transition-colors">
-            Public Site
+          <Link href="/" className="px-4 py-2 bg-[#FFE600] border-2 border-black text-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all">
+            [ PUBLIC HOME ]
           </Link>
         </div>
       </div>

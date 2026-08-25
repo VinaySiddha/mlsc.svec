@@ -6,53 +6,31 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 0%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 1.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222.2 47.4% 11.2%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 222.2 47.4% 11.2%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 222.2 47.4% 11.2%;
-    --input: 222.2 47.4% 11.2%;
-    --ring: 212.7 26.8% 83.9%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 217 89% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 350 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+    --ring: 0 0% 0%;
+    --radius: 0px;
     
     /* Brand Accents */
     --google-blue: 217 89% 61%;
-    --google-red: 5 81% 56%;
-    --google-yellow: 45 97% 50%;
-    --google-green: 145 63% 44%;
+    --google-red: 350 100% 50%;
+    --google-yellow: 48 100% 50%;
+    --google-green: 142 100% 45%;
   }
 }
 
@@ -62,13 +40,15 @@
   }
   html {
     font-size: 15px;
-    background-color: #000000;
+    background-color: #FFFFFF;
+    color: #000000;
     overflow-x: hidden;
     width: 100%;
   }
   body {
-    @apply bg-background text-foreground;
-    background-color: #000000;
+    @apply bg-white text-black;
+    background-color: #FFFFFF;
+    color: #000000;
     font-family: var(--font-google-sans-text), var(--font-inter), 'Inter', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     letter-spacing: -0.01em;
@@ -78,7 +58,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-google-sans), var(--font-inter), 'Inter', sans-serif;
-    @apply tracking-tight font-bold;
+    @apply tracking-tight font-bold text-black;
   }
 
   /* Nav, buttons, labels — Outfit for clean sharp UI */
@@ -93,40 +73,81 @@
     }
 
     .bento-card {
-        @apply relative overflow-hidden rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-8 transition-all duration-500 hover:border-white/10 hover:bg-[#111111] shadow-2xl;
+        @apply relative overflow-hidden rounded-none border-2 border-black bg-white p-8 transition-all duration-300 shadow-[6px_6px_0px_0px_#000000] hover:shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px];
     }
 
     .glass-nav {
-        @apply sticky top-0 z-50 w-full border-b border-white/5 bg-black/60 backdrop-blur-2xl;
+        @apply sticky top-0 z-50 w-full border-b-2 border-black bg-white/95 backdrop-blur-2xl;
     }
 
     .hero-heading {
         font-family: var(--font-google-sans), var(--font-inter), 'Inter', sans-serif;
-        @apply text-4xl sm:text-5xl md:text-8xl lg:text-[8.5rem] font-black tracking-tighter leading-[1.1] md:leading-[0.8] mb-6;
+        @apply text-4xl sm:text-5xl md:text-8xl lg:text-[8.5rem] font-black tracking-tighter uppercase italic leading-[1.0] md:leading-[0.85] mb-6 text-black;
     }
 
-    .btn-primary {
-        @apply rounded-full bg-white text-black px-6 py-3.5 md:px-8 md:py-6 text-sm md:text-lg font-bold transition-transform hover:scale-105 active:scale-95;
+    /* ── Neo-Brutalist Button Tokens ── */
+    .btn-primary, .brutal-btn-primary {
+        @apply inline-flex items-center justify-center font-sans font-black uppercase tracking-wider text-xs sm:text-sm px-6 py-3 bg-[#FFE600] text-black border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] active:scale-95 transition-all cursor-pointer;
     }
 
-    .btn-outline {
-        @apply rounded-full border border-white/20 px-6 py-3.5 md:px-8 md:py-6 text-sm md:text-lg font-bold transition-all hover:bg-white/5 hover:border-white/40;
+    .btn-outline, .brutal-btn-outline {
+        @apply inline-flex items-center justify-center font-sans font-bold uppercase tracking-wider text-xs sm:text-sm px-6 py-3 bg-white hover:bg-zinc-100 text-black border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] active:scale-95 transition-all cursor-pointer;
+    }
+
+    .brutal-btn-blue {
+        @apply inline-flex items-center justify-center font-sans font-black uppercase tracking-wider text-xs sm:text-sm px-6 py-3 bg-[#4285F4] text-white border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] active:scale-95 transition-all cursor-pointer;
+    }
+
+    .brutal-btn-green {
+        @apply inline-flex items-center justify-center font-sans font-black uppercase tracking-wider text-xs sm:text-sm px-6 py-3 bg-[#00FF66] text-black border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] active:scale-95 transition-all cursor-pointer;
+    }
+
+    /* ── Neo-Brutalist Card Containers ── */
+    .brutal-card {
+        @apply bg-white border-2 border-black p-6 md:p-8 transition-all duration-300 shadow-[6px_6px_0px_0px_#000000];
+    }
+
+    .brutal-card-yellow {
+        @apply bg-white border-2 border-black p-6 md:p-8 transition-all duration-300 shadow-[6px_6px_0px_0px_#FFE600];
+    }
+
+    .brutal-card-green {
+        @apply bg-white border-2 border-black p-6 md:p-8 transition-all duration-300 shadow-[6px_6px_0px_0px_#00FF66];
+    }
+
+    .brutal-card-red {
+        @apply bg-white border-2 border-black p-6 md:p-8 transition-all duration-300 shadow-[6px_6px_0px_0px_#FF0055];
+    }
+
+    /* ── Neo-Brutalist Badge Stamps ── */
+    .brutal-badge {
+        @apply inline-flex items-center gap-1.5 px-3 py-1 bg-white text-black font-sans text-[11px] font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000];
+    }
+
+    .brutal-badge-yellow {
+        @apply inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFE600] text-black font-sans text-[11px] font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000];
+    }
+
+    .brutal-badge-blue {
+        @apply inline-flex items-center gap-1.5 px-3 py-1 bg-[#4285F4] text-white font-sans text-[11px] font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000];
+    }
+
+    .brutal-badge-green {
+        @apply inline-flex items-center gap-1.5 px-3 py-1 bg-[#00FF66] text-black font-sans text-[11px] font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000];
     }
 
     .ticker-bar {
-        @apply w-full bg-[#4285F4] py-2 overflow-hidden whitespace-nowrap;
+        @apply w-full bg-[#FFE600] text-black py-2 overflow-hidden whitespace-nowrap border-b-2 border-black font-black uppercase tracking-widest text-xs;
     }
 
     .glow-sphere {
-        @apply absolute -z-10 blur-[150px] rounded-full opacity-30;
+        @apply hidden;
     }
 
     .glass-card {
-        background: rgba(10, 10, 10, 0.95) !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.85) !important;
+        background: #FFFFFF !important;
+        border: 2px solid #000000 !important;
+        box-shadow: 6px 6px 0px 0px #000000 !important;
     }
 }
 
@@ -169,7 +190,7 @@
   letter-spacing: -0.03em;
   text-transform: uppercase;
   font-style: italic;
-  color: #ffffff;
+  color: #000000;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
 }
@@ -177,18 +198,18 @@
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: #000000;
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
 }
 .blog-article-content p {
-  color: rgba(255, 255, 255, 0.75);
+  color: #27272a;
   margin-bottom: 1.25rem;
   line-height: 1.8;
 }
 .blog-article-content strong {
-  color: #ffffff;
-  font-weight: 700;
+  color: #000000;
+  font-weight: 800;
 }
 .blog-article-content ul {
   list-style-type: disc;
@@ -202,12 +223,12 @@
 }
 .blog-article-content li {
   margin-bottom: 0.5rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: #27272a;
 }
 .blog-article-content pre {
-  background-color: #050505;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
+  background-color: #f4f4f5;
+  border: 2px solid #000000;
+  border-radius: 0px;
   padding: 1.25rem;
   overflow-x: auto;
   margin: 1.5rem 0;
@@ -215,15 +236,15 @@
 .blog-article-content code {
   font-family: monospace;
   font-size: 0.9em;
-  color: #FBBC04;
-  background-color: rgba(251, 188, 4, 0.05);
+  color: #000000;
+  background-color: #ffe600;
   padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
+  border-radius: 0px;
 }
 .blog-article-content pre code {
   background-color: transparent;
   padding: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: #000000;
 }
 .blog-article-content table {
   width: 100%;
@@ -231,16 +252,17 @@
   margin: 2rem 0;
 }
 .blog-article-content th {
-  background-color: #111;
+  background-color: #f4f4f5;
   font-weight: bold;
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid #000000;
   text-align: left;
+  color: #000000;
 }
 .blog-article-content td {
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  border: 2px solid #000000;
+  color: #27272a;
 }
 
 @keyframes ios-spinner {

@@ -64,35 +64,37 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card className="overflow-hidden p-0 border-0 shadow-2xl">
-        <CardContent className="grid p-0 md:grid-cols-2">
+    <div className={cn('flex flex-col gap-6 font-sans', className)} {...props}>
+      <div className="bg-[#0E0E10] border-2 border-white/20 shadow-[10px_10px_0px_0px_#FF0055] overflow-hidden">
+        <div className="grid md:grid-cols-2">
           {/* ── Left: login panel ── */}
-          <div className="p-8 md:p-10 flex flex-col justify-center gap-6 bg-black">
+          <div className="p-8 md:p-10 flex flex-col justify-center gap-6 bg-[#0E0E10] border-b-2 md:border-b-0 md:border-r-2 border-white/20">
             {/* Header */}
             <div className="flex flex-col items-center gap-2 text-center">
-              <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EA4335]/10 border border-[#EA4335]/20 mb-2">
-                <svg viewBox="0 0 24 24" className="h-7 w-7">
-                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="#EA4335" opacity="0.2"/>
-                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="none" stroke="#EA4335" strokeWidth="1.5"/>
-                  <path d="M9 12l2 2 4-4" stroke="#EA4335" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <div className="inline-flex h-14 w-14 items-center justify-center bg-[#FF0055] border-2 border-black shadow-[3px_3px_0px_0px_#FFFFFF] mb-2">
+                <svg viewBox="0 0 24 24" className="h-7 w-7 text-white stroke-[2.5]" fill="none" stroke="currentColor">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+                  <path d="M9 12l2 2 4-4" />
                 </svg>
               </div>
-              <h1 className="text-2xl font-black uppercase italic tracking-tighter text-white">
-                Admin <span className="text-[#EA4335]">Control</span>
+              <div className="inline-block px-3 py-1 bg-[#FF0055] text-white text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF]">
+                [ RESTRICTED ACCESS ]
+              </div>
+              <h1 className="text-3xl font-display font-black uppercase italic tracking-tighter text-white">
+                ADMIN <span className="text-[#FFE600]">CONTROL.</span>
               </h1>
-              <p className="text-xs text-white/40 font-bold uppercase tracking-widest">
-                Restricted Access Only
+              <p className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">
+                Authorized Personnel Only
               </p>
             </div>
 
             {/* Google Sign-In */}
             <div className="space-y-4">
-              <Button
+              <button
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isSubmitting}
-                className="w-full h-12 bg-white hover:bg-white/90 text-black font-bold rounded-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-lg"
+                className="w-full h-12 bg-[#FFE600] hover:translate-x-[1px] hover:translate-y-[1px] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#FFFFFF] flex items-center justify-center gap-3 transition-all disabled:opacity-50"
               >
                 {isOAuthLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-black" />
@@ -104,17 +106,17 @@ export function LoginForm({
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                   </svg>
                 )}
-                {isOAuthLoading ? 'Verifying...' : 'Continue with Google'}
-              </Button>
+                {isOAuthLoading ? 'VERIFYING CREDENTIALS...' : 'AUTHENTICATE WITH GOOGLE [→]'}
+              </button>
 
               {/* Divider */}
-              <div className="relative">
+              <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10" />
+                  <div className="w-full border-t-2 border-white/10" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-black px-3 text-[10px] font-bold uppercase tracking-widest text-white/30">
-                    How access works
+                  <span className="bg-[#0E0E10] px-3 text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
+                    AUTHORIZATION PROTOCOL
                   </span>
                 </div>
               </div>
@@ -122,52 +124,58 @@ export function LoginForm({
               {/* Steps */}
               <div className="space-y-2.5">
                 {[
-                  { step: '01', text: 'Sign in with your Google account' },
-                  { step: '02', text: 'Your email is verified against the admin list' },
-                  { step: '03', text: 'Access granted based on your assigned role' },
+                  { step: '01', text: 'Sign in using your institutional or authorized Google account' },
+                  { step: '02', text: 'Firebase Security Rules authenticate against authorized admin UID' },
+                  { step: '03', text: 'Session elevation granted for portal management and CRUD operations' },
                 ].map(({ step, text }) => (
-                  <div key={step} className="flex items-center gap-3">
-                    <span className="text-[10px] font-black text-[#4285F4] bg-[#4285F4]/10 rounded-lg px-2 py-1 min-w-[28px] text-center shrink-0">
+                  <div key={step} className="flex items-center gap-3 bg-black border-2 border-white/10 p-2.5">
+                    <span className="text-[10px] font-black text-black bg-[#FFE600] px-2 py-0.5 border border-black min-w-[28px] text-center shrink-0">
                       {step}
                     </span>
-                    <span className="text-xs text-white/50">{text}</span>
+                    <span className="text-xs text-zinc-300 font-medium">{text}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-center text-[10px] text-white/20">
-              By signing in, you agree to our{' '}
-              <a href="#" className="underline hover:text-white/50 transition-colors">Terms of Service</a>{' '}
-              and{' '}
-              <a href="#" className="underline hover:text-white/50 transition-colors">Privacy Policy</a>.
+            <p className="text-center text-[11px] text-zinc-500">
+              Session is encrypted & monitored for audit logging.
             </p>
           </div>
 
           {/* ── Right: image panel ── */}
-          <div className="relative hidden md:block">
-            <img
-              src="/blueday.png"
-              alt="MLSC SVEC"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/20 to-[#4285F4]/20" />
-            {/* Label */}
-            <div className="absolute bottom-8 left-8 right-8">
-              <p className="text-white font-black text-xl uppercase italic tracking-tight leading-tight drop-shadow-lg">
-                Microsoft Learn<br />
-                <span className="text-[#4285F4]">Student Chapter</span>
+          <div className="relative hidden md:flex flex-col justify-between p-10 bg-black">
+            <div className="absolute inset-0 z-0">
+              <img
+                src="/blueday.png"
+                alt="MLSC SVEC"
+                className="h-full w-full object-cover opacity-25 grayscale"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-transparent" />
+            </div>
+            
+            <div className="relative z-10">
+              <div className="inline-block px-3 py-1 bg-[#FF0055] text-white text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF] mb-4">
+                [ 🔒 CONTROL OPERATIONS ]
+              </div>
+            </div>
+
+            <div className="relative z-10">
+              <p className="text-white font-display font-black text-3xl uppercase italic tracking-tight leading-[0.9]">
+                ADMINISTRATIVE<br />
+                <span className="text-[#FFE600]">SYSTEM INTERFACE</span>
               </p>
-              <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-1">SVEC · Admin Portal</p>
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-400 mt-2">
+                MLSC SVEC CHAPTER MANAGEMENT ENGINE
+              </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <p className="text-center text-xs text-white/30">
-        <a href="/" className="underline-offset-4 hover:text-white/60 transition-colors font-bold uppercase tracking-widest text-[10px]">
-          ← Return to Public Site
+      <p className="text-center">
+        <a href="/" className="inline-block px-4 py-2 bg-zinc-900 border-2 border-white/20 hover:border-white text-zinc-400 hover:text-white transition-all font-black uppercase tracking-wider text-xs">
+          [ ← RETURN TO PUBLIC SITE ]
         </a>
       </p>
     </div>

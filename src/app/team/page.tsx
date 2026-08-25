@@ -34,33 +34,36 @@ interface TeamCategory {
     members: TeamMember[];
 }
 
-const renderTeamSection = (teams: TeamCategory[], title: string, description: string) => {
+const renderTeamSection = (teams: TeamCategory[], title: string, description: string, tag: string, tagColor: string) => {
     if (teams.length === 0 || teams.every(team => team.members.length === 0)) return null;
 
     return (
-        <section className="w-full py-20 md:py-28 border-t border-white/[0.06]">
+        <section className="w-full py-20 md:py-28 border-t-2 border-black font-sans bg-white">
             <div className="container mx-auto px-6">
                 {/* Section header */}
                 <ScrollReveal>
-                    <div className="mb-16">
-                        <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-none mb-3">
+                    <div className="mb-14">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 ${tagColor} text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-4`}>
+                            {tag}
+                        </div>
+                        <h2 className="text-3xl sm:text-5xl md:text-6xl font-display font-black tracking-tighter text-black uppercase italic leading-none mb-3">
                             {title}
                         </h2>
-                        <p className="text-white/40 text-sm font-medium max-w-lg">{description}</p>
+                        <p className="text-zinc-700 text-sm md:text-base font-semibold max-w-lg">{description}</p>
                     </div>
                 </ScrollReveal>
 
                 {/* Sub-domains */}
-                <div className="space-y-20">
+                <div className="space-y-16">
                     {teams.map(category => {
                         if (category.members.length === 0) return null;
                         return (
                             <div key={category.id}>
                                 {category.subDomain && (
                                     <ScrollReveal>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/25 mb-8">
-                                            {category.subDomain}
-                                        </p>
+                                        <div className="inline-block px-2.5 py-1 bg-[#F9F9FB] border-2 border-black text-[11px] font-mono font-bold uppercase tracking-widest text-black mb-6 shadow-[2px_2px_0px_0px_#000000]">
+                                            // {category.subDomain}
+                                        </div>
                                     </ScrollReveal>
                                 )}
                                 <TeamMemberGrid members={category.members} />
@@ -81,12 +84,14 @@ export default async function TeamPage() {
 
     if (error || !membersByCategory) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-center bg-black text-white">
-                <h2 className="text-4xl font-black uppercase italic tracking-tighter text-[#EA4335]">Error.</h2>
-                <p className="text-white/50 mt-4">{error || "Failed to load team members."}</p>
-                <Button asChild variant="outline" className="mt-8 rounded-full border-white/20">
-                    <Link href="/">Return to Home</Link>
-                </Button>
+            <div className="flex flex-col items-center justify-center min-h-screen text-center bg-white text-black font-sans">
+                <div className="p-8 bg-white border-2 border-black shadow-[8px_8px_0px_0px_#FF0055] max-w-md">
+                    <h2 className="text-3xl font-display font-black uppercase italic tracking-tighter text-[#FF0055]">ERROR</h2>
+                    <p className="text-zinc-700 mt-3 text-sm">{error || "Failed to load team members."}</p>
+                    <Link href="/" className="inline-block mt-6 px-6 py-2.5 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+                        RETURN TO HOME [↗]
+                    </Link>
+                </div>
             </div>
         );
     }
@@ -99,24 +104,23 @@ export default async function TeamPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-black text-white">
+        <div className="flex flex-col min-h-screen bg-white text-black font-sans">
             <main className="flex-1">
 
                 {/* ── Hero header ── */}
-                <section className="relative w-full pt-32 pb-24 overflow-hidden">
-                    <div className="glow-sphere top-[-5%] right-[-5%] w-[40%] h-[40%] bg-[#4285F4]/20" />
+                <section className="relative w-full pt-32 pb-20 overflow-hidden border-b-2 border-black bg-white">
                     <div className="container mx-auto px-6">
                         <ScrollReveal>
-                            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-6">
-                                The minds behind MLSC SVEC
-                            </p>
-                            <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.9] max-w-3xl">
-                                We are a team of{" "}
-                                <span className="text-[#4285F4]">student innovators</span>{" "}
-                                and creators.
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6">
+                                [ ⚡ CHAPTER {activeChapter} ROSTER ]
+                            </div>
+                            <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tighter text-black uppercase italic leading-[0.88] max-w-4xl">
+                                WE ARE A CREW OF{" "}
+                                <span className="text-[#4285F4]">STUDENT BUILDERS</span>{" "}
+                                & CREATORS.
                             </h1>
-                            <p className="mt-8 text-white/40 text-lg font-medium max-w-xl leading-relaxed">
-                                A dedicated group of leaders, developers, designers, and storytellers — building the most active tech community at SVEC.
+                            <p className="mt-8 text-zinc-700 text-base md:text-xl font-semibold max-w-xl leading-relaxed">
+                                A dedicated group of architects, engineers, designers, and organizers — driving the technical ecosystem forward at SVEC.
                             </p>
                         </ScrollReveal>
                     </div>
@@ -125,36 +129,48 @@ export default async function TeamPage() {
                 {/* ── Team sections ── */}
                 {renderTeamSection(
                     teamData.coreTeam,
-                    "Core Leadership",
-                    "The founding leaders who set the vision, culture, and direction of MLSC SVEC."
+                    "CORE LEADERSHIP",
+                    "The strategic leaders shaping the vision, culture, and operational trajectory of MLSC SVEC.",
+                    "[ LEADERSHIP WING ]",
+                    "bg-[#FFE600]"
                 )}
                 {renderTeamSection(
                     teamData.technicalTeam,
-                    "Technical Architects",
-                    "Engineers and developers building products, running workshops, and pushing technical boundaries."
+                    "TECHNICAL ARCHITECTS",
+                    "Engineers and developers architecting systems, conducting deep-dive sessions, and building open software.",
+                    "[ ENGINEERING WING ]",
+                    "bg-[#00FF66]"
                 )}
                 {renderTeamSection(
                     teamData.nonTechnicalTeam,
-                    "Creative Ecosystem",
-                    "Designers, storytellers, event managers, and PR leads who make MLSC visible and vibrant."
+                    "CREATIVE & OPERATIONS",
+                    "Designers, storytellers, operations leads, and community managers powering club visibility.",
+                    "[ OPERATIONS & DESIGN ]",
+                    "bg-[#FF0055]"
                 )}
 
                 {/* ── Join CTA ── */}
-                <section className="border-t border-white/[0.06] py-24 md:py-32">
-                    <div className="container mx-auto px-6 text-center">
+                <section className="border-t-2 border-black py-24 md:py-32 bg-[#F9F9FB]">
+                    <div className="container mx-auto px-6 text-center max-w-3xl">
                         <ScrollReveal>
-                            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-6">
-                                Want to join the team?
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#4285F4] text-white text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6">
+                                [ JOIN THE SQUAD ]
+                            </div>
+                            <h2 className="text-3xl sm:text-5xl md:text-7xl font-display font-black tracking-tighter text-black uppercase italic leading-[0.9] mb-6">
+                                WANT TO BUILD WITH US?
                             </h2>
-                            <p className="text-white/40 text-lg font-medium mb-10 max-w-lg mx-auto">
+                            <p className="text-zinc-700 text-base md:text-lg font-semibold mb-8 leading-relaxed">
                                 {isHiringOpen
-                                    ? `Chapter ${activeChapter} recruitments are open. Apply now and become part of something great.`
-                                    : `Chapter ${activeChapter} recruitments are currently closed. Stay tuned for future cycles!`}
+                                    ? `Chapter ${activeChapter} recruitments are active right now. Submit your application and claim your domain.`
+                                    : `Chapter ${activeChapter} recruitments are currently concluded. Watch for upcoming announcements!`}
                             </p>
                             {isHiringOpen && (
-                                <Button asChild className="btn-primary">
-                                    <Link href="/apply">Apply Now →</Link>
-                                </Button>
+                                <Link
+                                    href="/apply"
+                                    className="inline-block px-10 py-4 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[5px_5px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                >
+                                    APPLY FOR CHAPTER {activeChapter} [↗]
+                                </Link>
                             )}
                         </ScrollReveal>
                     </div>

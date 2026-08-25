@@ -15,36 +15,36 @@ export default function TermsAndConditionsPage() {
   const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
-      <main className="flex-1 py-24 md:py-40">
+    <div className="flex flex-col min-h-screen bg-white text-black font-sans">
+      <main className="flex-1 py-16 md:py-24">
         <div className="container mx-auto px-6 max-w-5xl relative">
-          {/* Ambient Glow */}
-          <div className="glow-sphere top-[-5%] right-[-5%] w-[40%] h-[40%] bg-[#4285F4]/10" />
-          <div className="glow-sphere bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-[#34A853]/10" />
-
+          
           {/* Header */}
-          <div className="mb-20 relative z-10">
+          <div className="mb-14">
             <ScrollReveal>
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-6">
-                Terms & <br /> <span className="text-[#4285F4]">Conditions.</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#4285F4] text-white text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-4">
+                [ LEGAL PROTOCOL // COMPLIANCE ]
+              </div>
+              <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tight uppercase italic leading-[0.88] text-black mb-4">
+                TERMS & <span className="text-[#4285F4]">CONDITIONS.</span>
               </h1>
-              <p className="text-white/40 font-bold uppercase tracking-[0.4em] text-xs">
-                Last updated: {currentDate}
+              <p className="text-zinc-600 font-sans font-bold uppercase tracking-widest text-xs">
+                LAST REVISED // {currentDate.toUpperCase()}
               </p>
             </ScrollReveal>
           </div>
 
           {/* Content Card */}
-          <div className="bg-zinc-950/40 border border-white/[0.08] backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-[0_24px_80px_rgba(0,0,0,0.95)] relative z-10 space-y-12 text-white/70 leading-relaxed text-lg font-medium">
+          <div className="bg-white border-2 border-black p-8 md:p-12 shadow-[10px_10px_0px_0px_#4285F4] space-y-12 text-zinc-800 leading-relaxed text-sm md:text-base font-semibold">
             
             {/* Section 1 */}
             <ScrollReveal>
-              <section className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]">
-                    <FileText className="h-4 w-4" />
+              <section className="space-y-3 pb-8 border-b-2 border-black">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 bg-[#4285F4] border-2 border-black text-white shadow-[2px_2px_0px_0px_#000000] shrink-0">
+                    <FileText className="h-5 w-5 stroke-[2.5]" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                  <h3 className="text-xl md:text-2xl font-display font-black tracking-tight uppercase italic text-black">
                     1. Agreement to Terms
                   </h3>
                 </div>
@@ -56,12 +56,12 @@ export default function TermsAndConditionsPage() {
 
             {/* Section 2 */}
             <ScrollReveal>
-              <section className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#34A853]/10 border border-[#34A853]/20 text-[#34A853]">
-                    <Lock className="h-4 w-4" />
+              <section className="space-y-3 pb-8 border-b-2 border-black">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 bg-[#00FF66] border-2 border-black text-black shadow-[2px_2px_0px_0px_#000000] shrink-0">
+                    <Lock className="h-5 w-5 stroke-[2.5]" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                  <h3 className="text-xl md:text-2xl font-display font-black tracking-tight uppercase italic text-black">
                     2. Intellectual Property
                   </h3>
                 </div>
@@ -73,12 +73,12 @@ export default function TermsAndConditionsPage() {
 
             {/* Section 3 */}
             <ScrollReveal>
-              <section className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FBBC04]/10 border border-[#FBBC04]/20 text-[#FBBC04]">
-                    <UserX className="h-4 w-4" />
+              <section className="space-y-3 pb-8 border-b-2 border-black">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 bg-[#FFE600] border-2 border-black text-black shadow-[2px_2px_0px_0px_#000000] shrink-0">
+                    <UserX className="h-5 w-5 stroke-[2.5]" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                  <h3 className="text-xl md:text-2xl font-display font-black tracking-tight uppercase italic text-black">
                     3. Site Conduct and Copy Restrictions
                   </h3>
                 </div>
@@ -90,12 +90,12 @@ export default function TermsAndConditionsPage() {
 
             {/* Section 4 */}
             <ScrollReveal>
-              <section className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#EA4335]/10 border border-[#EA4335]/20 text-[#EA4335]">
-                    <Ban className="h-4 w-4" />
+              <section className="space-y-3 pb-8 border-b-2 border-black">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 bg-[#FF0055] border-2 border-black text-white shadow-[2px_2px_0px_0px_#000000] shrink-0">
+                    <Ban className="h-5 w-5 stroke-[2.5]" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                  <h3 className="text-xl md:text-2xl font-display font-black tracking-tight uppercase italic text-black">
                     4. Termination of Access
                   </h3>
                 </div>
@@ -107,12 +107,12 @@ export default function TermsAndConditionsPage() {
 
             {/* Section 5 */}
             <ScrollReveal>
-              <section className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/20 text-[#7c3aed]">
-                    <Scale className="h-4 w-4" />
+              <section className="space-y-3 pb-8 border-b-2 border-black">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 bg-[#4285F4] border-2 border-black text-white shadow-[2px_2px_0px_0px_#000000] shrink-0">
+                    <Scale className="h-5 w-5 stroke-[2.5]" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                  <h3 className="text-xl md:text-2xl font-display font-black tracking-tight uppercase italic text-black">
                     5. Limitation of Liability
                   </h3>
                 </div>
@@ -124,12 +124,12 @@ export default function TermsAndConditionsPage() {
 
             {/* Section 6 */}
             <ScrollReveal>
-              <section className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]">
-                    <Globe className="h-4 w-4" />
+              <section className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-9 h-9 bg-[#FFE600] border-2 border-black text-black shadow-[2px_2px_0px_0px_#000000] shrink-0">
+                    <Globe className="h-5 w-5 stroke-[2.5]" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                  <h3 className="text-xl md:text-2xl font-display font-black tracking-tight uppercase italic text-black">
                     6. Governing Law
                   </h3>
                 </div>

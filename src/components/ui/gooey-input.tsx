@@ -94,8 +94,8 @@ export interface GooeyInputProps {
   onValueChange?: (value: string) => void;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
-  /** 'default' uses foreground/background colors; 'dark' uses white-on-dark for navbar use */
-  variant?: 'default' | 'dark';
+  /** 'default' uses foreground/background colors; 'dark' uses white-on-dark; 'light' uses brutalist white-on-black */
+  variant?: 'default' | 'dark' | 'light';
 }
 
 export function GooeyInput({
@@ -178,7 +178,9 @@ export function GooeyInput({
   }, [searchText, setExpanded]);
 
   const surfaceClass =
-    variant === 'dark'
+    variant === 'light'
+      ? "bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000] hover:bg-zinc-100"
+      : variant === 'dark'
       ? "bg-white/10 text-white/70 shadow-sm ring-1 ring-white/10 hover:bg-white/15 hover:text-white"
       : "bg-foreground text-background shadow-sm ring-1 ring-border/60";
 

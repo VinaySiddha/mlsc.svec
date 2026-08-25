@@ -34,44 +34,42 @@ const stats = [
 
 export default function AboutPage() {
     return (
-        <div className="flex flex-col min-h-screen bg-black text-white font-sans">
+        <div className="flex flex-col min-h-screen bg-white text-black font-sans">
             <main className="flex-1">
 
-                {/* ── Hero — left-aligned, matches team/events pages ── */}
-                <section className="relative w-full pt-32 pb-20 overflow-hidden">
-                    <div className="glow-sphere top-[-5%] right-[-5%] w-[45%] h-[45%] bg-[#4285F4]/20" />
-                    <div className="glow-sphere bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-[#34A853]/15" />
+                {/* ── Hero ── */}
+                <section className="relative w-full pt-32 pb-20 overflow-hidden border-b-2 border-black bg-white">
                     <div className="container mx-auto px-6">
                         <ScrollReveal>
-                            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-6">
-                                Our Vision & Mission
-                            </p>
-                            <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.9] max-w-4xl">
-                                Building the future,{" "}
-                                <span className="text-[#4285F4]">one student</span>{" "}
-                                at a time.
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#4285F4] text-white text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6">
+                                [ 01 // MISSION & VISION ]
+                            </div>
+                            <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tighter text-black uppercase italic leading-[0.88] max-w-5xl">
+                                BUILDING THE FUTURE,{" "}
+                                <span className="text-[#4285F4] underline decoration-[#FFE600] decoration-8 underline-offset-8">ONE STUDENT</span>{" "}
+                                AT A TIME.
                             </h1>
-                            <p className="mt-8 text-white/40 text-lg font-medium max-w-xl leading-relaxed">
-                                Microsoft Learn Student Club SVEC — a premier technology community at Sri Vasavi Engineering College dedicated to student innovation, leadership, and real-world impact.
+                            <p className="mt-8 text-zinc-700 text-base md:text-xl font-semibold max-w-2xl leading-relaxed">
+                                Microsoft Learn Student Club SVEC — a student-led technology community at Sri Vasavi Engineering College dedicated to hands-on engineering, leadership, and real-world impact.
                             </p>
                         </ScrollReveal>
                     </div>
                 </section>
 
                 {/* ── Stats bar ── */}
-                <section className="border-y border-white/[0.06] bg-[#050505]">
+                <section className="border-b-2 border-black bg-[#F9F9FB]">
                     <div className="container mx-auto px-6">
                         <ScrollReveal>
-                            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/[0.06]">
-                                {stats.map((s) => (
-                                    <div key={s.label} className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x-2 divide-black">
+                                {stats.map((s, idx) => (
+                                    <div key={s.label} className="flex flex-col items-center justify-center py-10 px-4 text-center">
                                         <AnimatedCounter
                                             target={s.value}
                                             suffix={s.suffix}
-                                            className="text-5xl md:text-6xl font-black tracking-tighter"
+                                            className="text-5xl md:text-7xl font-display font-black tracking-tighter"
                                             style={{ color: s.color }}
                                         />
-                                        <p className="text-white/30 text-[0.6rem] font-black uppercase tracking-[0.4em] mt-3">
+                                        <p className="text-black text-xs font-black uppercase tracking-widest mt-2">
                                             {s.label}
                                         </p>
                                     </div>
@@ -81,155 +79,158 @@ export default function AboutPage() {
                     </div>
                 </section>
 
-                {/* ── WobbleCard Grid ── */}
-                <section className="py-24 md:py-32 container mx-auto px-6">
+                {/* ── What we do (Neo-Brutalist Cards) ── */}
+                <section className="py-20 md:py-32 container mx-auto px-6 bg-white">
                     <ScrollReveal>
-                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-4">What we do</p>
-                        <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-[0.95] mb-14 max-w-2xl">
-                            Everything you need to{" "}
-                            <span className="text-[#4285F4]">grow as a technologist.</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00FF66] text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-4">
+                            [ 02 // WHAT WE DO ]
+                        </div>
+                        <h2 className="text-3xl sm:text-5xl md:text-6xl font-display font-black tracking-tighter text-black uppercase italic leading-none mb-12 max-w-2xl">
+                            EVERYTHING YOU NEED TO{" "}
+                            <span className="text-[#4285F4]">GROW AS A BUILDER.</span>
                         </h2>
                     </ScrollReveal>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
 
                         {/* Mission — spans 2 cols */}
-                        <WobbleCard containerClassName="col-span-1 lg:col-span-2 min-h-[280px] bg-[#0d1a2d] border border-[#4285F4]/20">
-                            <div className="max-w-md relative z-10">
-                                <div className="flex items-center gap-3 mb-5">
-                                    <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20">
-                                        <Target className="h-4 w-4 text-[#4285F4]" />
-                                    </div>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#4285F4]/60">Our Mission</p>
+                        <div className="col-span-1 lg:col-span-2 min-h-[260px] bg-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_#4285F4] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex items-center justify-center w-10 h-10 bg-[#4285F4] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                    <Target className="h-5 w-5 stroke-[2.5]" />
                                 </div>
-                                <h3 className="text-2xl md:text-3xl font-black tracking-tighter text-white mb-4 leading-tight">
-                                    Empowering students with the skills to shape tomorrow.
-                                </h3>
-                                <p className="text-white/50 text-sm font-medium leading-relaxed">
-                                    To foster a culture of continuous learning by equipping students with technical excellence, leadership mindset, and real-world problem-solving abilities through Microsoft technologies.
-                                </p>
+                                <span className="text-xs font-black uppercase tracking-widest text-[#4285F4]">OUR MISSION</span>
                             </div>
-                        </WobbleCard>
+                            <h3 className="text-2xl md:text-3xl font-display font-black tracking-tight text-black mb-3 leading-tight uppercase">
+                                EMPOWERING STUDENTS WITH TECHNICAL EXCELLENCE TO SHAPE TOMORROW.
+                            </h3>
+                            <p className="text-zinc-700 text-sm md:text-base font-medium leading-relaxed">
+                                To foster a culture of continuous learning by equipping students with high-velocity engineering skills, leadership mindset, and real-world problem-solving abilities.
+                            </p>
+                        </div>
 
                         {/* Vision */}
-                        <WobbleCard containerClassName="col-span-1 min-h-[280px] bg-[#0d2218] border border-[#34A853]/20">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#34A853]/10 border border-[#34A853]/20">
-                                    <Eye className="h-4 w-4 text-[#34A853]" />
+                        <div className="col-span-1 min-h-[260px] bg-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_#00FF66] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex items-center justify-center w-10 h-10 bg-[#00FF66] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                    <Eye className="h-5 w-5 stroke-[2.5]" />
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#34A853]/60">Our Vision</p>
+                                <span className="text-xs font-black uppercase tracking-widest text-black">OUR VISION</span>
                             </div>
-                            <h3 className="text-xl md:text-2xl font-black tracking-tighter text-white mb-4 leading-tight">
-                                The definitive tech hub of SVEC.
+                            <h3 className="text-2xl font-display font-black tracking-tight text-black mb-3 leading-tight uppercase">
+                                THE DEFINITIVE TECH LAUNCHPAD OF SVEC.
                             </h3>
-                            <p className="text-white/50 text-sm font-medium leading-relaxed">
-                                Bridging the gap between academic theory and high-velocity industry innovation — one student at a time.
+                            <p className="text-zinc-700 text-sm font-medium leading-relaxed">
+                                Bridging the gap between academic textbooks and industry-grade product development — one builder at a time.
                             </p>
-                        </WobbleCard>
+                        </div>
 
                         {/* Hackathons */}
-                        <WobbleCard containerClassName="col-span-1 min-h-[230px] bg-[#1a1200] border border-[#FBBC04]/20">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#FBBC04]/10 border border-[#FBBC04]/20">
-                                    <Lightbulb className="h-4 w-4 text-[#FBBC04]" />
+                        <div className="col-span-1 min-h-[220px] bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#FFE600] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex items-center justify-center w-9 h-9 bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                    <Lightbulb className="h-4 w-4 stroke-[2.5]" />
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FBBC04]/60">Hackathons</p>
+                                <span className="text-xs font-black uppercase tracking-widest text-black">HACKATHONS</span>
                             </div>
-                            <h3 className="text-xl font-black tracking-tighter text-white mb-3 leading-tight">
-                                Build under pressure. Win big.
+                            <h3 className="text-xl font-display font-black tracking-tight text-black mb-2 leading-tight uppercase">
+                                BUILD UNDER PRESSURE. WIN BIG.
                             </h3>
-                            <p className="text-white/50 text-sm font-medium leading-relaxed">
-                                Competitive challenges where ideas become products overnight.
+                            <p className="text-zinc-700 text-xs font-medium leading-relaxed">
+                                Competitive engineering challenges where prototype ideas become shipped products overnight.
                             </p>
-                        </WobbleCard>
+                        </div>
 
                         {/* Workshops */}
-                        <WobbleCard containerClassName="col-span-1 min-h-[230px] bg-[#100d1a] border border-[#7c3aed]/20">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/20">
-                                    <Code className="h-4 w-4 text-[#7c3aed]" />
+                        <div className="col-span-1 min-h-[220px] bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#4285F4] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex items-center justify-center w-9 h-9 bg-[#4285F4] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                    <Code className="h-4 w-4 stroke-[2.5]" />
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#7c3aed]/60">Workshops</p>
+                                <span className="text-xs font-black uppercase tracking-widest text-[#4285F4]">WORKSHOPS</span>
                             </div>
-                            <h3 className="text-xl font-black tracking-tighter text-white mb-3 leading-tight">
-                                Hands-on learning at every level.
+                            <h3 className="text-xl font-display font-black tracking-tight text-black mb-2 leading-tight uppercase">
+                                PRACTICAL CODE SESSIONS.
                             </h3>
-                            <p className="text-white/50 text-sm font-medium leading-relaxed">
-                                GenAI, Cloud, Web Dev and more — taught by practitioners, for students.
+                            <p className="text-zinc-700 text-xs font-medium leading-relaxed">
+                                GenAI, Cloud Computing, Full-Stack and Systems — taught interactively by active student practitioners.
                             </p>
-                        </WobbleCard>
+                        </div>
 
                         {/* Community */}
-                        <WobbleCard containerClassName="col-span-1 min-h-[230px] bg-[#1a0d0d] border border-[#EA4335]/20">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#EA4335]/10 border border-[#EA4335]/20">
-                                    <Globe className="h-4 w-4 text-[#EA4335]" />
+                        <div className="col-span-1 min-h-[220px] bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#FF0055] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex items-center justify-center w-9 h-9 bg-[#FF0055] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                    <Globe className="h-4 w-4 stroke-[2.5]" />
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#EA4335]/60">Community</p>
+                                <span className="text-xs font-black uppercase tracking-widest text-[#FF0055]">COMMUNITY</span>
                             </div>
-                            <h3 className="text-xl font-black tracking-tighter text-white mb-3 leading-tight">
-                                300+ and growing strong.
+                            <h3 className="text-xl font-display font-black tracking-tight text-black mb-2 leading-tight uppercase">
+                                300+ AND GROWING STRONG.
                             </h3>
-                            <p className="text-white/50 text-sm font-medium leading-relaxed">
-                                A network of builders, mentors, and leaders across 3 chapters.
+                            <p className="text-zinc-700 text-xs font-medium leading-relaxed">
+                                An active cross-disciplinary ecosystem of software developers, designers, and domain leaders.
                             </p>
-                        </WobbleCard>
+                        </div>
 
                     </div>
                 </section>
 
                 {/* ── Timeline ── */}
-                <section className="border-t border-white/[0.06] py-24 md:py-32 container mx-auto px-6">
+                <section className="border-t-2 border-black py-20 md:py-32 container mx-auto px-6 bg-[#F9F9FB]">
                     <ScrollReveal>
-                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-4">How we got here</p>
-                        <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-[0.95] mb-20 max-w-xl">
-                            Our <span className="text-[#FBBC04]">journey.</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-4">
+                            [ 03 // OUR TIMELINE ]
+                        </div>
+                        <h2 className="text-3xl sm:text-5xl md:text-6xl font-display font-black tracking-tighter text-black uppercase italic leading-none mb-16 max-w-xl">
+                            OUR <span className="text-[#4285F4]">JOURNEY.</span>
                         </h2>
                     </ScrollReveal>
 
-                    <div className="relative">
-                        {/* vertical line */}
-                        <div className="absolute left-0 top-0 bottom-0 w-px bg-white/[0.06] ml-[3px]" />
-
-                        <div className="space-y-16 pl-10">
-                            {timeline.map((item, i) => (
-                                <ScrollReveal key={i}>
-                                    <div className="relative">
-                                        {/* dot */}
-                                        <div className="absolute -left-[2.6rem] top-1.5 w-2 h-2 rounded-full bg-white/30 ring-4 ring-black" />
-                                        <p className="text-[#4285F4] text-xs font-bold uppercase tracking-[0.3em] mb-2">{item.date}</p>
-                                        <h4 className="text-2xl md:text-3xl font-black tracking-tighter text-white mb-3">{item.title}</h4>
-                                        <p className="text-white/40 font-medium text-base max-w-xl leading-relaxed">{item.desc}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {timeline.map((item, i) => (
+                            <ScrollReveal key={i}>
+                                <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                                    <div className="inline-block px-3 py-1 bg-[#4285F4] text-white text-[11px] font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_0px_#000000] mb-3">
+                                        {item.date}
                                     </div>
-                                </ScrollReveal>
-                            ))}
-                        </div>
+                                    <h4 className="text-xl font-display font-black tracking-tight text-black uppercase mb-2">
+                                        {item.title}
+                                    </h4>
+                                    <p className="text-zinc-700 text-xs font-medium leading-relaxed">
+                                        {item.desc}
+                                    </p>
+                                </div>
+                            </ScrollReveal>
+                        ))}
                     </div>
                 </section>
 
                 {/* ── Contact Section ── */}
-                <section className="border-t border-white/[0.06] py-24 md:py-32 container mx-auto px-6">
+                <section className="border-t-2 border-black py-20 md:py-32 container mx-auto px-6 bg-white">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
                         <ScrollReveal>
-                            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-4">Get in touch</p>
-                            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-[0.95] mb-6">
-                                Contact our <span className="text-[#4285F4]">team.</span>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FF0055] text-white text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-4">
+                                [ 04 // CONTACT US ]
+                            </div>
+                            <h2 className="text-3xl sm:text-5xl md:text-6xl font-display font-black tracking-tighter text-black uppercase italic leading-none mb-6">
+                                CONTACT OUR <span className="text-[#4285F4]">TEAM.</span>
                             </h2>
-                            <p className="text-white/40 text-base leading-relaxed font-medium mb-8">
-                                Have questions about our upcoming events, learning roadmaps, domain recruitments, or partnerships? Reach out to us directly through this form, and we will get back to you as soon as possible.
+                            <p className="text-zinc-700 text-sm md:text-base leading-relaxed font-medium mb-8">
+                                Have questions about our upcoming events, learning roadmaps, domain recruitments, or partnerships? Reach out to us directly through this form, and we will get back to you promptly.
                             </p>
-                            <div className="space-y-4 text-xs font-bold uppercase tracking-wider text-white/50">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white">
+                            <div className="space-y-4 text-xs font-black uppercase tracking-wider text-black">
+                                <div className="flex items-center gap-3 bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_#4285F4]">
+                                    <div className="w-8 h-8 bg-[#FFE600] text-black border-2 border-black flex items-center justify-center font-bold">
                                         📍
                                     </div>
-                                    <span>Sri Vasavi Engineering College, Pedatadepalli, Tadepalligudem</span>
+                                    <span>Sri Vasavi Engineering College, Tadepalligudem</span>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white">
+                                <div className="flex items-center gap-3 bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_#00FF66]">
+                                    <div className="w-8 h-8 bg-[#00FF66] text-black border-2 border-black flex items-center justify-center font-bold">
                                         ✉️
                                     </div>
-                                    <span className="normal-case">svecmlsc@outlook.com</span>
+                                    <span className="lowercase font-mono text-black font-bold">svecmlsc@outlook.com</span>
                                 </div>
                             </div>
                         </ScrollReveal>
@@ -240,23 +241,31 @@ export default function AboutPage() {
                 </section>
 
                 {/* ── CTA ── */}
-                <section className="border-t border-white/[0.06] py-24 md:py-32">
+                <section className="border-t-2 border-black py-20 md:py-32 bg-[#F9F9FB]">
                     <div className="container mx-auto px-6">
                         <ScrollReveal>
-                            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-10">
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-10">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-4">Be part of it</p>
-                                    <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-[0.95] max-w-xl">
-                                        Ready to join <span className="text-[#4285F4]">MLSC SVEC?</span>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-4">
+                                        [ JOIN THE REVOLUTION ]
+                                    </div>
+                                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-display font-black tracking-tighter text-black uppercase italic leading-[0.9] max-w-xl">
+                                        READY TO JOIN <span className="text-[#4285F4]">MLSC SVEC?</span>
                                     </h2>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4 shrink-0">
-                                    <Button asChild className="btn-primary">
-                                        <Link href="/apply">Apply Now →</Link>
-                                    </Button>
-                                    <Button asChild variant="outline" className="btn-outline">
-                                        <Link href="/team">Meet the Team</Link>
-                                    </Button>
+                                    <Link
+                                        href="/apply"
+                                        className="px-8 py-3.5 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000000] transition-all text-center"
+                                    >
+                                        APPLY NOW [↗]
+                                    </Link>
+                                    <Link
+                                        href="/team"
+                                        className="px-8 py-3.5 bg-white text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:bg-zinc-100 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000000] transition-all text-center"
+                                    >
+                                        MEET THE TEAM [↗]
+                                    </Link>
                                 </div>
                             </div>
                         </ScrollReveal>

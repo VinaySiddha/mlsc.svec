@@ -230,12 +230,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="dark"
       suppressHydrationWarning
     >
       <body
         className={cn(
-          'antialiased',
+          'antialiased bg-white text-black',
           inter.variable,
           googleSans.variable,
           googleSansText.variable
@@ -328,7 +327,7 @@ export default function RootLayout({
         ===================================================== */}
 
         <Providers>
-          <div className="w-full min-h-screen flex flex-col relative">
+          <div className="w-full min-h-screen flex flex-col relative bg-white">
             
             {/* Navigation */}
             <HeaderWrapper />
@@ -340,7 +339,7 @@ export default function RootLayout({
                 MAIN CONTENT
             ================================================= */}
 
-            <main className="flex-1 bg-black">
+            <main className="flex-1 bg-white">
               {children}
             </main>
 

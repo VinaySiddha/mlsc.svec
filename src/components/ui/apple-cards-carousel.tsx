@@ -118,20 +118,20 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
             ))}
           </div>
         </div>
-        <div className="mr-10 flex justify-end gap-2">
+        <div className="mr-10 flex justify-end gap-3">
           <button
-            className="relative z-40 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/10 hover:bg-white/20 transition-all disabled:opacity-30"
+            className="relative z-40 flex h-10 w-10 items-center justify-center bg-[#FFE600] text-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-30 cursor-pointer"
             onClick={scrollLeft}
             disabled={!canScrollLeft}
           >
-            <IconArrowNarrowLeft className="h-6 w-6 text-white" />
+            <IconArrowNarrowLeft className="h-5 w-5 text-black stroke-[2.5]" />
           </button>
           <button
-            className="relative z-40 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/10 hover:bg-white/20 transition-all disabled:opacity-30"
+            className="relative z-40 flex h-10 w-10 items-center justify-center bg-[#FFE600] text-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-30 cursor-pointer"
             onClick={scrollRight}
             disabled={!canScrollRight}
           >
-            <IconArrowNarrowRight className="h-6 w-6 text-white" />
+            <IconArrowNarrowRight className="h-5 w-5 text-black stroke-[2.5]" />
           </button>
         </div>
       </div>
@@ -173,40 +173,40 @@ export const Card = ({
     <>
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50 h-screen overflow-auto">
+          <div className="fixed inset-0 z-50 h-screen overflow-auto font-sans">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 h-full w-full bg-black/80 backdrop-blur-lg"
+              className="fixed inset-0 h-full w-full bg-black/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
               ref={containerRef}
               layoutId={layout ? `card-${card.title}` : undefined}
-              className="relative z-[60] mx-auto my-10 h-fit max-w-5xl rounded-3xl bg-[#111111] border border-white/10 p-4 md:p-10"
+              className="relative z-[60] mx-auto my-10 h-fit max-w-5xl rounded-none bg-white border-4 border-black shadow-[12px_12px_0px_0px_#000000] p-6 md:p-10 text-black"
             >
               <button
-                className="sticky top-4 right-0 ml-auto flex h-8 w-8 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                className="sticky top-4 right-0 ml-auto flex h-8 w-8 items-center justify-center bg-[#FF0055] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer"
                 onClick={handleClose}
               >
-                <IconX className="h-5 w-5 text-white" />
+                <IconX className="h-5 w-5 text-white stroke-[2.5]" />
               </button>
               <motion.p
                 layoutId={layout ? `category-${card.title}` : undefined}
-                className="text-sm font-semibold text-white/50 uppercase tracking-widest"
+                className="text-xs font-black text-black uppercase tracking-widest inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFE600] border-2 border-black shadow-[2px_2px_0px_0px_#000000]"
               >
                 {card.category}
               </motion.p>
               <motion.p
                 layoutId={layout ? `title-${card.title}` : undefined}
-                className="mt-4 text-2xl font-bold text-white md:text-5xl"
+                className="mt-4 text-2xl font-display font-black uppercase italic text-black md:text-5xl"
               >
                 {card.title}
               </motion.p>
-              <div className="py-10">{card.content}</div>
+              <div className="py-6">{card.content}</div>
             </motion.div>
           </div>
         )}
@@ -215,19 +215,19 @@ export const Card = ({
       <motion.button
         layoutId={layout ? `card-${card.title}` : undefined}
         onClick={handleOpen}
-        className="relative z-10 flex h-80 w-56 flex-col items-start justify-start overflow-hidden rounded-3xl bg-[#111111] border border-white/[0.08] md:h-[40rem] md:w-96"
+        className="relative z-10 flex h-80 w-56 flex-col items-start justify-start overflow-hidden bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000000] hover:shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all md:h-[38rem] md:w-96 text-left group cursor-pointer font-sans"
       >
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-full bg-gradient-to-b from-black/60 via-transparent to-transparent" />
-        <div className="relative z-40 p-8">
-          <motion.p
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-full bg-gradient-to-b from-black/80 via-black/20 to-transparent" />
+        <div className="relative z-40 p-6 md:p-8">
+          <motion.div
             layoutId={layout ? `category-${card.category}` : undefined}
-            className="text-left text-sm font-semibold text-white/60 uppercase tracking-widest"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#FFE600] text-black text-[10px] font-black uppercase tracking-wider border border-black shadow-[2px_2px_0px_0px_#000000]"
           >
             {card.category}
-          </motion.p>
+          </motion.div>
           <motion.p
             layoutId={layout ? `title-${card.title}` : undefined}
-            className="mt-2 max-w-xs text-left text-xl font-bold text-white [text-wrap:balance] md:text-3xl"
+            className="mt-3 max-w-xs text-left text-xl font-display font-black uppercase italic text-white [text-wrap:balance] md:text-3xl leading-tight group-hover:text-[#FFE600] transition-colors"
           >
             {card.title}
           </motion.p>
@@ -235,7 +235,7 @@ export const Card = ({
         <BlurImage
           src={card.src}
           alt={card.title}
-          className="absolute inset-0 z-10 object-cover w-full h-full blur-[6px] scale-105"
+          className="absolute inset-0 z-10 object-cover w-full h-full blur-[4px] scale-105 opacity-80 group-hover:opacity-90 transition-opacity"
         />
       </motion.button>
     </>

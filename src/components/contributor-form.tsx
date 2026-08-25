@@ -109,206 +109,208 @@ export function ContributorForm() {
   }
 
   return (
-    <Card className="w-full bg-[#080808]/40 border border-white/[0.08] backdrop-blur-xl rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.95)] text-white p-2">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-black tracking-tight text-white uppercase italic flex items-center gap-2">
-          <Terminal className="h-5 w-5 text-indigo-500" />
-          Apply to <span className="text-[#4285F4]">Contribute</span>
-        </CardTitle>
-        <CardDescription className="text-xs text-zinc-400 font-medium">
-          Interested in helping build MLSC platforms? Fill out the details below. This will send an email and notify the admin immediately.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form of={form} id="contributor-form-formisch" onSubmit={handleSubmit}>
-          <FieldGroup className="space-y-4">
-            
-            {/* Name */}
-            <FormischField of={form} path={["name"]}>
-              {(field) => (
-                <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contrib-name">Full Name</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon align="block-start">
-                      <InputGroupText>
-                        <User className="h-3.5 w-3.5 text-white/30" />
-                      </InputGroupText>
-                    </InputGroupAddon>
-                    <Input
-                      {...field.props}
-                      id="contrib-name"
-                      value={field.input ?? ""}
-                      placeholder="Alex Mercer"
-                      autoComplete="name"
-                      aria-invalid={field.errors !== null}
-                    />
-                  </InputGroup>
-                  {field.errors && (
-                    <FieldError
-                      errors={field.errors.map((message) => ({ message }))}
-                    />
-                  )}
-                </Field>
-              )}
-            </FormischField>
+    <div className="w-full bg-white border-2 border-black shadow-[8px_8px_0px_0px_#FFE600] text-black p-6 md:p-8 font-sans">
+      <div className="pb-6 border-b-2 border-black mb-6">
+        <div className="inline-block px-3 py-1 bg-[#FFE600] text-black text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000] mb-3">
+          [ DEVELOPER REGISTRATION ]
+        </div>
+        <h2 className="text-2xl font-display font-black tracking-tight text-black uppercase italic flex items-center gap-2">
+          <Terminal className="h-6 w-6 text-black stroke-[2.5]" />
+          APPLY TO <span className="text-[#4285F4]">CONTRIBUTE</span>
+        </h2>
+        <p className="text-xs text-zinc-700 font-medium mt-1">
+          Interested in helping build MLSC platforms? Fill out the details below. This will notify the engineering lead immediately.
+        </p>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Email */}
-              <FormischField of={form} path={["email"]}>
-                {(field) => (
-                  <Field data-invalid={field.errors !== null}>
-                    <FieldLabel htmlFor="contrib-email">Email Address</FieldLabel>
-                    <InputGroup>
-                      <InputGroupAddon align="block-start">
-                        <InputGroupText>
-                          <Mail className="h-3.5 w-3.5 text-white/30" />
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        {...field.props}
-                        id="contrib-email"
-                        type="email"
-                        value={field.input ?? ""}
-                        placeholder="alex@example.com"
-                        autoComplete="email"
-                        aria-invalid={field.errors !== null}
-                      />
-                    </InputGroup>
-                    {field.errors && (
-                      <FieldError
-                        errors={field.errors.map((message) => ({ message }))}
-                      />
-                    )}
-                  </Field>
-                )}
-              </FormischField>
-
-              {/* GitHub */}
-              <FormischField of={form} path={["github"]}>
-                {(field) => (
-                  <Field data-invalid={field.errors !== null}>
-                    <FieldLabel htmlFor="contrib-github">GitHub Username</FieldLabel>
-                    <InputGroup>
-                      <InputGroupAddon align="block-start">
-                        <InputGroupText>
-                          <Github className="h-3.5 w-3.5 text-white/30" />
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        {...field.props}
-                        id="contrib-github"
-                        value={field.input ?? ""}
-                        placeholder="alexmercer"
-                        autoComplete="off"
-                        aria-invalid={field.errors !== null}
-                      />
-                    </InputGroup>
-                    {field.errors && (
-                      <FieldError
-                        errors={field.errors.map((message) => ({ message }))}
-                      />
-                    )}
-                  </Field>
-                )}
-              </FormischField>
-            </div>
-
-            {/* Department Dropdown */}
-            <FormischField of={form} path={["department"]}>
-              {(field) => (
-                <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contrib-dept">Department of Interest</FieldLabel>
-                  <select
+      <Form of={form} id="contributor-form-formisch" onSubmit={handleSubmit}>
+        <FieldGroup className="space-y-5">
+          
+          {/* Name */}
+          <FormischField of={form} path={["name"]}>
+            {(field) => (
+              <Field data-invalid={field.errors !== null}>
+                <FieldLabel htmlFor="contrib-name" className="text-xs font-black uppercase tracking-wider text-black">
+                  Full Name
+                </FieldLabel>
+                <div className="relative mt-1">
+                  <Input
                     {...field.props}
-                    id="contrib-dept"
-                    value={field.input ?? "Frontend Development"}
-                    className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2 text-xs text-white focus:bg-black focus-visible:outline-none focus-visible:border-[#4285F4]/60 focus-visible:ring-1 focus-visible:ring-[#4285F4]/60 transition-all duration-200"
-                  >
-                    <option value="Frontend Development" className="bg-black text-white">Frontend Development (Next.js / Tailwind)</option>
-                    <option value="Backend Development" className="bg-black text-white">Backend & APIs (Firebase / Cloudflare Workers)</option>
-                    <option value="UI UX Design" className="bg-black text-white">UI/UX Design (Figma & Visual Assets)</option>
-                    <option value="Technical Operations" className="bg-black text-white">Technical Operations & System Admin</option>
-                  </select>
+                    id="contrib-name"
+                    value={field.input ?? ""}
+                    placeholder="Alex Mercer"
+                    autoComplete="name"
+                    aria-invalid={field.errors !== null}
+                    className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] transition-all"
+                  />
+                </div>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                    className="text-red-600 text-[11px] mt-1 font-mono font-bold"
+                  />
+                )}
+              </Field>
+            )}
+          </FormischField>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Email */}
+            <FormischField of={form} path={["email"]}>
+              {(field) => (
+                <Field data-invalid={field.errors !== null}>
+                  <FieldLabel htmlFor="contrib-email" className="text-xs font-black uppercase tracking-wider text-black">
+                    Email Address
+                  </FieldLabel>
+                  <div className="relative mt-1">
+                    <Input
+                      {...field.props}
+                      id="contrib-email"
+                      type="email"
+                      value={field.input ?? ""}
+                      placeholder="alex@example.com"
+                      autoComplete="email"
+                      aria-invalid={field.errors !== null}
+                      className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] transition-all"
+                    />
+                  </div>
                   {field.errors && (
                     <FieldError
                       errors={field.errors.map((message) => ({ message }))}
+                      className="text-red-600 text-[11px] mt-1 font-mono font-bold"
                     />
                   )}
                 </Field>
               )}
             </FormischField>
 
-            {/* Skills */}
-            <FormischField of={form} path={["skills"]}>
+            {/* GitHub */}
+            <FormischField of={form} path={["github"]}>
               {(field) => (
                 <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contrib-skills">Relevant Skills</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon align="block-start">
-                      <InputGroupText>
-                        <Sparkles className="h-3.5 w-3.5 text-white/30" />
-                      </InputGroupText>
-                    </InputGroupAddon>
+                  <FieldLabel htmlFor="contrib-github" className="text-xs font-black uppercase tracking-wider text-black">
+                    GitHub Username
+                  </FieldLabel>
+                  <div className="relative mt-1">
                     <Input
                       {...field.props}
-                      id="contrib-skills"
+                      id="contrib-github"
                       value={field.input ?? ""}
-                      placeholder="React, Next.js, TailwindCSS, TypeScript"
+                      placeholder="alexmercer"
                       autoComplete="off"
                       aria-invalid={field.errors !== null}
+                      className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] transition-all"
                     />
-                  </InputGroup>
+                  </div>
                   {field.errors && (
                     <FieldError
                       errors={field.errors.map((message) => ({ message }))}
+                      className="text-red-600 text-[11px] mt-1 font-mono font-bold"
                     />
                   )}
                 </Field>
               )}
             </FormischField>
+          </div>
 
-            {/* Message */}
-            <FormischField of={form} path={["message"]}>
-              {(field) => (
-                <Field data-invalid={field.errors !== null}>
-                  <FieldLabel htmlFor="contrib-msg">Why do you want to contribute?</FieldLabel>
-                  <InputGroup>
-                    <InputGroupTextarea
-                      {...field.props}
-                      id="contrib-msg"
-                      value={field.input ?? ""}
-                      placeholder="Explain what motivates you to contribute, any ideas you have, or previous projects you've worked on."
-                      rows={4}
-                      className="min-h-20 resize-none text-xs"
-                      aria-invalid={field.errors !== null}
-                    />
-                    <InputGroupAddon align="block-end">
-                      <InputGroupText className="tabular-nums text-[10px]">
-                        {(field.input ?? "").length}/500 characters
-                      </InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  {field.errors && (
-                    <FieldError
-                      errors={field.errors.map((message) => ({ message }))}
-                    />
-                  )}
-                </Field>
-              )}
-            </FormischField>
+          {/* Department Dropdown */}
+          <FormischField of={form} path={["department"]}>
+            {(field) => (
+              <Field data-invalid={field.errors !== null}>
+                <FieldLabel htmlFor="contrib-dept" className="text-xs font-black uppercase tracking-wider text-black">
+                  Department of Interest
+                </FieldLabel>
+                <select
+                  {...field.props}
+                  id="contrib-dept"
+                  value={field.input ?? "Frontend Development"}
+                  className="mt-1 flex h-11 w-full border-2 border-black bg-white px-4 py-2 text-xs text-black focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] transition-all cursor-pointer"
+                >
+                  <option value="Frontend Development" className="bg-white text-black">Frontend Development (Next.js / Tailwind)</option>
+                  <option value="Backend Development" className="bg-white text-black">Backend & APIs (Firebase / Cloudflare Workers)</option>
+                  <option value="UI UX Design" className="bg-white text-black">UI/UX Design (Figma & Visual Assets)</option>
+                  <option value="Technical Operations" className="bg-white text-black">Technical Operations & System Admin</option>
+                </select>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                    className="text-red-600 text-[11px] mt-1 font-mono font-bold"
+                  />
+                )}
+              </Field>
+            )}
+          </FormischField>
 
-            <Button
-              type="submit"
-              form="contributor-form-formisch"
-              disabled={submitting}
-              className="w-full rounded-xl bg-white text-black font-black hover:bg-white/95 h-11 text-xs tracking-wider uppercase transition-transform active:scale-[0.98] mt-2 select-none"
-            >
-              {submitting ? "Submitting Application..." : "Submit Contribution Interest"}
-            </Button>
+          {/* Skills */}
+          <FormischField of={form} path={["skills"]}>
+            {(field) => (
+              <Field data-invalid={field.errors !== null}>
+                <FieldLabel htmlFor="contrib-skills" className="text-xs font-black uppercase tracking-wider text-black">
+                  Relevant Skills
+                </FieldLabel>
+                <div className="relative mt-1">
+                  <Input
+                    {...field.props}
+                    id="contrib-skills"
+                    value={field.input ?? ""}
+                    placeholder="React, Next.js, TailwindCSS, TypeScript"
+                    autoComplete="off"
+                    aria-invalid={field.errors !== null}
+                    className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#00FF66] focus:shadow-[3px_3px_0px_0px_#00FF66] transition-all"
+                  />
+                </div>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                    className="text-red-600 text-[11px] mt-1 font-mono font-bold"
+                  />
+                )}
+              </Field>
+            )}
+          </FormischField>
 
-          </FieldGroup>
-        </Form>
-      </CardContent>
-    </Card>
+          {/* Message */}
+          <FormischField of={form} path={["message"]}>
+            {(field) => (
+              <Field data-invalid={field.errors !== null}>
+                <FieldLabel htmlFor="contrib-msg" className="text-xs font-black uppercase tracking-wider text-black">
+                  Why do you want to contribute?
+                </FieldLabel>
+                <div className="mt-1">
+                  <textarea
+                    {...field.props}
+                    id="contrib-msg"
+                    value={field.input ?? ""}
+                    placeholder="Explain what motivates you to contribute, any ideas you have, or previous projects you've worked on."
+                    rows={4}
+                    className="w-full bg-white border-2 border-black p-4 text-xs text-black placeholder-zinc-400 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] transition-all resize-none font-mono"
+                    aria-invalid={field.errors !== null}
+                  />
+                  <div className="text-right text-[10px] font-mono font-bold text-zinc-600 mt-1">
+                    {(field.input ?? "").length}/500 characters
+                  </div>
+                </div>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                    className="text-red-600 text-[11px] mt-1 font-mono font-bold"
+                  />
+                )}
+              </Field>
+            )}
+          </FormischField>
+
+          <button
+            type="submit"
+            form="contributor-form-formisch"
+            disabled={submitting}
+            className="w-full h-12 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50 select-none mt-2 cursor-pointer"
+          >
+            {submitting ? "SUBMITTING APPLICATION..." : "SUBMIT CONTRIBUTION INTEREST [↗]"}
+          </button>
+
+        </FieldGroup>
+      </Form>
+    </div>
   )
 }

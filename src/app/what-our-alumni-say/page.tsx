@@ -18,7 +18,7 @@ export default async function WhatOurAlumniSayPage() {
   const { testimonials } = await getAlumniTestimonials({ onlyApproved: true });
 
   return (
-    <main className="w-full min-h-screen bg-black">
+    <main className="w-full min-h-screen bg-white">
       <AlumniBrutalistView initialTestimonials={testimonials} />
     </main>
   );

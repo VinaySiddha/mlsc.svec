@@ -3,10 +3,11 @@ import { getNotifications } from "@/app/actions";
 import { getHomePageData } from "@/app/home-actions";
 
 import { DynamicHero } from "@/components/home/dynamic-hero";
-import { HeroScroll } from "@/components/home/hero-scroll";
+import { CreativeAmbassadors } from "@/components/home/creative-ambassadors";
+import { CreativeDomainsShowcase } from "@/components/home/creative-domains-showcase";
 import { DynamicGallery } from "@/components/home/dynamic-gallery";
 import { Testimonials } from "@/components/home/testimonials";
-import { MLSCDomainsCarousel } from "@/components/home/mlsc-domains-carousel";
+import { EntranceScreen } from "@/components/home/entrance-screen";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 
 import { Code2, Bug, ArrowUpRight } from "lucide-react";
@@ -34,7 +35,10 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="flex flex-col min-h-screen text-white bg-black">
+    <div className="flex flex-col min-h-screen text-black bg-white">
+      {/* Neo-Brutalist Entrance Screen */}
+      <EntranceScreen />
+
       <main className="flex-1">
 
         {/* =====================================================
@@ -44,41 +48,16 @@ export default async function Home() {
         <DynamicHero images={homeData.heroImages} />
 
         {/* =====================================================
-            CINEMATIC INTRO
+            CREATIVE AMBASSADORS & STUDENT LEADERSHIP
         ===================================================== */}
 
-        <HeroScroll />
+        <CreativeAmbassadors ambassadors={homeData.ambassadors} />
 
         {/* =====================================================
-            DOMAINS
+            CREATIVE DOMAINS SHOWCASE
         ===================================================== */}
 
-        <section className="py-20 md:py-28 container mx-auto px-6">
-          <ScrollReveal>
-            <div className="mb-8 px-4">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[#4285F4]">
-                  01 — Explore
-                </span>
-
-                <span className="h-px w-12 bg-[#4285F4]/40" />
-              </div>
-
-              <h3 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic leading-none">
-                Curiosity needs a{" "}
-                <span className="text-[#4285F4]">direction.</span>
-              </h3>
-
-              <p className="text-white/40 font-medium text-sm md:text-base mt-4 max-w-2xl leading-relaxed">
-                Technology is bigger than a single skill. Find the space
-                that interests you, meet people who think differently,
-                and turn what you learn into something real.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <MLSCDomainsCarousel />
-        </section>
+        <CreativeDomainsShowcase />
 
         {/* =====================================================
             GALLERY
@@ -90,133 +69,271 @@ export default async function Home() {
             COMMUNITY STATEMENT
         ===================================================== */}
 
-        <section className="py-24 md:py-32 bg-black border-y border-white/5">
-          <div className="container mx-auto px-6">
+        {/* =====================================================
+            04 // THE ECOSYSTEM / LAUNCHPAD
+        ===================================================== */}
+
+        <section className="py-24 md:py-36 bg-[#F9F9FB] border-b-4 border-black font-sans relative overflow-hidden">
+          {/* Background Graphic Grid */}
+          <div 
+            className="absolute inset-0 opacity-[0.035] pointer-events-none" 
+            style={{
+              backgroundImage: `linear-gradient(#000000 1px, transparent 1px), linear-gradient(90deg, #000000 1px, transparent 1px)`,
+              backgroundSize: '32px 32px'
+            }} 
+          />
+
+          <div className="container mx-auto px-6 relative z-10">
             <ScrollReveal>
-              <div className="max-w-5xl mx-auto text-center">
-
-                <div className="flex justify-center items-center gap-3 mb-6">
-                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white/30">
-                    02 — The Community
-                  </span>
-
-                  <span className="h-px w-10 bg-white/10" />
+              <div className="max-w-5xl mx-auto text-center mb-16">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FFE600] text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_#000000] mb-6">
+                  [ 04 // THE ECOSYSTEM ]
                 </div>
 
-                <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.9]">
-                  Not another club.
+                <h2 className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tighter uppercase italic leading-[0.86] text-black">
+                  NOT ANOTHER CLUB.
                   <br />
                   <span className="text-[#4285F4]">
-                    A launchpad.
+                    A LAUNCHPAD.
                   </span>
                 </h2>
 
-                <p className="text-white/40 max-w-2xl mx-auto mt-8 text-sm md:text-lg leading-relaxed">
-                  We bring together developers, designers, innovators,
-                  speakers, and problem-solvers who believe learning
-                  should lead somewhere.
+                <p className="text-zinc-700 max-w-2xl mx-auto mt-6 text-base md:text-xl leading-relaxed font-semibold">
+                  We bring together developers, designers, system architects, and problem-solvers who believe college learning should build production mastery.
                 </p>
-
               </div>
             </ScrollReveal>
+
+            {/* 3 Pillar Cards */}
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              <ScrollReveal>
+                <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_#FFE600] hover:shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex flex-col justify-between h-full">
+                  <div>
+                    <div className="w-12 h-12 bg-[#FFE600] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000000] mb-6 font-display font-black text-2xl">
+                      01
+                    </div>
+                    <h3 className="text-2xl font-display font-black uppercase italic text-black mb-3">
+                      ZERO TO PRODUCTION
+                    </h3>
+                    <p className="text-sm font-semibold text-zinc-700 leading-relaxed">
+                      No boring theoretical slides. Every workshop ends with code committed to GitHub, containerized, and deployed to live cloud infrastructure.
+                    </p>
+                  </div>
+                  <div className="pt-6 mt-6 border-t-2 border-black font-mono text-[11px] font-black text-[#4285F4]">
+                    // PROD READY PIPELINES
+                  </div>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal>
+                <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_#4285F4] hover:shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex flex-col justify-between h-full">
+                  <div>
+                    <div className="w-12 h-12 bg-[#4285F4] text-white border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000000] mb-6 font-display font-black text-2xl">
+                      02
+                    </div>
+                    <h3 className="text-2xl font-display font-black uppercase italic text-black mb-3">
+                      MICROSOFT NETWORK
+                    </h3>
+                    <p className="text-sm font-semibold text-zinc-700 leading-relaxed">
+                      Direct connection to Microsoft Learn Student Ambassador recognition, Azure dev credits, global hackathons, and certification vouchers.
+                    </p>
+                  </div>
+                  <div className="pt-6 mt-6 border-t-2 border-black font-mono text-[11px] font-black text-[#00AA44]">
+                    // GLOBAL ECOSYSTEM ACCESS
+                  </div>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal>
+                <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_#00FF66] hover:shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex flex-col justify-between h-full">
+                  <div>
+                    <div className="w-12 h-12 bg-[#00FF66] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000000] mb-6 font-display font-black text-2xl">
+                      03
+                    </div>
+                    <h3 className="text-2xl font-display font-black uppercase italic text-black mb-3">
+                      BUILDER INCUBATION
+                    </h3>
+                    <p className="text-sm font-semibold text-zinc-700 leading-relaxed">
+                      Pitch student startup prototypes, get engineering teammates, receive compute sponsorship, and present to alumni investors on Demo Day.
+                    </p>
+                  </div>
+                  <div className="pt-6 mt-6 border-t-2 border-black font-mono text-[11px] font-black text-[#FF0055]">
+                    // INCUBATION & GRANTS
+                  </div>
+                </div>
+              </ScrollReveal>
+            </div>
           </div>
         </section>
 
         {/* =====================================================
-            EXPERIENCE
+            05 // THE EXPERIENCE ENGINE
         ===================================================== */}
 
-        <section className="py-24 md:py-32 container mx-auto px-6">
+        <section className="py-24 md:py-36 bg-white container mx-auto px-6 font-sans">
           <ScrollReveal>
-            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-24 items-center">
+            <div className="max-w-6xl mx-auto bg-white border-4 border-black p-8 md:p-14 shadow-[12px_12px_0px_0px_#000000] relative">
+              {/* Corner screws */}
+              <div className="absolute -top-2 -left-2 w-4 h-4 bg-[#FFE600] border-2 border-black" />
+              <div className="absolute -top-2 -right-2 w-4 h-4 bg-[#4285F4] border-2 border-black" />
+              <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-[#00FF66] border-2 border-black" />
+              <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-[#FF0055] border-2 border-black" />
 
-              <div>
-                <div className="flex items-center gap-3 mb-5">
-                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[#4285F4]">
-                    03 — The Experience
-                  </span>
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00FF66] text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000] mb-5">
+                    [ 05 // THE EXPERIENCE ENGINE ]
+                  </div>
 
-                  <span className="h-px w-12 bg-[#4285F4]/40" />
+                  <h2 className="text-4xl sm:text-6xl md:text-7xl font-display font-black tracking-tighter uppercase italic leading-[0.88] text-black">
+                    DON'T JUST
+                    <br />
+                    <span className="text-[#4285F4]">
+                      ATTEND.
+                    </span>
+                    <br />
+                    EXPERIENCE.
+                  </h2>
+
+                  <p className="text-zinc-700 text-base md:text-lg leading-relaxed mt-6 font-semibold">
+                    Every experience is engineered to move you from passive observer to someone who ships architectures into real-world production.
+                  </p>
+
+                  <div className="mt-8">
+                    <a
+                      href="/schedule"
+                      className="inline-flex items-center gap-2 px-8 py-4 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+                    >
+                      VIEW UPCOMING SESSIONS [↗]
+                    </a>
+                  </div>
                 </div>
 
-                <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-[0.9]">
-                  Don't just
-                  <br />
-                  <span className="text-[#4285F4]">
-                    attend.
-                  </span>
-                  <br />
-                  Experience.
-                </h2>
+                <div className="space-y-4">
+                  {[
+                    {
+                      num: "01",
+                      title: "24-HOUR HACKATHONS",
+                      desc: "Overnight coding sprints, high-energy mentor reviews, pizza fuels, and rapid deployment checkpoints.",
+                      badge: "INTENSIVE",
+                      color: "#FFE600",
+                    },
+                    {
+                      num: "02",
+                      title: "TECHNICAL DEEP-DIVES",
+                      desc: "Hands-on labs covering LLMs, Kubernetes clusters, modern Next.js stacks, and cloud architecture.",
+                      badge: "WEEKLY",
+                      color: "#4285F4",
+                    },
+                    {
+                      num: "03",
+                      title: "MENTORSHIP CIRCLES",
+                      desc: "1-on-1 career guidance, resume roasts, mock coding rounds, and direct referral networks.",
+                      badge: "1-ON-1",
+                      color: "#00FF66",
+                    },
+                  ].map((exp, eIdx) => (
+                    <div
+                      key={eIdx}
+                      className="p-5 bg-[#F9F9FB] border-2 border-black shadow-[4px_4px_0px_0px_#000000] flex items-start gap-4 hover:translate-x-[2px] hover:translate-y-[2px] transition-transform"
+                    >
+                      <div
+                        className="w-10 h-10 border-2 border-black flex items-center justify-center font-display font-black text-sm shrink-0 shadow-[2px_2px_0px_0px_#000000]"
+                        style={{ backgroundColor: exp.color }}
+                      >
+                        {exp.num}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-base font-display font-black uppercase italic text-black">
+                            {exp.title}
+                          </h4>
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-white border border-black font-mono">
+                            {exp.badge}
+                          </span>
+                        </div>
+                        <p className="text-xs font-semibold text-zinc-600 mt-1 leading-snug">
+                          {exp.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-
-              <div>
-                <p className="text-white/50 text-base md:text-lg leading-relaxed">
-                  Workshops. Hackathons. Technical sessions.
-                  Challenges. Conversations.
-                </p>
-
-                <p className="text-white/30 text-sm md:text-base leading-relaxed mt-5">
-                  Every experience is designed to move you one step
-                  closer to becoming someone who doesn't just understand
-                  technology — but knows what to do with it.
-                </p>
-              </div>
-
             </div>
           </ScrollReveal>
         </section>
 
         {/* =====================================================
-            TESTIMONIALS
+            06 // TESTIMONIALS / WHAT OUR ALUMNI SAY
         ===================================================== */}
 
         <Testimonials testimonials={homeData.alumniTestimonials} />
 
         {/* =====================================================
-            BUILDERS STATEMENT
+            07 // OPEN SOURCE CODEBASE & BUILDERS INITIATIVE
         ===================================================== */}
 
-        <section className="py-24 md:py-32 bg-[#030303] border-y border-white/5">
-          <div className="container mx-auto px-6">
+        <section className="py-24 md:py-36 bg-[#F9F9FB] border-b-4 border-black font-sans relative overflow-hidden">
+          <div className="container mx-auto px-6 max-w-5xl relative z-10">
             <ScrollReveal>
-              <div className="max-w-6xl mx-auto">
+              <div className="bg-white border-4 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_#00FF66] text-center space-y-6">
+                
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#4285F4] text-white text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+                  <Code2 className="h-4 w-4 stroke-[2.5]" />
+                  [ 07 // OPEN SOURCE INITIATIVE ]
+                </div>
 
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-white/30">
-                    04 — The Builders
+                <h2 className="text-4xl sm:text-6xl md:text-7xl font-display font-black tracking-tighter uppercase italic leading-[0.88] text-black">
+                  DON'T JUST USE
+                  <br />
+                  <span className="text-[#00AA44]">
+                    WHAT WE BUILD.
                   </span>
+                  <br />
+                  BUILD WITH US.
+                </h2>
 
-                  <span className="h-px w-12 bg-white/10" />
-                </div>
+                <p className="text-zinc-700 font-semibold text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                  Every platform, tool, and service powering MLSC SVEC is open source. Write code, fix issues, design modules, and leave your stamp in production.
+                </p>
 
-                <div className="grid md:grid-cols-[1.5fr_1fr] gap-12 items-end">
-
-                  <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.88]">
-                    Ideas deserve to
-                    <br />
-                    escape the{" "}
-                    <span className="text-[#4285F4]">
-                      notebook.
-                    </span>
-                  </h2>
-
-                  <div>
-                    <p className="text-white/40 text-sm md:text-base leading-relaxed">
-                      Explore what our community is building — from
-                      experimental prototypes to ambitious projects
-                      designed around problems that actually matter.
-                    </p>
-
-                    <a
-                      href="/projects"
-                      className="inline-flex items-center gap-2 mt-6 text-sm font-bold uppercase tracking-wider text-white hover:text-[#4285F4] transition-colors"
-                    >
-                      Explore our projects
-                      <ArrowUpRight className="h-4 w-4" />
-                    </a>
+                {/* Cyber Repo Stats HUD */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto text-left font-mono text-xs font-bold pt-4">
+                  <div className="p-3 bg-zinc-50 border-2 border-black">
+                    <span className="text-[10px] text-zinc-500 block uppercase">REPOSITORY</span>
+                    <span className="text-black font-black font-mono">mlsc.svec</span>
                   </div>
+                  <div className="p-3 bg-zinc-50 border-2 border-black">
+                    <span className="text-[10px] text-zinc-500 block uppercase">LICENSE</span>
+                    <span className="text-black font-black">MIT / OPEN</span>
+                  </div>
+                  <div className="p-3 bg-zinc-50 border-2 border-black">
+                    <span className="text-[10px] text-zinc-500 block uppercase">CONTRIBUTORS</span>
+                    <span className="text-[#4285F4] font-black">35+ BUILDERS</span>
+                  </div>
+                  <div className="p-3 bg-zinc-50 border-2 border-black">
+                    <span className="text-[10px] text-zinc-500 block uppercase">TECH STACK</span>
+                    <span className="text-[#00AA44] font-black">NEXT.JS 15</span>
+                  </div>
+                </div>
 
+                {/* CTAs */}
+                <div className="flex flex-wrap justify-center gap-4 pt-6">
+                  <a
+                    href="/contribute"
+                    className="px-8 py-4 bg-[#00FF66] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                  >
+                    START CONTRIBUTING [↗]
+                  </a>
+
+                  <a
+                    href="/issue-tracker"
+                    className="px-8 py-4 bg-white text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:bg-zinc-100 hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2"
+                  >
+                    <Bug className="h-4 w-4 stroke-[2.5] text-[#FF0055]" />
+                    EXPLORE ISSUES
+                  </a>
                 </div>
 
               </div>
@@ -225,95 +342,54 @@ export default async function Home() {
         </section>
 
         {/* =====================================================
-            OPEN SOURCE / CONTRIBUTE
+            08 // GRAND FINALE CTA
         ===================================================== */}
 
-        <section className="py-24 md:py-32 bg-[#030303] relative overflow-hidden">
-
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(66,133,244,0.08),transparent_60%)] pointer-events-none" />
-
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-full bg-gradient-to-b from-transparent via-[#4285F4]/10 to-transparent pointer-events-none" />
-
-          <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
-
+        <section className="py-28 md:py-44 bg-white font-sans relative overflow-hidden">
+          <div className="container mx-auto px-6 text-center relative z-10">
             <ScrollReveal>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 italic">
-                <Code2 className="h-3.5 w-3.5" />
-                Open Source Initiative
-              </div>
-            </ScrollReveal>
+              <div className="max-w-4xl mx-auto bg-[#FFE600] border-4 border-black p-10 md:p-16 shadow-[14px_14px_0px_0px_#000000] relative">
+                
+                {/* Corner screws */}
+                <div className="absolute -top-2 -left-2 w-5 h-5 bg-black" />
+                <div className="absolute -top-2 -right-2 w-5 h-5 bg-black" />
+                <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-black" />
+                <div className="absolute -bottom-2 -right-2 w-5 h-5 bg-black" />
 
-            <ScrollReveal>
-              <h2 className="mt-7 text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-[0.9]">
-                Don't just use
-                <br />
-                <span className="text-[#4285F4]">
-                  what we build.
-                </span>
-                <br />
-                Build with us.
-              </h2>
-            </ScrollReveal>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white text-xs font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF] mb-6">
+                  [ 08 // WHAT COMES NEXT ]
+                </div>
 
-            <ScrollReveal>
-              <p className="text-white/40 font-medium text-sm md:text-base max-w-xl mx-auto leading-relaxed mt-7">
-                Write code. Fix issues. Improve systems. Ship ideas.
-                Contribute to the technology that powers our community
-                and leave something better than you found it.
-              </p>
-            </ScrollReveal>
+                <h2 className="text-5xl sm:text-7xl md:text-9xl font-display font-black tracking-tighter uppercase italic leading-[0.82] text-black">
+                  BUILD
+                  <br />
+                  <span className="text-[#4285F4]">
+                    WHAT COMES NEXT.
+                  </span>
+                </h2>
 
-            <ScrollReveal>
-              <div className="flex flex-wrap justify-center gap-4 pt-8">
+                <p className="max-w-xl mx-auto mt-6 text-zinc-900 text-base md:text-lg leading-relaxed font-bold">
+                  Your degree is only the beginning. Your ideas, prototypes, skills, and the teammates you meet along the way are what shape your engineering career.
+                </p>
 
-                <OpenSourceButton
-                  href="/contribute"
-                  className="min-w-[190px]"
-                >
-                  Start Contributing
-                </OpenSourceButton>
+                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <a
+                    href="/apply"
+                    className="w-full sm:w-auto px-10 py-4 bg-black text-[#FFE600] font-black text-sm uppercase tracking-wider border-2 border-black shadow-[5px_5px_0px_0px_#FFFFFF] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                  >
+                    ⚡ JOIN MLSC SVEC CHAPTER 3.0 [↗]
+                  </a>
 
-                <FundraiseButton
-                  href="/issue-tracker"
-                  playText="Explore"
-                  nowText="Issues"
-                  icon={<Bug className="h-5 w-5" />}
-                  className="min-w-[190px] h-12 text-shadow-none"
-                />
+                  <a
+                    href="/schedule"
+                    className="w-full sm:w-auto px-10 py-4 bg-white text-black font-black text-sm uppercase tracking-wider border-2 border-black shadow-[5px_5px_0px_0px_#000000] hover:bg-zinc-100 hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                  >
+                    EXPLORE SESSIONS →
+                  </a>
+                </div>
 
               </div>
             </ScrollReveal>
-
-          </div>
-        </section>
-
-        {/* =====================================================
-            FINAL STATEMENT
-        ===================================================== */}
-
-        <section className="py-28 md:py-40 bg-black">
-          <div className="container mx-auto px-6 text-center">
-
-            <ScrollReveal>
-              <span className="text-[10px] font-black tracking-[0.35em] uppercase text-white/25">
-                05 — What Comes Next
-              </span>
-
-              <h2 className="mt-7 text-5xl md:text-8xl font-black tracking-tighter uppercase italic leading-[0.82]">
-                Build
-                <br />
-                <span className="text-[#4285F4]">
-                  what comes next.
-                </span>
-              </h2>
-
-              <p className="max-w-xl mx-auto mt-8 text-white/35 text-sm md:text-base leading-relaxed">
-                Your degree is only the beginning. Your ideas,
-                experiments, skills, and the people you meet along
-                the way are what shape the future.
-              </p>
-            </ScrollReveal>
-
           </div>
         </section>
 

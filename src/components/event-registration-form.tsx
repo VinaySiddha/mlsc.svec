@@ -152,70 +152,80 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
 
     if (isLimitReached) {
         return (
-            <Button disabled className="w-full">
-                <Users className="mr-2 h-4 w-4" />
-                Registrations Full
-            </Button>
+            <div className="w-full py-3 px-4 bg-[#F9F9FB] border-2 border-black text-zinc-700 font-mono font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2">
+                <Users className="h-4 w-4" />
+                [ REGISTRATIONS FULL ]
+            </div>
         )
     }
 
     if (!registrationOpen || isDeadlinePassed) {
         return (
-            <Button disabled className="w-full">
-                <Clock className="mr-2 h-4 w-4" />
-                Registrations Closed
-            </Button>
+            <div className="w-full py-3 px-4 bg-[#F9F9FB] border-2 border-black text-zinc-700 font-mono font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2">
+                <Clock className="h-4 w-4" />
+                [ REGISTRATIONS CLOSED ]
+            </div>
         )
     }
 
     if (authLoading) {
         return (
-            <Button disabled className="w-full">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading...
-            </Button>
+            <div className="w-full py-3 px-4 bg-[#F9F9FB] border-2 border-black text-zinc-700 font-mono font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                [ VERIFYING SESSION... ]
+            </div>
         )
     }
 
     if (!user) {
         return (
-            <Button asChild className="w-full">
-                <Link href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}>
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Sign in to Register
-                </Link>
-            </Button>
+            <Link 
+                href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}
+                className="w-full py-3.5 px-4 bg-[#FFE600] text-black font-black text-xs uppercase tracking-widest text-center flex items-center justify-center gap-2 border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+            >
+                <LogIn className="h-4 w-4 stroke-[3]" />
+                SIGN IN TO REGISTER [↗]
+            </Link>
         )
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full">
-                    {registrationFee && registrationFee > 0 ? `Register (₹${registrationFee})` : 'Register for this Event'}
-                </Button>
+                <button className="w-full py-3.5 px-4 bg-[#00FF66] text-black font-black text-xs uppercase tracking-widest text-center border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer">
+                    {registrationFee && registrationFee > 0 ? `REGISTER (₹${registrationFee}) [↗]` : 'CLAIM FREE PASS [↗]'}
+                </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md md:max-w-lg">
-                <DialogHeader>
-                    <DialogTitle>Register for Event</DialogTitle>
-                    <DialogDescription>
-                        Fill in your details below to register.
+            <DialogContent className="sm:max-w-md md:max-w-lg bg-white border-2 border-black shadow-[10px_10px_0px_0px_#4285F4] p-6 text-black font-sans rounded-none">
+                <DialogHeader className="border-b-2 border-black pb-4">
+                    <div className="inline-block px-3 py-0.5 bg-[#4285F4] text-white text-[10px] font-black uppercase tracking-widest border-2 border-black mb-2 w-fit">
+                        [ RSVP VERIFICATION ]
+                    </div>
+                    <DialogTitle className="text-2xl font-display font-black uppercase italic tracking-tight text-black">
+                        REGISTER FOR EVENT
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-zinc-700 font-semibold">
+                        Confirm your participant credentials below to secure your seat.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                        <div className="max-h-[55vh] overflow-y-auto pr-2 -mr-2 space-y-4 py-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-3">
+                        <div className="max-h-[55vh] overflow-y-auto pr-2 -mr-2 space-y-4 py-1">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Full Name</FormLabel>
+                                            <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Full Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="John Doe" {...field} />
+                                                <Input 
+                                                    placeholder="John Doe" 
+                                                    {...field} 
+                                                    className="bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] text-xs h-10 rounded-none"
+                                                />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-red-600 text-[11px] font-bold" />
                                         </FormItem>
                                     )}
                                 />
@@ -224,11 +234,15 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                     name="email"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Email</FormLabel>
+                                            <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Email</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="john.doe@example.com" {...field} />
+                                                <Input 
+                                                    placeholder="john.doe@example.com" 
+                                                    {...field} 
+                                                    className="bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] text-xs h-10 rounded-none"
+                                                />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-red-600 text-[11px] font-bold" />
                                         </FormItem>
                                     )}
                                 />
@@ -237,11 +251,15 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                     name="rollNo"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Roll No</FormLabel>
+                                            <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Roll No</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="e.g., 22A91A4201" {...field} />
+                                                <Input 
+                                                    placeholder="e.g., 22A91A4201" 
+                                                    {...field} 
+                                                    className="bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] text-xs h-10 rounded-none"
+                                                />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-red-600 text-[11px] font-bold" />
                                         </FormItem>
                                     )}
                                 />
@@ -250,11 +268,15 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                     name="phone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Phone Number</FormLabel>
+                                            <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Phone Number</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="10-digit number" {...field} />
+                                                <Input 
+                                                    placeholder="10-digit number" 
+                                                    {...field} 
+                                                    className="bg-white border-2 border-black text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] text-xs h-10 rounded-none"
+                                                />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-red-600 text-[11px] font-bold" />
                                         </FormItem>
                                     )}
                                 />
@@ -263,24 +285,24 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                     name="branch"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Branch</FormLabel>
+                                            <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Branch</FormLabel>
                                             <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select your branch" />
+                                                    <SelectTrigger className="bg-white border-2 border-black text-black focus:border-[#4285F4] text-xs h-10 rounded-none">
+                                                        <SelectValue placeholder="Select Branch" />
                                                     </SelectTrigger>
                                                 </FormControl>
-                                                <SelectContent>
-                                                    {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                                                <SelectContent className="bg-white border-2 border-black text-black rounded-none">
+                                                    {branches.map(branch => <SelectItem key={branch} value={branch} className="text-xs focus:bg-[#FFE600] focus:text-black">{branch}</SelectItem>)}
                                                 </SelectContent>
                                             </Select>
                                             {field.value && seatLimits?.branch?.[field.value] && (
-                                                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                                    <Info className="h-3 w-3" />
+                                                <p className="text-[10px] font-mono text-zinc-800 font-bold flex items-center gap-1">
+                                                    <Info className="h-3 w-3 text-blue-600" />
                                                     Seats limited for {field.value} ({seatLimits.branch[field.value]} max)
                                                 </p>
                                             )}
-                                            <FormMessage />
+                                            <FormMessage className="text-red-600 text-[11px] font-bold" />
                                         </FormItem>
                                     )}
                                 />
@@ -289,39 +311,43 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                                     name="yearOfStudy"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Year of Study</FormLabel>
+                                            <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Year of Study</FormLabel>
                                             <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select your year" />
+                                                    <SelectTrigger className="bg-white border-2 border-black text-black focus:border-[#4285F4] text-xs h-10 rounded-none">
+                                                        <SelectValue placeholder="Select Year" />
                                                     </SelectTrigger>
                                                 </FormControl>
-                                                <SelectContent>
-                                                    {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                                                <SelectContent className="bg-white border-2 border-black text-black rounded-none">
+                                                    {years.map(year => <SelectItem key={year} value={year} className="text-xs focus:bg-[#FFE600] focus:text-black">{year}</SelectItem>)}
                                                 </SelectContent>
                                             </Select>
                                             {field.value && seatLimits?.year?.[field.value] && (
-                                                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                                    <Info className="h-3 w-3" />
+                                                <p className="text-[10px] font-mono text-zinc-800 font-bold flex items-center gap-1">
+                                                    <Info className="h-3 w-3 text-blue-600" />
                                                     Seats limited for {field.value} year ({seatLimits.year[field.value]} max)
                                                 </p>
                                             )}
-                                            <FormMessage />
+                                            <FormMessage className="text-red-600 text-[11px] font-bold" />
                                         </FormItem>
                                     )}
                                 />
                             </div>
                         </div>
-                        <DialogFooter>
+                        <DialogFooter className="border-t-2 border-black pt-4 flex items-center justify-end gap-2">
                             <DialogClose asChild>
-                                <Button type="button" variant="secondary">
-                                    Cancel
-                                </Button>
+                                <button type="button" className="px-4 py-2 text-xs font-black uppercase tracking-wider text-zinc-600 hover:text-black border-2 border-transparent hover:border-black">
+                                    CANCEL
+                                </button>
                             </DialogClose>
-                            <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                {registrationFee && registrationFee > 0 ? `Pay ₹${registrationFee} & Confirm` : 'Confirm Registration'}
-                            </Button>
+                            <button 
+                                type="submit" 
+                                disabled={isSubmitting}
+                                className="px-6 py-2.5 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                {registrationFee && registrationFee > 0 ? `PAY ₹${registrationFee} & CONFIRM [↗]` : 'CONFIRM REGISTRATION [↗]'}
+                            </button>
                         </DialogFooter>
                     </form>
                 </Form>

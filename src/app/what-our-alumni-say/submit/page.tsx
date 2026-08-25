@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function SubmitAlumniWordsPage() {
   return (
-    <main className="w-full min-h-screen bg-black">
+    <main className="w-full min-h-screen bg-white">
       <AlumniSubmitPageView />
     </main>
   );

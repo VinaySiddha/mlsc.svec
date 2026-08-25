@@ -269,7 +269,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-[#FFE600] selection:text-black font-sans pb-28">
+    <div className="min-h-screen bg-white text-black selection:bg-[#FFE600] selection:text-black font-sans pb-28">
       {/* ══════════════════════════════════════════════════════════
           TOP MARQUEE TICKER (NEO-BRUTALIST)
           ══════════════════════════════════════════════════════════ */}
@@ -289,12 +289,12 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
       {/* ══════════════════════════════════════════════════════════
           HERO BANNER (NEO-BRUTALIST)
           ══════════════════════════════════════════════════════════ */}
-      <section className="relative pt-16 md:pt-24 pb-12 border-b-2 border-white/10 overflow-hidden">
+      <section className="relative pt-16 md:pt-24 pb-12 border-b-2 border-black overflow-hidden bg-white">
         {/* Background Grid Pattern */}
         <div 
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          className="absolute inset-0 opacity-[0.05] pointer-events-none"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, black 1px, transparent 0)`,
             backgroundSize: '24px 24px'
           }}
         />
@@ -303,19 +303,19 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
             {/* Main Headline */}
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-6 bg-white text-black font-sans text-[11px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#4285F4] border-2 border-black">
-                <MessageSquareQuote className="h-3.5 w-3.5 text-[#4285F4]" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-6 bg-[#FFE600] text-black font-sans text-[11px] font-black uppercase tracking-[0.2em] shadow-[3px_3px_0px_0px_#000000] border-2 border-black">
+                <MessageSquareQuote className="h-3.5 w-3.5 text-black" />
                 MLSC_ALUMNI_VOICES // VERIFIED
               </div>
 
-              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black uppercase tracking-tighter italic leading-[0.85] text-white">
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black uppercase tracking-tighter italic leading-[0.85] text-black">
                 WHAT OUR <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4285F4] via-[#00F0FF] to-[#FFE600]">
+                <span className="text-[#4285F4]">
                   ALUMNI SAY.
                 </span>
               </h1>
 
-              <p className="mt-6 text-zinc-400 text-sm md:text-lg font-normal leading-relaxed max-w-2xl">
+              <p className="mt-6 text-zinc-700 text-sm md:text-lg font-semibold leading-relaxed max-w-2xl">
                 The unfiltered thoughts, career transitions, and memories of the builders and leaders who formed the bedrock of MLSC SVEC.
               </p>
             </div>
@@ -325,7 +325,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
               {/* Standalone Fullscreen Form Link */}
               <Link
                 href="/what-our-alumni-say/submit"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FFE600] text-black font-sans font-black uppercase tracking-wider text-xs sm:text-sm border-2 border-black shadow-[4px_4px_0px_0px_#FFFFFF] hover:shadow-[2px_2px_0px_0px_#FFFFFF] hover:translate-x-[2px] hover:translate-y-[2px] transition-all active:scale-95 text-center"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FFE600] text-black font-sans font-black uppercase tracking-wider text-xs sm:text-sm border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all active:scale-95 text-center cursor-pointer"
               >
                 <Sparkles className="h-4 w-4" />
                 Fill Submission Form [↗]
@@ -335,34 +335,34 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
               <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogTrigger asChild>
                   <button
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-sans font-bold uppercase tracking-wider text-xs border-2 border-white/20 shadow-[4px_4px_0px_0px_#4285F4] transition-all active:scale-95 cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-white hover:bg-zinc-100 text-black font-sans font-black uppercase tracking-wider text-xs border-2 border-black shadow-[4px_4px_0px_0px_#4285F4] transition-all active:scale-95 cursor-pointer"
                   >
                     Quick Submit Modal [✦]
                   </button>
                 </DialogTrigger>
 
-                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-[#0E0E10] border-2 border-white/20 text-white p-6 sm:p-8 rounded-2xl shadow-[8px_8px_0px_0px_#4285F4] font-sans">
-                  <DialogHeader className="mb-4 text-left border-b border-white/10 pb-4">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[#4285F4] text-white font-sans text-[10px] font-black uppercase tracking-widest w-fit mb-2">
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white border-4 border-black text-black p-6 sm:p-8 rounded-none shadow-[10px_10px_0px_0px_#4285F4] font-sans">
+                  <DialogHeader className="mb-4 text-left border-b-2 border-black pb-4">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[#4285F4] text-white font-sans text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000] w-fit mb-2">
                       SUBMISSION_PORTAL // 2026
                     </div>
-                    <DialogTitle className="text-2xl sm:text-3xl font-display font-black uppercase tracking-tight italic">
+                    <DialogTitle className="text-2xl sm:text-3xl font-display font-black uppercase tracking-tight italic text-black">
                       Leave Your Mark on the <span className="text-[#4285F4]">MLSC Archive</span>
                     </DialogTitle>
-                    <DialogDescription className="text-zinc-400 text-xs sm:text-sm font-normal">
+                    <DialogDescription className="text-zinc-700 text-xs sm:text-sm font-semibold">
                       Share your experience, advice for juniors, or favorite memories. It will appear live on the website.
                     </DialogDescription>
                   </DialogHeader>
 
                   {formSuccess ? (
                     <div className="py-12 text-center space-y-4">
-                      <div className="w-16 h-16 bg-[#00FF66] text-black rounded-full flex items-center justify-center mx-auto text-3xl font-black shadow-[4px_4px_0px_0px_#FFFFFF]">
+                      <div className="w-16 h-16 bg-[#00FF66] text-black border-2 border-black flex items-center justify-center mx-auto text-3xl font-black shadow-[4px_4px_0px_0px_#000000]">
                         ✓
                       </div>
-                      <h3 className="text-2xl font-display font-black uppercase tracking-tight text-white">
+                      <h3 className="text-2xl font-display font-black uppercase tracking-tight text-black">
                         Your Words Have Been Recorded!
                       </h3>
-                      <p className="text-zinc-400 text-sm max-w-md mx-auto font-normal">
+                      <p className="text-zinc-700 text-sm max-w-md mx-auto font-medium">
                         Thank you for contributing to the MLSC SVEC legacy. Your story is now part of the permanent alumni showcase.
                       </p>
                     </div>
@@ -371,7 +371,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Name */}
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Full Name <span className="text-[#FF0055]">*</span>
                           </label>
                           <input
@@ -380,13 +380,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             placeholder="e.g. Chandu Neelam"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                            className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                           />
                         </div>
 
                         {/* Graduating Batch */}
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Graduating Batch <span className="text-[#FF0055]">*</span>
                           </label>
                           <input
@@ -395,13 +395,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             placeholder="e.g. 2020 - 2024 or 2024"
                             value={formData.batch}
                             onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                            className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                            className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                           />
                         </div>
 
                         {/* MLSC Role */}
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Role at MLSC / SVEC <span className="text-[#FF0055]">*</span>
                           </label>
                           <input
@@ -410,13 +410,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             placeholder="e.g. Former President, Tech Lead, Member"
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                            className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                            className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                           />
                         </div>
 
                         {/* Current Company / Uni */}
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Current Company / University
                           </label>
                           <input
@@ -424,13 +424,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             placeholder="e.g. Google, Microsoft, Higher Studies"
                             value={formData.company}
                             onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                            className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                            className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                           />
                         </div>
 
                         {/* Current Role/Title */}
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Current Designation
                           </label>
                           <input
@@ -438,19 +438,19 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             placeholder="e.g. Software Development Engineer"
                             value={formData.currentRole}
                             onChange={(e) => setFormData({ ...formData, currentRole: e.target.value })}
-                            className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                            className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                           />
                         </div>
 
                         {/* Category */}
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Story Theme <span className="text-[#FF0055]">*</span>
                           </label>
                           <select
                             value={formData.type}
                             onChange={(e) => setFormData({ ...formData, type: e.target.value as AlumniCategoryType })}
-                            className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                            className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans cursor-pointer"
                           >
                             <option value="milestones">🏆 Milestones & Achievements</option>
                             <option value="moments">📸 Core Memories & Fun</option>
@@ -463,7 +463,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
 
                       {/* The Quote */}
                       <div>
-                        <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                        <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                           Your Words / Reflection <span className="text-[#FF0055]">*</span>
                         </label>
                         <textarea
@@ -472,13 +472,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                           placeholder="What did MLSC mean to you? Share a punchy quote or reflection that juniors will remember..."
                           value={formData.quote}
                           onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
-                          className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                          className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                         />
                       </div>
 
                       {/* Full Story (Optional) */}
                       <div>
-                        <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                        <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                           Detailed Journey / Advice (Optional)
                         </label>
                         <textarea
@@ -486,26 +486,26 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                           placeholder="Want to go deeper? Share stories about late night coding, placement prep, or mentorship..."
                           value={formData.fullStory}
                           onChange={(e) => setFormData({ ...formData, fullStory: e.target.value })}
-                          className="w-full px-3.5 py-2.5 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-sm font-medium font-sans"
+                          className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                         />
                       </div>
 
                       {/* Photo & Color Accent */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Profile Picture
                           </label>
                           <input
                             type="file"
                             accept="image/*"
                             onChange={handleFileChange}
-                            className="w-full text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:border-2 file:border-white/20 file:text-xs file:font-sans file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 cursor-pointer"
+                            className="w-full text-xs text-zinc-700 file:mr-3 file:py-1.5 file:px-3 file:border-2 file:border-black file:text-xs file:font-sans file:font-bold file:bg-[#FFE600] file:text-black cursor-pointer"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Card Accent Color
                           </label>
                           <div className="flex flex-wrap gap-2 pt-1">
@@ -514,7 +514,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                                 key={col.value}
                                 type="button"
                                 onClick={() => setFormData({ ...formData, color: col.value })}
-                                className="w-6 h-6 border-2 border-black transition-transform hover:scale-110 flex items-center justify-center cursor-pointer shadow-[2px_2px_0px_0px_#FFFFFF]"
+                                className="w-6 h-6 border-2 border-black transition-transform hover:scale-110 flex items-center justify-center cursor-pointer shadow-[2px_2px_0px_0px_#000000]"
                                 style={{ backgroundColor: col.value }}
                               >
                                 {formData.color === col.value && <Check className="h-3 w-3 text-black font-black stroke-[3]" />}
@@ -527,7 +527,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                       {/* Socials */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             LinkedIn Profile URL
                           </label>
                           <input
@@ -535,12 +535,12 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             placeholder="https://linkedin.com/in/username"
                             value={formData.linkedinUrl}
                             onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
-                            className="w-full px-3.5 py-2 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-xs font-medium font-sans"
+                            className="w-full px-3.5 py-2 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-xs font-medium font-sans placeholder-zinc-400"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-black mb-1.5">
                             Email (Confidential)
                           </label>
                           <input
@@ -548,7 +548,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             placeholder="alumni@email.com"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-3.5 py-2 bg-black/60 border-2 border-zinc-700 text-white rounded-lg focus:border-[#4285F4] focus:outline-none text-xs font-medium font-sans"
+                            className="w-full px-3.5 py-2 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-xs font-medium font-sans placeholder-zinc-400"
                           />
                         </div>
                       </div>
@@ -556,7 +556,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                       <button
                         type="submit"
                         disabled={formSubmitting}
-                        className="w-full py-4 bg-[#4285F4] text-white font-sans font-black uppercase tracking-wider text-sm border-2 border-black shadow-[6px_6px_0px_0px_#FFFFFF] hover:shadow-[2px_2px_0px_0px_#FFFFFF] hover:translate-x-[4px] hover:translate-y-[4px] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                        className="w-full py-4 bg-[#4285F4] text-white font-sans font-black uppercase tracking-wider text-sm border-2 border-black shadow-[6px_6px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[4px] hover:translate-y-[4px] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                       >
                         {formSubmitting ? (
                           <>
@@ -578,31 +578,31 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
               {/* Copy Shareable Link Button */}
               <button
                 onClick={handleCopyShareLink}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 text-zinc-300 font-sans font-bold uppercase tracking-wider text-xs border-2 border-white/10 hover:border-white/30 transition-all active:scale-95 cursor-pointer text-center"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-zinc-100 hover:bg-zinc-200 text-black font-sans font-bold uppercase tracking-wider text-xs border-2 border-black shadow-[3px_3px_0px_0px_#000000] transition-all active:scale-95 cursor-pointer text-center"
               >
-                {copiedLink ? <Check className="h-4 w-4 text-[#00FF66]" /> : <Copy className="h-4 w-4" />}
+                {copiedLink ? <Check className="h-4 w-4 text-[#00A844]" /> : <Copy className="h-4 w-4" />}
                 {copiedLink ? "Form Link Copied!" : "Copy Share Link"}
               </button>
             </div>
           </div>
 
           {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-12 pt-8 border-t border-white/10 font-sans">
-            <div className="p-3 bg-white/[0.03] border border-white/10">
-              <span className="text-zinc-500 block text-[10px] uppercase font-bold">TOTAL VOICES</span>
-              <span className="text-xl font-black text-white">{testimonials.length}+ STORIES</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-12 pt-8 border-t-2 border-black font-sans">
+            <div className="p-4 bg-[#F9F9FB] border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+              <span className="text-zinc-600 block text-[10px] uppercase font-bold tracking-wider">TOTAL VOICES</span>
+              <span className="text-xl font-black text-black">{testimonials.length}+ STORIES</span>
             </div>
-            <div className="p-3 bg-white/[0.03] border border-white/10">
-              <span className="text-zinc-500 block text-[10px] uppercase font-bold">BATCH SPAN</span>
+            <div className="p-4 bg-[#F9F9FB] border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+              <span className="text-zinc-600 block text-[10px] uppercase font-bold tracking-wider">BATCH SPAN</span>
               <span className="text-xl font-black text-[#4285F4]">2020 - 2026</span>
             </div>
-            <div className="p-3 bg-white/[0.03] border border-white/10">
-              <span className="text-zinc-500 block text-[10px] uppercase font-bold">COMMUNITY IMPACT</span>
-              <span className="text-xl font-black text-[#00FF66]">100% BUILDERS</span>
+            <div className="p-4 bg-[#F9F9FB] border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+              <span className="text-zinc-600 block text-[10px] uppercase font-bold tracking-wider">COMMUNITY IMPACT</span>
+              <span className="text-xl font-black text-[#00A844]">100% BUILDERS</span>
             </div>
-            <div className="p-3 bg-white/[0.03] border border-white/10">
-              <span className="text-zinc-500 block text-[10px] uppercase font-bold">ARCHIVE STATUS</span>
-              <span className="text-xl font-black text-[#FFE600]">PUBLIC & LIVE</span>
+            <div className="p-4 bg-[#F9F9FB] border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+              <span className="text-zinc-600 block text-[10px] uppercase font-bold tracking-wider">ARCHIVE STATUS</span>
+              <span className="text-xl font-black text-[#FFE600] drop-shadow-[1px_1px_0px_rgba(0,0,0,1)]">PUBLIC & LIVE</span>
             </div>
           </div>
         </div>
@@ -611,23 +611,23 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
       {/* ══════════════════════════════════════════════════════════
           INTERACTIVE SEARCH & FILTER MATRIX
           ══════════════════════════════════════════════════════════ */}
-      <section className="sticky top-20 z-30 bg-[#0A0A0C]/95 backdrop-blur-md border-b-2 border-white/10 py-4 shadow-xl">
+      <section className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b-2 border-black py-4 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
             {/* Search Input */}
             <div className="relative w-full lg:w-96">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <input
                 type="text"
                 placeholder="Search alumni, company, role, keywords..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-black border-2 border-white/20 text-white rounded-none focus:border-[#4285F4] focus:outline-none text-xs font-sans font-medium shadow-[3px_3px_0px_0px_#4285F4]"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4] focus:outline-none text-xs font-sans font-medium placeholder-zinc-400"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-black cursor-pointer"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -642,10 +642,10 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                   <button
                     key={cat.key}
                     onClick={() => setSelectedCategory(cat.key)}
-                    className={`px-3 py-1.5 text-[11px] font-sans font-bold uppercase tracking-wider border-2 transition-all shrink-0 cursor-pointer ${
+                    className={`px-3 py-1.5 text-[11px] font-sans font-black uppercase tracking-wider border-2 border-black transition-all shrink-0 cursor-pointer ${
                       isActive
-                        ? "bg-white text-black border-black shadow-[3px_3px_0px_0px_#4285F4]"
-                        : "bg-black/60 text-zinc-400 border-zinc-800 hover:border-zinc-500 hover:text-white"
+                        ? "bg-[#FFE600] text-black shadow-[3px_3px_0px_0px_#000000]"
+                        : "bg-white text-zinc-700 hover:bg-zinc-100"
                     }`}
                   >
                     <span className="mr-1">{cat.icon}</span>
@@ -658,11 +658,11 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
             {/* Batch Filter Dropdown / Pills */}
             {availableBatches.length > 0 && (
               <div className="flex items-center gap-2 shrink-0 self-start lg:self-auto">
-                <span className="text-[10px] font-sans font-bold uppercase text-zinc-500">BATCH:</span>
+                <span className="text-[10px] font-sans font-black uppercase text-black">BATCH:</span>
                 <select
                   value={selectedBatch}
                   onChange={(e) => setSelectedBatch(e.target.value)}
-                  className="px-3 py-1.5 bg-black border-2 border-white/20 text-white font-sans text-xs font-bold uppercase focus:border-[#4285F4] focus:outline-none cursor-pointer"
+                  className="px-3 py-1.5 bg-white border-2 border-black text-black font-sans text-xs font-black uppercase focus:border-[#4285F4] focus:shadow-[2px_2px_0px_0px_#4285F4] focus:outline-none cursor-pointer"
                 >
                   <option value="all">ALL BATCHES</option>
                   {availableBatches.map((batch) => (
@@ -682,12 +682,12 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
           ══════════════════════════════════════════════════════════ */}
       <section className="container mx-auto px-4 sm:px-6 max-w-7xl pt-12">
         {filteredTestimonials.length === 0 ? (
-          <div className="p-16 text-center border-2 border-dashed border-white/20 bg-black/40">
-            <MessageSquareQuote className="h-12 w-12 text-zinc-600 mx-auto mb-4" />
-            <h3 className="text-xl font-display font-bold uppercase tracking-wider text-white">
+          <div className="p-16 text-center border-2 border-black bg-[#F9F9FB] shadow-[4px_4px_0px_0px_#000000]">
+            <MessageSquareQuote className="h-12 w-12 text-zinc-400 mx-auto mb-4" />
+            <h3 className="text-xl font-display font-black uppercase tracking-wider text-black">
               No matching stories found
             </h3>
-            <p className="text-zinc-500 text-sm mt-1 max-w-md mx-auto font-normal">
+            <p className="text-zinc-600 text-sm mt-1 max-w-md mx-auto font-medium">
               Try adjusting your search terms or filters to view more alumni reflections.
             </p>
             <button
@@ -696,7 +696,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                 setSelectedCategory("all");
                 setSelectedBatch("all");
               }}
-              className="mt-6 px-4 py-2 bg-white text-black font-sans text-xs font-bold uppercase border-2 border-black shadow-[3px_3px_0px_0px_#4285F4] cursor-pointer"
+              className="mt-6 px-4 py-2 bg-[#FFE600] text-black font-sans text-xs font-black uppercase border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] cursor-pointer transition-all"
             >
               Reset Filters
             </button>
@@ -710,18 +710,18 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
               return (
                 <div
                   key={item.id}
-                  className="group relative flex flex-col justify-between bg-[#0E0E10] border-2 border-zinc-800 hover:border-white transition-all duration-300 p-6 md:p-8"
+                  className="group relative flex flex-col justify-between bg-white border-2 border-black hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-300 p-6 md:p-8"
                   style={{
                     boxShadow: `6px 6px 0px 0px ${cardAccentColor}`,
                   }}
                 >
                   {/* Top Accent Strip & Tags */}
                   <div>
-                    <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-zinc-800">
+                    <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b-2 border-black">
                       {/* Batch & Index Stamp */}
                       <div className="flex items-center gap-2">
                         <span 
-                          className="px-2.5 py-0.5 text-[10px] font-sans font-black uppercase tracking-wider text-black border border-black shadow-[2px_2px_0px_0px_#FFFFFF]"
+                          className="px-2.5 py-0.5 text-[10px] font-sans font-black uppercase tracking-wider text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]"
                           style={{ backgroundColor: cardAccentColor }}
                         >
                           {item.batch ? `BATCH ${item.batch.replace('Batch', '').trim()}` : 'ALUMNUS'}
@@ -732,7 +732,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                       </div>
 
                       {/* Category Badge */}
-                      <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-zinc-400 bg-white/5 px-2 py-0.5 border border-white/10">
+                      <span className="text-[10px] font-sans font-black uppercase tracking-wider text-black bg-zinc-100 px-2 py-0.5 border-2 border-black">
                         {item.type}
                       </span>
                     </div>
@@ -740,7 +740,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                     {/* Massive Brutalist Quotation Mark */}
                     <div className="relative mb-3">
                       <span 
-                        className="text-6xl font-serif font-black leading-none select-none opacity-30 group-hover:opacity-100 transition-opacity"
+                        className="text-6xl font-serif font-black leading-none select-none opacity-40 group-hover:opacity-100 transition-opacity"
                         style={{ color: cardAccentColor }}
                       >
                         “
@@ -748,21 +748,21 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                     </div>
 
                     {/* The Quote Body */}
-                    <p className="text-sm md:text-base text-zinc-200 leading-relaxed font-normal">
+                    <p className="text-sm md:text-base text-zinc-800 leading-relaxed font-semibold">
                       {item.quote}
                     </p>
 
                     {/* Extended Story Accordion */}
                     {item.fullStory && (
-                      <div className="mt-4 pt-3 border-t border-zinc-800/80">
+                      <div className="mt-4 pt-3 border-t-2 border-black">
                         {isExpanded && (
-                          <p className="text-xs md:text-sm text-zinc-400 leading-relaxed font-normal mb-3 whitespace-pre-line animate-in fade-in duration-200">
+                          <p className="text-xs md:text-sm text-zinc-700 leading-relaxed font-medium mb-3 whitespace-pre-line animate-in fade-in duration-200">
                             {item.fullStory}
                           </p>
                         )}
                         <button
                           onClick={() => toggleStoryExpand(item.id)}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-sans font-bold uppercase tracking-wider text-[#4285F4] hover:underline cursor-pointer"
+                          className="inline-flex items-center gap-1.5 text-[11px] font-sans font-black uppercase tracking-wider text-[#4285F4] hover:underline cursor-pointer"
                         >
                           {isExpanded ? (
                             <>
@@ -779,13 +779,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                   </div>
 
                   {/* Author Box & Action Bar */}
-                  <div className="mt-8 pt-5 border-t-2 border-zinc-800">
+                  <div className="mt-8 pt-5 border-t-2 border-black">
                     <div className="flex items-start justify-between gap-3">
                       {/* Avatar & Name Info */}
                       <div className="flex items-center gap-3.5 min-w-0">
                         {item.photoUrl ? (
                           <div 
-                            className="w-12 h-12 relative overflow-hidden border-2 border-black shrink-0 shadow-[3px_3px_0px_0px_#FFFFFF]"
+                            className="w-12 h-12 relative overflow-hidden border-2 border-black shrink-0 shadow-[3px_3px_0px_0px_#000000]"
                             style={{ backgroundColor: cardAccentColor }}
                           >
                             <Image
@@ -798,7 +798,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                           </div>
                         ) : (
                           <div
-                            className="w-12 h-12 flex items-center justify-center text-black font-sans text-sm font-black shrink-0 border-2 border-black shadow-[3px_3px_0px_0px_#FFFFFF]"
+                            className="w-12 h-12 flex items-center justify-center text-black font-sans text-sm font-black shrink-0 border-2 border-black shadow-[3px_3px_0px_0px_#000000]"
                             style={{ backgroundColor: cardAccentColor }}
                           >
                             {item.initials || item.name.substring(0, 2).toUpperCase()}
@@ -806,16 +806,16 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                         )}
 
                         <div className="min-w-0">
-                          <h4 className="text-base font-display font-black text-white uppercase tracking-tight truncate group-hover:text-[#4285F4] transition-colors">
+                          <h4 className="text-base font-display font-black text-black uppercase tracking-tight truncate group-hover:text-[#4285F4] transition-colors">
                             {item.name}
                           </h4>
-                          <p className="text-xs text-zinc-400 font-sans font-medium truncate">
+                          <p className="text-xs text-zinc-600 font-sans font-bold truncate">
                             {item.role}
                           </p>
                           {(item.company || item.currentRole) && (
                             <div className="flex items-center gap-1.5 mt-1">
                               <Building2 className="h-3 w-3 text-zinc-500 shrink-0" />
-                              <span className="text-[11px] font-sans text-zinc-300 font-semibold truncate">
+                              <span className="text-[11px] font-sans text-zinc-800 font-bold truncate">
                                 {item.currentRole ? `${item.currentRole} ` : ''}
                                 {item.company ? `@ ${item.company}` : ''}
                               </span>
@@ -829,10 +829,10 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                         <button
                           onClick={() => handleCopyQuote(item)}
                           title="Copy Quote"
-                          className="p-2 bg-white/5 hover:bg-white/15 text-zinc-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+                          className="p-2 bg-zinc-100 hover:bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000] transition-colors cursor-pointer"
                         >
                           {copiedId === item.id ? (
-                            <Check className="h-4 w-4 text-[#00FF66]" />
+                            <Check className="h-4 w-4 text-[#00A844]" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
@@ -842,13 +842,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
 
                     {/* Social links row if available */}
                     {(item.linkedinUrl || item.githubUrl || item.twitterUrl) && (
-                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-zinc-850">
+                      <div className="flex items-center gap-3 mt-3 pt-3 border-t-2 border-black">
                         {item.linkedinUrl && (
                           <a
                             href={item.linkedinUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-zinc-400 hover:text-[#4285F4] flex items-center gap-1 font-sans font-semibold transition-colors"
+                            className="text-xs text-zinc-700 hover:text-[#4285F4] flex items-center gap-1 font-sans font-bold transition-colors"
                           >
                             <Linkedin className="h-3.5 w-3.5" />
                             <span>LinkedIn</span>
@@ -859,7 +859,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             href={item.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-zinc-400 hover:text-white flex items-center gap-1 font-sans font-semibold transition-colors"
+                            className="text-xs text-zinc-700 hover:text-black flex items-center gap-1 font-sans font-bold transition-colors"
                           >
                             <Github className="h-3.5 w-3.5" />
                             <span>GitHub</span>
@@ -870,7 +870,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                             href={item.twitterUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-zinc-400 hover:text-[#00F0FF] flex items-center gap-1 font-sans font-semibold transition-colors"
+                            className="text-xs text-zinc-700 hover:text-[#00F0FF] flex items-center gap-1 font-sans font-bold transition-colors"
                           >
                             <Twitter className="h-3.5 w-3.5" />
                             <span>Twitter</span>
@@ -889,38 +889,38 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
       {/* ══════════════════════════════════════════════════════════
           ON-PAGE SUBMISSION SECTION (#submit)
           ══════════════════════════════════════════════════════════ */}
-      <section id="submit" className="container mx-auto px-4 sm:px-6 max-w-5xl pt-24 mt-20 border-t-2 border-dashed border-white/15">
-        <div className="bg-[#0E0E10] border-2 border-white/20 p-8 md:p-12 shadow-[10px_10px_0px_0px_#FFE600] relative">
+      <section id="submit" className="container mx-auto px-4 sm:px-6 max-w-5xl pt-24 mt-20 border-t-2 border-black">
+        <div className="bg-white border-2 border-black p-8 md:p-12 shadow-[10px_10px_0px_0px_#FFE600] relative">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] text-black font-sans text-xs font-black uppercase tracking-wider border-2 border-black">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] text-black font-sans text-xs font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
               <HeartHandshake className="h-4 w-4" />
               CONTRIBUTE TO THE ARCHIVE
             </div>
 
             <Link
               href="/what-our-alumni-say/submit"
-              className="inline-flex items-center gap-1.5 text-xs font-sans font-bold text-[#FFE600] hover:underline uppercase"
+              className="inline-flex items-center gap-1.5 text-xs font-sans font-bold text-[#4285F4] hover:underline uppercase"
             >
               Open dedicated full-screen form ↗
             </Link>
           </div>
 
-          <h2 className="text-3xl md:text-5xl font-display font-black uppercase tracking-tight italic text-white mb-3">
-            ARE YOU AN <span className="text-[#FFE600]">MLSC ALUMNUS?</span>
+          <h2 className="text-3xl md:text-5xl font-display font-black uppercase tracking-tight italic text-black mb-3">
+            ARE YOU AN <span className="text-[#4285F4]">MLSC ALUMNUS?</span>
           </h2>
-          <p className="text-zinc-400 text-sm md:text-base mb-8 max-w-2xl leading-relaxed font-normal">
+          <p className="text-zinc-700 text-sm md:text-base mb-8 max-w-2xl leading-relaxed font-semibold">
             Your journey inspires hundreds of aspiring developers and students across Andhra Pradesh. Drop your words, advice, and memories below to be featured.
           </p>
 
           {formSuccess ? (
-            <div className="py-12 text-center space-y-4 bg-black/50 border-2 border-[#00FF66] p-8">
-              <div className="w-16 h-16 bg-[#00FF66] text-black rounded-full flex items-center justify-center mx-auto text-3xl font-black">
+            <div className="py-12 text-center space-y-4 bg-[#F9F9FB] border-2 border-black p-8 shadow-[6px_6px_0px_0px_#00FF66]">
+              <div className="w-16 h-16 bg-[#00FF66] text-black border-2 border-black flex items-center justify-center mx-auto text-3xl font-black shadow-[4px_4px_0px_0px_#000000]">
                 ✓
               </div>
-              <h3 className="text-2xl font-display font-black uppercase text-white">
+              <h3 className="text-2xl font-display font-black uppercase text-black">
                 Words Received & Published!
               </h3>
-              <p className="text-zinc-400 text-sm max-w-md mx-auto font-normal">
+              <p className="text-zinc-700 text-sm max-w-md mx-auto font-medium">
                 Your testimonial has been recorded and is live on the MLSC SVEC website.
               </p>
             </div>
@@ -929,7 +929,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                  <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                     Your Name <span className="text-[#FF0055]">*</span>
                   </label>
                   <input
@@ -938,13 +938,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                     placeholder="e.g. Chandu Neelam"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-black border-2 border-zinc-700 text-white rounded-none focus:border-[#FFE600] focus:outline-none text-sm font-medium font-sans"
+                    className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                   />
                 </div>
 
                 {/* Batch */}
                 <div>
-                  <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                  <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                     Graduation Batch <span className="text-[#FF0055]">*</span>
                   </label>
                   <input
@@ -953,13 +953,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                     placeholder="e.g. 2020 - 2024"
                     value={formData.batch}
                     onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-black border-2 border-zinc-700 text-white rounded-none focus:border-[#FFE600] focus:outline-none text-sm font-medium font-sans"
+                    className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                   />
                 </div>
 
                 {/* MLSC Role */}
                 <div>
-                  <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                  <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                     MLSC Role Held <span className="text-[#FF0055]">*</span>
                   </label>
                   <input
@@ -968,7 +968,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                     placeholder="e.g. Former President, Tech Lead"
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-black border-2 border-zinc-700 text-white rounded-none focus:border-[#FFE600] focus:outline-none text-sm font-medium font-sans"
+                    className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                   />
                 </div>
               </div>
@@ -976,7 +976,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Current Company */}
                 <div>
-                  <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                  <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                     Current Company / Organization
                   </label>
                   <input
@@ -984,13 +984,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                     placeholder="e.g. Google, Microsoft, TCS, Startup"
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-black border-2 border-zinc-700 text-white rounded-none focus:border-[#FFE600] focus:outline-none text-sm font-medium font-sans"
+                    className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                   />
                 </div>
 
                 {/* Current Role */}
                 <div>
-                  <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                  <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                     Current Designation / Role
                   </label>
                   <input
@@ -998,14 +998,14 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                     placeholder="e.g. Software Engineer, AI Researcher"
                     value={formData.currentRole}
                     onChange={(e) => setFormData({ ...formData, currentRole: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-black border-2 border-zinc-700 text-white rounded-none focus:border-[#FFE600] focus:outline-none text-sm font-medium font-sans"
+                    className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                   />
                 </div>
               </div>
 
               {/* Story Theme Selector */}
               <div>
-                <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-2">
+                <label className="block text-xs font-sans font-bold uppercase text-black mb-2">
                   Select Theme of your Words
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -1014,14 +1014,14 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                       type="button"
                       key={cat.key}
                       onClick={() => setFormData({ ...formData, type: cat.key as AlumniCategoryType })}
-                      className={`p-2.5 text-center border-2 transition-all cursor-pointer font-sans ${
+                      className={`p-2.5 text-center border-2 border-black transition-all cursor-pointer font-sans ${
                         formData.type === cat.key
-                          ? "bg-white text-black border-black shadow-[3px_3px_0px_0px_#FFE600]"
-                          : "bg-black text-zinc-400 border-zinc-800 hover:border-zinc-500 hover:text-white"
+                          ? "bg-[#FFE600] text-black shadow-[3px_3px_0px_0px_#000000]"
+                          : "bg-white text-zinc-700 hover:bg-zinc-100"
                       }`}
                     >
                       <span className="text-base block mb-0.5">{cat.icon}</span>
-                      <span className="text-xs font-bold uppercase">{cat.label}</span>
+                      <span className="text-xs font-black uppercase">{cat.label}</span>
                     </button>
                   ))}
                 </div>
@@ -1029,7 +1029,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
 
               {/* Quote */}
               <div>
-                <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                   Your Words / Quote <span className="text-[#FF0055]">*</span>
                 </label>
                 <textarea
@@ -1038,13 +1038,13 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                   placeholder="Share a key thought, memorable experience, or advice for juniors..."
                   value={formData.quote}
                   onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black border-2 border-zinc-700 text-white rounded-none focus:border-[#FFE600] focus:outline-none text-sm font-medium font-sans"
+                  className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                 />
               </div>
 
               {/* Extended Story */}
               <div>
-                <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                   Full Story & Advice for Students (Optional)
                 </label>
                 <textarea
@@ -1052,26 +1052,26 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                   placeholder="Want to elaborate further? Add your detailed story, placement journey, or advice for first-year to final-year students..."
                   value={formData.fullStory}
                   onChange={(e) => setFormData({ ...formData, fullStory: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black border-2 border-zinc-700 text-white rounded-none focus:border-[#FFE600] focus:outline-none text-sm font-medium font-sans"
+                  className="w-full px-3.5 py-2.5 bg-white border-2 border-black text-black rounded-none focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600] focus:outline-none text-sm font-medium font-sans placeholder-zinc-400"
                 />
               </div>
 
               {/* Photo & Color */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                  <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                     Profile Photo (Optional)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-zinc-400 file:mr-2 file:py-1.5 file:px-3 file:border-2 file:border-black file:text-xs file:font-sans file:font-bold file:bg-[#FFE600] file:text-black cursor-pointer"
+                    className="w-full text-xs text-zinc-700 file:mr-2 file:py-1.5 file:px-3 file:border-2 file:border-black file:text-xs file:font-sans file:font-bold file:bg-[#FFE600] file:text-black cursor-pointer"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-sans font-bold uppercase text-zinc-300 mb-1">
+                  <label className="block text-xs font-sans font-bold uppercase text-black mb-1">
                     Card Accent Color
                   </label>
                   <div className="flex flex-wrap gap-2 pt-1">
@@ -1080,7 +1080,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
                         key={col.value}
                         type="button"
                         onClick={() => setFormData({ ...formData, color: col.value })}
-                        className="w-6 h-6 border-2 border-black transition-transform hover:scale-110 flex items-center justify-center cursor-pointer shadow-[2px_2px_0px_0px_#FFFFFF]"
+                        className="w-6 h-6 border-2 border-black transition-transform hover:scale-110 flex items-center justify-center cursor-pointer shadow-[2px_2px_0px_0px_#000000]"
                         style={{ backgroundColor: col.value }}
                       >
                         {formData.color === col.value && <Check className="h-3 w-3 text-black font-black stroke-[3]" />}
@@ -1094,7 +1094,7 @@ export function AlumniBrutalistView({ initialTestimonials }: AlumniBrutalistView
               <button
                 type="submit"
                 disabled={formSubmitting}
-                className="w-full py-4 bg-[#FFE600] text-black font-sans font-black uppercase tracking-wider text-sm border-2 border-black shadow-[6px_6px_0px_0px_#FFFFFF] hover:shadow-[2px_2px_0px_0px_#FFFFFF] hover:translate-x-[4px] hover:translate-y-[4px] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                className="w-full py-4 bg-[#FFE600] text-black font-sans font-black uppercase tracking-wider text-sm border-2 border-black shadow-[6px_6px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[4px] hover:translate-y-[4px] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
               >
                 {formSubmitting ? (
                   <>

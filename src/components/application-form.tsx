@@ -203,90 +203,118 @@ export function ApplicationForm() {
 
   if (submissionResult) {
     return (
-      <Card className="bg-background">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <ThumbsUp className="h-8 w-8 text-green-500" />
-            <span>Application Received!</span>
-          </CardTitle>
-          <CardDescription>
-            Your application has been submitted successfully. Here is your digital ID card.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="font-bold">Important: Save Your Reference ID</AlertTitle>
-            <AlertDescription>
-              Please copy and save your Reference ID below. You will need it to check your application status.
-            </AlertDescription>
-          </Alert>
+      <div className="bg-white border-2 border-black shadow-[10px_10px_0px_0px_#00FF66] p-8 md:p-12 space-y-8 font-sans">
+        <div className="border-b-2 border-black pb-6">
+          <div className="inline-block px-3 py-1 bg-[#00FF66] text-black text-xs font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000] mb-3">
+            [ APPLICATION RECORDED ]
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-display font-black uppercase italic tracking-tight text-black flex items-center gap-3">
+            <ThumbsUp className="h-8 w-8 text-[#00A844] stroke-[2.5]" />
+            APPLICATION RECEIVED!
+          </h2>
+          <p className="text-zinc-700 text-xs sm:text-sm font-semibold mt-2">
+            Your candidate file has been created and synced with the evaluation database.
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-[#FFE600] border-2 border-black p-5 shadow-[4px_4px_0px_0px_#000000]">
+            <div className="flex items-center gap-2 text-black font-black text-xs uppercase tracking-wider mb-2">
+              <AlertTriangle className="h-4 w-4 stroke-[3]" />
+              IMPORTANT: SAVE YOUR REFERENCE ID
+            </div>
+            <p className="text-zinc-900 text-xs font-bold">
+              Save your unique Reference ID below to track your evaluation status.
+            </p>
+          </div>
 
           {submissionResult.summary && (
-            <div>
-              <Label className="text-sm font-medium text-foreground">AI-Generated Resume Summary</Label>
-              <blockquote className="text-sm text-muted-foreground mt-2 p-3 border rounded-md bg-muted/50 italic">
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase tracking-wider text-black">AI-Generated Profile Summary</Label>
+              <div className="text-xs text-zinc-800 p-4 border-2 border-black bg-[#F9F9FB] font-mono font-bold">
                 {submissionResult.summary}
-              </blockquote>
+              </div>
             </div>
           )}
 
           {submissionResult.referenceId && (
-            <div>
-              <Label htmlFor="referenceId" className="text-sm font-medium text-foreground">Your Unique Reference ID</Label>
-              <div className="flex items-center gap-2 mt-2">
-                <Input
+            <div className="space-y-2">
+              <Label htmlFor="referenceId" className="text-xs font-black uppercase tracking-wider text-black">Unique Candidate Reference ID</Label>
+              <div className="flex items-center gap-3">
+                <input
                   id="referenceId"
                   readOnly
                   value={submissionResult.referenceId}
-                  className="bg-muted font-mono text-base"
+                  className="bg-white border-2 border-black text-black font-mono font-bold text-sm px-4 py-3 w-full shadow-[2px_2px_0px_0px_#000000]"
                 />
-                <Button variant="outline" size="icon" onClick={() => copyToClipboard(submissionResult.referenceId!)}>
-                  <ClipboardCopy className="h-5 w-5" />
-                  <span className="sr-only">Copy Reference ID</span>
-                </Button>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(submissionResult.referenceId!)}
+                  className="px-5 py-3 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex items-center gap-2 shrink-0"
+                >
+                  <ClipboardCopy className="h-4 w-4 stroke-[2.5]" />
+                  COPY
+                </button>
               </div>
             </div>
           )}
-          <div className="text-center space-y-4">
-            <p className="text-sm font-medium">📢 Stay Updated! Join our WhatsApp group for important announcements.</p>
-            <Button asChild className="bg-green-600 hover:bg-green-700">
-              <Link href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank">
-                Join WhatsApp Group
-              </Link>
-            </Button>
+
+          <div className="bg-[#F9F9FB] border-2 border-black p-6 shadow-[4px_4px_0px_0px_#00FF66] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-black">
+                COMMUNITY ONBOARDING CHANNEL
+              </p>
+              <p className="text-[11px] text-zinc-700 font-semibold mt-1">
+                Join our official applicant community for real-time interview updates and round schedules.
+              </p>
+            </div>
+            <a
+              href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2.5 bg-[#00FF66] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all shrink-0"
+            >
+              JOIN WHATSAPP [↗]
+            </a>
           </div>
 
-          <Button onClick={() => window.location.reload()} variant="outline">Submit another application</Button>
-        </CardContent>
-      </Card>
-    )
+          <div className="pt-4 flex justify-end">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2.5 bg-zinc-200 text-black font-black text-xs uppercase tracking-wider border-2 border-black hover:bg-zinc-300 transition-all shadow-[2px_2px_0px_0px_#000000]"
+            >
+              SUBMIT ANOTHER APPLICATION
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <>
       {/* Stepper Header bubble navigation */}
-      <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
+      <div className="flex items-center justify-between mb-10 border-b-2 border-black pb-6 flex-wrap gap-2">
         {[
-          { num: 1, label: "Personal" },
-          { num: 2, label: "Academic" },
-          { num: 3, label: "Domains" },
-          { num: 4, label: "Submit" }
+          { num: 1, label: "Personal Info" },
+          { num: 2, label: "Academic Standing" },
+          { num: 3, label: "Domain Track" },
+          { num: 4, label: "Resume & Submit" }
         ].map((s) => (
           <div key={s.num} className="flex items-center gap-2">
             <div className={cn(
-              "flex aspect-square size-7 items-center justify-center rounded-full text-xs font-black border transition-all duration-300",
+              "size-8 flex items-center justify-center text-xs font-black border-2 transition-all duration-200",
               step === s.num 
-                ? "bg-[#4285F4] border-[#4285F4] text-white shadow-[0_0_10px_rgba(66,133,244,0.3)]" 
+                ? "bg-[#FFE600] border-black text-black shadow-[3px_3px_0px_0px_#000000]" 
                 : step > s.num
-                  ? "bg-[#4285F4]/20 border-[#4285F4]/40 text-[#4285F4]"
-                  : "bg-white/5 border-white/10 text-white/30"
+                  ? "bg-[#00FF66] border-black text-black shadow-[2px_2px_0px_0px_#000000]"
+                  : "bg-[#F9F9FB] border-black text-zinc-500"
             )}>
               {s.num}
             </div>
             <span className={cn(
-              "hidden sm:inline text-[10px] font-black uppercase tracking-wider",
-              step === s.num ? "text-white" : "text-white/30"
+              "text-xs font-black uppercase tracking-wider",
+              step === s.num ? "text-black" : "text-zinc-500"
             )}>
               {s.label}
             </span>
@@ -295,19 +323,18 @@ export function ApplicationForm() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           
           {/* Section 1: Personal Details */}
           {step === 1 && (
-            <div className="space-y-6 bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="border-b border-white/5 pb-4 mb-6">
-                <span className="text-[9px] bg-[#4285F4]/10 text-[#4285F4] px-2.5 py-1 rounded font-black tracking-widest uppercase">
-                  Section 01
+            <div className="space-y-6">
+              <div className="border-b-2 border-black pb-4">
+                <span className="text-[10px] bg-[#4285F4] text-white px-2.5 py-1 font-black tracking-widest uppercase border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                  [ STEP 01 // PERSONAL CREDENTIALS ]
                 </span>
-                <h3 className="text-base font-black uppercase italic tracking-tight mt-2 text-white">
-                  Personal <span className="text-[#4285F4]">Details</span>
+                <h3 className="text-2xl font-display font-black uppercase italic tracking-tight mt-3 text-black">
+                  CANDIDATE CONTACT INFO
                 </h3>
-                <p className="text-[11px] text-white/40 mt-1">Your basic contact information and professional profiles.</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -316,11 +343,11 @@ export function ApplicationForm() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Full Name *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Full Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
+                        <Input placeholder="John Doe" {...field} className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -329,11 +356,11 @@ export function ApplicationForm() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Email *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Email Address *</FormLabel>
                       <FormControl>
-                        <Input placeholder="john.doe@example.com" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
+                        <Input placeholder="john.doe@example.com" {...field} className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -342,11 +369,11 @@ export function ApplicationForm() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Phone Number *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Phone Number *</FormLabel>
                       <FormControl>
-                        <Input placeholder="10-digit number" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
+                        <Input placeholder="10-digit mobile number" {...field} className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -355,11 +382,11 @@ export function ApplicationForm() {
                   name="linkedin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">LinkedIn Profile (Link)</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">LinkedIn URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
+                        <Input placeholder="https://www.linkedin.com/in/yourprofile/" {...field} className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -369,15 +396,14 @@ export function ApplicationForm() {
 
           {/* Section 2: Academic Info */}
           {step === 2 && (
-            <div className="space-y-6 bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="border-b border-white/5 pb-4 mb-6">
-                <span className="text-[9px] bg-[#4285F4]/10 text-[#4285F4] px-2.5 py-1 rounded font-black tracking-widest uppercase">
-                  Section 02
+            <div className="space-y-6">
+              <div className="border-b-2 border-black pb-4">
+                <span className="text-[10px] bg-[#FFE600] text-black px-2.5 py-1 font-black tracking-widest uppercase border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                  [ STEP 02 // ACADEMIC PROFILE ]
                 </span>
-                <h3 className="text-base font-black uppercase italic tracking-tight mt-2 text-white">
-                  Academic <span className="text-[#4285F4]">Information</span>
+                <h3 className="text-2xl font-display font-black uppercase italic tracking-tight mt-3 text-black">
+                  ACADEMIC BACKGROUND
                 </h3>
-                <p className="text-[11px] text-white/40 mt-1">Details about your current course, standing, and sections.</p>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -386,11 +412,11 @@ export function ApplicationForm() {
                   name="rollNo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Roll No *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Roll Number *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., 22A91A4201" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
+                        <Input placeholder="e.g., 22A91A4201" {...field} className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -399,18 +425,18 @@ export function ApplicationForm() {
                   name="branch"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Branch *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Branch *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
+                          <SelectTrigger className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black focus:border-[#FFE600]">
                             <SelectValue placeholder="Select branch" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
-                          {branches.map(branch => <SelectItem key={branch} value={branch} className="rounded-lg">{branch}</SelectItem>)}
+                        <SelectContent className="bg-white border-2 border-black text-black rounded-none">
+                          {branches.map(branch => <SelectItem key={branch} value={branch} className="text-xs focus:bg-[#FFE600] focus:text-black">{branch}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -419,18 +445,18 @@ export function ApplicationForm() {
                   name="section"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Section *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Section *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
+                          <SelectTrigger className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black focus:border-[#FFE600]">
                             <SelectValue placeholder="Select section" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
-                          {sections.map(section => <SelectItem key={section} value={section} className="rounded-lg">{section}</SelectItem>)}
+                        <SelectContent className="bg-white border-2 border-black text-black rounded-none">
+                          {sections.map(section => <SelectItem key={section} value={section} className="text-xs focus:bg-[#FFE600] focus:text-black">{section}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -439,18 +465,18 @@ export function ApplicationForm() {
                   name="yearOfStudy"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Year of Study *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Year of Study *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
+                          <SelectTrigger className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black focus:border-[#FFE600]">
                             <SelectValue placeholder="Select year" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
-                          {years.map(year => <SelectItem key={year} value={year} className="rounded-lg">{year}</SelectItem>)}
+                        <SelectContent className="bg-white border-2 border-black text-black rounded-none">
+                          {years.map(year => <SelectItem key={year} value={year} className="text-xs focus:bg-[#FFE600] focus:text-black">{year}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -459,11 +485,11 @@ export function ApplicationForm() {
                   name="cgpa"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Current CGPA *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Current CGPA *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., 8.5" type="number" step="0.01" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
+                        <Input placeholder="e.g., 8.5" type="number" step="0.01" {...field} className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -472,11 +498,11 @@ export function ApplicationForm() {
                   name="backlogs"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">No of Backlogs *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Active Backlogs *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., 0" type="number" {...field} className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] transition-all" />
+                        <Input placeholder="e.g., 0" type="number" {...field} className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black placeholder-zinc-400 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -486,15 +512,14 @@ export function ApplicationForm() {
 
           {/* Section 3: Domain Preferences */}
           {step === 3 && (
-            <div className="space-y-6 bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="border-b border-white/5 pb-4 mb-6">
-                <span className="text-[9px] bg-[#4285F4]/10 text-[#4285F4] px-2.5 py-1 rounded font-black tracking-widest uppercase">
-                  Section 03
+            <div className="space-y-6">
+              <div className="border-b-2 border-black pb-4">
+                <span className="text-[10px] bg-[#00FF66] text-black px-2.5 py-1 font-black tracking-widest uppercase border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                  [ STEP 03 // TRACK SELECTION ]
                 </span>
-                <h3 className="text-base font-black uppercase italic tracking-tight mt-2 text-white">
-                  Domain <span className="text-[#4285F4]">Preferences</span>
+                <h3 className="text-2xl font-display font-black uppercase italic tracking-tight mt-3 text-black">
+                  DOMAIN PREFERENCES
                 </h3>
-                <p className="text-[11px] text-white/40 mt-1">Select the technical and non-technical tracks you wish to explore.</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -503,18 +528,18 @@ export function ApplicationForm() {
                   name="technicalDomain"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">TECHNICAL DOMAIN INTEREST *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">TECHNICAL DOMAIN INTEREST *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
+                          <SelectTrigger className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black focus:border-[#00FF66]">
                             <SelectValue placeholder="Select technical domain" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
-                          {technicalDomains.map(item => <SelectItem key={item.id} value={item.id} className="rounded-lg">{item.label}</SelectItem>)}
+                        <SelectContent className="bg-white border-2 border-black text-black rounded-none">
+                          {technicalDomains.map(item => <SelectItem key={item.id} value={item.id} className="text-xs focus:bg-[#00FF66] focus:text-black">{item.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -524,18 +549,18 @@ export function ApplicationForm() {
                   name="nonTechnicalDomain"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">NON-TECHNICAL DOMAIN INTEREST *</FormLabel>
+                      <FormLabel className="text-xs font-black uppercase tracking-wider text-black">NON-TECHNICAL DOMAIN INTEREST *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm focus:border-[#4285F4] focus:ring-0 focus:ring-offset-0 transition-all text-left w-full">
+                          <SelectTrigger className="bg-white border-2 border-black rounded-none h-11 px-4 text-xs text-black focus:border-[#00FF66]">
                             <SelectValue placeholder="Select non-technical domain" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
-                          {nonTechnicalDomains.map(item => <SelectItem key={item.id} value={item.id} className="rounded-lg">{item.label}</SelectItem>)}
+                        <SelectContent className="bg-white border-2 border-black text-black rounded-none">
+                          {nonTechnicalDomains.map(item => <SelectItem key={item.id} value={item.id} className="text-xs focus:bg-[#00FF66] focus:text-black">{item.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-600 text-[11px] font-bold" />
                     </FormItem>
                   )}
                 />
@@ -545,15 +570,14 @@ export function ApplicationForm() {
 
           {/* Section 4: Statements & Submission */}
           {step === 4 && (
-            <div className="space-y-8 bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="border-b border-white/5 pb-4 mb-6">
-                <span className="text-[9px] bg-[#4285F4]/10 text-[#4285F4] px-2.5 py-1 rounded font-black tracking-widest uppercase">
-                  Section 04
+            <div className="space-y-6">
+              <div className="border-b-2 border-black pb-4">
+                <span className="text-[10px] bg-[#FF0055] text-white px-2.5 py-1 font-black tracking-widest uppercase border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                  [ STEP 04 // STATEMENTS & VERIFICATION ]
                 </span>
-                <h3 className="text-base font-black uppercase italic tracking-tight mt-2 text-white">
-                  Statements & <span className="text-[#4285F4]">Submission</span>
+                <h3 className="text-2xl font-display font-black uppercase italic tracking-tight mt-3 text-black">
+                  MOTIVATION & RESUME UPLOAD
                 </h3>
-                <p className="text-[11px] text-white/40 mt-1">Help us learn more about you. Submit your resume and confirm details.</p>
               </div>
               
               <div className="space-y-6">
@@ -563,22 +587,16 @@ export function ApplicationForm() {
                     name="joinReason"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Why do you want to join this club? *</FormLabel>
+                        <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Why do you want to join MLSC SVEC? *</FormLabel>
                         <FormControl>
-                          <InputGroup className="bg-white/5 border-white/10 rounded-xl overflow-hidden">
-                            <InputGroupTextarea
-                              placeholder="Tell us about your passion for technology and what you hope to achieve with the club. (20-1000 characters)"
-                              className="min-h-32 text-sm text-white focus-visible:ring-0 placeholder:text-white/30 border-0"
-                              {...field}
-                            />
-                            <InputGroupAddon align="block-end" className="border-white/5 bg-white/[0.02]">
-                              <InputGroupText className="text-white/40 tabular-nums">
-                                {(field.value || "").length}/1000 characters
-                              </InputGroupText>
-                            </InputGroupAddon>
-                          </InputGroup>
+                          <textarea
+                            placeholder="Describe your technical drive and expectations from the club..."
+                            rows={4}
+                            className="w-full bg-white border-2 border-black text-black p-3 text-xs focus:border-[#FF0055] focus:shadow-[3px_3px_0px_0px_#FF0055] outline-none placeholder-zinc-400"
+                            {...field}
+                          />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-600 text-[11px] font-bold" />
                       </FormItem>
                     )}
                   />
@@ -588,22 +606,16 @@ export function ApplicationForm() {
                     name="aboutClub"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">What do you know about MLSC club? *</FormLabel>
+                        <FormLabel className="text-xs font-black uppercase tracking-wider text-black">What do you know about our club activities? *</FormLabel>
                         <FormControl>
-                          <InputGroup className="bg-white/5 border-white/10 rounded-xl overflow-hidden">
-                            <InputGroupTextarea
-                              placeholder="Share your knowledge about the club's activities, goals, etc. (20-1000 characters)"
-                              className="min-h-32 text-sm text-white focus-visible:ring-0 placeholder:text-white/30 border-0"
-                              {...field}
-                            />
-                            <InputGroupAddon align="block-end" className="border-white/5 bg-white/[0.02]">
-                              <InputGroupText className="text-white/40 tabular-nums">
-                                {(field.value || "").length}/1000 characters
-                              </InputGroupText>
-                            </InputGroupAddon>
-                          </InputGroup>
+                          <textarea
+                            placeholder="Share your awareness of MLSC events, workshops, or past initiatives..."
+                            rows={4}
+                            className="w-full bg-white border-2 border-black text-black p-3 text-xs focus:border-[#FF0055] focus:shadow-[3px_3px_0px_0px_#FF0055] outline-none placeholder-zinc-400"
+                            {...field}
+                          />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-600 text-[11px] font-bold" />
                       </FormItem>
                     )}
                   />
@@ -615,22 +627,16 @@ export function ApplicationForm() {
                     name="anythingElse"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Anything else you’d like to share?</FormLabel>
+                        <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Additional Notes / Portfolio</FormLabel>
                         <FormControl>
-                          <InputGroup className="bg-white/5 border-white/10 rounded-xl overflow-hidden">
-                            <InputGroupTextarea
-                              placeholder="Any other info you'd like us to know. (Max 1000 characters)"
-                              className="min-h-28 text-sm text-white focus-visible:ring-0 placeholder:text-white/30 border-0"
-                              {...field}
-                            />
-                            <InputGroupAddon align="block-end" className="border-white/5 bg-white/[0.02]">
-                              <InputGroupText className="text-white/40 tabular-nums">
-                                {(field.value || "").length}/1000 characters
-                              </InputGroupText>
-                            </InputGroupAddon>
-                          </InputGroup>
+                          <textarea
+                            placeholder="GitHub repos, portfolio links, or any other notes..."
+                            rows={3}
+                            className="w-full bg-white border-2 border-black text-black p-3 text-xs focus:border-[#FF0055] focus:shadow-[3px_3px_0px_0px_#FF0055] outline-none placeholder-zinc-400"
+                            {...field}
+                          />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-600 text-[11px] font-bold" />
                       </FormItem>
                     )}
                   />
@@ -641,19 +647,19 @@ export function ApplicationForm() {
                     render={({ field: { onChange, value, ...rest } }) => (
                       <FormItem className="flex flex-col justify-between">
                         <div>
-                          <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Resume *</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Resume Upload (PDF / DOCX) *</FormLabel>
                           <FormControl className="mt-2">
                             <Input
                               type="file"
                               accept=".pdf,.docx"
                               onChange={(e) => onChange(e.target.files)}
                               {...rest}
-                              className="bg-white/5 border-white/10 rounded-xl h-12 px-5 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-white/10 file:text-white hover:file:bg-white/20 focus:border-[#4285F4] transition-all cursor-pointer flex items-center pt-2.5"
+                              className="bg-white border-2 border-black rounded-none h-12 px-4 text-xs text-black file:mr-4 file:py-1 file:px-3 file:border-2 file:border-black file:text-[10px] file:font-black file:uppercase file:bg-[#FFE600] file:text-black cursor-pointer flex items-center pt-2"
                             />
                           </FormControl>
-                          <FormDescription className="text-[11px] text-white/40 mt-1">Upload your resume (PDF or DOCX, max 5MB).</FormDescription>
+                          <FormDescription className="text-[10px] text-zinc-600 mt-1">Upload your latest resume (max 5MB).</FormDescription>
                         </div>
-                        <FormMessage />
+                        <FormMessage className="text-red-600 text-[11px] font-bold" />
                       </FormItem>
                     )}
                   />
@@ -663,22 +669,22 @@ export function ApplicationForm() {
                   control={form.control}
                   name="terms"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-2xl border border-white/10 bg-white/5 p-5 shadow-sm">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 border-2 border-black bg-[#F9F9FB] p-4 shadow-[3px_3px_0px_0px_#000000]">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="border-white/30 rounded-md h-5 w-5 focus-visible:ring-offset-0 focus-visible:ring-[#4285F4] data-[state=checked]:bg-[#4285F4] data-[state=checked]:border-[#4285F4]"
+                          className="border-2 border-black rounded-none h-5 w-5 data-[state=checked]:bg-[#00FF66] data-[state=checked]:border-black data-[state=checked]:text-black"
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-semibold text-white/80 cursor-pointer">
-                          I agree to the <Link href="/terms-and-conditions" className="text-[#4285F4] hover:underline" target="_blank">terms and conditions</Link> *
+                        <FormLabel className="text-xs font-bold text-black cursor-pointer">
+                          I agree to the <Link href="/terms-and-conditions" className="text-[#4285F4] underline" target="_blank">terms and conditions</Link> *
                         </FormLabel>
-                        <FormDescription className="text-xs text-white/40">
-                          By submitting this application, you agree to our data handling and privacy policies.
+                        <FormDescription className="text-[10px] text-zinc-600">
+                          By submitting this form, you authorize MLSC SVEC to process your application data for recruitment evaluation.
                         </FormDescription>
-                        <FormMessage />
+                        <FormMessage className="text-red-600 text-[11px] font-bold" />
                       </div>
                     </FormItem>
                   )}
@@ -688,38 +694,36 @@ export function ApplicationForm() {
           )}
 
           {/* Stepper Navigation Buttons */}
-          <div className="flex items-center justify-between pt-6 border-t border-white/5 mt-8">
+          <div className="flex items-center justify-between pt-6 border-t-2 border-black mt-8 flex-wrap gap-4">
             {step > 1 ? (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={() => setStep((prev) => prev - 1)}
-                className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider h-11 px-6"
+                className="px-6 py-3 bg-zinc-200 border-2 border-black hover:bg-zinc-300 text-black font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000]"
               >
-                Back
-              </Button>
+                [ ← BACK ]
+              </button>
             ) : (
               <div />
             )}
 
             {step < 4 ? (
-              <Button
+              <button
                 type="button"
                 onClick={handleNext}
-                className="rounded-xl bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-black text-xs uppercase tracking-wider h-11 px-8"
+                className="px-8 py-3 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
               >
-                Continue
-              </Button>
+                CONTINUE TO NEXT STEP [→]
+              </button>
             ) : (
-              <SlideToConfirmButton
-                label="Slide to submit"
-                confirmedLabel="Submitting application..."
-                onConfirm={form.handleSubmit(onSubmit)}
+              <button
+                type="submit"
                 disabled={isSubmitting}
-                isConfirmed={isSubmitting}
-                autoResetDelay={0}
-                className="max-w-xs w-full"
-              />
+                className="px-8 py-3.5 bg-[#00FF66] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              >
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                SUBMIT OFFICIAL APPLICATION [↗]
+              </button>
             )}
           </div>
 

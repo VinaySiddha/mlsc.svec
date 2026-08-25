@@ -15,19 +15,19 @@ const DomainContent = ({
   slug: string;
 }) => {
   return (
-    <div className="bg-[#0F0F0F] border border-white/[0.08] p-8 md:p-14 rounded-3xl mb-4">
-      <p className="text-white/70 text-base md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
+    <div className="bg-white border-2 border-black p-8 md:p-14 shadow-[6px_6px_0px_0px_#000000] mb-4">
+      <p className="text-zinc-800 text-base md:text-xl font-semibold max-w-3xl mx-auto leading-relaxed">
         {description}
       </p>
       <img
         src={image}
         alt="Domain illustration"
-        className="md:w-1/2 md:h-1/2 h-full w-full mx-auto object-contain mt-8 rounded-2xl"
+        className="md:w-1/2 md:h-1/2 h-full w-full mx-auto object-contain mt-8 border-2 border-black shadow-[4px_4px_0px_0px_#000000]"
       />
       <div className="mt-8 flex justify-center">
         <Link
           href={`/domains/${slug}`}
-          className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white hover:bg-white/5 hover:border-white/40 transition-all"
+          className="inline-flex items-center gap-2 bg-[#FFE600] text-black font-black uppercase text-xs tracking-wider border-2 border-black px-6 py-3 shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
         >
           View Full Roadmap <ArrowRight className="h-4 w-4" />
         </Link>

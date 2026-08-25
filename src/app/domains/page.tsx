@@ -2,60 +2,66 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger-container";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Domains — MLSC SVEC",
-  description: "Explore the six technical and non-technical domains of Microsoft Learn Student Club SVEC — each with a full learning roadmap.",
+  description: "Explore the technical and non-technical domains of Microsoft Learn Student Club SVEC — each with a full learning roadmap.",
 };
 
 const domains = [
-  { slug: "generative-ai",     name: "GENERATIVE AI & LLMs",    category: "Technical",     color: "#4285F4", bg: "bg-[#0d1a2d]", border: "border-[#4285F4]/20", description: "Build with Large Language Models, prompt engineering, AI agents, and Microsoft Azure AI.", icon: "🤖" },
-  { slug: "data-science",      name: "DATA SCIENCE & ML",        category: "Technical",     color: "#34A853", bg: "bg-[#0d2218]", border: "border-[#34A853]/20", description: "Master predictive analytics, neural networks, and machine learning pipelines.", icon: "📊" },
-  { slug: "cloud-devops",      name: "CLOUD & DEVOPS",           category: "Technical",     color: "#FBBC04", bg: "bg-[#1a1200]", border: "border-[#FBBC04]/20", description: "Azure cloud architecture, CI/CD pipelines, Docker, Kubernetes, and DevOps workflows.", icon: "☁️" },
-  { slug: "web-development",   name: "WEB & APP DEVELOPMENT",    category: "Technical",     color: "#7c3aed", bg: "bg-[#100d1a]", border: "border-[#7c3aed]/20", description: "Modern web apps with React, Next.js, and full-stack deployments.", icon: "💻" },
-  { slug: "media-marketing",   name: "MEDIA & MARKETING",        category: "Non-Technical", color: "#EA4335", bg: "bg-[#1a0d0d]", border: "border-[#EA4335]/20", description: "Shape the MLSC brand through social media, content creation, and digital campaigns.", icon: "📱" },
-  { slug: "events-operations", name: "EVENTS & OPERATIONS",      category: "Non-Technical", color: "#FF6D00", bg: "bg-[#1a1000]", border: "border-[#FF6D00]/20", description: "Plan and execute world-class hackathons, workshops, and speaker sessions.", icon: "🎯" },
+  { slug: "generative-ai",     name: "GENERATIVE AI & LLMs",    category: "TECHNICAL",     color: "#4285F4", shadow: "shadow-[6px_6px_0px_0px_#4285F4]", description: "Build with Large Language Models, prompt engineering, AI agents, and Microsoft Azure AI.", badgeBg: "bg-[#4285F4] text-white" },
+  { slug: "data-science",      name: "DATA SCIENCE & ML",        category: "TECHNICAL",     color: "#00FF66", shadow: "shadow-[6px_6px_0px_0px_#00FF66]", description: "Master predictive analytics, neural networks, and machine learning pipelines.", badgeBg: "bg-[#00FF66] text-black" },
+  { slug: "cloud-devops",      name: "CLOUD & DEVOPS",           category: "TECHNICAL",     color: "#FFE600", shadow: "shadow-[6px_6px_0px_0px_#FFE600]", description: "Azure cloud architecture, CI/CD pipelines, Docker, Kubernetes, and DevOps workflows.", badgeBg: "bg-[#FFE600] text-black" },
+  { slug: "web-development",   name: "WEB & APP DEVELOPMENT",    category: "TECHNICAL",     color: "#A733FF", shadow: "shadow-[6px_6px_0px_0px_#A733FF]", description: "Modern web apps with React, Next.js, and full-stack deployments.", badgeBg: "bg-[#A733FF] text-white" },
+  { slug: "media-marketing",   name: "MEDIA & MARKETING",        category: "CREATIVE & OPS", color: "#FF0055", shadow: "shadow-[6px_6px_0px_0px_#FF0055]", description: "Shape the MLSC brand through social media, content creation, and digital campaigns.", badgeBg: "bg-[#FF0055] text-white" },
+  { slug: "events-operations", name: "EVENTS & OPERATIONS",      category: "CREATIVE & OPS", color: "#00F0FF", shadow: "shadow-[6px_6px_0px_0px_#00F0FF]", description: "Plan and execute world-class hackathons, workshops, and speaker sessions.", badgeBg: "bg-[#00F0FF] text-black" },
+  { slug: "public-relations",  name: "PUBLIC RELATIONS",         category: "OUTREACH",      color: "#FFE600", shadow: "shadow-[6px_6px_0px_0px_#FFE600]", description: "Manage collaborations, sponsorships, and external communications with industry.", badgeBg: "bg-[#FFE600] text-black" },
+  { slug: "creativity-design", name: "CREATIVITY & DESIGN",      category: "CREATIVE & OPS", color: "#FF0055", shadow: "shadow-[6px_6px_0px_0px_#FF0055]", description: "Design stunning graphics, visual assets, 3D designs, and UI/UX for all club products.", badgeBg: "bg-[#FF0055] text-white" },
 ];
 
 export default function DomainsPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white">
+    <div className="flex flex-col min-h-screen bg-white text-black font-sans">
       <main className="flex-1">
-        <section className="relative pt-32 pb-20 overflow-hidden">
-          <div className="glow-sphere top-[-5%] right-[-5%] w-[40%] h-[40%] bg-[#4285F4]/20" />
-          <div className="container mx-auto px-6">
-            <ScrollReveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/30 mb-6">What we build</p>
-              <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.9] max-w-3xl">
-                Explore our <span className="text-[#4285F4]">domains.</span>
-              </h1>
-              <p className="mt-8 text-white/40 text-lg font-medium max-w-xl leading-relaxed">
-                Six specialized tracks — technical and non-technical — each with a clear roadmap to help you grow from beginner to industry-ready.
-              </p>
-            </ScrollReveal>
-          </div>
+        
+        {/* Header */}
+        <section className="pt-32 pb-16 container mx-auto px-6 border-b-2 border-black bg-white">
+          <ScrollReveal>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#4285F4] text-white text-xs font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-5">
+              [ 01 // CLUB SPECIALIZATIONS ]
+            </div>
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tighter text-black uppercase italic leading-[0.88] max-w-4xl">
+              EXPLORE OUR <br />
+              <span className="text-[#4285F4]">DOMAINS.</span>
+            </h1>
+            <p className="mt-6 text-zinc-700 text-base md:text-xl font-semibold max-w-xl leading-relaxed">
+              Eight specialized tracks with structured, step-by-step roadmaps to help you grow from fundamentals to production-grade engineering.
+            </p>
+          </ScrollReveal>
         </section>
 
-        <section className="pb-32 container mx-auto px-6">
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Domains Grid */}
+        <section className="py-20 container mx-auto px-6">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {domains.map((domain) => (
-              <StaggerItem key={domain.slug}>
+              <StaggerItem key={domain.slug} className="flex flex-col">
                 <Link href={`/domains/${domain.slug}`} className="group block h-full">
-                  <div className={`h-full min-h-[260px] rounded-2xl border ${domain.border} ${domain.bg} p-8 flex flex-col justify-between transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl`}>
+                  <div className={`h-full min-h-[280px] bg-white border-2 border-black ${domain.shadow} p-8 flex flex-col justify-between transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px]`}>
                     <div>
                       <div className="flex items-center justify-between mb-6">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full border" style={{ color: domain.color, borderColor: `${domain.color}30`, backgroundColor: `${domain.color}10` }}>
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_#000000] ${domain.badgeBg}`}>
                           {domain.category}
                         </span>
                       </div>
-                      <h2 className="text-xl md:text-2xl font-black tracking-tighter text-white mb-3 leading-tight">
+                      <h2 className="text-2xl font-display font-black tracking-tight text-black uppercase italic mb-3 leading-tight group-hover:text-[#4285F4] transition-colors">
                         {domain.name}
                       </h2>
-                      <p className="text-white/40 text-sm font-medium leading-relaxed">{domain.description}</p>
+                      <p className="text-zinc-700 text-xs font-semibold leading-relaxed">{domain.description}</p>
                     </div>
-                    <div className="flex items-center gap-2 mt-6 text-sm font-bold transition-all group-hover:gap-3" style={{ color: domain.color }}>
-                      View Roadmap <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <div className="flex items-center justify-between mt-8 pt-4 border-t-2 border-black text-xs font-black uppercase tracking-wider text-black group-hover:text-[#4285F4] transition-colors">
+                      <span>VIEW ROADMAP</span>
+                      <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
                     </div>
                   </div>
                 </Link>
