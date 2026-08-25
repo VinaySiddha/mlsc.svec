@@ -371,7 +371,7 @@ export function AlumniManager() {
       <div className="p-4 bg-gradient-to-r from-[#4285F4]/10 via-[#FFE600]/10 to-[#00FF66]/10 border-2 border-white/10 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded-md bg-[#4285F4] text-white text-[10px] font-mono font-bold uppercase">
+            <span className="px-2 py-0.5 rounded-md bg-[#4285F4] text-white text-[10px] font-sans font-bold uppercase">
               SHAREABLE OUTREACH LINK
             </span>
           </div>
@@ -382,18 +382,18 @@ export function AlumniManager() {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button 
             onClick={handleCopyPublicLink}
-            className="bg-[#FFE600] text-black hover:bg-[#e6cf00] font-bold text-xs font-mono uppercase tracking-wider"
+            className="bg-[#FFE600] text-black hover:bg-[#e6cf00] font-bold text-xs font-sans uppercase tracking-wider"
           >
             {copiedLink ? <Check className="h-4 w-4 mr-1 text-black" /> : <Copy className="h-4 w-4 mr-1" />}
             {copiedLink ? "Copied Form Link!" : "Copy Alumni Form Link"}
           </Button>
-          <Button asChild variant="outline" size="sm" className="border-white/20 text-xs font-mono">
+          <Button asChild variant="outline" size="sm" className="border-white/20 text-xs font-sans">
             <a href="/what-our-alumni-say/submit" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3.5 w-3.5 mr-1 text-[#FFE600]" />
               Open Form
             </a>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="text-zinc-400 hover:text-white text-xs font-mono">
+          <Button asChild variant="ghost" size="sm" className="text-zinc-400 hover:text-white text-xs font-sans">
             <a href="/what-our-alumni-say" target="_blank" rel="noopener noreferrer">
               View Wall
             </a>
@@ -402,7 +402,7 @@ export function AlumniManager() {
       </div>
 
       {/* ── Stats Overview ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-sans">
         <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
           <span className="text-[11px] text-zinc-400 font-bold block uppercase">TOTAL STORIES</span>
           <span className="text-2xl font-black text-white">{stats.total}</span>
@@ -430,11 +430,11 @@ export function AlumniManager() {
               placeholder="Search by name, company, quote..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-white/5 border-white/10 text-xs font-mono"
+              className="pl-9 bg-white/5 border-white/10 text-xs font-sans"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10 font-mono text-xs">
+          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10 font-sans text-xs">
             {(['all', 'approved', 'pending', 'featured'] as const).map((st) => (
               <button
                 key={st}
@@ -455,7 +455,7 @@ export function AlumniManager() {
               onClick={handleSeedData}
               variant="outline"
               disabled={loading}
-              className="border-dashed border-white/20 text-xs font-mono"
+              className="border-dashed border-white/20 text-xs font-sans"
             >
               <Database className="h-3.5 w-3.5 mr-1" />
               Seed 5 Founding Alumni
@@ -464,7 +464,7 @@ export function AlumniManager() {
 
           <Dialog open={isAddOpen} onOpenChange={(open) => { setIsAddOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold text-xs font-mono uppercase">
+              <Button className="bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold text-xs font-sans uppercase">
                 <Plus className="mr-1.5 h-4 w-4" /> Add Testimonial
               </Button>
             </DialogTrigger>
@@ -661,12 +661,12 @@ export function AlumniManager() {
       {/* ── Testimonials Table / Grid ── */}
       {filteredList.length === 0 ? (
         <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
-          <p className="text-sm font-mono text-zinc-400">No alumni testimonials found matching your criteria.</p>
+          <p className="text-sm font-sans text-zinc-400">No alumni testimonials found matching your criteria.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredList.map((item) => (
-            <Card key={item.id} className="bg-[#111114] border-white/10 overflow-hidden flex flex-col justify-between group">
+            <Card key={item.id} className="bg-[#111114] border-white/10 overflow-hidden flex flex-col justify-between group font-sans">
               <CardHeader className="p-4 pb-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
@@ -690,7 +690,7 @@ export function AlumniManager() {
                         {item.role} ({item.batch})
                       </CardDescription>
                       {item.company && (
-                        <p className="text-[11px] text-zinc-300 font-semibold truncate mt-0.5">
+                        <p className="text-[11px] text-zinc-300 font-semibold truncate mt-0.5 font-sans">
                           {item.currentRole ? `${item.currentRole} @ ` : ''}{item.company}
                         </p>
                       )}
@@ -717,7 +717,7 @@ export function AlumniManager() {
               </CardHeader>
 
               <CardContent className="p-4 pt-2 flex-1 flex flex-col justify-between">
-                <p className="text-xs text-zinc-300 line-clamp-3 leading-relaxed mb-4 italic">
+                <p className="text-xs text-zinc-300 line-clamp-3 leading-relaxed mb-4 italic font-normal">
                   "{item.quote}"
                 </p>
 
@@ -726,7 +726,7 @@ export function AlumniManager() {
                     {/* Approved Toggle */}
                     <button
                       onClick={() => handleToggle(item, 'isApproved')}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-colors flex items-center gap-1 ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-sans font-bold uppercase transition-colors flex items-center gap-1 ${
                         item.isApproved
                           ? "bg-[#00FF66]/10 text-[#00FF66] border border-[#00FF66]/20"
                           : "bg-zinc-800 text-zinc-400 border border-zinc-700"
@@ -740,7 +740,7 @@ export function AlumniManager() {
                     {/* Featured on Home Toggle */}
                     <button
                       onClick={() => handleToggle(item, 'isFeatured')}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-colors flex items-center gap-1 ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-sans font-bold uppercase transition-colors flex items-center gap-1 ${
                         item.isFeatured
                           ? "bg-[#FFE600]/10 text-[#FFE600] border border-[#FFE600]/20"
                           : "bg-zinc-800 text-zinc-400 border border-zinc-700"
@@ -752,7 +752,7 @@ export function AlumniManager() {
                     </button>
                   </div>
 
-                  <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                  <span className="text-[10px] font-sans text-zinc-500 uppercase font-bold">
                     {item.type}
                   </span>
                 </div>

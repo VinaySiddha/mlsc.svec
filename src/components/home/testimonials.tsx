@@ -47,7 +47,7 @@ export function Testimonials({ testimonials: dynamicList }: TestimonialsProps) {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/what-our-alumni-say/submit"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FFE600] text-black font-mono font-bold text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#FFFFFF] hover:bg-[#e6cf00] transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FFE600] text-black font-sans font-bold text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#FFFFFF] hover:bg-[#e6cf00] transition-all active:scale-95"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Share Your Words
@@ -55,7 +55,7 @@ export function Testimonials({ testimonials: dynamicList }: TestimonialsProps) {
 
             <Link
               href="/what-our-alumni-say"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 font-mono"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 font-sans"
             >
               Explore All Stories
               <ArrowUpRight className="h-3.5 w-3.5" />
