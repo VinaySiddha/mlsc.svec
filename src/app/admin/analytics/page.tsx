@@ -1,19 +1,17 @@
-
 import { getAnalyticsData } from "@/app/actions";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
-import { MLSCLogo } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { headers } from "next/headers";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export default async function AnalyticsPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
 
-  if (userRole !== 'admin') {
+  if (userRole !== 'super_admin') {
     redirect('/admin');
   }
 
@@ -21,64 +19,37 @@ export default async function AnalyticsPage() {
 
   if ('error' in analyticsData) {
       return (
-        <div className="flex flex-col min-h-screen">
-         <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/60 backdrop-blur-sm z-10">
-            <div className="container mx-auto flex items-center justify-between gap-4">
-              <Link href="/admin" className="flex items-center gap-4">
-                <MLSCLogo className="h-10 w-10 text-primary" />
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                  Hiring Analytics
-                </h1>
-              </Link>
-              <Button asChild variant="glass">
-                <Link href="/admin">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Dashboard
-                </Link>
-              </Button>
-            </div>
-          </header>
-          <main className="flex-1 p-4 sm:p-6 md:p-8">
-            <div className="container mx-auto space-y-8">
-                <Card className="glass-card">
-                  <CardHeader>
-                    <CardTitle>Error</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-destructive">
-                      {analyticsData.error || "Could not load analytics data."}
-                    </p>
-                  </CardContent>
-                </Card>
-            </div>
-          </main>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
+              Hiring <span className="text-[#EA4335]">Analytics</span>
+            </h1>
+            <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Detailed statistical insights</p>
+          </div>
+          <Card className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-destructive font-bold text-sm uppercase">Error Loading Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-destructive text-sm">
+                {analyticsData.error || "Could not load analytics data."}
+              </p>
+            </CardContent>
+          </Card>
         </div>
       );
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/60 backdrop-blur-sm z-10">
-        <div className="container mx-auto flex items-center justify-between gap-4">
-          <Link href="/admin" className="flex items-center gap-4">
-            <MLSCLogo className="h-10 w-10 text-primary" />
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Hiring Analytics
-            </h1>
-          </Link>
-          <Button asChild variant="glass">
-            <Link href="/admin">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Link>
-          </Button>
-        </div>
-      </header>
-      <main className="flex-1 p-4 sm:p-6 md:p-8">
-        <div className="container mx-auto space-y-8">
-           <AdminDashboardAnalytics data={analyticsData} />
-        </div>
-      </main>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
+          Hiring <span className="text-[#4285F4]">Analytics</span>
+        </h1>
+        <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Detailed statistical insights and domain distributions</p>
+      </div>
+
+      <AdminDashboardAnalytics data={analyticsData.analytics as any} />
     </div>
   );
 }

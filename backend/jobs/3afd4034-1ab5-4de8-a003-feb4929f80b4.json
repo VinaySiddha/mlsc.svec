@@ -1,0 +1,8 @@
+{
+  "id": "3afd4034-1ab5-4de8-a003-feb4929f80b4",
+  "status": "failed",
+  "topic": "React and Next.js Core Features",
+  "timeframe": "3 days",
+  "result": null,
+  "error": "Roadmap generator crew failed completely: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+}

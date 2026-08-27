@@ -6,6 +6,11 @@ export interface UserProfile {
   email: string;
   photoURL: string;
   role: Role;
+  domain?: string | null;
+  username?: string;
+  followersCount?: number;
+  followingCount?: number;
+  coins?: number;
   bio?: string;
   rollNo?: string;
   branch?: string;

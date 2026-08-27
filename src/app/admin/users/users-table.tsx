@@ -1,29 +1,103 @@
 'use client';
 
 import { useState } from 'react';
-import { assignUserRole, disableUser } from '@/lib/user-service';
+import { assignUserRole, disableUser, createUserManually, adminUpdateUser, deleteUser } from '@/lib/user-service';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { ROLES, ROLE_LABELS, type Role } from '@/lib/roles';
 import type { UserProfile } from '@/types/user';
-import { Loader2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Mail, Shield, User, Phone, GraduationCap } from 'lucide-react';
+import { format } from 'date-fns';
+import { Input } from '@/components/ui/input';
+import { IosLoader } from '@/components/ui/ios-loader';
+import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+
+const DOMAIN_OPTIONS = [
+  { value: 'gen_ai', label: 'Generative AI' },
+  { value: 'ds_ml', label: 'Data Science & ML' },
+  { value: 'azure', label: 'Azure Cloud' },
+  { value: 'web_app', label: 'Web & App Dev' },
+  { value: 'event_management', label: 'Event Management' },
+  { value: 'public_relations', label: 'Public Relations' },
+  { value: 'media_marketing', label: 'Media & Marketing' },
+  { value: 'creativity', label: 'Creativity' },
+];
 
 export function UsersTable({ users: initialUsers }: { users: UserProfile[] }) {
   const [users, setUsers] = useState(initialUsers);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+
+  // Create User Modal State
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    displayName: '',
+    email: '',
+    username: '',
+    role: 'user' as Role,
+    domain: 'gen_ai',
+    phone: '',
+    rollNo: '',
+    branch: '',
+  });
+
+  // Edit User Modal State
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editForm, setEditForm] = useState({
+    displayName: '',
+    email: '',
+    username: '',
+    role: 'user' as Role,
+    domain: 'gen_ai',
+    phone: '',
+    rollNo: '',
+    branch: '',
+    bio: '',
+  });
+
+  // Delete User Dialog State
+  const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleRoleChange = async (userId: string, newRole: Role) => {
     setLoadingId(userId);
-    const result = await assignUserRole(userId, newRole);
+    const user = users.find(u => u.uid === userId);
+    const domain = newRole === 'panel' ? (user?.domain || 'gen_ai') : null;
+    const result = await assignUserRole(userId, newRole, domain);
     if (result.success) {
-      setUsers(prev => prev.map(u => u.uid === userId ? { ...u, role: newRole } : u));
+      setUsers(prev => prev.map(u => u.uid === userId ? { ...u, role: newRole, domain } : u));
       toast({ title: 'Role Updated', description: `User role changed to ${ROLE_LABELS[newRole]}.` });
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    }
+    setLoadingId(null);
+  };
+
+  const handleDomainChange = async (userId: string, domain: string) => {
+    setLoadingId(userId);
+    const user = users.find(u => u.uid === userId);
+    if (!user) return;
+    const result = await assignUserRole(userId, user.role, domain);
+    if (result.success) {
+      setUsers(prev => prev.map(u => u.uid === userId ? { ...u, domain } : u));
+      toast({ title: 'Domain Updated', description: `User panel domain set to ${DOMAIN_OPTIONS.find(d => d.value === domain)?.label || domain}.` });
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
     }
@@ -45,65 +119,506 @@ export function UsersTable({ users: initialUsers }: { users: UserProfile[] }) {
     setLoadingId(null);
   };
 
-  if (users.length === 0) {
-    return <p className="text-muted-foreground text-center py-8">No registered users yet.</p>;
-  }
+  // Handle Create User
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.displayName || !createForm.email) {
+      toast({ variant: 'destructive', title: 'Required Fields', description: 'Name and Email are required.' });
+      return;
+    }
+    setCreateLoading(true);
+    const res = await createUserManually(createForm);
+    if (res.success && res.user) {
+      setUsers(prev => [res.user!, ...prev]);
+      toast({ title: 'User Created', description: `User ${createForm.displayName} has been added successfully.` });
+      setIsCreateOpen(false);
+      setCreateForm({
+        displayName: '',
+        email: '',
+        username: '',
+        role: 'user',
+        domain: 'gen_ai',
+        phone: '',
+        rollNo: '',
+        branch: '',
+      });
+    } else {
+      toast({ variant: 'destructive', title: 'Creation Failed', description: res.error || 'Failed to create user.' });
+    }
+    setCreateLoading(false);
+  };
+
+  // Open Edit User
+  const openEditModal = (user: UserProfile) => {
+    setEditingUser(user);
+    setEditForm({
+      displayName: user.displayName || '',
+      email: user.email || '',
+      username: user.username || '',
+      role: user.role || 'user',
+      domain: user.domain || 'gen_ai',
+      phone: (user as any).phone || '',
+      rollNo: user.rollNo || '',
+      branch: user.branch || '',
+      bio: user.bio || '',
+    });
+  };
+
+  // Handle Update User
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setEditLoading(true);
+    const res = await adminUpdateUser(editingUser.uid, editForm);
+    if (res.success) {
+      setUsers(prev => prev.map(u => u.uid === editingUser.uid ? {
+        ...u,
+        ...editForm,
+        domain: editForm.role === 'panel' ? editForm.domain : null,
+      } : u));
+      toast({ title: 'User Updated', description: 'User profile updated successfully.' });
+      setEditingUser(null);
+    } else {
+      toast({ variant: 'destructive', title: 'Update Failed', description: res.error || 'Failed to update user.' });
+    }
+    setEditLoading(false);
+  };
+
+  // Handle Delete User Confirmation
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    setDeleteLoading(true);
+    const res = await deleteUser(userToDelete.uid);
+    if (res.success) {
+      setUsers(prev => prev.filter(u => u.uid !== userToDelete.uid));
+      toast({ title: 'User Deleted', description: 'User account has been permanently removed.' });
+      setUserToDelete(null);
+    } else {
+      toast({ variant: 'destructive', title: 'Delete Failed', description: res.error || 'Failed to delete user.' });
+    }
+    setDeleteLoading(false);
+  };
+
+  const filteredUsers = users.filter(u => 
+    u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.rollNo?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Joined</TableHead>
-            <TableHead>Active</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map(user => (
-            <TableRow key={user.uid} className={user.disabled ? 'opacity-50' : ''}>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.photoURL} alt={user.displayName} />
-                    <AvatarFallback>{user.displayName?.[0]?.toUpperCase() || '?'}</AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium">{user.displayName || 'Unnamed'}</span>
+    <div className="space-y-6">
+      {/* Header Actions */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search by name, email, roll no, or username..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-black/20 border-white/10"
+          />
+        </div>
+
+        {/* Add User Button & Dialog */}
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold gap-2">
+              <Plus className="h-4 w-4" />
+              Add New User
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md bg-zinc-900 border-white/10 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">Add New User</DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs">
+                Manually register a user or team member account into the system.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreateSubmit} className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Full Name *</Label>
+                <Input 
+                  placeholder="e.g. Rahul Sharma"
+                  value={createForm.displayName}
+                  onChange={(e) => setCreateForm(p => ({ ...p, displayName: e.target.value }))}
+                  required
+                  className="bg-black/40 border-white/10"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email Address *</Label>
+                  <Input 
+                    type="email"
+                    placeholder="user@example.com"
+                    value={createForm.email}
+                    onChange={(e) => setCreateForm(p => ({ ...p, email: e.target.value }))}
+                    required
+                    className="bg-black/40 border-white/10"
+                  />
                 </div>
-              </TableCell>
-              <TableCell className="text-muted-foreground text-sm">{user.email}</TableCell>
-              <TableCell>
-                <Select
-                  value={user.role}
-                  onValueChange={(value) => handleRoleChange(user.uid, value as Role)}
-                  disabled={loadingId === user.uid}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Username (Optional)</Label>
+                  <Input 
+                    placeholder="e.g. rahul_s"
+                    value={createForm.username}
+                    onChange={(e) => setCreateForm(p => ({ ...p, username: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Roll Number</Label>
+                  <Input 
+                    placeholder="e.g. 21B01A0501"
+                    value={createForm.rollNo}
+                    onChange={(e) => setCreateForm(p => ({ ...p, rollNo: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Branch</Label>
+                  <Input 
+                    placeholder="e.g. CSE"
+                    value={createForm.branch}
+                    onChange={(e) => setCreateForm(p => ({ ...p, branch: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Role</Label>
+                <Select 
+                  value={createForm.role} 
+                  onValueChange={(val) => setCreateForm(p => ({ ...p, role: val as Role }))}
                 >
-                  <SelectTrigger className="w-[180px] h-8">
+                  <SelectTrigger className="bg-black/40 border-white/10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    {Object.entries(ROLE_LABELS).map(([val, label]) => (
+                      <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </TableCell>
-              <TableCell className="text-muted-foreground text-sm">
-                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-              </TableCell>
-              <TableCell>
-                <Switch
-                  checked={!user.disabled}
-                  onCheckedChange={() => handleDisableToggle(user.uid, user.disabled)}
-                  disabled={loadingId === user.uid}
+              </div>
+
+              {createForm.role === 'panel' && (
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Panel Tech Domain</Label>
+                  <Select 
+                    value={createForm.domain} 
+                    onValueChange={(val) => setCreateForm(p => ({ ...p, domain: val }))}
+                  >
+                    <SelectTrigger className="bg-black/40 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DOMAIN_OPTIONS.map(d => (
+                        <SelectItem key={d.value} value={d.value} className="text-xs">{d.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <DialogFooter className="pt-3">
+                <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={createLoading} className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold flex items-center gap-2">
+                  {createLoading ? (
+                    <>
+                      <IosLoader size="xs" color="text-white" />
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    'Create User'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Users Grid */}
+      {filteredUsers.length === 0 ? (
+        <div className="text-center py-16 border border-white/5 rounded-2xl bg-white/[0.01]">
+          <User className="h-10 w-10 mx-auto text-muted-foreground/30 mb-2" />
+          <p className="text-muted-foreground text-sm font-medium">No users found matching your criteria.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredUsers.map(user => {
+            const isSuperAdminEmail = user.email === 'vinaysiddha19@gmail.com';
+
+            return (
+              <div 
+                key={user.uid} 
+                className={`flex flex-col gap-4 p-5 rounded-2xl border bg-white/5 shadow-sm transition-all duration-200 ${user.disabled ? 'opacity-50 grayscale-[0.5]' : 'hover:border-[#4285F4]/30 hover:bg-white/10'}`}
+              >
+                {/* User Header */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <Avatar className="h-10 w-10 border border-white/10 shrink-0">
+                      <AvatarImage src={user.photoURL} alt={user.displayName} />
+                      <AvatarFallback className="bg-[#4285F4]/20 text-[#4285F4]">{user.displayName?.[0]?.toUpperCase() || '?'}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="font-bold text-sm truncate text-white">{user.displayName || 'Unnamed'}</span>
+                      <span className="text-xs text-muted-foreground truncate" title={user.email}>{user.email}</span>
+                      {user.username && (
+                        <span className="text-[10px] text-muted-foreground/60 font-mono">@{user.username}</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <Badge variant="outline" className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full ${user.disabled ? 'border-red-500/30 text-red-500/70 bg-red-500/10' : 'border-[#34A853]/30 text-[#34A853] bg-[#34A853]/10'}`}>
+                      {user.disabled ? 'Disabled' : 'Active'}
+                    </Badge>
+                    <Switch
+                      checked={!user.disabled}
+                      onCheckedChange={() => handleDisableToggle(user.uid, user.disabled)}
+                      disabled={loadingId === user.uid || isSuperAdminEmail}
+                      className="scale-75 origin-right mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Info badges */}
+                {(user.rollNo || user.branch) && (
+                  <div className="flex flex-wrap gap-1.5 text-[10px] text-muted-foreground font-medium pt-1">
+                    {user.rollNo && (
+                      <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-md font-mono">
+                        {user.rollNo}
+                      </span>
+                    )}
+                    {user.branch && (
+                      <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-md">
+                        {user.branch}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Role Assignment */}
+                <div className="space-y-3 pt-3 border-t border-white/5">
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Role</span>
+                    <Select
+                      value={user.role}
+                      onValueChange={(value) => handleRoleChange(user.uid, value as Role)}
+                      disabled={loadingId === user.uid || isSuperAdminEmail}
+                    >
+                      <SelectTrigger className="w-full h-8 text-xs bg-black/40 border-white/10 hover:border-white/20 transition-colors">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                          <SelectItem key={value} value={value} className="text-xs">{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {user.role === 'panel' && (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Panel Domain</span>
+                      <Select
+                        value={user.domain || 'gen_ai'}
+                        onValueChange={(value) => handleDomainChange(user.uid, value)}
+                        disabled={loadingId === user.uid}
+                      >
+                        <SelectTrigger className="w-full h-8 text-xs bg-[#4285F4]/10 border-[#4285F4]/30 text-[#4285F4] hover:border-[#4285F4]/50 transition-colors">
+                          <SelectValue placeholder="Select Domain" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DOMAIN_OPTIONS.map((d) => (
+                            <SelectItem key={d.value} value={d.value} className="text-xs">
+                              {d.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Actions: Edit & Delete */}
+                <div className="pt-3 border-t border-white/5 flex items-center justify-between mt-auto">
+                  <span className="text-[10px] font-medium text-muted-foreground/60">
+                    {user.createdAt ? format(new Date(user.createdAt), "MMM d, yyyy") : 'Active'}
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => openEditModal(user)}
+                      className="h-7 w-7 p-0 text-muted-foreground hover:text-white"
+                      title="Edit User"
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
+                    
+                    {!isSuperAdminEmail && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setUserToDelete(user)}
+                        disabled={loadingId === user.uid}
+                        className="h-7 w-7 p-0 text-red-500/70 hover:text-red-500 hover:bg-red-500/10"
+                        title="Delete User"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+          <DialogContent className="max-w-md bg-zinc-900 border-white/10 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">Edit User Details</DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs">
+                Update information and roles for {editingUser.email}.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Display Name</Label>
+                <Input 
+                  value={editForm.displayName}
+                  onChange={(e) => setEditForm(p => ({ ...p, displayName: e.target.value }))}
+                  required
+                  className="bg-black/40 border-white/10"
                 />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email</Label>
+                  <Input 
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm(p => ({ ...p, email: e.target.value }))}
+                    disabled={editingUser.email === 'vinaysiddha19@gmail.com'}
+                    required
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Username</Label>
+                  <Input 
+                    value={editForm.username}
+                    onChange={(e) => setEditForm(p => ({ ...p, username: e.target.value }))}
+                    disabled={editingUser.email === 'vinaysiddha19@gmail.com'}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Roll Number</Label>
+                  <Input 
+                    value={editForm.rollNo}
+                    onChange={(e) => setEditForm(p => ({ ...p, rollNo: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Branch</Label>
+                  <Input 
+                    value={editForm.branch}
+                    onChange={(e) => setEditForm(p => ({ ...p, branch: e.target.value }))}
+                    className="bg-black/40 border-white/10"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Role</Label>
+                <Select 
+                  value={editForm.role} 
+                  onValueChange={(val) => setEditForm(p => ({ ...p, role: val as Role }))}
+                  disabled={editingUser.email === 'vinaysiddha19@gmail.com'}
+                >
+                  <SelectTrigger className="bg-black/40 border-white/10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ROLE_LABELS).map(([val, label]) => (
+                      <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {editForm.role === 'panel' && (
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Panel Tech Domain</Label>
+                  <Select 
+                    value={editForm.domain} 
+                    onValueChange={(val) => setEditForm(p => ({ ...p, domain: val }))}
+                  >
+                    <SelectTrigger className="bg-black/40 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DOMAIN_OPTIONS.map(d => (
+                        <SelectItem key={d.value} value={d.value} className="text-xs">{d.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <DialogFooter className="pt-3">
+                <Button type="button" variant="ghost" onClick={() => setEditingUser(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={editLoading} className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold flex items-center gap-2">
+                  {editLoading ? (
+                    <>
+                      <IosLoader size="xs" color="text-white" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Dedicated Delete User Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={!!userToDelete}
+        onOpenChange={(open) => !open && setUserToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete User Account"
+        description="This will permanently delete the user's account, login access, and associated profile data."
+        itemName={userToDelete?.displayName || undefined}
+        itemDetails={userToDelete?.email}
+        isLoading={deleteLoading}
+      />
     </div>
   );
 }

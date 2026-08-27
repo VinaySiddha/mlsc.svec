@@ -36,6 +36,7 @@ export interface Application {
     submittedAt: string;
     cgpa?: string;
     backlogs?: string;
+    chapter?: string;
 }
 
 export interface TeamMember {
@@ -49,6 +50,7 @@ export interface TeamMember {
     status: string; // 'pending', 'active'
     onboardingToken?: string;
     tokenExpiresAt?: string;
+    chapter?: string;
 }
 
 export interface Panel {

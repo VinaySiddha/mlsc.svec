@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Community — MLSC SVEC",
     description: "Join the MLSC SVEC community — share posts, discuss ideas, and connect with fellow student innovators.",
-    url: "https://mlscsvec.in/community",
+    url: "https://mlscsvec.com/community",
   },
 };
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,7 @@ export default function CommunityLayout({ children }: { children: React.ReactNod
           </Button>
         </div>
       </header>
-      <main className="flex-1 p-4 container mx-auto max-w-3xl">
+      <main className="flex-1 p-4 container mx-auto max-w-7xl">
         {children}
       </main>
     </div>

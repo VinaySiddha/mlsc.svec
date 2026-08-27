@@ -1,351 +1,157 @@
+import { getApplications, getTeamMembers, getGlobalSettings } from "@/app/actions";
+import { headers, cookies } from "next/headers";
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { AdminDashboardClient } from "./dashboard-client";
 
-import { getAnalyticsData } from "@/app/actions";
-import { MLSCLogo } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Users, BarChart2, AlertCircle, PencilRuler, UserCheck, Calendar, Group, UploadCloud, Database, Megaphone, Shield, MessageSquare } from "lucide-react";
-import Link from "next/link";
-import { LogoutButton } from "@/components/logout-button";
-import { DeadlineSetter } from "@/components/deadline-setter";
-import { AdminAnalyticsSection } from "@/components/admin-analytics-section";
-import { headers } from "next/headers";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-  MenubarCheckboxItem,
-  MenubarRadioGroup,
-  MenubarRadioItem
-} from "@/components/ui/menubar"
+export const dynamic = 'force-dynamic';
+
+interface Milestone {
+  name: string;
+  status: 'completed' | 'active' | 'planned';
+  date: string;
+  desc: string;
+}
+
+const CHAPTER_ROADMAPS: Record<string, {
+  title: string;
+  desc: string;
+  color: string;
+  textColor: string;
+  borderColor: string;
+  milestones: Milestone[];
+}> = {
+  '3.0': {
+    title: "Chapter 3.0: Foundational Growth",
+    desc: "Establishing MLSC SVEC, forming the core student tech community, and setting up learning structures.",
+    color: "bg-[#4285F4]/10 text-[#4285F4]",
+    textColor: "text-[#4285F4]",
+    borderColor: "border-[#4285F4]/30",
+    milestones: [
+      { name: "Official Club Charter", status: "completed", date: "Aug 2024", desc: "Received official Microsoft Learn Student Club approval for SVEC." },
+      { name: "Core Committee Selection", status: "completed", date: "Sep 2024", desc: "Hired 15 core leads to guide developer, design, and operations domains." },
+      { name: "Launch Event: Cloud Odyssey", status: "completed", date: "Oct 2024", desc: "Conducted hands-on git & Azure bootcamp with 250+ student registrations." },
+      { name: "Foundational Projects", status: "completed", date: "Jan 2025", desc: "Launched core club tools and open-sourced the SVEC student study portal." }
+    ]
+  },
+  '4.0': {
+    title: "Chapter 4.0: Scaling & Impact",
+    desc: "Scaling developer operations, launching hackathons, and expanding recruitment limits.",
+    color: "bg-[#34A853]/10 text-[#34A853]",
+    textColor: "text-[#34A853]",
+    borderColor: "border-[#34A853]/30",
+    milestones: [
+      { name: "Chapter 4.0 Launch & Info Session", status: "completed", date: "May 2026", desc: "Conducted club orientation reaching 500+ juniors across branches." },
+      { name: "Active Recruitments", status: "active", date: "Jun 2026", desc: "Currently reviewing technical, creative, and operational applications." },
+      { name: "Azure & AI bootcamp", status: "planned", date: "Jul 2026", desc: "Structured training sessions focusing on building AI-powered Web apps." },
+      { name: "MLSC State Hackathon", status: "planned", date: "Sep 2026", desc: "36-hour physical hackathon bringing innovators from regional campuses." }
+    ]
+  },
+  '5.0': {
+    title: "Chapter 5.0: Advanced Innovation",
+    desc: "Research, incubation, cross-campus projects, and launch of specialized R&D sandbox labs.",
+    color: "bg-[#FBBC05]/10 text-[#FBBC05]",
+    textColor: "text-[#FBBC05]",
+    borderColor: "border-[#FBBC05]/30",
+    milestones: [
+      { name: "R&D Lab Initiative", status: "planned", date: "Jan 2027", desc: "Setting up sandboxed research hubs for open-source AI and blockchain tooling." },
+      { name: "Global Web3 & AI Summit", status: "planned", date: "Mar 2027", desc: "Joint virtual coding summit in partnership with elite student chapters." },
+      { name: "Student Incubator Fund", status: "planned", date: "Jun 2027", desc: "Providing project mentorship and cloud credits for top 3 student startups." },
+      { name: "Chapter 5.0 Transition", status: "planned", date: "Aug 2027", desc: "Handover of club resources, repositories, and credentials to the next cycle." }
+    ]
+  }
+};
 
 export default async function AdminPage() {
-  const headersList = headers();
-  const userRole = headersList.get('X-User-Role');
+  const headersList = await headers();
+  const userRole = headersList.get('X-User-Role') || 'panel';
   const panelDomain = headersList.get('X-Panel-Domain') || undefined;
 
-  const domainLabels: Record<string, string> = {
-    gen_ai: "Generative AI",
-    ds_ml: "Data Science & ML",
-    azure: "Azure Cloud",
-    web_app: "Web & App Development",
+  const cookieStore = await cookies();
+  const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
+
+  // Fetch data
+  const [appsResult, teamResult, settingsResult] = await Promise.all([
+    getApplications({ fetchAll: true }),
+    getTeamMembers(),
+    getGlobalSettings()
+  ]);
+
+  // Fetch donations (only for super_admin and admin)
+  let donations: any[] = [];
+  let totalDonationsAmount = 0;
+  let paidDonationsCount = 0;
+  let pendingDonationsCount = 0;
+  if (userRole === 'super_admin' || userRole === 'admin') {
+    try {
+      const donationsSnap = await getDocs(collection(db, 'donations'));
+      donationsSnap.forEach(doc => {
+        const data = doc.data();
+        donations.push({ id: doc.id, ...data });
+        if (data.status === 'PAID') {
+          totalDonationsAmount += Number(data.amount) || 0;
+          paidDonationsCount++;
+        } else if (data.status === 'PENDING') {
+          pendingDonationsCount++;
+        }
+      });
+    } catch (err) {
+      console.error('Error fetching donations for admin dashboard:', err);
+    }
+  }
+
+  const recentDonations = donations
+    .filter(d => d.status === 'PAID')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
+
+  const applications = 'applications' in appsResult ? appsResult.applications || [] : [];
+  const membersByCategory = 'membersByCategory' in teamResult ? teamResult.membersByCategory || [] : [];
+  const settings = 'settings' in settingsResult ? settingsResult.settings || {} : {};
+
+  // Compute stats
+  const totalApps = applications.length;
+  const hiredApps = applications.filter((a: any) => a.status === 'Hired').length;
+  const pendingApps = applications.filter((a: any) => a.status !== 'Hired' && a.status !== 'Rejected').length;
+  const totalTeamSize = membersByCategory.reduce((acc: number, cat: any) => acc + (cat.members?.length || 0), 0);
+
+  const isHiringOpen = settings?.chapters?.[adminChapter]?.isHiringOpen || false;
+
+  // Filter recent applications
+  const recentApplications = [...applications]
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+    .slice(0, 5);
+
+  const roadmap = CHAPTER_ROADMAPS[adminChapter] || {
+    title: `Chapter ${adminChapter}: Community Expansion`,
+    desc: "Focusing on outreach, technical workshops, and expanding student developer channels.",
+    color: "bg-[#EA4335]/10 text-[#EA4335]",
+    textColor: "text-[#EA4335]",
+    borderColor: "border-[#EA4335]/30",
+    milestones: [
+      { name: `Inception of Chapter ${adminChapter}`, status: "active", date: "TBD", desc: "Setting up administrative domains and student sync meetings." },
+      { name: "Student Skills Bootcamp", status: "planned", date: "TBD", desc: "Conducting basic web design and app building sessions." },
+      { name: "Open Source Initiative", status: "planned", date: "TBD", desc: "Encouraging collaborative contributions to shared club repos." }
+    ]
   };
 
-  const title = panelDomain ? `${domainLabels[panelDomain] || 'Panel'} Dashboard` : "MLSC Hub - Superadmin";
-
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b border-white/20 bg-background/50 backdrop-blur-lg">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
-          <Link href="/admin" className="flex items-center gap-2">
-            <MLSCLogo className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-bold tracking-tight">
-              {title}
-            </h1>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Menubar>
-              <MenubarMenu>
-                <MenubarTrigger>File</MenubarTrigger>
-                <MenubarContent>
-                  <MenubarItem asChild>
-                    <Link href="/">
-                      Go to Home Page <MenubarShortcut>⌘H</MenubarShortcut>
-                    </Link>
-                  </MenubarItem>
-                  <MenubarItem asChild>
-                    <Link href="/admin/applications">
-                      View Applications <MenubarShortcut>⌘A</MenubarShortcut>
-                    </Link>
-                  </MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem disabled>Print</MenubarItem>
-                </MenubarContent>
-              </MenubarMenu>
-              {userRole === 'admin' && (
-                <>
-                  <MenubarMenu>
-                    <MenubarTrigger>Edit</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarSub>
-                        <MenubarSubTrigger>Management</MenubarSubTrigger>
-                        <MenubarSubContent>
-                          <MenubarItem asChild>
-                            <Link href="/admin/events">Manage Events</Link>
-                          </MenubarItem>
-                          <MenubarItem asChild>
-                            <Link href="/admin/team">Manage Team</Link>
-                          </MenubarItem>
-                          <MenubarItem asChild>
-                            <Link href="/admin/notifications">Manage Notifications</Link>
-                          </MenubarItem>
-                        </MenubarSubContent>
-                      </MenubarSub>
-                      <MenubarSub>
-                        <MenubarSubTrigger>Data</MenubarSubTrigger>
-                        <MenubarSubContent>
-                          <MenubarItem asChild>
-                            <Link href="/admin/internal-registration">Internal Registration</Link>
-                          </MenubarItem>
-                          <MenubarItem asChild>
-                            <Link href="/admin/bulk-update">Bulk Status Update</Link>
-                          </MenubarItem>
-                        </MenubarSubContent>
-                      </MenubarSub>
-                    </MenubarContent>
-                  </MenubarMenu>
-                  <MenubarMenu>
-                    <MenubarTrigger>View</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarCheckboxItem checked disabled>Always Show Full URLs</MenubarCheckboxItem>
-                      <MenubarSeparator />
-                      <MenubarItem asChild inset>
-                        <Link href="/admin/analytics">Hiring Analytics</Link>
-                      </MenubarItem>
-                      <MenubarItem asChild inset>
-                        <Link href="/admin/interview-analytics">Interview Analytics</Link>
-                      </MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu>
-                  <MenubarMenu>
-                    <MenubarTrigger>Profiles</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarRadioGroup value="admin">
-                        <MenubarRadioItem value="admin">Admin</MenubarRadioItem>
-                        <MenubarRadioItem value="panel" disabled>Panel</MenubarRadioItem>
-                      </MenubarRadioGroup>
-                      <MenubarSeparator />
-                      <MenubarItem inset>
-                        <LogoutButton />
-                      </MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu>
-                </>
-              )}
-              {userRole === 'panel' && (
-                <MenubarMenu>
-                  <MenubarTrigger>Profiles</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarRadioGroup value="panel">
-                      <MenubarRadioItem value="admin" disabled>Admin</MenubarRadioItem>
-                      <MenubarRadioItem value="panel">Panel</MenubarRadioItem>
-                    </MenubarRadioGroup>
-                    <MenubarSeparator />
-                    <MenubarItem inset>
-                      <LogoutButton />
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-              )}
-            </Menubar>
-          </div>
-        </div>
-      </header>
-      <main className="flex-1 p-4">
-        <div className="container mx-auto space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="glass-card flex flex-col justify-between">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Users />
-                  All Applications
-                </CardTitle>
-                <CardDescription className="text-xs text-muted-foreground">
-                  View, filter, and manage all submitted applications.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild variant="glass" size="sm">
-                  <Link href="/admin/applications">Go to Applications</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            {userRole === 'admin' && (
-              <>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Calendar />
-                      Event Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Create, update, and manage all club events.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/events">Manage Events</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Group />
-                      Team Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Update the public team page members and categories.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/team">Manage Team</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <UploadCloud />
-                      Bulk Status Update
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Update statuses by uploading a CSV of hired candidates.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/bulk-update">Bulk Update</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Home />
-                      Home Page Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manage Hero, Ambassadors, Gallery, and Chapters.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/home">Manage Home</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <BarChart2 />
-                      Hiring Analytics
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Visualize application data, trends, and statistics.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/analytics">View Analytics</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <UserCheck />
-                      Interview Analytics
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Analytics for candidates who completed their interview.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/interview-analytics">View Interview Analytics</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <PencilRuler />
-                      Internal Registration
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manually register a candidate on their behalf.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/internal-registration">Register Candidate</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Megaphone />
-                      Notifications
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manage the scrolling ticker on the home page.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/notifications">Manage Notifications</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Shield />
-                      User Management
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Manage registered users, assign roles, and control access.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/users">Manage Users</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="glass-card flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <MessageSquare />
-                      Community Moderation
-                    </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">
-                      Review flagged posts and moderate community content.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button asChild variant="glass" size="sm">
-                      <Link href="/admin/community">Moderate Community</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-          </div>
-
-          {userRole === 'admin' && (
-            <div className="glass-card p-6">
-              <DeadlineSetter />
-            </div>
-          )}
-
-          {userRole === 'panel' && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold tracking-tight">Domain Analytics</h2>
-              <AdminAnalyticsSection panelDomain={panelDomain} />
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+    <AdminDashboardClient
+      userRole={userRole}
+      panelDomain={panelDomain}
+      adminChapter={adminChapter}
+      totalApps={totalApps}
+      totalTeamSize={totalTeamSize}
+      hiredApps={hiredApps}
+      pendingApps={pendingApps}
+      isHiringOpen={isHiringOpen}
+      recentApplications={recentApplications}
+      roadmap={roadmap}
+      totalDonationsAmount={totalDonationsAmount}
+      paidDonationsCount={paidDonationsCount}
+      pendingDonationsCount={pendingDonationsCount}
+      recentDonations={recentDonations}
+      applications={applications}
+    />
   );
 }

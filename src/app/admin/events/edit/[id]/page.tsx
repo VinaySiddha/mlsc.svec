@@ -11,15 +11,16 @@ import { notFound, redirect } from "next/navigation";
 
 export const revalidate = 0;
 
-export default async function EditEventPage({ params }: { params: { id: string } }) {
-    const headersList = headers();
+export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin' && userRole !== 'event_admin') {
         redirect('/admin');
     }
 
-    const { event, error } = await getEventById(params.id);
+    const { event, error } = await getEventById(resolvedParams.id);
 
     if (error || !event) {
         notFound();

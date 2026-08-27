@@ -7,7 +7,10 @@ let transporter: nodemailer.Transporter | null = null;
 function getTransporter() {
   if (transporter) return transporter;
 
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+  const gmailUser = process.env.GMAIL_USER?.replace(/^["']|["']$/g, '').trim();
+  const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(/^["']|["']$/g, '').trim();
+
+  if (!gmailUser || !gmailPass) {
     console.warn('GMAIL credentials not configured. Emails will not be sent.');
     return null;
   }
@@ -15,8 +18,8 @@ function getTransporter() {
   transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
+      user: gmailUser,
+      pass: gmailPass,
     },
   });
 
@@ -35,9 +38,11 @@ export async function sendEmail({
   const t = getTransporter();
   if (!t) return false;
 
+  const gmailUser = process.env.GMAIL_USER?.replace(/^["']|["']$/g, '').trim();
+
   try {
     await t.sendMail({
-      from: `"MLSC SVEC" <${process.env.GMAIL_USER}>`,
+      from: `"MLSC SVEC" <${gmailUser}>`,
       to,
       subject,
       html,

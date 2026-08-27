@@ -7,6 +7,7 @@
 
 import {z} from 'zod';
 import nodemailer from 'nodemailer';
+import { buildEmailHtml } from '@/lib/email-base';
 
 // Log a warning at startup if credentials are not provided.
 if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
@@ -44,49 +45,39 @@ export async function sendProfileConfirmationEmail(input: ProfileConfirmationEma
       },
   });
 
-  const idCardLink = `https://mlscsvec.in/id/${memberId}`;
-  const subject = `Your MLSC Profile is Active!`;
-  const htmlBody = `
-  <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #d4edda; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <div style="background: linear-gradient(135deg, #0056b3 0%, #007bff 100%); height: 8px;"></div>
-    
-    <div style="padding: 30px 25px;">
-        <h1 style="color: #222; font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 10px;">Profile Confirmed, ${name}!</h1>
-        <p style="text-align: center; font-size: 17px; color: #555; margin-bottom: 25px;">
-            Your profile for the <strong>Microsoft Learn Student Club (MLSC)</strong> is now active and live on our team page.
-        </p>
+  const idCardLink = `https://mlscsvec.com/id/${memberId}`;
+  const subject = `Your MLSC Profile is Now Live! ✅`;
 
-        <div style="background-color: #f1f8ff; border-left: 4px solid #007bff; padding: 15px; margin: 25px 0; text-align: center;">
-            <p style="margin: 0; font-size: 16px;">Welcome aboard! We are excited to start this journey with you.</p>
-        </div>
-
-        <h3 style="font-size: 18px; font-weight: 600; color: #333; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 30px;">Manage Your Profile</h3>
-        <p style="font-size: 16px;">
-            You can update your profile at any time using your personal edit link below. Please bookmark it for future use.
-        </p>
-
-        <!-- Edit Profile Button -->
-        <div style="text-align: center; margin: 30px 0;">
-            <a href="${editLink}" target="_blank" style="background-color: #007bff; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: background-color 0.3s ease;">
-                Edit Your Profile
-            </a>
-            <a href="${idCardLink}" target="_blank" style="background-color: #6c757d; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: background-color 0.3s ease; margin-left: 10px;">
-                View Your ID Card
-            </a>
-        </div>
-        
-        <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>The MLSC Hiring Team</strong></p>
+  const bodyHtml = `
+    <p style="margin:0 0 16px 0;">Hello <strong>${name}</strong>,</p>
+    <p style="margin:0 0 16px 0;">
+      Your profile for the <strong>Microsoft Learn Student Club (MLSC)</strong> is now active and live on our team page. Welcome aboard!
+    </p>
+    <p style="margin:0 0 10px 0;font-weight:700;color:#202124;">What you can do:</p>
+    <ul style="margin:0 0 24px 0;padding-left:20px;color:#3c4043;line-height:26px;">
+      <li style="padding-bottom:6px;">
+        <a href="${editLink}" style="color:#1a73e8;text-decoration:none;">Edit your profile</a> to update your details and photo at any time.
+      </li>
+      <li style="padding-bottom:6px;">
+        <a href="${idCardLink}" style="color:#1a73e8;text-decoration:none;">View your MLSC ID Card</a> — bookmark it for future reference.
+      </li>
+      <li style="padding-bottom:6px;">Stay connected with the team via our community channels for events &amp; updates.</li>
+    </ul>
+    <p style="margin:0 0 24px 0;">We are excited to start this journey with you. Let's build something amazing together!</p>
+    <div style="border-top:1px solid #e0e0e0;padding-top:20px;">
+      <p style="margin:0 0 4px 0;font-size:14px;color:#5f6368;">Welcome &amp; happy building,</p>
+      <p style="margin:0;font-size:15px;font-weight:700;font-family:'Google Sans',Arial,sans-serif;color:#202124;">The MLSC Hiring Team</p>
     </div>
-    
-    <!-- Footer -->
-    <div style="background-color: #0056b3; text-align: center; padding: 12px; font-size: 12px; color: #ffffff;">
-        🚀 #MLSC3.0 #DreamBig #FutureReady
-    </div>
-</div>
-`;
+  `;
+
+  const htmlBody = buildEmailHtml({
+    eyebrow: '#MLSC4.0 · Profile Confirmed',
+    headline: `Profile Active, ${name}! ✅`,
+    ctaLabel: 'Edit Your Profile →',
+    ctaUrl: editLink,
+    accentColor: '#4285F4',
+    bodyHtml,
+  });
   
   const mailOptions = {
       from: `"MLSC Hiring" <${process.env.GMAIL_USER}>`,

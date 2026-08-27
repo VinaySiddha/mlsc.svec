@@ -16,26 +16,27 @@ export function DynamicChapters({ chapters = [] }: { chapters?: Chapter[] }) {
         <>
             <StaticChapters />
             {chapters.map((chapter) => (
-                <section key={chapter.id} className="py-20 bg-transparent">
-                    <div className="container mx-auto px-4 text-center">
+                <section key={chapter.id} className="relative py-24 md:py-32 bg-background overflow-hidden">
+                    <div className="container mx-auto px-4 relative z-10">
                         <ScrollReveal>
-                            <h2 className="text-4xl font-bold mb-2">{chapter.name}</h2>
-                            <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
-                                {chapter.description}
-                            </p>
+                            <div className="text-center mb-20">
+                                <h2 className="section-header">{chapter.name}</h2>
+                                <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
+                                    {chapter.description}
+                                </p>
+                            </div>
                         </ScrollReveal>
-                        <StaggerContainer className={`grid gap-8 justify-center ${getGridClass(chapter.cards ? chapter.cards.length : 0)}`}>
+                        <StaggerContainer className={`grid gap-12 justify-center ${getGridClass(chapter.cards ? chapter.cards.length : 0)}`}>
                             {(chapter.cards || []).map((card, idx) => (
                                 <StaggerItem key={idx}>
-                                    <div className="glass-card-hover p-6 text-left">
-                                        <h3 className="text-xl font-bold mb-2">{card.title}</h3>
-                                        <p className="text-muted-foreground">{card.content}</p>
+                                    <div className="apple-card p-12 h-full border-primary/5 hover:border-primary/20">
+                                        <h3 className="text-3xl font-black tracking-tighter mb-6 text-foreground">{card.title}</h3>
+                                        <p className="text-muted-foreground leading-relaxed font-medium text-lg">{card.content}</p>
                                     </div>
                                 </StaggerItem>
                             ))}
                         </StaggerContainer>
                     </div>
-                    <div className="section-divider mt-16" />
                 </section>
             ))}
         </>
@@ -45,84 +46,92 @@ export function DynamicChapters({ chapters = [] }: { chapters?: Chapter[] }) {
 function StaticChapters() {
     return (
         <>
-            <div className="section-divider" />
-            <section className="py-20 bg-transparent">
-                <div className="container mx-auto px-4 text-center">
+            <section className="relative py-24 md:py-32 bg-background overflow-hidden">
+                <div className="glow-accent top-[-20%] left-[-10%] w-[40%] h-[40%] opacity-5" />
+                <div className="container mx-auto px-4 relative z-10">
                     <ScrollReveal>
-                        <h2 className="text-4xl font-bold mb-2">Chapter 1: <span className="gradient-text">The Journey So Far</span></h2>
-                        <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
-                            A legacy of innovation, collaboration, and learning.
-                        </p>
+                        <div className="text-center mb-20">
+                            <h2 className="section-header">Chapter 1: <span className="text-primary">The Journey.</span></h2>
+                            <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
+                                A legacy of innovation, collaboration, and learning that shaped our foundation.
+                            </p>
+                        </div>
                     </ScrollReveal>
-                    <StaggerContainer className="grid md:grid-cols-2 gap-8">
+                    <StaggerContainer className="grid md:grid-cols-2 gap-12">
                         <StaggerItem>
-                            <div className="glass-card-hover p-6">
-                                <div className="year flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4 text-primary" />18th October 2023</div>
-                                <h3 className="text-xl font-bold">Azure Cloud Workshop</h3>
-                                <p className="mt-2 text-muted-foreground">Successfully conducted a hands-on event on the Azure Cloud Platform with more than 300 attendees, empowering numerous skilled peers in their cloud journey.</p>
+                            <div className="apple-card p-12 border-primary/10">
+                                <div className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-primary mb-8">
+                                    <Calendar className="h-6 w-6" />
+                                    18th Oct 2023
+                                </div>
+                                <h3 className="text-4xl font-black mb-6 tracking-tighter">Azure Cloud.</h3>
+                                <p className="text-muted-foreground leading-relaxed font-medium text-lg">Successfully empowered 300+ students through a high-impact workshop, diving deep into cloud infrastructure and deployment.</p>
                             </div>
                         </StaggerItem>
                         <StaggerItem>
-                            <div className="glass-card-hover p-6">
-                                <div className="year flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2"><Calendar className="h-4 w-4 text-primary" />16th October 2023</div>
-                                <h3 className="text-xl font-bold">Inauguration Ceremony</h3>
-                                <p className="mt-2 text-muted-foreground">The inauguration of the Microsoft Learn Student Club marked a momentous occasion, fostering a dynamic hub for technology enthusiasts empowered by the Microsoft Learn ecosystem.</p>
+                            <div className="apple-card p-12 border-primary/10">
+                                <div className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-primary mb-8">
+                                    <Calendar className="h-6 w-6" />
+                                    16th Oct 2023
+                                </div>
+                                <h3 className="text-4xl font-black mb-6 tracking-tighter">Genesis.</h3>
+                                <p className="text-muted-foreground leading-relaxed font-medium text-lg">The official inauguration marked the birth of a dynamic tech ecosystem, uniting innovators under the Microsoft Learn umbrella.</p>
                             </div>
                         </StaggerItem>
                     </StaggerContainer>
                 </div>
             </section>
 
-            <div className="section-divider" />
-
-            <section className="py-20 bg-transparent">
-                <div className="container mx-auto px-4 text-center">
+            <section className="relative py-24 md:py-32 bg-background overflow-hidden">
+                <div className="glow-accent bottom-[-20%] right-[-10%] w-[50%] h-[50%] opacity-5" />
+                <div className="container mx-auto px-4 relative z-10">
                     <ScrollReveal>
-                        <h2 className="text-4xl font-bold mb-2">Chapter 2: <span className="gradient-text">The Next Level</span></h2>
-                        <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
-                            Unlock your potential with hands-on projects, expert mentorship, and a vibrant community of tech enthusiasts.
-                        </p>
+                        <div className="text-center mb-20">
+                            <h2 className="section-header">Chapter 2: <span className="text-primary">Next Level.</span></h2>
+                            <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
+                                Scaling our impact through hands-on mentorship and high-velocity project collaboration.
+                            </p>
+                        </div>
                     </ScrollReveal>
-                    <StaggerContainer className="grid md:grid-cols-3 gap-8">
+                    <StaggerContainer className="grid md:grid-cols-3 gap-12">
                         <StaggerItem>
-                            <div className="glass-card-hover p-8 text-center flex flex-col items-center">
-                                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                    <BrainCircuit className="h-8 w-8 text-primary" />
+                            <div className="apple-card p-12 text-center flex flex-col items-center border-primary/5 hover:border-primary/20">
+                                <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-10 shadow-xl shadow-primary/5">
+                                    <BrainCircuit className="h-12 w-12 text-primary" />
                                 </div>
-                                <h3 className="text-2xl font-bold mb-2">Skill Development</h3>
-                                <p className="text-muted-foreground">Gain hands-on experience with cutting-edge technologies and platforms through workshops and projects.</p>
+                                <h3 className="text-3xl font-black mb-4 tracking-tighter">Growth.</h3>
+                                <p className="text-muted-foreground leading-relaxed font-medium">Intensive skill-building workshops tailored for future-proof engineering roles.</p>
                             </div>
                         </StaggerItem>
                         <StaggerItem>
-                            <div className="glass-card-hover p-8 text-center flex flex-col items-center">
-                                <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-                                    <Rocket className="h-8 w-8 text-accent" />
+                            <div className="apple-card p-12 text-center flex flex-col items-center border-primary/5 hover:border-primary/20">
+                                <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-10 shadow-xl shadow-primary/5">
+                                    <Rocket className="h-12 w-12 text-primary" />
                                 </div>
-                                <h3 className="text-2xl font-bold mb-2">Build & Innovate</h3>
-                                <p className="text-muted-foreground">Collaborate on real-world projects, build your portfolio, and bring your innovative ideas to life.</p>
+                                <h3 className="text-3xl font-black mb-4 tracking-tighter">Launch.</h3>
+                                <p className="text-muted-foreground leading-relaxed font-medium">Incubating real-world projects that solve meaningful problems in our community.</p>
                             </div>
                         </StaggerItem>
                         <StaggerItem>
-                            <div className="glass-card-hover p-8 text-center flex flex-col items-center">
-                                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                    <Briefcase className="h-8 w-8 text-primary" />
+                            <div className="apple-card p-12 text-center flex flex-col items-center border-primary/5 hover:border-primary/20">
+                                <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-10 shadow-xl shadow-primary/5">
+                                    <Briefcase className="h-12 w-12 text-primary" />
                                 </div>
-                                <h3 className="text-2xl font-bold mb-2">Career Opportunities</h3>
-                                <p className="text-muted-foreground">Network with industry professionals and get a head start on your career in technology.</p>
+                                <h3 className="text-3xl font-black mb-4 tracking-tighter">Career.</h3>
+                                <p className="text-muted-foreground leading-relaxed font-medium">Bridging the gap between student innovation and industry leadership.</p>
                             </div>
                         </StaggerItem>
                     </StaggerContainer>
-                    <div className="text-center mt-12">
-                        <Button variant="gradient" size="lg" asChild>
+                    <div className="text-center mt-24">
+                        <Button variant="outline" size="lg" className="discovery-btn rounded-full px-16 border-2 border-primary/20 hover:border-primary text-primary" asChild>
                             <Link href="/apply">
-                                <CheckCircle className="mr-2 h-5 w-5" />
+                                <CheckCircle className="mr-3 h-6 w-6" />
                                 <span>Hiring Closed</span>
                             </Link>
                         </Button>
                     </div>
                 </div>
             </section>
-            <div className="section-divider" />
         </>
     );
 }

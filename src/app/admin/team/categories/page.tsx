@@ -10,10 +10,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function TeamCategoriesPage() {
-    const headersList = headers();
+    const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin') {
         redirect('/admin');
     }
 

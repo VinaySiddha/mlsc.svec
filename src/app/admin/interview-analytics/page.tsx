@@ -1,4 +1,3 @@
-
 import { getInterviewAnalyticsData } from "@/app/actions";
 import { AdminDashboardAnalytics } from "@/components/admin-dashboard-analytics";
 import { MLSCLogo } from "@/components/icons";
@@ -9,11 +8,14 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export default async function InterviewAnalyticsPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
 
-  if (userRole !== 'admin') {
+  if (userRole !== 'super_admin') {
     redirect('/admin');
   }
 
@@ -84,7 +86,7 @@ export default async function InterviewAnalyticsPage() {
                     </Link>
                 </Button>
             </div>
-           <AdminDashboardAnalytics data={analyticsData} />
+           <AdminDashboardAnalytics data={analyticsData.analytics} />
         </div>
       </main>
     </div>

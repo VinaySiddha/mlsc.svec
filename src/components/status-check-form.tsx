@@ -53,17 +53,24 @@ export function StatusCheckForm() {
     setError(null);
     setApplicationStatus(null);
     try {
-      const application = await getApplicationById(values.referenceId.trim());
-      if (application) {
+      const result = await getApplicationById(values.referenceId.trim()) as any;
+      if (result && result.application) {
         setApplicationStatus({
-          status: application.status,
-          name: application.name,
-          submittedAt: application.submittedAt,
+          status: result.application.status,
+          name: result.application.name,
+          submittedAt: result.application.submittedAt,
         });
       } else {
-        setError('No application found with that reference ID. Please double-check and try again.');
+        setError(result?.error || 'No application found with that reference ID. Please double-check and try again.');
       }
-    } catch (e) {
+    } catch (e: any) {
+      const { logClientError } = await import("@/lib/error-logger");
+      await logClientError(
+        `Failed to check application status for ID: ${values.referenceId}`,
+        e,
+        "StatusCheckForm",
+        "unknown"
+      );
       setError('An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);

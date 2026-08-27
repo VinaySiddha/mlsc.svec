@@ -9,13 +9,14 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export const revalidate = 0;
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
 
 export default async function EventsPage() {
-    const headersList = headers();
+    const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin' && userRole !== 'event_admin') {
         redirect('/admin');
     }
 
@@ -26,46 +27,27 @@ export default async function EventsPage() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen">
-            <header className="py-4 px-4 sm:px-6 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-                <div className="container mx-auto flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <MLSCLogo className="h-10 w-10 text-primary" />
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                            Event Management
-                        </h1>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button asChild variant="glass">
-                            <Link href="/admin/events/new">
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Create Event
-                            </Link>
-                        </Button>
-                        <Button asChild variant="glass">
-                            <Link href="/admin">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to Dashboard
-                            </Link>
-                        </Button>
-                    </div>
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
+                        Manage <span className="text-[#34A853]">Events</span>
+                    </h1>
+                    <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Create, update, and manage all club events</p>
                 </div>
-            </header>
-            <main className="flex-1 p-4 sm:p-6 md:p-8">
-                <div className="container mx-auto space-y-8">
-                    <Card className="glass-card">
-                        <CardHeader>
-                            <CardTitle>All Events</CardTitle>
-                            <CardDescription>
-                                Here you can create, update, and manage all club events.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <EventsTable events={events || []} />
-                        </CardContent>
-                    </Card>
+                <div className="flex items-center gap-4">
+                    <Button asChild variant="outline" className="rounded-full px-6 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
+                        <Link href="/admin/events/new">
+                            <PlusCircle className="mr-2 h-4 w-4 text-[#34A853]" />
+                            Create Event
+                        </Link>
+                    </Button>
                 </div>
-            </main>
+            </div>
+
+            <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 md:p-8 shadow-sm">
+                <EventsTable events={events || []} />
+            </div>
         </div>
     );
 }

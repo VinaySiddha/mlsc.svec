@@ -9,15 +9,16 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-export default async function EditTeamMemberPage({ params }: { params: { id: string } }) {
-    const headersList = headers();
+export default async function EditTeamMemberPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin') {
         redirect('/admin');
     }
 
-    const { member, error: memberError } = await getTeamMemberById(params.id);
+    const { member, error: memberError } = await getTeamMemberById(resolvedParams.id);
     const { categories, error: categoriesError } = await getTeamCategories();
 
     if (memberError || categoriesError || !member) {

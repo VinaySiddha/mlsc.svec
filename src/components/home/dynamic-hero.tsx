@@ -1,130 +1,120 @@
 "use client";
 
-import useEmblaCarousel from "embla-carousel-react";
-import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Github, ChevronDown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { AnimatedCounter } from "@/components/motion/animated-counter";
-import type { HeroImage } from "@/app/home-actions";
+import { PointerHighlight } from "@/components/ui/pointer-highlight";
+import { FlipWords } from "@/components/ui/flip-words";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { InteractiveButton } from "@/components/ui/interactive-button";
 
-const VsCodeIconComponent = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M21.428 5.968l-4.286-4.286-12.214 4.286v12.062l4.286 4.286 12.214-4.286v-12.062zm-4.286-2.4l2.4 2.4-10.371 3.629-2.4-2.4 10.371-3.629zm-11.286 13.514v-9.628l10.371-3.629v9.629l-10.371 3.628zm15.571-3.628l-2.4 2.4-10.371-3.629 2.4-2.4 10.371 3.629z" />
-    </svg>
-);
+const flipWords = ["Innovators.", "Builders.", "Leaders.", "Creators.", "Hackers."];
 
-const AzureIconComponent = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M12.45 2.43L6.1 13.9l-2.18-3.87.5-1.12L12.45 2.43zm1.1.06l7.53 13.04-1.87 3.3-7.6-5.46 1.94-10.88zM6.6 15.3l5.53 6.27-7.22-1.2.5-4.26 1.19-.81z" />
-    </svg>
-);
-
-const defaultImages: HeroImage[] = [
-    { id: "default1", url: "/team1.jpg" }
-];
-
-export function DynamicHero({ images = [] }: { images?: HeroImage[] }) {
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 20 });
-
-    useEffect(() => {
-        if (emblaApi) {
-            const autoplay = setInterval(() => {
-                if (emblaApi.canScrollNext()) {
-                    emblaApi.scrollNext();
-                } else {
-                    emblaApi.scrollTo(0);
-                }
-            }, 4000);
-            return () => clearInterval(autoplay);
-        }
-    }, [emblaApi]);
-
-    const heroImages = [...defaultImages, ...images];
-
+export function DynamicHero({ images = [] }: { images?: any[] }) {
     return (
-        <section className="relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
-            <div className="absolute inset-0 z-0" ref={emblaRef}>
-                <div className="flex h-full">
-                    {heroImages.map((img) => (
-                        <div key={img.id} className="flex-[0_0_100%] min-w-0 relative h-[80vh] md:h-screen">
-                            <div
-                                className="absolute inset-0 bg-cover bg-center"
-                                style={{ backgroundImage: `url('${img.url}')` }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/70 to-primary/10 backdrop-brightness-50"></div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="absolute inset-0 -z-0 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-16 h-16 text-primary/30 animate-float">
-                    <VsCodeIconComponent />
-                </div>
-                <div className="absolute top-1/2 right-1/4 w-24 h-24 text-accent/20 animate-float" style={{ animationDelay: '1s' }}>
-                    <AzureIconComponent />
-                </div>
-                <div className="absolute bottom-1/4 left-1/3 w-20 h-20 text-foreground/10 animate-float" style={{ animationDelay: '2s' }}>
-                    <Github className="w-full h-full" />
-                </div>
-            </div>
+        <section className="relative overflow-hidden min-h-screen flex flex-col justify-center bg-black">
+            {/* Background Glows */}
+            <div className="glow-sphere top-[20%] left-[10%] w-[35%] h-[35%] bg-[#4285F4]" />
+            <div className="glow-sphere bottom-[15%] right-[10%] w-[28%] h-[28%] bg-[#EA4335]" />
 
             <div className="container relative z-10 mx-auto px-4 text-center">
-                <motion.h1
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, ease: 'easeOut' }}
-                    className="text-5xl md:text-7xl font-bold text-foreground [text-shadow:_0_2px_4px_rgb(0_0_0_/_40%)] font-graffiti"
-                >
-                    MLSC X <span className="gradient-text">SVEC</span>
-                </motion.h1>
+
+                {/* Badge */}
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.6 }}
-                    className="text-3xl md:text-4xl font-semibold my-4 text-foreground/90 [text-shadow:_0_1px_3px_rgb(0_0_0_/_30%)]"
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className="mb-10 flex justify-center"
                 >
-                    <h3>Learn-Train-Serve</h3>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-white/50 backdrop-blur-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#4285F4] animate-pulse" />
+                        Microsoft Learn Student Club · SVEC
+                    </span>
                 </motion.div>
+
+                {/* Main headline */}
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                >
+                    {/* Static line with PointerHighlight */}
+                    <h1 className="hero-heading text-white flex flex-col items-center justify-center">
+                        <span className="block">We are</span>
+
+                        {/* FlipWords on the second line with wrapper to prevent layout shift */}
+                        <span className="relative inline-flex items-center justify-center h-[1.15em] min-w-[220px] sm:min-w-[320px]">
+                            <FlipWords
+                                words={flipWords}
+                                duration={2500}
+                                className="text-[#4285F4] !p-0 !m-0 font-black tracking-tighter"
+                            />
+                        </span>
+
+                        {/* PointerHighlight on the third line */}
+                        <span className="flex justify-center mt-2">
+                            <PointerHighlight
+                                rectangleClassName="border-white/15 bg-white/[0.02]"
+                                pointerClassName="text-white/50 h-5 w-5"
+                                containerClassName="inline-block"
+                            >
+                                <span className="relative z-10">MLSC SVEC.</span>
+                            </PointerHighlight>
+                        </span>
+                    </h1>
+                </motion.div>
+
+                {/* Subtitle */}
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.6 }}
-                    className="max-w-2xl text-lg text-muted-foreground mx-auto [text-shadow:_0_1px_2px_rgb(0_0_0_/_20%)]"
+                    transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="max-w-2xl text-lg md:text-xl text-white/50 mx-auto mt-10 mb-14 font-medium leading-relaxed"
                 >
-                    Microsoft Learn Student Club, is a Technical Club which is dedicated to elevating the coding culture
-                    at Sri Vasavi Engineering College, Tadepalligudem by mentoring to refine
-                    their critical thinking and logical reasoning making them unrivalled!
+                    Join a community of innovators, builders, and creators at
+                    Sri Vasavi Engineering College — powered by Microsoft.
                 </motion.p>
 
+                {/* CTAs */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.6 }}
-                    className="flex justify-center gap-8 md:gap-16 mt-10"
+                    transition={{ duration: 1, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <div className="text-center">
-                        <AnimatedCounter target={300} suffix="+" className="text-3xl font-bold gradient-text" />
-                        <p className="text-sm text-muted-foreground mt-1">Members</p>
-                    </div>
-                    <div className="text-center">
-                        <AnimatedCounter target={15} suffix="+" className="text-3xl font-bold gradient-text" />
-                        <p className="text-sm text-muted-foreground mt-1">Events</p>
-                    </div>
-                    <div className="text-center">
-                        <AnimatedCounter target={3} className="text-3xl font-bold gradient-text" />
-                        <p className="text-sm text-muted-foreground mt-1">Chapters</p>
-                    </div>
+                    <InteractiveButton href="/apply" className="min-w-[180px]">
+                        Apply Now
+                    </InteractiveButton>
+                    <Button asChild variant="outline" className="btn-outline min-w-[180px]">
+                        <Link href="/schedule" className="flex items-center gap-2">
+                            Explore Schedule
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                    </Button>
                 </motion.div>
-            </div>
 
-            <motion.div
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-                animate={{ y: [0, 8, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-            >
-                <ChevronDown className="h-6 w-6 text-muted-foreground" />
-            </motion.div>
+                {/* Stats */}
+                {/* <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1.5, delay: 1, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-wrap justify-center gap-12 mt-32 pt-16 border-t border-white/[0.06]"
+                >
+                    <div className="flex flex-col items-center">
+                        <AnimatedCounter target={300} suffix="+" className="text-4xl md:text-5xl font-black text-white tracking-tighter" />
+                        <p className="text-[0.6rem] text-white/40 mt-2 font-black uppercase tracking-[0.4em]">Members</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <AnimatedCounter target={15} suffix="+" className="text-4xl md:text-5xl font-black text-white tracking-tighter" />
+                        <p className="text-[0.6rem] text-white/40 mt-2 font-black uppercase tracking-[0.4em]">Events Done</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <AnimatedCounter target={3} className="text-4xl md:text-5xl font-black text-white tracking-tighter" />
+                        <p className="text-[0.6rem] text-white/40 mt-2 font-black uppercase tracking-[0.4em]">Chapters</p>
+                    </div>
+                </motion.div> */}
+            </div>
         </section>
     );
 }

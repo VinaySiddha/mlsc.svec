@@ -17,8 +17,7 @@ export function LogoutButton() {
             title: "Logged Out",
             description: "You have been successfully logged out.",
         });
-        router.push('/login');
-        router.refresh();
+        window.location.href = '/login';
     }
 
     return (

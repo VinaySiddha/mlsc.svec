@@ -8,11 +8,11 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default function NewTeamCategoryPage() {
-    const headersList = headers();
+export default async function NewTeamCategoryPage() {
+    const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin') {
         redirect('/admin');
     }
 

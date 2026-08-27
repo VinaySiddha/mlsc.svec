@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 interface AnimatedCounterProps {
@@ -9,6 +9,7 @@ interface AnimatedCounterProps {
     prefix?: string;
     duration?: number;
     className?: string;
+    style?: React.CSSProperties;
 }
 
 export function AnimatedCounter({
@@ -17,6 +18,7 @@ export function AnimatedCounter({
     prefix = '',
     duration = 2,
     className,
+    style,
 }: AnimatedCounterProps) {
     const ref = useRef<HTMLSpanElement>(null);
     const isInView = useInView(ref, { once: true });
@@ -39,6 +41,7 @@ export function AnimatedCounter({
         <motion.span
             ref={ref}
             className={className}
+            style={style}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

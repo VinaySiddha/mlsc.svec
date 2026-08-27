@@ -13,8 +13,11 @@ import { ArrowLeft, Loader2, UploadCloud, FileCheck2, AlertTriangle } from 'luci
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { logClientError } from '@/lib/error-logger';
+import { useAuth } from '@/lib/auth-context';
 import Papa from 'papaparse';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Field, FieldLabel, FieldError } from '@/components/ui/field';
 
 const formSchema = z.object({
   csvFile: z
@@ -28,6 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function BulkUpdatePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
@@ -55,17 +59,23 @@ export default function BulkUpdatePage() {
         }
 
         try {
-          const result = await bulkUpdateFromCsv(results.data as { rollNo: string }[]);
+          const result = await bulkUpdateFromCsv(results.data as { rollNo: string }[]) as any;
           if (result.error) {
             throw new Error(result.error);
           }
           toast({
             title: 'Bulk Update Started',
-            description: `${result.updatedCount} applications are being updated. Emails will be sent in the background.`,
+            description: `${result.count} applications are being updated. Emails will be sent in the background.`,
           });
           form.reset();
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+          await logClientError(
+            'Bulk update from CSV failed',
+            error,
+            'BulkUpdatePage',
+            user?.email || 'unknown'
+          );
           toast({
             variant: 'destructive',
             title: 'Bulk Update Failed',
@@ -126,23 +136,19 @@ export default function BulkUpdatePage() {
                 </AlertDescription>
               </Alert>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <label htmlFor="csvFile" className="block text-sm font-medium mb-2">
-                    CSV File
-                  </label>
+                <Field>
+                  <FieldLabel htmlFor="csvFile">CSV File</FieldLabel>
                   <Input
                     id="csvFile"
                     type="file"
                     accept=".csv"
                     {...form.register('csvFile')}
-                    className="file:text-foreground"
+                    className="file:text-foreground bg-white/5 border-white/10 rounded-xl px-4 py-2 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 text-white/50"
                   />
                   {form.formState.errors.csvFile && (
-                    <p className="text-sm font-medium text-destructive mt-2">
-                      {form.formState.errors.csvFile.message as string}
-                    </p>
+                    <FieldError errors={[{ message: form.formState.errors.csvFile.message as string }]} />
                   )}
-                </div>
+                </Field>
 
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                   {isSubmitting ? (

@@ -2,17 +2,21 @@
 import type { Metadata } from "next";
 import { fetchAndCacheJobs } from "@/app/actions";
 
+// Make this page dynamic to prevent build-time Firestore access errors
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Jobs — MLSC SVEC",
   description: "Browse the latest tech job listings and internship opportunities curated for MLSC SVEC members.",
   openGraph: {
     title: "Jobs — MLSC SVEC",
     description: "Browse the latest tech job listings and internship opportunities curated for MLSC SVEC members.",
-    url: "https://mlscsvec.in/jobs",
+    url: "https://mlscsvec.com/jobs",
   },
 };
 import { JobCard, JobCardSkeleton } from "@/components/job-card";
 import { Briefcase } from "lucide-react";
+import Image from "next/image";
 import { Suspense } from "react";
 
 async function JobListings() {
@@ -28,7 +32,7 @@ async function JobListings() {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {jobs.map((job) => (
+            {jobs.map((job: any) => (
                 <JobCard key={job.id} job={job} />
             ))}
         </div>
@@ -51,8 +55,9 @@ export default function JobsPage() {
       <main className="flex-1">
         <section id="jobs" className="w-full py-16 md:py-24">
             <div className="container mx-auto px-4 md:px-6">
-                 <div className="relative w-full py-20 md:py-28 text-center bg-cover bg-center mb-12 rounded-lg" style={{backgroundImage: "url('/team1.jpg')"}}>
-                    <div className="absolute inset-0 bg-black/60 rounded-lg"></div>
+                 <div className="relative w-full py-20 md:py-28 text-center mb-12 rounded-lg overflow-hidden">
+                    <Image src="/team1.jpg" alt="Jobs Background" fill className="object-cover -z-10" priority />
+                    <div className="absolute inset-0 bg-black/60 rounded-lg -z-10"></div>
                     <div className="relative z-10 container mx-auto px-4">
                         <div className="glass-card inline-block p-8">
                             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl flex items-center gap-3">

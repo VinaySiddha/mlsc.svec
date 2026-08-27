@@ -116,7 +116,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     const filtersToPass = { ...currentFilters, attendedOnly: currentFilters.attendedOnly === 'true', panelDomain };
     
     try {
-        const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus);
+        const result = await bulkUpdateStatus(filtersToPass, bulkUpdateTargetStatus) as any;
         if (result.error) {
             throw new Error(result.error);
         }
@@ -175,6 +175,10 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     ds_ml: "Data Science & ML",
     azure: "Azure Cloud",
     web_app: "Web & App Development",
+    event_management: "Event Management",
+    public_relations: "Public Relations",
+    media_marketing: "Media Marketing",
+    creativity: "Creativity",
   };
   
   const getDomainForPdf = () => {
@@ -195,13 +199,13 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
             attendedOnly 
         };
         // For 'registered' PDF, if no domain is specified by admin, fetch all
-        if (!attendedOnly && userRole === 'admin' && !domain) {
+        if (!attendedOnly && (userRole === 'admin' || userRole === 'super_admin') && !domain) {
           delete params.domain;
         }
 
         Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
-        const result = await getApplications(params);
+        const result = await getApplications(params) as any;
         if (!result || !result.applications) {
             throw new Error("Failed to fetch applications for PDF generation.");
         }
@@ -226,7 +230,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
         let title = `MLSC Hiring - ${docTitle}`;
         if (domain) {
           title = `${docTitle} - ${domainLabels[domain] || domain} Domain`;
-        } else if(userRole === 'admin') {
+        } else if(userRole === 'admin' || userRole === 'super_admin') {
           title = `${docTitle} - All Domains`
         }
 
@@ -238,7 +242,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
           ? ["S.No", "Roll No", "Name"]
           : ["S.No", "Roll No", "Name", "Year", "Branch"];
         
-        const tableRows = applications.map((app, index) => attendedOnly
+        const tableRows = applications.map((app: any, index: number) => attendedOnly
             ? [index + 1, app.rollNo, app.name]
             : [index + 1, app.rollNo, app.name, app.yearOfStudy, app.branch]
         );
@@ -273,7 +277,6 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
     }
   };
 
-
   const resetFilters = () => {
     setSearch('');
     setSearchBy('rollNo');
@@ -287,8 +290,8 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
   
   const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
 
-  const showPdfButtonsForAdmin = userRole === 'admin';
-  const showPdfButtonsForPanel = userRole === 'panel';
+  const showPdfButtonsForAdmin = userRole === 'admin' || userRole === 'super_admin';
+  const showPdfButtonsForPanel = userRole === 'panel' || userRole === 'common_panel';
 
   return (
     <div className="flex flex-col gap-4">
@@ -304,7 +307,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
               disabled={isPending || isBulkUpdating}
             />
           </div>
-           {userRole === 'admin' && (
+           {(userRole === 'admin' || userRole === 'super_admin' || userRole === 'common_panel') && (
               <Select value={searchBy} onValueChange={setSearchBy} disabled={isPending || isBulkUpdating}>
                 <SelectTrigger className="w-[140px] shrink-0">
                   <SelectValue placeholder="Search by" />
@@ -350,13 +353,13 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
             ))}
           </SelectContent>
         </Select>
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'super_admin') && (
           <Select onValueChange={(value) => handleFilterChange('domain', value)} value={currentFilters.domain || 'all'} disabled={isPending || isBulkUpdating}>
               <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Technical Domain" />
+                  <SelectValue placeholder="Domain" />
               </SelectTrigger>
               <SelectContent>
-                  <SelectItem value="all">All Tech Domains</SelectItem>
+                  <SelectItem value="all">All Domains</SelectItem>
                   {filterData.domains.map((d) => (
                       <SelectItem key={d} value={d}>{domainLabels[d] || d}</SelectItem>
                   ))}
@@ -365,7 +368,7 @@ export function AdminFilters({ userRole, panelDomain, filterData, currentFilters
         )}
       </div>
       <div className="flex flex-wrap items-center gap-4">
-         {userRole === 'admin' && (
+         {(userRole === 'admin' || userRole === 'super_admin') && (
           <>
             <Button variant={currentFilters.sortByPerformance === 'true' ? 'glass' : 'glass'} onClick={() => handleSortToggle('sortByPerformance')} disabled={isPending || isBulkUpdating}>
                 {(isPending && searchParams.get('sortByPerformance') === 'true') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}

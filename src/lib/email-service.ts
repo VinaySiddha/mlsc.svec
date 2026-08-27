@@ -163,7 +163,7 @@ export class EmailService {
     const resendKey = process.env.RESEND_API_KEY;
     const mailgunKey = process.env.MAILGUN_API_KEY;
     const mailgunDomain = process.env.MAILGUN_DOMAIN;
-    const fromEmail = process.env.FROM_EMAIL || 'noreply@mlscsvec.in';
+    const fromEmail = process.env.FROM_EMAIL || 'noreply@mlscsvec.com';
 
     if (sendgridKey) {
       return new EmailService(new SendGridProvider(sendgridKey, fromEmail));

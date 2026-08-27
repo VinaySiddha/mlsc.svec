@@ -1,25 +1,30 @@
+import { buildEmailHtml, emailDetailRow, emailSignature } from '@/lib/email-base';
+
 export function welcomeEmailTemplate(name: string): { subject: string; html: string } {
+  const bodyHtml = `
+    <p style="margin:0 0 16px 0;">Hello <strong>${name}</strong>,</p>
+    <p style="margin:0 0 20px 0;">
+      Thank you for joining the <strong>Microsoft Learn Student Club</strong> at Sri Vasavi Engineering College. 
+      We're thrilled to have you with us!
+    </p>
+    <p style="margin:0 0 10px 0;font-weight:700;color:#202124;">Here's what you can do now:</p>
+    <ul style="margin:0 0 24px 0;padding-left:20px;color:#3c4043;line-height:26px;">
+      <li style="padding-bottom:6px;">Browse and register for upcoming <strong>events</strong></li>
+      <li style="padding-bottom:6px;">Join the <strong>community</strong> to discuss topics with fellow students</li>
+      <li style="padding-bottom:6px;">Complete your <strong>profile</strong> to let others know about you</li>
+    </ul>
+    ${emailSignature('MLSC SVEC Team')}
+  `;
+
   return {
-    subject: 'Welcome to MLSC SVEC!',
-    html: `
-    <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
-      <div style="background-color: #0056b3; height: 6px;"></div>
-      <div style="padding: 20px;">
-        <h2 style="color: #222; font-size: 20px; font-weight: 600;">Welcome, ${name}!</h2>
-        <p style="font-size: 16px;">
-          Thank you for joining the Microsoft Learn Student Club at Sri Vasavi Engineering College.
-        </p>
-        <p>Here's what you can do now:</p>
-        <ul style="padding-left: 20px;">
-          <li>Browse and register for upcoming <strong>events</strong></li>
-          <li>Join the <strong>community</strong> to discuss topics with fellow students</li>
-          <li>Complete your <strong>profile</strong> to let others know about you</li>
-        </ul>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="https://mlscsvec.in/community" target="_blank" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Visit Community</a>
-        </div>
-        <p style="margin-top: 30px; font-weight: 500;">Best regards,<br><strong>MLSC Team</strong></p>
-      </div>
-    </div>`,
+    subject: 'Welcome to MLSC SVEC! 🚀',
+    html: buildEmailHtml({
+      eyebrow: '#MLSC4.0 · Welcome',
+      headline: `Welcome to MLSC, ${name}! 🚀`,
+      ctaLabel: 'Visit Community →',
+      ctaUrl: 'https://mlscsvec.com/community',
+      accentColor: '#4285F4',
+      bodyHtml,
+    }),
   };
 }

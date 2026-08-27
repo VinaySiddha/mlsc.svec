@@ -4,36 +4,55 @@
 @tailwind utilities;
 
 @layer base {
-  @font-face {
-    font-family: 'CustomFont';
-    src: url('/font.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 1.5rem;
   }
 
-  :root {
-    --background: 222.2 84% 4.9%;
+  .dark {
+    --background: 0 0% 0%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 222.2 47.4% 11.2%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 222.2 47.4% 11.2%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 262 83% 58%;
+    --accent: 222.2 47.4% 11.2%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 217 91% 60%;
-    --radius: 0.5rem;
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%));
+    --border: 222.2 47.4% 11.2%;
+    --input: 222.2 47.4% 11.2%;
+    --ring: 212.7 26.8% 83.9%;
+    
+    /* Brand Accents */
+    --google-blue: 217 89% 61%;
+    --google-red: 5 81% 56%;
+    --google-yellow: 45 97% 50%;
+    --google-green: 145 63% 44%;
   }
 }
 
@@ -41,38 +60,199 @@
   * {
     @apply border-border;
   }
+  html {
+    font-size: 15px;
+    background-color: #000000;
+    overflow-x: hidden;
+    width: 100%;
+  }
   body {
     @apply bg-background text-foreground;
-    font-family: 'CustomFont', sans-serif;
+    background-color: #000000;
+    font-family: var(--font-google-sans-text), var(--font-inter), 'Inter', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-image:
-      linear-gradient(rgba(8, 8, 12, 0.97), rgba(8, 8, 12, 0.97)),
-      url("data:image/svg+xml,%3Csvg width='200' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='50' font-family='CustomFont, sans-serif' font-size='18' fill='rgba(255,255,255,0.03)' transform='rotate(-20 50 50)'%3EMLSC SVEC%3C/text%3E%3C/svg%3E");
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-google-sans), var(--font-inter), 'Inter', sans-serif;
+    @apply tracking-tight font-bold;
+  }
+
+  /* Nav, buttons, labels — Outfit for clean sharp UI */
+  button, .nav-label {
+    font-family: var(--font-google-sans-text), var(--font-inter), 'Inter', sans-serif;
   }
 }
 
 @layer components {
+    .bento-grid {
+        @apply grid grid-cols-1 md:grid-cols-4 gap-4 md:auto-rows-[18rem];
+    }
+
+    .bento-card {
+        @apply relative overflow-hidden rounded-[2rem] border border-white/5 bg-[#0A0A0A] p-8 transition-all duration-500 hover:border-white/10 hover:bg-[#111111] shadow-2xl;
+    }
+
+    .glass-nav {
+        @apply sticky top-0 z-50 w-full border-b border-white/5 bg-black/60 backdrop-blur-2xl;
+    }
+
+    .hero-heading {
+        font-family: var(--font-google-sans), var(--font-inter), 'Inter', sans-serif;
+        @apply text-4xl sm:text-5xl md:text-8xl lg:text-[8.5rem] font-black tracking-tighter leading-[1.1] md:leading-[0.8] mb-6;
+    }
+
+    .btn-primary {
+        @apply rounded-full bg-white text-black px-6 py-3.5 md:px-8 md:py-6 text-sm md:text-lg font-bold transition-transform hover:scale-105 active:scale-95;
+    }
+
+    .btn-outline {
+        @apply rounded-full border border-white/20 px-6 py-3.5 md:px-8 md:py-6 text-sm md:text-lg font-bold transition-all hover:bg-white/5 hover:border-white/40;
+    }
+
+    .ticker-bar {
+        @apply w-full bg-[#4285F4] py-2 overflow-hidden whitespace-nowrap;
+    }
+
+    .glow-sphere {
+        @apply absolute -z-10 blur-[150px] rounded-full opacity-30;
+    }
+
     .glass-card {
-        @apply bg-card/80 border border-border/50 shadow-lg rounded-2xl;
-    }
-
-    .glass-card-hover {
-        @apply bg-card/80 border border-border/50 shadow-lg rounded-2xl
-               transition-all duration-300
-               hover:border-primary/50 hover:shadow-primary/10 hover:shadow-xl;
-    }
-
-    .gradient-text {
-        @apply bg-clip-text text-transparent;
-        background-image: var(--gradient-primary);
-    }
-
-    .section-divider {
-        @apply w-full h-px;
-        background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.3), transparent);
-    }
-
-    .glow-primary {
-        box-shadow: 0 0 20px hsl(var(--primary) / 0.15), 0 0 60px hsl(var(--primary) / 0.05);
+        background: rgba(10, 10, 10, 0.95) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.85) !important;
     }
 }
+
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee-left {
+  display: inline-flex;
+  width: max-content;
+  animation: marquee-left 45s linear infinite;
+}
+
+.animate-marquee-right {
+  display: inline-flex;
+  width: max-content;
+  animation: marquee-right 45s linear infinite;
+}
+
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
+.mask-image-horizontal {
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
+
+/* ── Blog Post Article Rendering Styles ── */
+.blog-article-content h2 {
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  font-style: italic;
+  color: #ffffff;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+.blog-article-content h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+.blog-article-content p {
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+}
+.blog-article-content strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+.blog-article-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.blog-article-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.blog-article-content li {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+.blog-article-content pre {
+  background-color: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+.blog-article-content code {
+  font-family: monospace;
+  font-size: 0.9em;
+  color: #FBBC04;
+  background-color: rgba(251, 188, 4, 0.05);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+}
+.blog-article-content pre code {
+  background-color: transparent;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+.blog-article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+}
+.blog-article-content th {
+  background-color: #111;
+  font-weight: bold;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+.blog-article-content td {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@keyframes ios-spinner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.animate-ios-spinner {
+  animation: ios-spinner 1s linear infinite;
+}
+

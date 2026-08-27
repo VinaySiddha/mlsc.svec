@@ -9,15 +9,16 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-export default async function EditTeamCategoryPage({ params }: { params: { id: string } }) {
-    const headersList = headers();
+export default async function EditTeamCategoryPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    const headersList = await headers();
     const userRole = headersList.get('X-User-Role');
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'super_admin') {
         redirect('/admin');
     }
 
-    const { category, error } = await getTeamCategoryById(params.id);
+    const { category, error } = await getTeamCategoryById(resolvedParams.id);
 
     if (error || !category) {
         notFound();

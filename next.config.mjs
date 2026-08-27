@@ -1,16 +1,45 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: [
+    '192.168.1.30',
+    '10.5.0.2',
+    'localhost',
+    '127.0.0.1',
+  ],
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  serverExternalPackages: [
+    'nodemailer',
+    'genkit',
+    '@genkit-ai/core',
+    '@genkit-ai/googleai',
+    'handlebars',
+    'require-in-the-middle',
+    '@opentelemetry/sdk-node',
+    '@opentelemetry/instrumentation',
+  ],
+  transpilePackages: ['framer-motion'],
   images: {
+    localPatterns: [
+      {
+        pathname: '/api/image',
+        search: '?url=*',
+      },
+      {
+        pathname: '/**',
+      }
+    ],
     remotePatterns: [
       {
         protocol: "https",
         hostname: "placehold.co",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
         port: "",
         pathname: "/**",
       },
@@ -62,24 +91,27 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "ui-avatars.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.ui-avatars.com",
+        port: "",
+        pathname: "/**",
+      },
+      
     ],
-    unoptimized: true, // Required for Cloudflare
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
   },
   trailingSlash: true,
-
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, must-revalidate',
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default nextConfig;

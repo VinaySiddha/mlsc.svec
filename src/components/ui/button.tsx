@@ -38,18 +38,51 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+  asChild?: boolean;
+  interactive?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+  ({ className, variant, size, asChild = false, interactive = true, children, ...props }, ref) => {
+    if (!interactive) {
+      const Comp = asChild ? Slot : "button"
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        >
+          {children}
+        </Comp>
+      )
+    }
+
+    if (asChild) {
+      const child = React.Children.only(children) as React.ReactElement;
+      return React.cloneElement(child, {
+        className: cn(buttonVariants({ variant, size, className }), "relative overflow-hidden group", child.props.className),
+        children: (
+          <>
+            <span className="absolute left-1/2 -translate-x-1/2 top-full -translate-y-1/2 w-8 h-8 bg-white rounded-full scale-0 transition-transform duration-700 ease-in-out group-hover:scale-[18] pointer-events-none" />
+            <span className="relative z-10 transition-colors duration-500 group-hover:text-black flex items-center justify-center gap-2">
+              {child.props.children}
+            </span>
+          </>
+        )
+      });
+    }
+
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+      <button
+        className={cn(buttonVariants({ variant, size, className }), "relative overflow-hidden group")}
         ref={ref}
         {...props}
-      />
+      >
+        <span className="absolute left-1/2 -translate-x-1/2 top-full -translate-y-1/2 w-8 h-8 bg-white rounded-full scale-0 transition-transform duration-700 ease-in-out group-hover:scale-[18] pointer-events-none" />
+        <span className="relative z-10 transition-colors duration-500 group-hover:text-black flex items-center justify-center gap-2 w-full h-full">
+          {children}
+        </span>
+      </button>
     )
   }
 )

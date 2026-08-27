@@ -72,6 +72,7 @@ export function DigitalIdCard({ member, name, referenceId }: DigitalIdCardProps)
                             width={128}
                             height={128}
                             className="rounded-full object-cover bg-gray-700"
+                            style={{ height: 'auto' }}
                             data-ai-hint="person portrait"
                         />
                     </div>

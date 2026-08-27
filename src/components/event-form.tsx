@@ -13,9 +13,12 @@ import { Calendar as CalendarIcon, Loader2, Trash2, PlusCircle, User, Clock } fr
 import { createEvent, updateEvent } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { logClientError } from "@/lib/error-logger";
+import { useAuth } from "@/lib/auth-context";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { Switch } from "./ui/switch";
@@ -36,9 +39,12 @@ const timelineEntrySchema = z.object({
     description: z.string().min(3, "Description is required."),
 });
 
+const EVENT_CATEGORIES = ['Workshop', 'Bootcamp', 'Hackathon', 'Community', 'Talk', 'Other'] as const;
+
 const eventFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  category: z.enum(EVENT_CATEGORIES).default('Workshop'),
   date: z.date({ required_error: "An event date is required." }),
   time: z.string().min(1, "Time is required (e.g., 10:00 AM)."),
   venue: z.string().min(3, "Venue is required."),
@@ -50,6 +56,7 @@ const eventFormSchema = z.object({
   registrationOpen: z.boolean().default(false),
   registrationDeadline: z.date().optional(),
   registrationLimit: z.coerce.number().min(0, "Registration limit must be a positive number.").optional(),
+  registrationFee: z.coerce.number().min(0, "Registration fee must be 0 or a positive number.").default(0),
   speakers: z.array(speakerSchema).optional(),
   timeline: z.array(timelineEntrySchema).optional(),
 });
@@ -78,6 +85,7 @@ interface EventFormProps {
 
 export function EventForm({ event }: EventFormProps) {
     const router = useRouter();
+    const { user } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [notifyUsers, setNotifyUsers] = useState(false);
     const [seatLimitsEnabled, setSeatLimitsEnabled] = useState(
@@ -126,6 +134,7 @@ export function EventForm({ event }: EventFormProps) {
         defaultValues: {
             title: event?.title || "",
             description: event?.description || "",
+            category: (event as any)?.category || 'Workshop',
             date: event?.date ? new Date(event.date) : new Date(),
             time: event?.time || "",
             venue: event?.venue || "",
@@ -137,6 +146,7 @@ export function EventForm({ event }: EventFormProps) {
             registrationOpen: event?.registrationOpen || false,
             registrationDeadline: event?.registrationDeadline ? new Date(event.registrationDeadline) : undefined,
             registrationLimit: event?.registrationLimit || 0,
+            registrationFee: (event as any)?.registrationFee || 0,
             speakers: getInitialSpeakers(),
             timeline: getInitialTimeline(),
         },
@@ -223,6 +233,12 @@ export function EventForm({ event }: EventFormProps) {
 
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            await logClientError(
+                event ? `Failed to update event: ${values.title}` : `Failed to create event: ${values.title}`,
+                error,
+                "EventForm",
+                user?.email || "unknown"
+            );
             toast({
                 variant: "destructive",
                 title: "Something went wrong.",
@@ -250,19 +266,45 @@ export function EventForm({ event }: EventFormProps) {
                     )}
                 />
 
-                <FormField
+                 <FormField
                     control={form.control}
                     name="description"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Event Description</FormLabel>
                             <FormControl>
-                                <Textarea
-                                    placeholder="A brief description of the event."
-                                    className="resize-y"
-                                    {...field}
-                                />
+                                <InputGroup className="bg-white/5 border-white/10">
+                                    <InputGroupTextarea
+                                        placeholder="A brief description of the event."
+                                        className="min-h-32 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                                        {...field}
+                                    />
+                                    <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                                        <InputGroupText className="text-white/40 tabular-nums">
+                                            {(field.value || "").length} characters
+                                        </InputGroupText>
+                                    </InputGroupAddon>
+                                </InputGroup>
                             </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Event Category</FormLabel>
+                            <select
+                                {...field}
+                                className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2 text-sm text-white focus:bg-black focus-visible:outline-none focus-visible:border-[#4285F4]/60 focus-visible:ring-1 focus-visible:ring-[#4285F4]/60 focus-visible:shadow-[0_0_12px_rgba(66,133,244,0.25)] transition-all duration-200"
+                            >
+                                {EVENT_CATEGORIES.map((cat) => (
+                                    <option key={cat} value={cat} className="bg-black text-white">{cat}</option>
+                                ))}
+                            </select>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -409,7 +451,7 @@ export function EventForm({ event }: EventFormProps) {
                                             <FormItem>
                                                 <FormLabel>Speaker Image</FormLabel>
                                                 <div className="flex items-center gap-2">
-                                                    {item.existingImageUrl && !value?.[0] && <Image src={item.existingImageUrl} alt="Current speaker image" width={40} height={40} className="rounded-full object-cover" />}
+                                                    {item.existingImageUrl && !value?.[0] && <Image src={item.existingImageUrl} alt="Current speaker image" width={40} height={40} className="rounded-full object-cover" style={{ height: 'auto' }} />}
                                                     <FormControl><Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...rest} /></FormControl>
                                                 </div>
                                                 <FormMessage />
@@ -490,8 +532,8 @@ export function EventForm({ event }: EventFormProps) {
                                 <Button
                                     variant={"outline"}
                                     className={cn(
-                                    "w-full sm:w-[240px] pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
+                                    "w-full sm:w-[240px] pl-4 text-left font-normal h-11 rounded-xl border border-white/10 bg-[#0A0A0A]/80 hover:bg-[#111111]/80 hover:border-white/20 text-white transition-all duration-200 focus:outline-none focus:border-[#4285F4]/60 focus:ring-1 focus:ring-[#4285F4]/60",
+                                    !field.value && "text-white/35"
                                     )}
                                 >
                                     {field.value ? (
@@ -528,8 +570,8 @@ export function EventForm({ event }: EventFormProps) {
                                 <Button
                                     variant={"outline"}
                                     className={cn(
-                                    "w-full sm:w-[240px] pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
+                                    "w-full sm:w-[240px] pl-4 text-left font-normal h-11 rounded-xl border border-white/10 bg-[#0A0A0A]/80 hover:bg-[#111111]/80 hover:border-white/20 text-white transition-all duration-200 focus:outline-none focus:border-[#4285F4]/60 focus:ring-1 focus:ring-[#4285F4]/60",
+                                    !field.value && "text-white/35"
                                     )}
                                 >
                                     {field.value ? (
@@ -566,13 +608,25 @@ export function EventForm({ event }: EventFormProps) {
                             </FormItem>
                         )}
                     />
+                     <FormField
+                        control={form.control}
+                        name="registrationFee"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Registration Fee (INR)</FormLabel>
+                                <FormControl><Input type="number" placeholder="e.g., 50 (0 for free)" {...field} /></FormControl>
+                                <FormDescription>Set to 0 if the event is free to register.</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="registrationOpen"
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/[0.08] bg-[#0A0A0A]/40 p-4 transition-colors hover:bg-white/[0.02]">
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-base">
+                                    <FormLabel className="text-sm font-semibold tracking-wide text-white/80">
                                         Open Registrations
                                     </FormLabel>
                                     <FormMessage />
@@ -589,10 +643,10 @@ export function EventForm({ event }: EventFormProps) {
                 </div>
 
                 <div className="space-y-4">
-                    <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="flex flex-row items-center justify-between rounded-xl border border-white/[0.08] bg-[#0A0A0A]/40 p-4 transition-colors hover:bg-white/[0.02]">
                         <div className="space-y-0.5">
-                            <p className="text-base font-medium">Seat Limits by Branch / Year</p>
-                            <p className="text-sm text-muted-foreground">Optionally restrict how many students from each branch or year can register</p>
+                            <p className="text-sm font-semibold tracking-wide text-white/80">Seat Limits by Branch / Year</p>
+                            <p className="text-xs text-white/45">Optionally restrict how many students from each branch or year can register</p>
                         </div>
                         <Switch checked={seatLimitsEnabled} onCheckedChange={setSeatLimitsEnabled} />
                     </div>
@@ -601,38 +655,38 @@ export function EventForm({ event }: EventFormProps) {
                         <Card className="p-4">
                             <CardContent className="p-0 space-y-6">
                                 <div>
-                                    <p className="text-sm font-medium mb-3">Branch Limits</p>
-                                    <p className="text-xs text-muted-foreground mb-3">Leave blank for no restriction on that branch.</p>
+                                    <p className="text-sm font-medium mb-3 text-white/70">Branch Limits</p>
+                                    <p className="text-xs text-white/45 mb-3">Leave blank for no restriction on that branch.</p>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                                         {branches.map(b => (
                                             <div key={b} className="space-y-1">
-                                                <label className="text-xs font-medium">{b}</label>
+                                                <label className="text-[11px] font-bold text-white/50 uppercase tracking-wider">{b}</label>
                                                 <Input
                                                     type="number"
                                                     min="0"
                                                     placeholder="--"
                                                     value={branchLimits[b]}
                                                     onChange={(e) => setBranchLimits(prev => ({ ...prev, [b]: e.target.value }))}
-                                                    className="h-8 text-sm"
+                                                    className="h-9 text-xs rounded-lg py-1 px-3 bg-[#0A0A0A]/80 border-white/10"
                                                 />
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium mb-3">Year Limits</p>
-                                    <p className="text-xs text-muted-foreground mb-3">Leave blank for no restriction on that year.</p>
+                                    <p className="text-sm font-medium mb-3 text-white/70">Year Limits</p>
+                                    <p className="text-xs text-white/45 mb-3">Leave blank for no restriction on that year.</p>
                                     <div className="grid grid-cols-4 gap-3">
                                         {years.map(y => (
                                             <div key={y} className="space-y-1">
-                                                <label className="text-xs font-medium">{y} Year</label>
+                                                <label className="text-[11px] font-bold text-white/50 uppercase tracking-wider">{y} Year</label>
                                                 <Input
                                                     type="number"
                                                     min="0"
                                                     placeholder="--"
                                                     value={yearLimits[y]}
                                                     onChange={(e) => setYearLimits(prev => ({ ...prev, [y]: e.target.value }))}
-                                                    className="h-8 text-sm"
+                                                    className="h-9 text-xs rounded-lg py-1 px-3 bg-[#0A0A0A]/80 border-white/10"
                                                 />
                                             </div>
                                         ))}
@@ -644,10 +698,10 @@ export function EventForm({ event }: EventFormProps) {
                 </div>
 
                 {!event && (
-                    <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="flex flex-row items-center justify-between rounded-xl border border-white/[0.08] bg-[#0A0A0A]/40 p-4 transition-colors hover:bg-white/[0.02]">
                         <div className="space-y-0.5">
-                            <p className="text-base font-medium">Notify Users</p>
-                            <p className="text-sm text-muted-foreground">Send email notification to all registered users about this event</p>
+                            <p className="text-sm font-semibold tracking-wide text-white/80">Notify Users</p>
+                            <p className="text-xs text-white/45">Send email notification to all registered users about this event</p>
                         </div>
                         <Switch checked={notifyUsers} onCheckedChange={setNotifyUsers} />
                     </div>

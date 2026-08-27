@@ -30,7 +30,11 @@ export default {
         '6xl': '4rem',
       },
       fontFamily: {
-        sans: ['CustomFont', 'sans-serif'],
+        sans: ['var(--font-google-sans-text)', 'var(--font-inter)', 'Inter', 'sans-serif'],
+        display: ['var(--font-google-sans)', 'var(--font-inter)', 'Inter', 'sans-serif'],
+        inter: ['var(--font-inter)', 'Inter', 'sans-serif'],
+        googleSans: ['var(--font-google-sans)', 'sans-serif'],
+        googleSansText: ['var(--font-google-sans-text)', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

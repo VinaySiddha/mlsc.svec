@@ -1,66 +1,135 @@
-
 import type { Metadata } from "next";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ScrollReveal } from "@/components/motion/scroll-reveal";
+import { Shield, Database, Lock, Mail } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — MLSC SVEC",
   description: "Read the privacy policy for the Microsoft Learn Student Club SVEC website.",
   openGraph: {
     title: "Privacy Policy — MLSC SVEC",
-    url: "https://mlscsvec.in/privacy-policy",
+    url: "https://mlscsvec.com/privacy-policy",
   },
 };
 
 export default function PrivacyPolicyPage() {
+  const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
   return (
-    <div className="flex flex-col min-h-screen bg-transparent text-foreground">
-      <main className="flex-1 py-12 md:py-16">
-        <div className="container mx-auto px-4">
-            <Card className="max-w-4xl mx-auto glass-card">
-                <CardHeader>
-                    <CardTitle className="text-3xl text-center">Privacy Policy</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 prose prose-invert max-w-none">
-                    <p>Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
+      <main className="flex-1 py-24 md:py-40">
+        <div className="container mx-auto px-6 max-w-5xl relative">
+          {/* Ambient Glow */}
+          <div className="glow-sphere top-[-5%] right-[-5%] w-[40%] h-[40%] bg-[#34A853]/10" />
+          <div className="glow-sphere bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-[#4285F4]/10" />
 
-                    <h3 className="text-xl font-bold">1. Introduction</h3>
-                    <p>Welcome to the MLSC SVEC website. We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website, including any other media form, media channel, mobile website, or mobile application related or connected thereto.</p>
+          {/* Header */}
+          <div className="mb-20 relative z-10">
+            <ScrollReveal>
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-6">
+                Privacy <br /> <span className="text-[#34A853]">Policy.</span>
+              </h1>
+              <p className="text-white/40 font-bold uppercase tracking-[0.4em] text-xs">
+                Last updated: {currentDate}
+              </p>
+            </ScrollReveal>
+          </div>
 
-                    <h3 className="text-xl font-bold">2. Information We Collect</h3>
-                    <p>We may collect information about you in a variety of ways. The information we may collect on the Site includes:</p>
-                    <ul>
-                        <li><strong>Personal Data:</strong> Personally identifiable information, such as your name, email address, roll number, and phone number, that you voluntarily give to us when you register for an event or submit a hiring application.</li>
-                        <li><strong>Application Data:</strong> Information related to your academic and professional profile, such as your resume, CGPA, branch, and domain interests, collected through our application forms. All application data is stored securely in Firebase.</li>
-                        <li><strong>Visitor Data:</strong> For security and monitoring purposes, we automatically collect the IP address and user agent of every visitor to our website.</li>
-                    </ul>
+          {/* Content Card */}
+          <div className="bg-zinc-950/40 border border-white/[0.08] backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-[0_24px_80px_rgba(0,0,0,0.95)] relative z-10 space-y-12 text-white/70 leading-relaxed text-lg font-medium">
+            
+            {/* Section 1 */}
+            <ScrollReveal>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#34A853]/10 border border-[#34A853]/20 text-[#34A853]">
+                    <Shield className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    1. Introduction
+                  </h3>
+                </div>
+                <p>
+                  Welcome to the MLSC SVEC website. We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website, including any other media form, media channel, mobile website, or mobile application related or connected thereto.
+                </p>
+              </section>
+            </ScrollReveal>
 
-                    <h3 className="text-xl font-bold">3. Use of Your Information</h3>
-                    <p>Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the Site to:</p>
-                    <ul>
-                        <li>Process your application for the MLSC Hiring Program.</li>
-                        <li>Register you for events and workshops.</li>
-                        <li>Send you email notifications regarding your application status or event details.</li>
-                        <li>Monitor site traffic and analyze usage to improve our services.</li>
-                        <li>Maintain the security and integrity of our website by monitoring for malicious activity and preventing unauthorized access.</li>
-                    </ul>
+            {/* Section 2 */}
+            <ScrollReveal>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]">
+                    <Database className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    2. Information We Collect
+                  </h3>
+                </div>
+                <p>
+                  We may collect information about you in a variety of ways. The information we may collect on the Site includes:
+                </p>
+                <ul className="list-disc pl-8 mt-4 space-y-3 text-base">
+                  <li>
+                    <strong>Personal Data:</strong> Personally identifiable information, such as your name, email address, roll number, and phone number, that you voluntarily give to us when you register for an event, submit an application, or send a contact query.
+                  </li>
+                  <li>
+                    <strong>Application Data:</strong> Information related to your academic and professional profile, such as your resume, CGPA, branch, and domain interests. All application data is stored securely.
+                  </li>
+                  <li>
+                    <strong>Visitor Data:</strong> For security and monitoring purposes, we automatically log the IP address and user agent of every visitor to our website.
+                  </li>
+                </ul>
+              </section>
+            </ScrollReveal>
 
-                    <h3 className="text-xl font-bold">4. Content Protection and Site Security</h3>
-                    <p>To protect our intellectual property and maintain the security of our platform, we have implemented several security measures:</p>
-                    <ul>
-                        <li><strong>No-Copy Policy:</strong> Text and other content on this website cannot be copied. All content is protected by `user-select: none;` CSS properties, and JavaScript listeners prevent copy events.</li>
-                        <li><strong>Right-Click Disabled:</strong> The context menu (right-click menu) is disabled sitewide to prevent easy access to developer tools or content saving options.</li>
-                        <li><strong>Screenshot Deterrents:</strong> While we cannot completely block screenshots, we employ technical measures to detect and deter them. Attempting to take a screenshot may result in a warning and the temporary blurring of on-screen content.</li>
-                        <li><strong>Monitoring for Malicious Activity:</strong> We monitor site activity to prevent unauthorized access and other malicious actions. Any user found engaging in such activities will have their access and IP address permanently blocked from our services.</li>
-                    </ul>
+            {/* Section 3 */}
+            <ScrollReveal>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FBBC04]/10 border border-[#FBBC04]/20 text-[#FBBC04]">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    3. Content Protection
+                  </h3>
+                </div>
+                <p>
+                  To protect our intellectual property and maintain the security of our platform, we have implemented several security measures:
+                </p>
+                <ul className="list-disc pl-8 mt-4 space-y-3 text-base">
+                  <li>
+                    <strong>No-Copy Policy:</strong> Text and other content on this website cannot be copied.
+                  </li>
+                  <li>
+                    <strong>Right-Click Disabled:</strong> The context menu is disabled sitewide to prevent easy access to content saving options.
+                  </li>
+                  <li>
+                    <strong>Monitoring:</strong> We monitor site activity to prevent unauthorized access. Any user found engaging in such activities will have their access and IP address permanently blocked.
+                  </li>
+                </ul>
+              </section>
+            </ScrollReveal>
 
-                    <h3 className="text-xl font-bold">5. Contact Us</h3>
-                    <p>If you have questions or comments about this Privacy Policy, please contact us through the channels provided on our main page.</p>
+            {/* Section 4 */}
+            <ScrollReveal>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#EA4335]/10 border border-[#EA4335]/20 text-[#EA4335]">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    4. Contact Us
+                  </h3>
+                </div>
+                <p>
+                  If you have questions or comments about this Privacy Policy, please contact us through the contact form on our About page or directly at <span className="text-[#4285F4] hover:underline font-semibold">svecmlsc@outlook.com</span>.
+                </p>
+              </section>
+            </ScrollReveal>
 
-                </CardContent>
-            </Card>
+          </div>
         </div>
       </main>
-
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { addComment, getComments, deleteComment } from '@/app/community-actions';
 import { ReportDialog } from './report-dialog';
 import { useAuth } from '@/lib/auth-context';
@@ -86,12 +87,19 @@ export function CommentSection({ postId }: CommentSectionProps) {
             <AvatarFallback>{user.displayName?.[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-2">
-            <Textarea
-              placeholder="Write a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              className="bg-background/20 min-h-[80px]"
-            />
+            <InputGroup className="bg-white/5 border-white/10">
+              <InputGroupTextarea
+                placeholder="Write a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="min-h-20 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+              />
+              <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                <InputGroupText className="text-white/40 tabular-nums">
+                  {(newComment || "").length} characters
+                </InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
             <Button size="sm" onClick={handleSubmit} disabled={submitting || !newComment.trim()}>
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Post Comment

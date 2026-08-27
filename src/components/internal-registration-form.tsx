@@ -10,6 +10,8 @@ import { Loader2, ThumbsUp, ClipboardCopy, AlertTriangle } from "lucide-react";
 import { internalRegister } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { logClientError } from "@/lib/error-logger";
+import { useAuth } from "@/lib/auth-context";
 import {
   Form,
   FormControl,
@@ -26,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import Link from "next/link";
+import { copyToClipboardSafe } from "@/lib/utils";
 
 const branches = ["AIML", "CAI", "CSE", "CST", "ECE", "Others"];
 const sections = ["A", "B", "C", "D", "E"];
@@ -66,6 +69,7 @@ export function InternalRegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<{ referenceId: string | null } | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -102,6 +106,12 @@ export function InternalRegistrationForm() {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      await logClientError(
+        `Failed to internally register student ${values.name}`,
+        error,
+        "InternalRegistrationForm",
+        user?.email || "unknown"
+      );
       toast({
         variant: "destructive",
         title: "Oh no! Something went wrong.",
@@ -113,9 +123,17 @@ export function InternalRegistrationForm() {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      description: "Reference ID copied to clipboard!",
+    copyToClipboardSafe(text).then((success) => {
+      if (success) {
+        toast({
+          description: "Reference ID copied to clipboard!",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Failed to copy reference ID. Please select and copy it manually.",
+        });
+      }
     });
   }
 

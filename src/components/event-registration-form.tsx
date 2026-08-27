@@ -10,12 +10,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { registerForEvent } from '@/app/actions';
+import { createEventRegistrationOrderAction } from '@/app/actions/cashfree-actions';
+import Script from 'next/script';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Clock, Users, LogIn, Info } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { useAuth } from '@/lib/auth-context';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { logClientError } from '@/lib/error-logger';
 
 const branches = ["AIML", "CAI", "CIVIL", "CSDS", "CSE", "CST", "ECE", "ECT", "EEE", "MECH"];
 const years = ["1st", "2nd", "3rd", "4th"];
@@ -25,8 +28,8 @@ const registrationSchema = z.object({
     email: z.string().email('Please enter a valid email address.'),
     rollNo: z.string().min(1, 'Roll number is required.'),
     phone: z.string().regex(/^\d{10}$/, 'Please enter a valid 10-digit phone number.'),
-    branch: z.string({ required_error: "Please select your branch." }),
-    yearOfStudy: z.string({ required_error: "Please select your year of study." }),
+    branch: z.string().min(1, "Please select your branch."),
+    yearOfStudy: z.string().min(1, "Please select your year of study."),
 });
 
 
@@ -44,9 +47,10 @@ interface EventRegistrationFormProps {
     limit?: number;
     currentCount?: number;
     seatLimits?: SeatLimits;
+    registrationFee?: number;
 }
 
-export function EventRegistrationForm({ eventId, registrationOpen, deadline, limit, currentCount, seatLimits }: EventRegistrationFormProps) {
+export function EventRegistrationForm({ eventId, registrationOpen, deadline, limit, currentCount, seatLimits, registrationFee = 0 }: EventRegistrationFormProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
@@ -71,7 +75,7 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
 
     const form = useForm<RegistrationFormValues>({
         resolver: zodResolver(registrationSchema),
-        defaultValues: { name: '', email: '', rollNo: '', phone: '' },
+        defaultValues: { name: '', email: '', rollNo: '', phone: '', branch: '', yearOfStudy: '' },
     });
 
     useEffect(() => {
@@ -84,18 +88,58 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
     const onSubmit = async (values: RegistrationFormValues) => {
         setIsSubmitting(true);
         try {
-            const result = await registerForEvent(eventId, values, user?.uid);
-            if (result.error) {
-                throw new Error(result.error);
+            if (registrationFee && registrationFee > 0) {
+                toast({
+                    title: "Initializing Payment",
+                    description: "Connecting to secure Cashfree portal...",
+                });
+                
+                const originUrl = window.location.origin;
+                const res = await createEventRegistrationOrderAction({
+                    eventId,
+                    userId: user?.uid,
+                    registrationData: values,
+                    originUrl,
+                });
+
+                if (!res.success || !res.paymentSessionId) {
+                    setIsSubmitting(false);
+                    toast({
+                        variant: "destructive",
+                        title: "Checkout Error",
+                        description: res.error || "Failed to initialize payment order.",
+                    });
+                    return;
+                }
+
+                const cashfree = (window as any).Cashfree({
+                    mode: res.mode || 'production',
+                });
+                
+                cashfree.checkout({
+                    paymentSessionId: res.paymentSessionId,
+                    redirectTarget: '_self'
+                });
+            } else {
+                const result = await registerForEvent(eventId, values, user?.uid);
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                toast({
+                    title: 'Registration Successful!',
+                    description: "We've received your registration for the event.",
+                });
+                setOpen(false);
+                form.reset();
             }
-            toast({
-                title: 'Registration Successful!',
-                description: "We've received your registration for the event.",
-            });
-            setOpen(false);
-            form.reset();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            await logClientError(
+                `Failed to register student for event ${eventId}`,
+                error,
+                "EventRegistrationForm",
+                user?.email || values.email || "unknown"
+            );
             toast({
                 variant: "destructive",
                 title: "Registration Failed",
@@ -147,7 +191,9 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full">Register for this Event</Button>
+                <Button className="w-full">
+                    {registrationFee && registrationFee > 0 ? `Register (₹${registrationFee})` : 'Register for this Event'}
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md md:max-w-lg">
                 <DialogHeader>
@@ -158,111 +204,113 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Full Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="John Doe" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="john.doe@example.com" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="rollNo"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Roll No</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., 22A91A4201" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="phone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Phone Number</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="10-digit number" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="branch"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Branch</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <div className="max-h-[55vh] overflow-y-auto pr-2 -mr-2 space-y-4 py-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Full Name</FormLabel>
                                             <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select your branch" />
-                                                </SelectTrigger>
+                                                <Input placeholder="John Doe" {...field} />
                                             </FormControl>
-                                            <SelectContent>
-                                                {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                        {field.value && seatLimits?.branch?.[field.value] && (
-                                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                                <Info className="h-3 w-3" />
-                                                Seats limited for {field.value} ({seatLimits.branch[field.value]} max)
-                                            </p>
-                                        )}
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="yearOfStudy"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Year of Study</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
                                             <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select your year" />
-                                                </SelectTrigger>
+                                                <Input placeholder="john.doe@example.com" {...field} />
                                             </FormControl>
-                                            <SelectContent>
-                                                {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                        {field.value && seatLimits?.year?.[field.value] && (
-                                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                                <Info className="h-3 w-3" />
-                                                Seats limited for {field.value} year ({seatLimits.year[field.value]} max)
-                                            </p>
-                                        )}
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="rollNo"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Roll No</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., 22A91A4201" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Phone Number</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="10-digit number" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="branch"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Branch</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select your branch" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {branches.map(branch => <SelectItem key={branch} value={branch}>{branch}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                            {field.value && seatLimits?.branch?.[field.value] && (
+                                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                                    <Info className="h-3 w-3" />
+                                                    Seats limited for {field.value} ({seatLimits.branch[field.value]} max)
+                                                </p>
+                                            )}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="yearOfStudy"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Year of Study</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select your year" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                            {field.value && seatLimits?.year?.[field.value] && (
+                                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                                    <Info className="h-3 w-3" />
+                                                    Seats limited for {field.value} year ({seatLimits.year[field.value]} max)
+                                                </p>
+                                            )}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
                         <DialogFooter>
                             <DialogClose asChild>
@@ -272,12 +320,13 @@ export function EventRegistrationForm({ eventId, registrationOpen, deadline, lim
                             </DialogClose>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Submit Registration
+                                {registrationFee && registrationFee > 0 ? `Pay ₹${registrationFee} & Confirm` : 'Confirm Registration'}
                             </Button>
                         </DialogFooter>
                     </form>
                 </Form>
             </DialogContent>
+            <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="lazyOnload" />
         </Dialog>
     );
 }

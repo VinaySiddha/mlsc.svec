@@ -1,0 +1,74 @@
+/* Custom animated fundraising button styled from Uiverse.io */
+.fundraiseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 28px;
+  height: 52px;
+  color: #000000;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  cursor: pointer;
+  border: solid 2.5px #000000;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  font-size: 16px;
+  background-color: hsl(49deg 98% 60%);
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 0px #000000;
+  transform: translateY(0);
+}
+
+.fundraiseButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0px #000000;
+  background-color: hsl(49deg 98% 63%);
+}
+
+.fundraiseButton:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0px #000000;
+  transition: all 100ms ease;
+}
+
+.fundraiseButton svg {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 2;
+  color: #000000;
+  fill: #000000;
+}
+
+.play {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition-delay: 150ms;
+  z-index: 2;
+}
+
+.fundraiseButton:hover svg {
+  transform: scale(2.2) translate(35%);
+  color: #ef4444; /* Turn red/pink on hover */
+  fill: #ef4444;
+}
+
+.now {
+  position: absolute;
+  left: 0;
+  transform: translateX(-100%);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 2;
+  font-weight: 900;
+}
+
+.fundraiseButton:hover .now {
+  transform: translateX(28px);
+  transition-delay: 150ms;
+}
+
+.fundraiseButton:hover .play {
+  transform: translateX(200%);
+  transition-delay: 150ms;
+}

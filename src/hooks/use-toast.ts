@@ -8,14 +8,23 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_LIMIT = 3
+const TOAST_REMOVE_DELAY = 800
 
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  indicator?: React.ReactNode
+  isLoading?: boolean
+  actionProps?: {
+    children: React.ReactNode
+    onPress?: () => void
+    onClick?: () => void
+    variant?: string
+    className?: string
+  }
 }
 
 const actionTypes = {
@@ -142,8 +151,15 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
-function toast({ ...props }: Toast) {
+interface ToastOptions extends Toast {
+  duration?: number;
+  timeout?: number;
+}
+
+function toast({ duration, timeout, ...props }: ToastOptions) {
   const id = genId()
+  // Support both "duration" and "timeout" (often used in HeroUI / other libraries)
+  const finalDuration = duration !== undefined ? duration : (timeout !== undefined ? timeout : 5000)
 
   const update = (props: ToasterToast) =>
     dispatch({
@@ -158,17 +174,102 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
+      duration: finalDuration,
       onOpenChange: (open) => {
         if (!open) dismiss()
       },
     },
   })
 
-  return {
-    id: id,
-    dismiss,
-    update,
+  // Auto-dismiss after finalDuration ms
+  if (finalDuration !== Infinity && finalDuration !== 0) {
+    setTimeout(dismiss, finalDuration)
   }
+
+  return id;
+}
+
+toast.dismiss = (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId })
+toast.close = (toastId: string) => dispatch({ type: "DISMISS_TOAST", toastId })
+toast.clear = () => dispatch({ type: "DISMISS_TOAST" })
+
+toast.success = (title: string, props?: Omit<ToastOptions, "title">) => {
+  return toast({ title, variant: "success", ...props })
+}
+toast.warning = (title: string, props?: Omit<ToastOptions, "title">) => {
+  return toast({ title, variant: "warning", ...props })
+}
+toast.danger = (title: string, props?: Omit<ToastOptions, "title">) => {
+  return toast({ title, variant: "danger", ...props })
+}
+toast.error = (title: string, props?: Omit<ToastOptions, "title">) => {
+  return toast({ title, variant: "danger", ...props })
+}
+toast.info = (title: string, props?: Omit<ToastOptions, "title">) => {
+  return toast({ title, variant: "info", ...props })
+}
+
+toast.promise = <T>(
+  promise: Promise<T>,
+  messages: {
+    loading: string;
+    success: string | ((data: T) => string);
+    error: string | ((err: any) => string);
+  }
+) => {
+  const id = genId();
+  
+  dispatch({
+    type: "ADD_TOAST",
+    toast: {
+      id,
+      open: true,
+      title: messages.loading,
+      variant: "info",
+      isLoading: true,
+      duration: Infinity,
+    }
+  });
+
+  promise
+    .then((data) => {
+      const successMsg = typeof messages.success === "function"
+        ? messages.success(data)
+        : messages.success;
+      dispatch({
+        type: "UPDATE_TOAST",
+        toast: {
+          id,
+          title: successMsg,
+          variant: "success",
+          isLoading: false,
+          duration: 5000,
+        }
+      });
+      setTimeout(() => {
+        dispatch({ type: "DISMISS_TOAST", toastId: id });
+      }, 5000);
+    })
+    .catch((err) => {
+      const errorMsg = typeof messages.error === "function"
+        ? messages.error(err)
+        : messages.error;
+      dispatch({
+        type: "UPDATE_TOAST",
+        toast: {
+          id,
+          title: errorMsg,
+          variant: "danger",
+          isLoading: false,
+          duration: 5000,
+        }
+      });
+      setTimeout(() => {
+        dispatch({ type: "DISMISS_TOAST", toastId: id });
+      }, 5000);
+    });
+
+  return id;
 }
 
 function useToast() {

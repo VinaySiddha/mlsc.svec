@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { getTeamMemberByToken, completeOnboarding } from "@/app/actions";
 import { OnboardingForm } from "@/components/onboarding-form";
 import { MLSCLogo } from "@/components/icons";
@@ -12,23 +12,25 @@ import { DigitalIdCard } from "@/components/digital-id-card";
 import { Button } from "@/components/ui/button";
 
 interface OnboardingPageProps {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }
 
 export default function OnboardingPage({ params }: OnboardingPageProps) {
+  const resolvedParams = use(params);
+  const token = resolvedParams.token;
   const [step, setStep] = useState('loading');
   const [memberData, setMemberData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const verifyToken = async () => {
-      if (!params.token) {
+      if (!token) {
         setError("Invalid onboarding link.");
         setStep('error');
         return;
       }
       
-      const { member, error } = await getTeamMemberByToken(params.token);
+      const { member, error } = await getTeamMemberByToken(token);
       
       if (error || !member) {
         setError(error || "This onboarding link is either invalid or has expired.");
@@ -39,10 +41,10 @@ export default function OnboardingPage({ params }: OnboardingPageProps) {
       }
     };
     verifyToken();
-  }, [params.token]);
+  }, [token]);
 
   const handleOnboardingComplete = async (formData: FormData) => {
-    formData.append('token', params.token);
+    formData.append('token', token);
     const result = await completeOnboarding(formData);
     if (result.error || !result.member) {
       setError(result.error || "Failed to activate profile.");

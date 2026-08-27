@@ -6,11 +6,13 @@ import { collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc, query, order
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Loader2, Trash2, Plus, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { revalidateHomePageData } from "@/app/home-actions";
 
 interface ChapterCard {
     title: string;
@@ -39,19 +41,40 @@ export function ChapterManager() {
     const [cardContent, setCardContent] = useState("");
 
     useEffect(() => {
-        const q = query(collection(db, "home_chapters"), orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as Chapter[];
-            setChapters(data);
-        }, (error) => {
-            console.error("Error fetching chapters:", error);
-            // Optionally add toast here if imported
-        });
+        console.log("[ChapterManager] Setting up Firestore listener for home_chapters");
+        
+        try {
+            const q = query(collection(db, "home_chapters"), orderBy("createdAt", "desc"));
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                console.log("[ChapterManager] Successfully received data:", snapshot.docs.length, "documents");
+                const data = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                })) as Chapter[];
+                setChapters(data);
+            }, (error: any) => {
+                console.error("[ChapterManager] Firestore error details:", {
+                    code: error.code,
+                    message: error.message,
+                    customData: error.customData,
+                    fullError: error
+                });
+                toast({
+                    title: "Error",
+                    description: `Failed to load chapters. Error: ${error.code} - ${error.message}`,
+                    variant: "destructive",
+                });
+            });
 
-        return () => unsubscribe();
+            return () => unsubscribe();
+        } catch (error: any) {
+            console.error("[ChapterManager] Error setting up listener:", error);
+            toast({
+                title: "Error",
+                description: "Failed to initialize data listener.",
+                variant: "destructive",
+            });
+        }
     }, []);
 
     const clearForm = () => {
@@ -94,6 +117,8 @@ export function ChapterManager() {
                 createdAt: serverTimestamp(),
             });
 
+            await revalidateHomePageData();
+
             toast({
                 title: "Success",
                 description: "Chapter created successfully.",
@@ -115,6 +140,7 @@ export function ChapterManager() {
         if (!confirm("Are you sure you want to delete this chapter?")) return;
         try {
             await deleteDoc(doc(db, "home_chapters", id));
+            await revalidateHomePageData();
             toast({
                 title: "Success",
                 description: "Chapter deleted.",
@@ -137,21 +163,46 @@ export function ChapterManager() {
                         <CardTitle>Create Chapter</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Chapter Name</Label>
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider text-zinc-400 select-none cursor-pointer">Chapter Name</Label>
                             <Input id="name" placeholder="e.g. Chapter 1" value={name} onChange={(e) => setName(e.target.value)} />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="desc">Description</Label>
-                            <Textarea id="desc" placeholder="Chapter description..." value={description} onChange={(e) => setDescription(e.target.value)} />
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="desc" className="text-xs font-bold uppercase tracking-wider text-zinc-400 select-none cursor-pointer">Description</Label>
+                            <InputGroup className="bg-white/5 border-white/10">
+                                <InputGroupTextarea
+                                    id="desc"
+                                    placeholder="Chapter description..."
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                                />
+                                <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                                    <InputGroupText className="text-white/40 tabular-nums">
+                                        {(description || "").length} characters
+                                    </InputGroupText>
+                                </InputGroupAddon>
+                            </InputGroup>
                         </div>
 
-                        <div className="border rounded-md p-4 space-y-4">
-                            <h4 className="font-semibold text-sm">Add Card</h4>
-                            <div className="space-y-2">
+                        <div className="border border-white/10 rounded-xl p-4 space-y-4">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Add Card</h4>
+                            <div className="space-y-3">
                                 <Input placeholder="Card Title" value={cardTitle} onChange={(e) => setCardTitle(e.target.value)} />
-                                <Textarea placeholder="Card Content" value={cardContent} onChange={(e) => setCardContent(e.target.value)} />
+                                <InputGroup className="bg-white/5 border-white/10">
+                                    <InputGroupTextarea
+                                        placeholder="Card Content"
+                                        value={cardContent}
+                                        onChange={(e) => setCardContent(e.target.value)}
+                                        className="min-h-20 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                                    />
+                                    <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
+                                        <InputGroupText className="text-white/40 tabular-nums">
+                                            {(cardContent || "").length} characters
+                                        </InputGroupText>
+                                    </InputGroupAddon>
+                                </InputGroup>
                                 <Button variant="outline" size="sm" onClick={addCardToDraft} type="button">
                                     <Plus className="mr-2 h-4 w-4" /> Add Card
                                 </Button>
