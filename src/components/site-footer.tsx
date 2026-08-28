@@ -11,6 +11,7 @@ const footerColumns = [
             { href: '/events', label: 'Events' },
             { href: '/services', label: 'Services Hub' },
             { href: '/blog', label: 'Blog' },
+            { href: '/contact', label: 'Contact Us' },
             { href: '/schedule', label: 'Schedule' },
             { href: '/donate', label: 'Donate' },
         ],
@@ -44,6 +45,7 @@ const footerColumns = [
             { href: '/privacy-policy', label: 'Privacy Policy' },
             { href: '/terms-and-conditions', label: 'Terms of Use' },
             { href: '/guidelines', label: 'Guidelines' },
+            { href: '/contact', label: 'Contact Us' },
         ],
     },
 ];

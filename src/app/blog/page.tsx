@@ -5,18 +5,18 @@ import Link from "next/link";
 import { Image } from "@/components/image";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger-container";
+import { GoogleAdUnit } from "@/components/google-ad-unit";
+import { blogPosts } from "@/lib/blog-posts";
 
 export const metadata: Metadata = {
-  title: "Blog — MLSC SVEC",
-  description: "Read articles, tutorials, and updates from the Microsoft Learn Student Club SVEC community.",
+  title: "Blog & Technical Articles — MLSC SVEC",
+  description: "Read in-depth technical guides, tutorials, cloud roadmaps, and software engineering insights from the Microsoft Learn Student Club SVEC.",
   openGraph: {
-    title: "Blog — MLSC SVEC",
-    description: "Read articles, tutorials, and updates from the Microsoft Learn Student Club SVEC community.",
+    title: "Blog & Technical Articles — MLSC SVEC",
+    description: "Read in-depth technical guides, tutorials, cloud roadmaps, and software engineering insights from the Microsoft Learn Student Club SVEC.",
     url: "https://mlscsvec.com/blog",
   },
 };
-
-import { blogPosts } from "@/lib/blog-posts";
 
 const posts = [
   {
@@ -110,6 +110,11 @@ export default function BlogPage() {
             </ScrollReveal>
           </section>
         )}
+
+        {/* ── Mid-page Ad Unit ── */}
+        <div className="container mx-auto px-6 max-w-5xl my-8">
+          <GoogleAdUnit />
+        </div>
 
         {/* ── Regular Blog Grid ── */}
         <section className="py-12 pb-32 container mx-auto px-6 border-t border-white/[0.06] mt-12">

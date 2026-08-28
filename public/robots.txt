@@ -1,9 +1,45 @@
-# *
-User-agent: *
+# Robots.txt for MLSC SVEC (https://mlscsvec.com)
+
+# AdSense Crawler (Full Access to all content)
+User-agent: Mediapartners-Google
 Allow: /
 
-# Host
-Host: https://mlscsvec.com
+# Googlebot and All Standard Search Engine Crawlers
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /blog
+Allow: /blog/*
+Allow: /domains
+Allow: /domains/*
+Allow: /events
+Allow: /team
+Allow: /contact
+Allow: /projects
+Allow: /contributors
+Allow: /contribute
+Allow: /privacy-policy
+Allow: /terms-and-conditions
+Allow: /guidelines
 
-# Sitemaps
+# Disallow internal apps, authentication, and utility tools
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login
+Disallow: /profile/
+Disallow: /onboard/
+Disallow: /track/
+Disallow: /mlsc-pay/
+Disallow: /issue-tracker/
+Disallow: /status/
+Disallow: /quiz/
+Disallow: /donate/
+Disallow: /services/
+Disallow: /community/new
+Disallow: /contribute/dashboard
+Disallow: /contribute/reverify
+
+# Host & Sitemap
+Host: https://mlscsvec.com
 Sitemap: https://mlscsvec.com/sitemap.xml

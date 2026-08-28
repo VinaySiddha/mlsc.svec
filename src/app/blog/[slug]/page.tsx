@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, User, Clock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { blogPosts } from "@/lib/blog-posts";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
+import { GoogleAdUnit } from "@/components/google-ad-unit";
 
 interface RouteParams {
   params: Promise<{
@@ -129,6 +130,11 @@ export default async function BlogPostPage({ params }: RouteParams) {
             />
           </article>
         </ScrollReveal>
+
+        {/* Ad Unit */}
+        <div className="mt-12">
+          <GoogleAdUnit />
+        </div>
 
         {/* Article Footer Divider */}
         <div className="border-t border-white/10 mt-16 pt-8 flex justify-between items-center">
