@@ -12,7 +12,7 @@ export function HeaderWrapper() {
   return (
     <>
       <SiteHeader />
-      <div className="h-[108px] w-full bg-black shrink-0" />
+      <div className="h-20 sm:h-24 w-full shrink-0 pointer-events-none" />
     </>
   );
 }

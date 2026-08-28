@@ -67,13 +67,13 @@ export function CreativeAmbassadors({
   const combinedList = ambassadors.length > 0
     ? ambassadors.map((amb, idx) => ({
         ...amb,
-        tagline: amb.description?.slice(0, 50) + "..." || "Microsoft Learn Student Ambassador",
-        badge: idx === 0 ? "MLSA LEAD" : "MLSA ADVOCATE",
-        badgeColor: idx % 2 === 0 ? "#4285F4" : "#FFE600",
-        skills: ["AI & Cloud", "Community Building", "Full-Stack Dev", "Mentorship"],
-        level: "TIER 0" + (idx + 1),
-        linkedin: "https://linkedin.com",
-        github: "https://github.com",
+        tagline: amb.tagline || (amb.description ? amb.description.slice(0, 50) + "..." : "Microsoft Learn Student Ambassador"),
+        badge: amb.badge || (idx === 0 ? "MLSA LEAD" : "MLSA ADVOCATE"),
+        badgeColor: amb.badgeColor || (idx % 2 === 0 ? "#4285F4" : "#FFE600"),
+        skills: (Array.isArray(amb.skills) && amb.skills.length > 0) ? amb.skills : ["AI & Cloud", "Community Building", "Full-Stack Dev", "Mentorship"],
+        level: amb.level || ("TIER 0" + (idx + 1)),
+        linkedin: amb.linkedin || "https://linkedin.com",
+        github: amb.github || "https://github.com",
       }))
     : defaultAmbassadorsList;
 

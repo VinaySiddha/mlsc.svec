@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getNotifications } from "@/app/actions";
+import { getNotifications, getGlobalSettings } from "@/app/actions";
 import { getHomePageData } from "@/app/home-actions";
 
 import { DynamicHero } from "@/components/home/dynamic-hero";
@@ -29,15 +29,18 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [{ notifications }, homeData] = await Promise.all([
+  const [{ notifications }, homeData, { settings }] = await Promise.all([
     getNotifications(),
     getHomePageData(),
+    getGlobalSettings(),
   ]);
+
+  const activeChapter = settings?.activeChapter || '3.0';
 
   return (
     <div className="flex flex-col min-h-screen text-black bg-white">
       {/* Neo-Brutalist Entrance Screen */}
-      <EntranceScreen />
+      <EntranceScreen activeChapter={activeChapter} />
 
       <main className="flex-1">
 
@@ -45,7 +48,7 @@ export default async function Home() {
             HERO
         ===================================================== */}
 
-        <DynamicHero images={homeData.heroImages} />
+        <DynamicHero images={homeData.heroImages} activeChapter={activeChapter} />
 
         {/* =====================================================
             CREATIVE AMBASSADORS & STUDENT LEADERSHIP

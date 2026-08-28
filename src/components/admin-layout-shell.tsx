@@ -2,10 +2,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { 
   Bell, 
-  ChevronRight
+  Globe, 
+  Activity,
+  Layers,
+  ExternalLink,
+  ChevronRight,
+  ShieldAlert,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -45,19 +51,8 @@ export function AdminLayoutShell({
   chapters = ['3.0', '4.0']
 }: AdminLayoutShellProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  
-  const [theme] = useState<'light' | 'dark'>('dark');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  
   const notificationsRef = useRef<HTMLDivElement>(null);
-
-  // Force dark mode for administrative dashboard
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.add('dark');
-    root.classList.remove('light');
-  }, []);
 
   // Close dropdowns on click outside
   useEffect(() => {
@@ -70,23 +65,7 @@ export function AdminLayoutShell({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-
-  // Dynamic domain label
-  const domainLabels: Record<string, string> = {
-    gen_ai: "Generative AI",
-    ds_ml: "Data Science & ML",
-    azure: "Azure Cloud",
-    web_app: "Web & App Dev",
-    event_management: "Event Management",
-    public_relations: "Public Relations",
-    media_marketing: "Media Marketing",
-    creativity: "Creativity",
-  };
-
-  const domainName = panelDomain ? domainLabels[panelDomain] || panelDomain : 'Superadmin';
-
   // Calculate breadcrumbs dynamically based on path
-
   const pathParts = pathname.split('/').filter(Boolean);
   const breadcrumbLabels: Record<string, string> = {
     admin: "Admin",
@@ -114,129 +93,70 @@ export function AdminLayoutShell({
 
   return (
     <SidebarProvider>
-      {/* CSS Overrides to keep things completely consistent and clean */}
       <style dangerouslySetInnerHTML={{ __html: `
+        /* Unified clean Neo-Brutalist base */
         body {
-          background-color: transparent !important;
-        }
-        
-        /* Premium dark glassmorphism for admin cards, matching client side */
-        .dark .apple-card, .dark .glass-card, .dark .bento-card {
-          background: rgba(10, 10, 10, 0.7) !important;
-          backdrop-filter: blur(16px) !important;
-          -webkit-backdrop-filter: blur(16px) !important;
-          border: 1px solid rgba(255, 255, 255, 0.08) !important;
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
-          color: #ffffff !important;
+          background-color: #FAFAFA !important;
+          color: #000000 !important;
         }
 
-        .dark aside {
-          background: rgba(8, 8, 8, 0.95) !important;
-          backdrop-filter: blur(20px) !important;
-          border-right-color: rgba(255, 255, 255, 0.08) !important;
+        /* Sidebar Styling */
+        [data-sidebar="sidebar"] {
+          background-color: #FFFFFF !important;
+          border-right: 3px solid #000000 !important;
         }
 
-        .dark header {
-          background: rgba(0, 0, 0, 0.8) !important;
-          backdrop-filter: blur(20px) !important;
-          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-        }
-        
-        /* Style standard subpage wrapper tables, select inputs, cards inside our light/dark mode */
-        .light .apple-card, .light .glass-card {
-          background: #ffffff !important;
-          border-color: #e2e8f0 !important;
-          color: #1e293b !important;
-          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
-        }
-        .light .bento-card {
-          background: #ffffff !important;
-          border-color: #e2e8f0 !important;
-          color: #1e293b !important;
-        }
-        .light .text-white {
-          color: #0f172a !important;
-        }
-        .light .text-white\\/90, .light .text-white\\/80, .light .text-white\\/70 {
-          color: #1e293b !important;
-        }
-        .light .text-white\\/60, .light .text-white\\/50, .light .text-white\\/40 {
-          color: #475569 !important;
-        }
-        .light .text-white\\/30, .light .text-white\\/20, .light .text-white\\/10 {
-          color: #94a3b8 !important;
-        }
-        .light .bg-white\\/5 {
-          background-color: #f1f5f9 !important;
-        }
-        .light .border-white\\/10 {
-          border-color: #e2e8f0 !important;
+        [data-sidebar="header"], [data-sidebar="content"], [data-sidebar="footer"] {
+          background-color: #FFFFFF !important;
         }
 
-        /* Fix table texts in light mode */
-        .light table, .light th, .light td {
-          color: #334155 !important;
-        }
-        .light th {
-          background-color: #f8fafc !important;
-          color: #475569 !important;
+        .admin-neo-card {
+          background-color: #FFFFFF !important;
+          border: 3px solid #000000 !important;
+          box-shadow: 4px 4px 0px 0px #000000 !important;
+          border-radius: 1rem !important;
         }
 
-        /* Fix table texts in dark mode for premium transparency */
-        .dark table {
-          border-color: rgba(255, 255, 255, 0.08) !important;
+        .admin-neo-card-lg {
+          background-color: #FFFFFF !important;
+          border: 3px solid #000000 !important;
+          box-shadow: 6px 6px 0px 0px #000000 !important;
+          border-radius: 1.25rem !important;
         }
-        .dark th {
-          background-color: rgba(255, 255, 255, 0.02) !important;
-          color: rgba(255, 255, 255, 0.6) !important;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+
+        .admin-neo-btn {
+          background-color: #FFE600 !important;
+          color: #000000 !important;
+          border: 2px solid #000000 !important;
+          box-shadow: 3px 3px 0px 0px #000000 !important;
+          font-weight: 800 !important;
+          transition: all 0.15s ease-in-out !important;
         }
-        .dark td {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-          color: rgba(255, 255, 255, 0.8) !important;
+        .admin-neo-btn:hover {
+          transform: translate(2px, 2px) !important;
+          box-shadow: 1px 1px 0px 0px #000000 !important;
         }
-        .dark tr:hover {
-          background-color: rgba(255, 255, 255, 0.02) !important;
+
+        table {
+          border-collapse: separate !important;
+          border-spacing: 0 !important;
         }
-        
-        /* Style headers of subpages to fit the theme */
-        .admin-layout-content header {
-          position: static !important;
-          background: transparent !important;
-          border: none !important;
-          box-shadow: none !important;
-          height: auto !important;
-          padding: 1.5rem 0 !important;
-          width: 100% !important;
+        th {
+          background-color: #F4F4F5 !important;
+          color: #000000 !important;
+          font-weight: 800 !important;
+          border-bottom: 2px solid #000000 !important;
         }
-        /* Hide the logo and branding link in subpage headers */
-        .admin-layout-content header a[href="/admin"],
-        .admin-layout-content header a[href="/"] {
-          display: none !important;
+        td {
+          border-bottom: 1px solid #E4E4E7 !important;
+          color: #18181B !important;
         }
-        .admin-layout-content header .container {
-          padding-left: 0 !important;
-          padding-right: 0 !important;
-          margin: 0 !important;
-          max-width: 100% !important;
-        }
-        .admin-layout-content header .flex {
-          justify-content: flex-end !important;
-          gap: 1rem !important;
-        }
-        .admin-layout-content .min-h-screen {
-          min-height: auto !important;
-          background-color: transparent !important;
-          color: inherit !important;
-          padding: 0 !important;
-        }
-        .admin-layout-content main {
-          padding: 0 !important;
-          background-color: transparent !important;
+        tr:hover td {
+          background-color: #FEF08A15 !important;
         }
       `}} />
 
-      {/* App Sidebar from Shadcn Primitives */}
+      {/* App Sidebar */}
       <AppSidebar 
         userRole={userRole} 
         username={username} 
@@ -246,25 +166,32 @@ export function AdminLayoutShell({
         chapters={chapters}
       />
 
-      {/* Sidebar Inset Content Area */}
-      <SidebarInset className="flex flex-col min-h-screen bg-slate-50 dark:bg-black overflow-hidden transition-all duration-300">
-        {/* Top Header Row containing triggers and toggles */}
-        <header className="sticky top-0 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800/80 bg-white/95 dark:bg-black/95 backdrop-blur-md px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 z-50">
-          <div className="flex items-center gap-2 px-2">
-            <SidebarTrigger className="-ml-1 text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800/50" />
+      {/* Sidebar Inset Main Area */}
+      <SidebarInset className="flex flex-col min-h-screen bg-[#FAFAFA] text-black overflow-hidden transition-all duration-300">
+        
+        {/* ── Top Header Menu Bar ── */}
+        <header className="sticky top-0 flex h-16 shrink-0 items-center justify-between gap-4 border-b-[3px] border-black bg-white px-4 sm:px-6 z-40 shadow-[0_2px_0px_0px_#000000]">
+          
+          {/* Left: Sidebar Trigger & Clean Breadcrumbs */}
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="text-black bg-white hover:bg-[#FFE600] p-2 rounded-lg transition-all border-2 border-black shadow-[2px_2px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none" />
+            
             <Separator
               orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4 bg-slate-200 dark:bg-zinc-800/80"
+              className="h-6 w-[2px] bg-black"
             />
+
             {/* Dynamic Breadcrumbs */}
             <Breadcrumb>
-              <BreadcrumbList className="flex items-center gap-1.5 sm:gap-2.5">
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/admin" className="text-xs font-semibold text-slate-400 dark:text-zinc-500 hover:text-[#4285F4] dark:hover:text-[#4285F4]">
-                    Dashboard
+              <BreadcrumbList className="flex items-center gap-1.5 sm:gap-2">
+                <BreadcrumbItem className="hidden sm:block">
+                  <BreadcrumbLink href="/admin" className="text-xs font-mono font-black text-black hover:text-[#4285F4] uppercase tracking-wider">
+                    ADMIN
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                {pathParts.length > 1 && <BreadcrumbSeparator className="hidden md:block text-slate-300 dark:text-zinc-700" />}
+                
+                {pathParts.length > 1 && <BreadcrumbSeparator className="hidden sm:block text-black font-black" />}
+                
                 {pathParts.slice(1).map((part, index, arr) => {
                   const label = breadcrumbLabels[part] || part;
                   const isLast = index === arr.length - 1;
@@ -274,19 +201,19 @@ export function AdminLayoutShell({
                     <React.Fragment key={part}>
                       <BreadcrumbItem>
                         {isLast ? (
-                          <BreadcrumbPage className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider select-none">
+                          <BreadcrumbPage className="text-xs font-mono font-black text-black uppercase tracking-wider px-2 py-0.5 bg-[#FFE600] rounded border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                             {label}
                           </BreadcrumbPage>
                         ) : (
                           <BreadcrumbLink 
                             href={intermediatePath} 
-                            className="text-xs font-semibold text-slate-400 dark:text-zinc-500 hover:text-[#4285F4] dark:hover:text-[#4285F4] select-none"
+                            className="text-xs font-mono font-bold text-zinc-600 hover:text-black uppercase tracking-wider select-none"
                           >
                             {label}
                           </BreadcrumbLink>
                         )}
                       </BreadcrumbItem>
-                      {!isLast && <BreadcrumbSeparator className="text-slate-300 dark:text-zinc-700" />}
+                      {!isLast && <BreadcrumbSeparator className="text-black font-black" />}
                     </React.Fragment>
                   );
                 })}
@@ -294,45 +221,71 @@ export function AdminLayoutShell({
             </Breadcrumb>
           </div>
 
-          {/* Right Action Icons (Notifications Only) */}
-          <div className="flex items-center gap-4">
+          {/* Right: Chapter Badge, System Status, Public Site Shortcut & Notifications */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            
+            {/* Active Chapter Badge */}
+            <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 bg-[#4285F4] text-white border-2 border-black rounded-lg font-mono text-[11px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000]">
+              <Layers className="h-3.5 w-3.5 text-[#FFE600]" />
+              <span>CHAPTER {adminChapter}</span>
+            </div>
+
+            {/* Live Status Pill */}
+            <div className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#00FF66] text-black border-2 border-black rounded-lg font-mono text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000]">
+              <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
+              ONLINE
+            </div>
+
+            {/* Public Site Quick Link Button */}
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFE600] hover:bg-yellow-300 text-black border-2 border-black rounded-lg text-xs font-mono font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Public Site</span>
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+
             {/* Notification Bell */}
             <div className="relative" ref={notificationsRef}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative rounded-full text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800/50 h-9 w-9 shrink-0"
+                className="relative bg-white text-black hover:bg-zinc-100 h-9 w-9 border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_#000000] transition-all cursor-pointer"
               >
-                <Bell className="h-4.5 w-4.5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 border border-white dark:border-zinc-950 rounded-full animate-pulse" />
+                <Bell className="h-4 w-4" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#FF0055] border-2 border-black rounded-full" />
               </Button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-4 py-2 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-                    <span className="font-bold text-sm text-slate-900 dark:text-white">Notifications</span>
-                    <span className="text-[10px] font-bold text-[#4285F4] uppercase cursor-pointer hover:underline">Mark all read</span>
+                <div className="absolute right-0 mt-3 w-80 bg-white border-[3px] border-black rounded-xl shadow-[6px_6px_0px_0px_#000000] py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2.5 border-b-2 border-black flex justify-between items-center bg-[#FFE600]/30">
+                    <span className="font-black text-xs uppercase tracking-wider text-black font-mono">System Live Feed</span>
+                    <span className="text-[10px] font-black text-[#4285F4] uppercase cursor-pointer hover:underline">Mark read</span>
                   </div>
-                  <div className="max-h-64 overflow-y-auto px-2 py-1">
-                    <div className="p-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 rounded-xl cursor-pointer transition-colors">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-zinc-200">New applications received</p>
-                      <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1">5 minutes ago</p>
+                  <div className="max-h-64 overflow-y-auto px-2 py-1 space-y-1">
+                    <div className="p-3 bg-zinc-50 hover:bg-[#FFE600]/20 rounded-lg cursor-pointer transition-colors border-2 border-black">
+                      <p className="text-xs font-bold text-black">New applications submitted for review</p>
+                      <p className="text-[10px] text-zinc-500 font-mono font-bold mt-1">Live Feed • Active</p>
                     </div>
-                    <div className="p-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 rounded-xl cursor-pointer transition-colors border-t border-slate-100 dark:border-zinc-800/50">
-                      <p className="text-xs font-semibold text-slate-800 dark:text-zinc-200">Recruitment cycle closing tomorrow</p>
-                      <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1">2 hours ago</p>
+                    <div className="p-3 bg-zinc-50 hover:bg-[#FFE600]/20 rounded-lg cursor-pointer transition-colors border-2 border-black">
+                      <p className="text-xs font-bold text-black">Active Workspace: Chapter {adminChapter}</p>
+                      <p className="text-[10px] text-zinc-500 font-mono font-bold mt-1">Settings Synced</p>
                     </div>
                   </div>
                 </div>
               )}
             </div>
+
           </div>
 
         </header>
 
-        {/* Scrollable Page Content Container */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 admin-layout-content">
+        {/* Page Content Container */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10 admin-layout-content">
           {children}
         </main>
       </SidebarInset>

@@ -8,6 +8,7 @@ import { AlumniTestimonial, SEED_ALUMNI_TESTIMONIALS } from '@/schemas/alumni';
 export interface HeroImage {
   id: string;
   url: string;
+  path?: string;
 }
 
 export interface Ambassador {
@@ -15,12 +16,28 @@ export interface Ambassador {
   name: string;
   description: string;
   photoUrl: string;
+  photoPath?: string;
+  tagline?: string;
+  badge?: string;
+  badgeColor?: string;
+  skills?: string[];
+  level?: string;
+  linkedin?: string;
+  github?: string;
 }
 
 export interface GalleryImage {
   id: string;
   url: string;
-  type: 'moments' | 'milestones';
+  path?: string;
+  type: 'moments' | 'milestones' | 'hackathons' | 'workshops';
+  title?: string;
+  desc?: string;
+  date?: string;
+  location?: string;
+  stats?: string;
+  tag?: string;
+  color?: string;
 }
 
 export interface ChapterCard {
@@ -56,12 +73,12 @@ const getCachedHomePageData = unstable_cache(
 
     const [heroResult, ambassadorResult, galleryResult, chapterResult, alumniResult] = results;
 
-    const heroImages = heroResult.status === 'fulfilled' 
+    const heroImages: HeroImage[] = heroResult.status === 'fulfilled' 
       ? heroResult.value.docs
           .map((doc) => {
             const raw = doc.data();
             if (typeof raw.url !== 'string') return null;
-            return { id: doc.id, url: raw.url };
+            return { id: doc.id, url: raw.url, path: raw.path } as HeroImage;
           })
           .filter((item): item is HeroImage => item !== null)
       : [];
@@ -70,8 +87,21 @@ const getCachedHomePageData = unstable_cache(
       ? ambassadorResult.value.docs
           .map((doc) => {
             const raw = doc.data();
-            if (typeof raw.name !== 'string' || typeof raw.description !== 'string' || typeof raw.photoUrl !== 'string') return null;
-            return { id: doc.id, name: raw.name, description: raw.description, photoUrl: raw.photoUrl };
+            if (typeof raw.name !== 'string' || typeof raw.photoUrl !== 'string') return null;
+            return { 
+              id: doc.id, 
+              name: raw.name, 
+              description: raw.description || '', 
+              photoUrl: raw.photoUrl,
+              photoPath: raw.photoPath,
+              tagline: raw.tagline || 'Microsoft Learn Student Ambassador',
+              badge: raw.badge || 'MLSA LEAD',
+              badgeColor: raw.badgeColor || '#4285F4',
+              skills: Array.isArray(raw.skills) ? raw.skills : ['AI & Cloud', 'DevOps', 'Community'],
+              level: raw.level || 'TIER 03',
+              linkedin: raw.linkedin || 'https://linkedin.com',
+              github: raw.github || 'https://github.com',
+            } as Ambassador;
           })
           .filter((item): item is Ambassador => item !== null)
       : [];
@@ -80,8 +110,20 @@ const getCachedHomePageData = unstable_cache(
       ? galleryResult.value.docs
           .map((doc) => {
             const raw = doc.data();
-            if (typeof raw.url !== 'string' || (raw.type !== 'moments' && raw.type !== 'milestones')) return null;
-            return { id: doc.id, url: raw.url, type: raw.type as GalleryImage['type'] };
+            if (typeof raw.url !== 'string') return null;
+            return { 
+              id: doc.id, 
+              url: raw.url, 
+              path: raw.path,
+              type: (raw.type as GalleryImage['type']) || 'moments',
+              title: raw.title || (raw.type === 'milestones' ? 'Ecosystem Milestone' : 'Community Moment'),
+              desc: raw.desc || 'Live capture from our engineering hackathons and builder workshops.',
+              date: raw.date || '2026',
+              location: raw.location || 'SVEC CAMPUS',
+              stats: raw.stats || 'ACTIVE EVENT',
+              tag: raw.tag || (raw.type ? raw.type.toUpperCase() : 'EVENT'),
+              color: raw.color || '#4285F4',
+            } as GalleryImage;
           })
           .filter((item): item is GalleryImage => item !== null)
       : [];
@@ -144,7 +186,7 @@ const getCachedHomePageData = unstable_cache(
     return { heroImages, ambassadors, galleryImages, chapters, alumniTestimonials };
   },
   ['home-page-data'],
-  { tags: ['home-page-data', 'alumni-words'], revalidate: 3600 } // Cache for up to 1 hour, revalidated on-demand
+  { tags: ['home-page-data', 'alumni-words'], revalidate: 3600 }
 );
 
 export async function getHomePageData(): Promise<HomePageData> {

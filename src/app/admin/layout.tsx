@@ -15,9 +15,9 @@ export default async function AdminLayout({
   const panelDomain = headersList.get('X-Panel-Domain') || undefined;
 
   const cookieStore = await cookies();
-  const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
-
   const { settings } = await getGlobalSettings();
+  const adminChapter = cookieStore.get('admin_chapter')?.value || settings?.activeChapter || '3.0';
+
   const chaptersMap = settings?.chapters || {};
   if (!chaptersMap['3.0']) {
     chaptersMap['3.0'] = { isHiringOpen: false, isTeamVisible: true };

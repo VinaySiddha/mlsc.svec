@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from "react";
-import { ChevronsUpDown, Shield, Bot, BarChart3, Cloud, Code2, Calendar, Megaphone, Share2, Paintbrush } from "lucide-react";
+import { ChevronsUpDown, Shield, Bot, BarChart3, Cloud, Code2, Calendar, Megaphone, Share2, Paintbrush, Check } from "lucide-react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import {
@@ -9,7 +9,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -35,10 +34,9 @@ export function TeamSwitcher({
     {
       name: "All Domains",
       logo: Shield,
-      plan: "Chapter Admin View",
+      plan: "All Wings Roster",
       value: "all"
     },
-    // Technical Wings
     {
       name: "Generative AI",
       logo: Bot,
@@ -63,7 +61,6 @@ export function TeamSwitcher({
       plan: "Web & App Panel",
       value: "web_app"
     },
-    // Non-Technical Wings
     {
       name: "Event Management",
       logo: Calendar,
@@ -92,15 +89,11 @@ export function TeamSwitcher({
 
   const canSwitch = userRole === 'admin' || userRole === 'super_admin' || userRole === 'panel' || userRole === 'common_panel';
 
-  // Everyone can see and switch domains
   const filteredDomains = domains;
-
-  // Find currently active domain item
   const currentDomainValue = panelDomain || 'all';
   const activeDomain = filteredDomains.find(d => d.value === currentDomainValue) || filteredDomains[0] || domains[0];
 
   const handleDomainChange = (domainValue: string) => {
-    // When switching domains, if we are on the applications page, update the domain query parameter
     if (pathname.includes('/admin/applications') || pathname.includes('/admin/analytics')) {
       const params = new URLSearchParams(searchParams.toString());
       if (domainValue === 'all') {
@@ -110,7 +103,6 @@ export function TeamSwitcher({
       }
       router.push(pathname + '?' + params.toString());
     } else {
-      // Otherwise, redirect to dashboard with search param or navigate
       if (domainValue === 'all') {
         router.push('/admin');
       } else {
@@ -128,38 +120,41 @@ export function TeamSwitcher({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-[#4285F4]/20 border-2 border-black rounded-xl bg-white p-2 hover:bg-blue-50 transition-all cursor-pointer shadow-[3px_3px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px]"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#4285F4] text-white border-2 border-black shadow-[1px_1px_0px_0px_#000000]">
                 <activeDomain.logo className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{activeDomain.name}</span>
-                <span className="truncate text-xs">{activeDomain.plan}</span>
+                <span className="truncate font-black text-black text-xs uppercase">{activeDomain.name}</span>
+                <span className="truncate text-[10px] font-mono font-bold text-zinc-500">{activeDomain.plan}</span>
               </div>
-              {canSwitch && <ChevronsUpDown className="ml-auto size-4 text-slate-400" />}
+              {canSwitch && <ChevronsUpDown className="ml-auto size-4 text-black" />}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           {canSwitch && (
             <DropdownMenuContent
-              className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg"
+              className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-xl bg-white border-[3px] border-black text-black shadow-[6px_6px_0px_0px_#000000] p-1.5"
               align="start"
               side={isMobile ? "bottom" : "right"}
-              sideOffset={4}
+              sideOffset={6}
             >
-              <DropdownMenuLabel className="text-xs text-muted-foreground px-2.5 py-1.5">
-                Switch Domains
+              <DropdownMenuLabel className="text-[10px] font-mono uppercase font-black tracking-wider text-zinc-500 px-2.5 py-1.5 border-b-2 border-black/10">
+                Filter Domain Panel
               </DropdownMenuLabel>
-              {filteredDomains.map((domain, index) => (
+              {filteredDomains.map((domain) => (
                 <DropdownMenuItem
                   key={domain.name}
                   onClick={() => handleDomainChange(domain.value)}
-                  className="gap-2 p-2 cursor-pointer"
+                  className="gap-2.5 p-2 rounded-lg hover:bg-[#4285F4]/20 text-black cursor-pointer transition-colors border-2 border-transparent hover:border-black font-semibold mt-1"
                 >
-                  <div className="flex size-6 items-center justify-center rounded-md border">
-                    <domain.logo className="size-3.5 shrink-0" />
+                  <div className="flex size-6 items-center justify-center rounded-md border-2 border-black bg-[#4285F4] text-white">
+                    <domain.logo className="size-3.5" />
                   </div>
-                  <span className="text-xs font-medium">{domain.name}</span>
+                  <span className="text-xs font-black flex-1 uppercase">{domain.name}</span>
+                  {domain.value === currentDomainValue && (
+                    <Check className="size-4 text-black font-black" />
+                  )}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

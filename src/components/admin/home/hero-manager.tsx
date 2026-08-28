@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -8,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2, Upload } from "lucide-react";
+import { Loader2, Trash2, Upload, Sparkles, Terminal, Code } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { revalidateHomePageData } from "@/app/home-actions";
@@ -27,27 +26,19 @@ export function HeroManager() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        console.log("[HeroManager] Setting up Firestore listener for home_hero");
-        
         try {
             const q = query(collection(db, "home_hero"), orderBy("createdAt", "desc"));
             const unsubscribe = onSnapshot(q, (snapshot) => {
-                console.log("[HeroManager] Successfully received data:", snapshot.docs.length, "documents");
                 const data = snapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
                 })) as HeroImage[];
                 setImages(data);
             }, (error: any) => {
-                console.error("[HeroManager] Firestore error details:", {
-                    code: error.code,
-                    message: error.message,
-                    customData: error.customData,
-                    fullError: error
-                });
+                console.error("[HeroManager] Firestore error:", error);
                 toast({
                     title: "Error",
-                    description: `Failed to load hero images. Error: ${error.code} - ${error.message}`,
+                    description: `Failed to load hero images: ${error.message}`,
                     variant: "destructive",
                 });
             });
@@ -55,16 +46,18 @@ export function HeroManager() {
             return () => unsubscribe();
         } catch (error: any) {
             console.error("[HeroManager] Error setting up listener:", error);
-            toast({
-                title: "Error",
-                description: "Failed to initialize data listener.",
-                variant: "destructive",
-            });
         }
     }, []);
 
     const handleUpload = async () => {
-        if (!file) return;
+        if (!file) {
+            toast({
+                title: "File Required",
+                description: "Please select an image to upload.",
+                variant: "destructive",
+            });
+            return;
+        }
 
         setLoading(true);
         try {
@@ -87,31 +80,23 @@ export function HeroManager() {
                 fileInputRef.current.value = "";
             }
             toast({
-                title: "Success",
-                description: "Hero image uploaded.",
+                title: "Hero Image Uploaded",
+                description: "New hero asset successfully published.",
             });
         } catch (error: any) {
             console.error("Upload error:", error);
-            if (error.code === 'storage/unauthorized') {
-                toast({
-                    title: "Permission Error",
-                    description: "You do not have permission to upload files. Please grant the 'Storage Object Admin' role to the service account.",
-                    variant: "destructive",
-                });
-            } else {
-                toast({
-                    title: "Error",
-                    description: "Failed to upload image. Check console for details.",
-                    variant: "destructive",
-                });
-            }
+            toast({
+                title: "Error",
+                description: error.message || "Failed to upload image.",
+                variant: "destructive",
+            });
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (image: HeroImage) => {
-        if (!confirm("Are you sure you want to delete this image?")) return;
+        if (!confirm("Are you sure you want to delete this hero asset?")) return;
     
         setLoading(true);
         try {
@@ -120,10 +105,7 @@ export function HeroManager() {
                 try {
                     await deleteObject(storageRef);
                 } catch (storageError: any) {
-                    if (storageError.code === 'storage/unauthorized') {
-                        throw new Error("Permission denied in Firebase Storage. Please grant the 'Storage Object Admin' role to your service account.");
-                    }
-                    console.warn(`Could not delete storage file, but proceeding to delete database entry. Reason: ${storageError.code}`);
+                    console.warn("Storage deletion error (ignored):", storageError);
                 }
             }
     
@@ -131,8 +113,8 @@ export function HeroManager() {
             await revalidateHomePageData();
     
             toast({
-                title: "Success",
-                description: "Hero image record deleted successfully.",
+                title: "Deleted",
+                description: "Hero asset removed.",
             });
         } catch (error: any) {
             console.error("Delete operation failed:", error);
@@ -147,40 +129,92 @@ export function HeroManager() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex gap-4 items-end">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="hero-image">Upload New Hero Image</Label>
-                    <Input
-                        id="hero-image"
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    />
+        <div className="space-y-8 font-sans">
+            
+            {/* Live Interactive Studio Hero Summary Card */}
+            <div className="p-5 bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000000] space-y-3">
+                <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 bg-[#FFE600] text-black font-black text-xs uppercase border border-black shadow-[1px_1px_0px_0px_#000000]">
+                        HERO DECK 3.0
+                    </span>
+                    <span className="text-xs font-mono font-bold text-zinc-500">// CYBER INTERACTIVE HUD</span>
                 </div>
-                <Button onClick={handleUpload} disabled={!file || loading}>
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                </Button>
+                <p className="text-sm font-semibold text-zinc-800 leading-relaxed">
+                    The homepage hero is currently powered by our dynamic split-screen layout: live recruitment alert ticker, dynamic flip-words headline (<code className="bg-zinc-100 px-1 border border-black font-bold">WE SHIP AUTONOMOUS AI / CLOUD PLATFORMS / EDGE APPS</code>), interactive command terminal, capability radar, and real-time audio soundwave engine.
+                </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {images.map((image) => (
-                    <div key={image.id} className="relative group rounded-lg overflow-hidden border bg-background/50 aspect-video">
-                        <Image
-                            src={image.url}
-                            alt="Hero Image"
-                            fill
-                            className="object-cover transition-transform group-hover:scale-105"
+            {/* Upload Area */}
+            <div className="p-6 bg-zinc-50 border-3 border-black space-y-4">
+                <div className="flex items-center gap-2 font-mono text-xs font-black uppercase text-zinc-600">
+                    <Upload className="h-4 w-4 text-black" />
+                    UPLOAD CUSTOM HERO GRAPHIC ASSETS
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                    <div className="flex-1 w-full space-y-1.5">
+                        <Label htmlFor="hero-image" className="text-xs font-black uppercase text-black">
+                            Select High-Resolution Wallpaper / Asset
+                        </Label>
+                        <Input
+                            id="hero-image"
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={(e) => setFile(e.target.files?.[0] || null)}
+                            className="bg-white border-2 border-black text-xs font-semibold"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Button variant="destructive" size="icon" onClick={() => handleDelete(image)}>
-                                <Trash2 className="h-4 w-4" />
+                    </div>
+                    <Button 
+                        onClick={handleUpload} 
+                        disabled={!file || loading}
+                        className="w-full sm:w-auto bg-black text-[#FFE600] hover:bg-zinc-800 font-black uppercase text-xs tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] cursor-pointer"
+                    >
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
+                        UPLOAD HERO ASSET
+                    </Button>
+                </div>
+            </div>
+
+            {/* Asset Grid */}
+            <div className="space-y-4">
+                <h4 className="text-base font-display font-black uppercase italic text-black">
+                    STORED HERO ASSETS ({images.length})
+                </h4>
+
+                {images.length === 0 ? (
+                  <div className="p-8 text-center border-4 border-dashed border-zinc-300 bg-zinc-50">
+                    <p className="text-xs font-bold text-zinc-500">
+                      No custom hero images uploaded. The hero section uses procedural canvas grid graphics.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {images.map((image) => (
+                        <div key={image.id} className="bg-white border-3 border-black p-3 shadow-[6px_6px_0px_0px_#000000] flex flex-col justify-between">
+                            <div className="relative aspect-video w-full border-2 border-black overflow-hidden bg-black mb-3">
+                                <Image
+                                    src={image.url}
+                                    alt="Hero Image"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => handleDelete(image)}
+                                className="w-full bg-[#FF0055] text-white hover:bg-red-700 font-black uppercase text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
+                            >
+                                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                                DELETE ASSET
                             </Button>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                  </div>
+                )}
             </div>
+
         </div>
     );
 }

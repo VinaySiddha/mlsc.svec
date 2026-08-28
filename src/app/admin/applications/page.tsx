@@ -23,25 +23,25 @@ export default async function ApplicationsPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border-[3px] border-black rounded-2xl p-6 shadow-[4px_4px_0px_0px_#000000]">
         <div>
-          <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
+          <h1 className="text-3xl font-black tracking-tight text-black uppercase italic">
             Manage <span className="text-[#4285F4]">Applications</span>
           </h1>
-          <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Review applications and toggle hiring statuses</p>
+          <p className="text-zinc-600 text-xs font-bold uppercase tracking-wider mt-1">Review applications and manage hiring decisions</p>
         </div>
         {(userRole === 'admin' || userRole === 'super_admin') && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <a 
               href="/admin/internal-registration" 
-              className="flex items-center gap-2 px-4 py-2 bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4] rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-[#4285F4]/20 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-[#FFE600] text-black border-2 border-black rounded-xl font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
             >
               + Register Applicant
             </a>
             <a 
               href="/admin/applications/recommended" 
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-500 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-yellow-500/20 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#FFE600] hover:bg-yellow-300 text-black border-2 border-black rounded-xl font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
             >
               ★ Recommended Finalists
             </a>
@@ -49,7 +49,7 @@ export default async function ApplicationsPage({
         )}
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-0 overflow-hidden shadow-sm">
+      <div className="bg-white border-[3px] border-black rounded-2xl p-0 overflow-hidden shadow-[4px_4px_0px_0px_#000000]">
         <Suspense key={JSON.stringify(resolvedSearchParams)} fallback={<ApplicationsDashboardSkeleton panelDomain={panelDomain} />}>
           <ApplicationsDashboard panelDomain={panelDomain} userRole={userRole} searchParams={resolvedSearchParams} />
         </Suspense>
@@ -74,10 +74,10 @@ function ApplicationsDashboardSkeleton({ panelDomain }: { panelDomain?: string }
     : `Loading applications...`;
 
   return (
-    <div className="p-10">
-      <div className="mb-8">
-        <h2 className="text-3xl font-black tracking-tighter">Applications.</h2>
-        <p className="text-muted-foreground font-medium">{description}</p>
+    <div className="p-8">
+      <div className="mb-6">
+        <h2 className="text-2xl font-black uppercase italic tracking-tight text-black">Applications Pool</h2>
+        <p className="text-zinc-500 font-medium text-xs">{description}</p>
       </div>
       <ApplicationsTableSkeleton />
     </div>
@@ -93,7 +93,6 @@ async function ApplicationsDashboard({
   userRole: string | null;
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  // ... (keep logic same)
   const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
   const searchBy = typeof searchParams.searchBy === 'string' ? searchParams.searchBy : 'rollNo';
   const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
@@ -139,10 +138,6 @@ async function ApplicationsDashboard({
     creativity: "Creativity",
   };
 
-  const description = panelDomain
-    ? `Hiring for the ${domainLabels[panelDomain]} domain.`
-    : `View and manage all submitted applications.`;
-
   return (
     <div className="space-y-6 p-6">
       <AdminFilters
@@ -152,7 +147,7 @@ async function ApplicationsDashboard({
         currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended, attendedOnly: searchParams.attendedOnly as string }}
       />
       <Suspense fallback={<ApplicationsTableSkeleton />}>
-        <div className="overflow-hidden border border-slate-100 dark:border-zinc-800/80 rounded-xl">
+        <div className="overflow-hidden border-2 border-black rounded-xl">
           <ApplicationsTable applications={applications} domainLabels={domainLabels} userRole={userRole} />
         </div>
       </Suspense>

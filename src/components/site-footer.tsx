@@ -128,7 +128,7 @@ export function SiteFooter() {
                                         MLSC <span className="text-[#4285F4]">SVEC</span>
                                     </span>
                                     <div className="text-[9px] font-mono font-bold text-zinc-500 uppercase">
-                                        CHAPTER 3.0 // 2026-27
+                                        STUDENT TECHNICAL GUILD
                                     </div>
                                 </div>
                             </div>

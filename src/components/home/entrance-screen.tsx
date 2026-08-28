@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Terminal, Sparkles, ArrowRight, ShieldCheck, Activity } from "lucide-react";
 
-export function EntranceScreen() {
+export function EntranceScreen({ activeChapter = "3.0" }: { activeChapter?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [mounted, setMounted] = useState(false);
@@ -71,11 +71,17 @@ export function EntranceScreen() {
               }}
             />
 
+            {/* Top Terminal Status */}
+            <div className="flex items-center gap-2 px-3 py-1 bg-black text-white text-xs font-mono font-bold tracking-widest uppercase mb-4 border-2 border-black">
+              <Terminal className="h-3.5 w-3.5 text-[#FFE600]" />
+              SYSTEM INITIALIZING // CHAPTER {activeChapter}
+            </div>
+
             {/* Top Branding */}
             <div className="relative z-10 text-center space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#4285F4] text-white text-[11px] font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
                 <Activity className="h-3.5 w-3.5" />
-                SYSTEM INITIALIZING // CHAPTER 3.0
+                SYSTEM INITIALIZING // CHAPTER {activeChapter}
               </div>
               <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tighter uppercase italic text-black leading-none">
                 MLSC <span className="text-[#4285F4]">SVEC.</span>

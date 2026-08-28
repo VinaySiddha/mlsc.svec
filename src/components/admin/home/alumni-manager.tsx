@@ -29,17 +29,12 @@ import {
   Search, 
   ExternalLink, 
   Copy, 
-  Share2, 
-  Sparkles,
-  Eye,
   EyeOff,
   UserCheck,
-  Building2,
   Database
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
   Dialog, 
   DialogContent, 
@@ -53,14 +48,12 @@ import { revalidateHomePageData } from "@/app/home-actions";
 import { AlumniTestimonial, AlumniCategoryType, SEED_ALUMNI_TESTIMONIALS } from "@/schemas/alumni";
 
 const ACCENT_COLORS = [
-  '#4285F4', // Google Blue
-  '#34A853', // Google Green
-  '#FBBC05', // Google Yellow
-  '#EA4335', // Google Red
-  '#A733FF', // Electric Purple
-  '#00F0FF', // Cyan Neon
-  '#00FF66', // Acid Lime
-  '#FF0055', // Neo Magenta
+  '#4285F4', // Blue
+  '#00AA44', // Green
+  '#FFE600', // Yellow
+  '#FF0055', // Red
+  '#8B5CF6', // Purple
+  '#FF6600', // Orange
 ];
 
 export function AlumniManager() {
@@ -366,63 +359,58 @@ export function AlumniManager() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 font-sans">
       {/* ── Top Shareable Link Banner ── */}
-      <div className="p-4 bg-gradient-to-r from-[#4285F4]/10 via-[#FFE600]/10 to-[#00FF66]/10 border-2 border-white/10 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-5 bg-[#FFE600] border-4 border-black shadow-[6px_6px_0px_0px_#000000] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded-md bg-[#4285F4] text-white text-[10px] font-sans font-bold uppercase">
+            <span className="px-2.5 py-0.5 bg-black text-[#FFE600] text-[10px] font-black uppercase tracking-wider">
               SHAREABLE OUTREACH LINK
             </span>
           </div>
-          <p className="text-xs text-zinc-300 font-medium">
-            Share this dedicated standalone form link with all alumni to collect their words. Submissions will appear in this dashboard.
+          <p className="text-xs text-black font-bold">
+            Share this dedicated standalone form link with alumni to collect their memories. Submissions instantly appear here for moderation.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button 
             onClick={handleCopyPublicLink}
-            className="bg-[#FFE600] text-black hover:bg-[#e6cf00] font-bold text-xs font-sans uppercase tracking-wider"
+            className="bg-black text-[#FFE600] hover:bg-zinc-800 font-black text-xs uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_0px_#FFFFFF] cursor-pointer"
           >
-            {copiedLink ? <Check className="h-4 w-4 mr-1 text-black" /> : <Copy className="h-4 w-4 mr-1" />}
-            {copiedLink ? "Copied Form Link!" : "Copy Alumni Form Link"}
+            {copiedLink ? <Check className="h-4 w-4 mr-1 text-[#FFE600]" /> : <Copy className="h-4 w-4 mr-1" />}
+            {copiedLink ? "COPIED FORM LINK!" : "COPY PUBLIC LINK"}
           </Button>
-          <Button asChild variant="outline" size="sm" className="border-white/20 text-xs font-sans">
+          <Button asChild variant="outline" size="sm" className="bg-white text-black border-2 border-black font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000000]">
             <a href="/what-our-alumni-say/submit" target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-3.5 w-3.5 mr-1 text-[#FFE600]" />
-              Open Form
-            </a>
-          </Button>
-          <Button asChild variant="ghost" size="sm" className="text-zinc-400 hover:text-white text-xs font-sans">
-            <a href="/what-our-alumni-say" target="_blank" rel="noopener noreferrer">
-              View Wall
+              <ExternalLink className="h-3.5 w-3.5 mr-1" />
+              OPEN FORM
             </a>
           </Button>
         </div>
       </div>
 
       {/* ── Stats Overview ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-sans">
-        <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
-          <span className="text-[11px] text-zinc-400 font-bold block uppercase">TOTAL STORIES</span>
-          <span className="text-2xl font-black text-white">{stats.total}</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="p-4 bg-white border-3 border-black shadow-[4px_4px_0px_0px_#000000]">
+          <span className="text-[10px] text-zinc-500 font-black uppercase block tracking-wider">TOTAL STORIES</span>
+          <span className="text-3xl font-display font-black text-black">{stats.total}</span>
         </div>
-        <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
-          <span className="text-[11px] text-zinc-400 font-bold block uppercase">APPROVED / LIVE</span>
-          <span className="text-2xl font-black text-[#00FF66]">{stats.approved}</span>
+        <div className="p-4 bg-white border-3 border-black shadow-[4px_4px_0px_0px_#00AA44]">
+          <span className="text-[10px] text-zinc-500 font-black uppercase block tracking-wider">APPROVED / LIVE</span>
+          <span className="text-3xl font-display font-black text-[#00AA44]">{stats.approved}</span>
         </div>
-        <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
-          <span className="text-[11px] text-zinc-400 font-bold block uppercase">PENDING REVIEW</span>
-          <span className="text-2xl font-black text-[#FFE600]">{stats.pending}</span>
+        <div className="p-4 bg-white border-3 border-black shadow-[4px_4px_0px_0px_#FFE600]">
+          <span className="text-[10px] text-zinc-500 font-black uppercase block tracking-wider">PENDING REVIEW</span>
+          <span className="text-3xl font-display font-black text-[#FF6600]">{stats.pending}</span>
         </div>
-        <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
-          <span className="text-[11px] text-zinc-400 font-bold block uppercase">HOME FEATURED</span>
-          <span className="text-2xl font-black text-[#4285F4]">{stats.featured} ⭐</span>
+        <div className="p-4 bg-white border-3 border-black shadow-[4px_4px_0px_0px_#4285F4]">
+          <span className="text-[10px] text-zinc-500 font-black uppercase block tracking-wider">HOME MARQUEE</span>
+          <span className="text-3xl font-display font-black text-[#4285F4]">{stats.featured} ⭐</span>
         </div>
       </div>
 
       {/* ── Action Bar: Search, Filters, Add Button ── */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-zinc-50 border-2 border-black">
         <div className="flex flex-1 items-center gap-2">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
@@ -430,17 +418,17 @@ export function AlumniManager() {
               placeholder="Search by name, company, quote..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-white/5 border-white/10 text-xs font-sans"
+              className="pl-9 bg-white border-2 border-black text-xs font-semibold"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10 font-sans text-xs">
+          <div className="flex items-center gap-1 bg-white p-1 border-2 border-black text-xs">
             {(['all', 'approved', 'pending', 'featured'] as const).map((st) => (
               <button
                 key={st}
                 onClick={() => setFilterStatus(st)}
-                className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase transition-colors ${
-                  filterStatus === st ? 'bg-[#4285F4] text-white' : 'text-zinc-400 hover:text-white'
+                className={`px-2.5 py-1 text-[10px] font-black uppercase transition-colors cursor-pointer ${
+                  filterStatus === st ? 'bg-[#FFE600] text-black border border-black shadow-[1px_1px_0px_0px_#000000]' : 'text-zinc-600 hover:text-black'
                 }`}
               >
                 {st}
@@ -455,7 +443,7 @@ export function AlumniManager() {
               onClick={handleSeedData}
               variant="outline"
               disabled={loading}
-              className="border-dashed border-white/20 text-xs font-sans"
+              className="bg-white border-2 border-black font-black text-xs uppercase"
             >
               <Database className="h-3.5 w-3.5 mr-1" />
               Seed 5 Founding Alumni
@@ -464,135 +452,132 @@ export function AlumniManager() {
 
           <Dialog open={isAddOpen} onOpenChange={(open) => { setIsAddOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold text-xs font-sans uppercase">
-                <Plus className="mr-1.5 h-4 w-4" /> Add Testimonial
+              <Button className="bg-[#FFE600] text-black hover:bg-[#ffe600]/90 font-black text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000] cursor-pointer">
+                <Plus className="mr-1.5 h-4 w-4 stroke-[3]" /> Add Testimonial
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#121214] border-white/10 text-white">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-4 border-black text-black shadow-[14px_14px_0px_0px_#000000]">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold">
+                <DialogTitle className="text-2xl font-display font-black uppercase italic text-black">
                   {editingItem ? "Edit Alumni Testimonial" : "Add Alumni Testimonial"}
                 </DialogTitle>
-                <DialogDescription className="text-xs text-zinc-400">
-                  Manage alumni details, testimonials, current careers, and homepage display settings.
+                <DialogDescription className="text-xs font-semibold text-zinc-600">
+                  Manage alumni details, testimonials, current careers, and homepage marquee settings.
                 </DialogDescription>
               </DialogHeader>
 
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Full Name *</Label>
+                    <Label className="text-xs font-black uppercase text-black">Full Name *</Label>
                     <Input
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Chandu Neelam"
-                      className="bg-white/5 border-white/10 mt-1"
+                      className="bg-white border-2 border-black mt-1 text-xs font-semibold"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Batch / Graduation Year *</Label>
+                    <Label className="text-xs font-black uppercase text-black">Batch / Graduation Year *</Label>
                     <Input
                       value={batch}
                       onChange={(e) => setBatch(e.target.value)}
                       placeholder="e.g. 2020 - 2024"
-                      className="bg-white/5 border-white/10 mt-1"
+                      className="bg-white border-2 border-black mt-1 text-xs font-semibold"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">MLSC Role *</Label>
+                    <Label className="text-xs font-black uppercase text-black">MLSC Role *</Label>
                     <Input
                       value={role}
                       onChange={(e) => setRole(e.target.value)}
                       placeholder="e.g. Former President, MLSC"
-                      className="bg-white/5 border-white/10 mt-1"
+                      className="bg-white border-2 border-black mt-1 text-xs font-semibold"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Current Organization / Company</Label>
+                    <Label className="text-xs font-black uppercase text-black">Current Company</Label>
                     <Input
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder="e.g. Google / Microsoft"
-                      className="bg-white/5 border-white/10 mt-1"
+                      className="bg-white border-2 border-black mt-1 text-xs font-semibold"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Current Role / Designation</Label>
+                    <Label className="text-xs font-black uppercase text-black">Current Role</Label>
                     <Input
                       value={currentRole}
                       onChange={(e) => setCurrentRole(e.target.value)}
                       placeholder="e.g. Software Engineer"
-                      className="bg-white/5 border-white/10 mt-1"
+                      className="bg-white border-2 border-black mt-1 text-xs font-semibold"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Theme / Category</Label>
+                    <Label className="text-xs font-black uppercase text-black">Theme / Category</Label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value as AlumniCategoryType)}
-                      className="w-full h-10 px-3 bg-white/5 border border-white/10 rounded-md text-sm text-white focus:outline-none mt-1"
+                      className="w-full h-10 px-3 bg-white border-2 border-black rounded-none text-xs font-bold text-black focus:outline-none mt-1"
                     >
-                      <option value="milestones" className="bg-zinc-900">Milestones</option>
-                      <option value="moments" className="bg-zinc-900">Moments</option>
-                      <option value="leadership" className="bg-zinc-900">Leadership</option>
-                      <option value="career" className="bg-zinc-900">Career</option>
-                      <option value="advice" className="bg-zinc-900">Advice</option>
+                      <option value="milestones">Milestones</option>
+                      <option value="moments">Moments</option>
+                      <option value="leadership">Leadership</option>
+                      <option value="career">Career</option>
+                      <option value="advice">Advice</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-bold uppercase text-zinc-400">Testimonial / Quote *</Label>
+                  <Label className="text-xs font-black uppercase text-black">Testimonial Quote (Homepage Marquee) *</Label>
                   <Textarea
                     value={quote}
                     onChange={(e) => setQuote(e.target.value)}
-                    placeholder="Short punchy testimonial displayed on homepage marquee & card..."
-                    className="bg-white/5 border-white/10 min-h-24 mt-1"
+                    placeholder="Short punchy testimonial displayed on homepage marquee..."
+                    className="bg-white border-2 border-black min-h-24 mt-1 text-xs font-medium"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-xs font-bold uppercase text-zinc-400">Extended Story / Journey (Optional)</Label>
+                  <Label className="text-xs font-black uppercase text-black">Extended Story (Optional)</Label>
                   <Textarea
                     value={fullStory}
                     onChange={(e) => setFullStory(e.target.value)}
-                    placeholder="Long form reflections or advice for juniors..."
-                    className="bg-white/5 border-white/10 min-h-20 mt-1"
+                    placeholder="Extended journey reflections..."
+                    className="bg-white border-2 border-black min-h-20 mt-1 text-xs font-medium"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 rounded-lg bg-black/40 border border-white/10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-zinc-50 border-2 border-black">
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Photo Upload</Label>
+                    <Label className="text-xs font-black uppercase text-black">Photo Upload</Label>
                     <Input
                       type="file"
                       accept="image/*"
                       onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
-                      className="bg-white/5 border-white/10 text-xs mt-1"
+                      className="bg-white border-2 border-black text-xs mt-1"
                     />
-                    {photoUrl && !file && (
-                      <p className="text-[11px] text-zinc-400 mt-1 truncate">Current: {photoUrl}</p>
-                    )}
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Accent Color</Label>
+                    <Label className="text-xs font-black uppercase text-black">Accent Color</Label>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {ACCENT_COLORS.map((c) => (
                         <button
                           key={c}
                           type="button"
                           onClick={() => setColor(c)}
-                          className="w-6 h-6 rounded-md border border-white/20 flex items-center justify-center transition-transform hover:scale-110"
+                          className="w-7 h-7 border-2 border-black flex items-center justify-center transition-transform hover:scale-110 cursor-pointer"
                           style={{ backgroundColor: c }}
                         >
-                          {color === c && <Check className="h-3 w-3 text-black font-black" />}
+                          {color === c && <Check className="h-4 w-4 text-black font-black" />}
                         </button>
                       ))}
                     </div>
@@ -601,35 +586,35 @@ export function AlumniManager() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">LinkedIn URL</Label>
+                    <Label className="text-xs font-black uppercase text-black">LinkedIn URL</Label>
                     <Input
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
                       placeholder="https://linkedin.com/in/..."
-                      className="bg-white/5 border-white/10 mt-1 text-xs"
+                      className="bg-white border-2 border-black mt-1 text-xs"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs font-bold uppercase text-zinc-400">Email Address</Label>
+                    <Label className="text-xs font-black uppercase text-black">Email Address</Label>
                     <Input
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="alumni@email.com"
-                      className="bg-white/5 border-white/10 mt-1 text-xs"
+                      className="bg-white border-2 border-black mt-1 text-xs"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 pt-2 border-t border-white/10">
+                <div className="flex items-center gap-6 pt-3 border-t-2 border-black">
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={isApproved}
                       onChange={(e) => setIsApproved(e.target.checked)}
-                      className="rounded border-zinc-700 h-4 w-4 text-[#00FF66] focus:ring-0"
+                      className="border-2 border-black h-4 w-4 text-black focus:ring-0 cursor-pointer"
                     />
-                    <span className="text-xs font-bold uppercase text-zinc-300">Approved & Visible</span>
+                    <span className="text-xs font-black uppercase text-black">Approved & Visible</span>
                   </label>
 
                   <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -637,18 +622,18 @@ export function AlumniManager() {
                       type="checkbox"
                       checked={isFeatured}
                       onChange={(e) => setIsFeatured(e.target.checked)}
-                      className="rounded border-zinc-700 h-4 w-4 text-[#4285F4] focus:ring-0"
+                      className="border-2 border-black h-4 w-4 text-black focus:ring-0 cursor-pointer"
                     />
-                    <span className="text-xs font-bold uppercase text-zinc-300">Featured on Homepage ⭐</span>
+                    <span className="text-xs font-black uppercase text-[#4285F4]">Feature on Homepage Marquee ⭐</span>
                   </label>
                 </div>
               </div>
 
               <DialogFooter>
-                <Button variant="ghost" onClick={() => setIsAddOpen(false)}>
+                <Button variant="outline" onClick={() => setIsAddOpen(false)} className="bg-white border-2 border-black font-black uppercase text-xs">
                   Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={loading} className="bg-[#4285F4] hover:bg-[#3367D6] text-white">
+                <Button onClick={handleSave} disabled={loading} className="bg-[#FFE600] text-black hover:bg-[#ffe600]/90 font-black uppercase text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {editingItem ? "Update Testimonial" : "Save Testimonial"}
                 </Button>
@@ -658,41 +643,41 @@ export function AlumniManager() {
         </div>
       </div>
 
-      {/* ── Testimonials Table / Grid ── */}
+      {/* ── Testimonials Grid ── */}
       {filteredList.length === 0 ? (
-        <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
-          <p className="text-sm font-sans text-zinc-400">No alumni testimonials found matching your criteria.</p>
+        <div className="p-12 text-center border-4 border-dashed border-zinc-300 bg-zinc-50">
+          <p className="text-sm font-bold text-zinc-500">No alumni testimonials found matching your search filter.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredList.map((item) => (
-            <Card key={item.id} className="bg-[#111114] border-white/10 overflow-hidden flex flex-col justify-between group font-sans">
-              <CardHeader className="p-4 pb-2">
-                <div className="flex items-start justify-between gap-2">
+            <div key={item.id} className="bg-white border-4 border-black p-5 shadow-[8px_8px_0px_0px_#000000] flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-center gap-3">
                     {item.photoUrl ? (
-                      <div className="w-10 h-10 rounded-full overflow-hidden relative border border-white/20 shrink-0">
+                      <div className="w-12 h-12 border-2 border-black overflow-hidden relative shrink-0 shadow-[2px_2px_0px_0px_#000000]">
                         <Image src={item.photoUrl} alt={item.name} fill className="object-cover" />
                       </div>
                     ) : (
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-md"
+                        className="w-12 h-12 border-2 border-black flex items-center justify-center text-white text-sm font-black shrink-0 shadow-[2px_2px_0px_0px_#000000]"
                         style={{ backgroundColor: item.color || "#4285F4" }}
                       >
                         {item.initials}
                       </div>
                     )}
-                    <div>
-                      <CardTitle className="text-sm font-bold text-white group-hover:text-[#4285F4] transition-colors truncate">
+                    <div className="min-w-0">
+                      <h5 className="text-sm font-display font-black uppercase italic text-black truncate">
                         {item.name}
-                      </CardTitle>
-                      <CardDescription className="text-xs text-zinc-400 truncate">
+                      </h5>
+                      <p className="text-xs text-zinc-600 font-bold truncate">
                         {item.role} ({item.batch})
-                      </CardDescription>
+                      </p>
                       {item.company && (
-                        <p className="text-[11px] text-zinc-300 font-semibold truncate mt-0.5 font-sans">
+                        <span className="inline-block text-[10px] text-black font-black uppercase tracking-wider truncate mt-0.5 bg-[#F4F4F5] px-1.5 py-0.5 border border-black">
                           {item.currentRole ? `${item.currentRole} @ ` : ''}{item.company}
-                        </p>
+                        </span>
                       )}
                     </div>
                   </div>
@@ -700,64 +685,56 @@ export function AlumniManager() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openEditModal(item)}
-                      className="p-1.5 hover:bg-white/10 rounded-md text-zinc-400 hover:text-white transition-colors"
+                      className="p-1.5 border border-black hover:bg-zinc-100 cursor-pointer shadow-[1px_1px_0px_0px_#000000]"
                       title="Edit"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(item)}
-                      className="p-1.5 hover:bg-red-500/10 rounded-md text-zinc-400 hover:text-red-400 transition-colors"
+                      className="p-1.5 border border-black hover:bg-red-50 text-red-600 cursor-pointer shadow-[1px_1px_0px_0px_#000000]"
                       title="Delete"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
-              </CardHeader>
 
-              <CardContent className="p-4 pt-2 flex-1 flex flex-col justify-between">
-                <p className="text-xs text-zinc-300 line-clamp-3 leading-relaxed mb-4 italic font-normal">
+                <p className="text-xs font-semibold text-zinc-800 leading-relaxed line-clamp-3 bg-zinc-50 p-2.5 border border-black mb-4">
                   "{item.quote}"
                 </p>
+              </div>
 
-                <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
-                    {/* Approved Toggle */}
-                    <button
-                      onClick={() => handleToggle(item, 'isApproved')}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-sans font-bold uppercase transition-colors flex items-center gap-1 ${
-                        item.isApproved
-                          ? "bg-[#00FF66]/10 text-[#00FF66] border border-[#00FF66]/20"
-                          : "bg-zinc-800 text-zinc-400 border border-zinc-700"
-                      }`}
-                      title={item.isApproved ? "Click to unapprove" : "Click to approve"}
-                    >
-                      {item.isApproved ? <UserCheck className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                      {item.isApproved ? "Approved" : "Pending"}
-                    </button>
+              <div className="pt-3 border-t-2 border-black flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleToggle(item, 'isApproved')}
+                    className={`px-2 py-0.5 text-[9px] font-black uppercase border border-black cursor-pointer ${
+                      item.isApproved
+                        ? "bg-[#00FF66] text-black shadow-[1px_1px_0px_0px_#000000]"
+                        : "bg-zinc-200 text-zinc-600"
+                    }`}
+                  >
+                    {item.isApproved ? "Approved" : "Pending"}
+                  </button>
 
-                    {/* Featured on Home Toggle */}
-                    <button
-                      onClick={() => handleToggle(item, 'isFeatured')}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-sans font-bold uppercase transition-colors flex items-center gap-1 ${
-                        item.isFeatured
-                          ? "bg-[#FFE600]/10 text-[#FFE600] border border-[#FFE600]/20"
-                          : "bg-zinc-800 text-zinc-400 border border-zinc-700"
-                      }`}
-                      title={item.isFeatured ? "Featured on Home (Click to unfeature)" : "Not featured (Click to feature on home)"}
-                    >
-                      {item.isFeatured ? <Star className="h-3 w-3 fill-[#FFE600]" /> : <StarOff className="h-3 w-3" />}
-                      {item.isFeatured ? "Home ⭐" : "Hidden"}
-                    </button>
-                  </div>
-
-                  <span className="text-[10px] font-sans text-zinc-500 uppercase font-bold">
-                    {item.type}
-                  </span>
+                  <button
+                    onClick={() => handleToggle(item, 'isFeatured')}
+                    className={`px-2 py-0.5 text-[9px] font-black uppercase border border-black cursor-pointer ${
+                      item.isFeatured
+                        ? "bg-[#FFE600] text-black shadow-[1px_1px_0px_0px_#000000]"
+                        : "bg-zinc-200 text-zinc-600"
+                    }`}
+                  >
+                    {item.isFeatured ? "Home ⭐" : "Hidden"}
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
+
+                <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase">
+                  {item.type}
+                </span>
+              </div>
+            </div>
           ))}
         </div>
       )}

@@ -4,19 +4,22 @@ import React from "react";
 import { 
   Users, 
   Calendar, 
-  Megaphone, 
   Settings, 
   Activity, 
   FileText, 
   CheckCircle2, 
-  PlayCircle, 
   Clock, 
   ChevronRight,
   UserCheck,
-  Coins
+  Coins,
+  Shield,
+  Layers,
+  ArrowUpRight,
+  Sparkles,
+  ExternalLink,
+  QrCode
 } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { DashboardCharts } from "@/components/admin/dashboard-charts";
 import { cn } from "@/lib/utils";
 
@@ -99,368 +102,389 @@ export function AdminDashboardClient({
   applications
 }: DashboardClientProps) {
   
-  const title = panelDomain 
-    ? `${domainLabels[panelDomain] || 'Panel'} Dashboard — Chapter ${adminChapter}` 
-    : `SUPERADMIN CONTROL CENTER — Chapter ${adminChapter}`;
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-  };
+  const isSuperAdmin = userRole === 'super_admin' || userRole === 'admin';
 
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="space-y-8 text-white"
-    >
-      {/* ── Page Header (Apple Minimalist look) ── */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 font-sans text-black max-w-7xl mx-auto">
+      
+      {/* ── Top Header Banner (Neo-Brutalist Hero Card) ── */}
+      <div className="bg-white border-[3px] border-black rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tighter text-white uppercase italic">
-            Dashboard <span className="text-[#4285F4]">Overview</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] border-2 border-black rounded-lg font-mono text-xs font-black uppercase tracking-wider mb-3 shadow-[2px_2px_0px_0px_#000000]">
+            <Activity className="h-3.5 w-3.5" />
+            <span>COMMAND CONSOLE // CHAPTER {adminChapter}</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black uppercase italic tracking-tight text-black">
+            {panelDomain ? `${domainLabels[panelDomain] || panelDomain} Panel` : 'Admin Dashboard'}
           </h1>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-            {title}
+          <p className="text-zinc-600 font-medium text-xs sm:text-sm mt-1 max-w-xl">
+            Real-time candidate telemetry, domain evaluation queues, and club operations manager.
           </p>
         </div>
-        <div>
-          <span className={cn(
-            "inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border",
-            roadmap.color,
-            roadmap.borderColor
-          )}>
-            Chapter {adminChapter} Active
-          </span>
-        </div>
-      </motion.div>
 
-      {/* ── Overview Statistics Cards (Glow / Hover zoom Apple look) ── */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Total Apps Card */}
-        <motion.div 
-          whileHover={{ y: -4, scale: 1.01 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group backdrop-blur-md"
-        >
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <FileText className="h-16 w-16 text-[#4285F4]" />
-          </div>
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Applications</p>
-          <h3 className="text-4xl font-black text-white mt-2 tracking-tight">{totalApps}</h3>
-          <p className="text-xs text-zinc-500 mt-2 font-medium">Active cycle submissions</p>
-        </motion.div>
-
-        {/* Team size Card */}
-        {(userRole === 'super_admin' || userRole === 'admin') && (
-          <motion.div 
-            whileHover={{ y: -4, scale: 1.01 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group backdrop-blur-md"
+        {/* Quick Shortcut Pills */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/admin/applications"
+            className="px-4 py-2.5 bg-white hover:bg-[#4285F4] hover:text-white text-black rounded-xl border-2 border-black text-xs font-mono font-black uppercase tracking-wider flex items-center gap-2 shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Users className="h-16 w-16 text-[#34A853]" />
+            <FileText className="h-4 w-4" />
+            Applications ({totalApps})
+          </Link>
+          
+          <Link
+            href="/admin/attendance"
+            className="px-4 py-2.5 bg-white hover:bg-[#00FF66] text-black rounded-xl border-2 border-black text-xs font-mono font-black uppercase tracking-wider flex items-center gap-2 shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
+          >
+            <QrCode className="h-4 w-4" />
+            Attendance
+          </Link>
+          
+          {isSuperAdmin && (
+            <Link
+              href="/admin/hiring-settings"
+              className="px-4 py-2.5 bg-[#FFE600] hover:bg-yellow-300 text-black rounded-xl border-2 border-black text-xs font-mono font-black uppercase tracking-wider flex items-center gap-2 shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* ── Key Metrics Cards (Clean High-Contrast Neo-Brutalist) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        {/* Total Applications Card */}
+        <div className="bg-white border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0px_0px_#4285F4] transition-all hover:translate-x-[2px] hover:translate-y-[2px]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-black text-black uppercase tracking-wider">
+              Total Applications
+            </span>
+            <div className="p-2.5 rounded-xl bg-[#4285F4] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+              <FileText className="h-4 w-4" />
             </div>
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Active Team Size</p>
-            <h3 className="text-4xl font-black text-white mt-2 tracking-tight">{totalTeamSize}</h3>
-            <p className="text-xs text-zinc-500 mt-2 font-medium">Onboarded members</p>
-          </motion.div>
-        )}
-
-        {/* Hired Apps Card */}
-        <motion.div 
-          whileHover={{ y: -4, scale: 1.01 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group backdrop-blur-md"
-        >
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <UserCheck className="h-16 w-16 text-[#FBBC05]" />
           </div>
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Hired Candidates</p>
-          <h3 className="text-4xl font-black text-white mt-2 tracking-tight">{hiredApps}</h3>
-          <p className="text-xs text-zinc-500 mt-2 font-medium">{pendingApps} awaiting review</p>
-        </motion.div>
-
-        {/* Hiring gate status Card */}
-        <motion.div 
-          whileHover={{ y: -4, scale: 1.01 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group backdrop-blur-md"
-        >
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <Activity className="h-16 w-16 text-[#EA4335]" />
+          <div className="text-4xl font-black text-black mt-4 font-mono">
+            {totalApps}
           </div>
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Hiring Gate Status</p>
-          <h3 className={cn(
-            "text-2xl font-black mt-3 tracking-tight",
-            isHiringOpen ? 'text-[#34A853] drop-shadow-[0_0_8px_rgba(52,168,83,0.3)]' : 'text-red-500'
+          <div className="text-xs text-zinc-600 mt-2 font-bold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#4285F4]" />
+            Active submission pool
+          </div>
+        </div>
+
+        {/* Active Team Size */}
+        <div className="bg-white border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0px_0px_#00FF66] transition-all hover:translate-x-[2px] hover:translate-y-[2px]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-black text-black uppercase tracking-wider">
+              Core Team Size
+            </span>
+            <div className="p-2.5 rounded-xl bg-[#00FF66] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+              <Users className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-4xl font-black text-black mt-4 font-mono">
+            {totalTeamSize}
+          </div>
+          <div className="text-xs text-zinc-600 mt-2 font-bold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#00FF66]" />
+            Onboarded club roster
+          </div>
+        </div>
+
+        {/* Hired Candidates */}
+        <div className="bg-white border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0px_0px_#FFE600] transition-all hover:translate-x-[2px] hover:translate-y-[2px]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-black text-black uppercase tracking-wider">
+              Hired Candidates
+            </span>
+            <div className="p-2.5 rounded-xl bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+              <UserCheck className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-4xl font-black text-black mt-4 font-mono">
+            {hiredApps}
+          </div>
+          <div className="text-xs text-zinc-600 mt-2 font-bold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#FFE600]" />
+            {pendingApps} awaiting evaluation
+          </div>
+        </div>
+
+        {/* Recruitment Gate Status */}
+        <div className="bg-white border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0px_0px_#FF0055] transition-all hover:translate-x-[2px] hover:translate-y-[2px]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-black text-black uppercase tracking-wider">
+              Recruitment Gate
+            </span>
+            <div className={cn(
+              "p-2.5 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000000]",
+              isHiringOpen ? "bg-[#00FF66] text-black" : "bg-[#FF0055] text-white"
+            )}>
+              <Activity className="h-4 w-4" />
+            </div>
+          </div>
+          <div className={cn(
+            "text-2xl font-black mt-4 font-mono uppercase",
+            isHiringOpen ? "text-[#00B347]" : "text-[#FF0055]"
           )}>
-            {isHiringOpen ? 'OPEN & RUNNING' : 'CLOSED'}
-          </h3>
-          <p className="text-xs text-zinc-500 mt-2.5 font-medium">Controlled in settings</p>
-        </motion.div>
+            {isHiringOpen ? "OPEN & ACTIVE" : "CLOSED"}
+          </div>
+          <div className="text-xs text-zinc-600 mt-2 font-bold">
+            Chapter {adminChapter} portal
+          </div>
+        </div>
 
-      </motion.div>
+      </div>
 
-      {/* ── Visual Analytics & Averages Section (Framer Motion container) ── */}
-      <motion.div variants={itemVariants} className="space-y-4">
+      {/* ── Critical Metrics & Visual Breakdown Charts ── */}
+      <div className="space-y-4">
         <div>
-          <h2 className="text-lg font-black text-white uppercase tracking-tight">
-            Critical Metrics & <span className="text-[#4285F4]">Averages</span>
+          <h2 className="text-2xl font-black uppercase italic tracking-tight text-black">
+            Talent Analytics & Screening Benchmark
           </h2>
-          <p className="text-xs text-zinc-500 font-medium">
-            Academic standing, reviewer evaluations, talent tiers, and automated screening breakdowns
+          <p className="text-xs font-semibold text-zinc-500 mt-0.5">
+            Academic standing distributions, interviewer competency radar, and resume parsing.
           </p>
         </div>
         <DashboardCharts applications={applications} />
-      </motion.div>
+      </div>
 
-      {/* ── Main Dashboard Layout (Grid splits) ── */}
+      {/* ── Two-Column Layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
-        {/* Left Side: Chapter Roadmap & Recent Applications */}
+        {/* Left 2 Cols: Chapter Milestones & Recent Submissions */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Chapter Roadmap Card */}
-          {(userRole === 'super_admin' || userRole === 'admin') && (
-            <motion.div 
-              variants={itemVariants} 
-              className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-md"
-            >
-              <div className="mb-6">
-                <h2 className="text-lg font-black text-white uppercase tracking-tight">
-                  {roadmap.title}
-                </h2>
-                <p className="text-xs text-zinc-500 mt-1 font-medium leading-relaxed">
-                  {roadmap.desc}
-                </p>
-              </div>
-
-              {/* Vertical Timeline */}
-              <div className="relative border-l border-white/5 ml-3 pl-6 space-y-6 py-2">
-                {roadmap.milestones.map((milestone, idx) => (
-                  <div key={idx} className="relative group">
-                    {/* Timeline bullet icon */}
-                    <span className="absolute -left-[35px] top-1.5 flex h-5.5 w-5.5 items-center justify-center rounded-full bg-black border border-white/5 z-10 transition-all group-hover:scale-110">
-                      {milestone.status === 'completed' && <CheckCircle2 className="h-3.5 w-3.5 text-[#34A853] fill-[#34A853]/15" />}
-                      {milestone.status === 'active' && <PlayCircle className="h-3.5 w-3.5 text-[#4285F4] animate-pulse" />}
-                      {milestone.status === 'planned' && <Clock className="h-3 w-3 text-zinc-500" />}
-                    </span>
-
-                    <div className="flex items-center justify-between gap-4">
-                      <h4 className="text-sm font-bold text-zinc-200">
-                        {milestone.name}
-                      </h4>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
-                        {milestone.date}
-                      </span>
-                    </div>
-                    <p className="text-xs text-zinc-500 mt-1 leading-relaxed max-w-xl font-medium">
-                      {milestone.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Recent Applications Feed */}
-          <motion.div 
-            variants={itemVariants}
-            className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-md"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-tight">Recent Applications</h2>
-                <p className="text-xs text-zinc-500 font-medium">Latest submissions waiting for evaluation</p>
-              </div>
-              <Link href="/admin/applications" className="text-xs font-black text-[#4285F4] hover:underline flex items-center gap-0.5">
-                View All <ChevronRight className="size-3.5" />
-              </Link>
-            </div>
-
-            {recentApplications.length > 0 ? (
-              <div className="divide-y divide-white/5">
-                {recentApplications.map((app: any) => (
-                  <div key={app.firestoreId} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
-                    <div className="space-y-1">
-                      <p className="text-sm font-black text-zinc-200 uppercase tracking-tight">{app.name}</p>
-                      <div className="flex flex-wrap gap-2 items-center">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">{app.rollNo}</span>
-                        <span className="text-[9px] bg-white/5 border border-white/5 px-2.5 py-0.5 rounded-full text-zinc-400 font-bold uppercase tracking-wider">
-                          {domainLabels[app.technicalDomain] || app.technicalDomain}
-                          {app.nonTechnicalDomain && ` / ${domainLabels[app.nonTechnicalDomain] || app.nonTechnicalDomain}`}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-zinc-500 shrink-0">
-                      {formatRelativeTime(app.submittedAt)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-zinc-500 text-xs py-8 font-semibold uppercase tracking-wider">
-                No applications found.
-              </p>
-            )}
-          </motion.div>
-
-        </div>
-
-        {/* Right Side: Quick Actions & Status */}
-        <div className="space-y-8">
-          
-          {/* Quick Actions Panel */}
-          <motion.div 
-            variants={itemVariants}
-            className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 shadow-2xl backdrop-blur-md"
-          >
-            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              {(userRole === 'super_admin' || userRole === 'admin') && (
-                <>
-                  <Link href="/admin/payments/ledger" className="flex items-center justify-between p-3.5 rounded-2xl border border-[#34A853]/20 bg-[#34A853]/5 hover:bg-[#34A853]/10 hover:border-[#34A853]/35 transition-all group">
-                    <div className="flex items-center gap-3">
-                      <Coins className="h-4 w-4 text-[#34A853]" />
-                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Payments Ledger</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-[#34A853] group-hover:translate-x-0.5 transition-transform shrink-0" />
-                  </Link>
-
-                  <Link href="/admin/team/new" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                    <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4 text-[#4285F4]" />
-                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Invite Member</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </>
-              )}
-
-              <Link href="/admin/events/new" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-[#34A853]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Create Event</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-
-              <Link href="/admin/notifications" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Megaphone className="h-4 w-4 text-[#FBBC05]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Announcement</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-
-              <Link href="/admin/hiring-settings" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Settings className="h-4 w-4 text-[#EA4335]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Hiring Settings</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Funding Card */}
-          {(userRole === 'super_admin' || userRole === 'admin') && (
-            <motion.div 
-              variants={itemVariants}
-              className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 shadow-2xl backdrop-blur-md"
-            >
-              <div className="flex items-center justify-between mb-4">
+          {/* Chapter Roadmap Timeline */}
+          {isSuperAdmin && (
+            <div className="bg-white border-[3px] border-black rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000]">
+              <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Community Funding</h3>
+                  <h3 className="text-xl font-black uppercase italic tracking-tight text-black">
+                    {roadmap.title}
+                  </h3>
+                  <p className="text-xs text-zinc-600 font-medium mt-1">
+                    {roadmap.desc}
+                  </p>
                 </div>
-                <span className="text-[9px] font-black text-[#34A853] bg-[#34A853]/10 px-2 py-0.5 rounded border border-[#34A853]/20 uppercase">
-                  Active
+                <span className="px-3 py-1 bg-[#FFE600] border-2 border-black rounded-lg text-xs font-mono font-black text-black shadow-[2px_2px_0px_0px_#000000] self-start sm:self-auto">
+                  MILESTONES
                 </span>
               </div>
 
-              <div className="border-t border-white/5 pt-4 pb-4 space-y-3">
-                <div>
-                  <p className="text-[9px] text-zinc-500 font-bold uppercase">Total Funds Raised</p>
-                  <p className="text-3xl font-black text-[#34A853] tracking-tight mt-1">₹{totalDonationsAmount.toLocaleString('en-IN')}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-3">
-                  <div>
-                    <p className="text-[9px] text-zinc-500 font-bold uppercase">PG Cleared</p>
-                    <p className="text-sm font-black text-zinc-300 mt-0.5">{paidDonationsCount} entries</p>
+              {/* Milestones list */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {roadmap.milestones.map((m, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 bg-zinc-50 border-2 border-black rounded-xl space-y-2 hover:bg-[#FFE600]/10 transition-colors shadow-[3px_3px_0px_0px_#000000]"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-mono font-black text-black">{m.name}</span>
+                      <span className={cn(
+                        "text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded border-2 border-black",
+                        m.status === 'completed' ? 'bg-[#00FF66] text-black' :
+                        m.status === 'active' ? 'bg-[#4285F4] text-white' :
+                        'bg-zinc-200 text-zinc-700'
+                      )}>
+                        {m.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-600 font-medium leading-relaxed">
+                      {m.desc}
+                    </p>
+                    <div className="text-[10px] font-mono text-zinc-500 font-black">
+                      📅 {m.date}
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[9px] text-zinc-500 font-bold uppercase">Awaiting</p>
-                    <p className="text-sm font-black text-yellow-500 mt-0.5">{pendingDonationsCount} pending</p>
-                  </div>
-                </div>
+                ))}
               </div>
-
-              {/* Recent Cleared sponsors list */}
-              {recentDonations.length > 0 && (
-                <div className="border-t border-white/5 pt-4 space-y-3">
-                  <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider mb-2">Recent Sponsors</p>
-                  <div className="space-y-2.5">
-                    {recentDonations.map((don: any) => (
-                      <div key={don.id} className="flex justify-between items-center p-2.5 rounded-xl bg-white/5 border border-white/5 text-xs">
-                        <div className="min-w-0">
-                          <p className="font-bold text-zinc-300 truncate max-w-[120px]">{don.customerName}</p>
-                          <p className="text-[9px] text-zinc-500 font-mono leading-none mt-0.5">{new Date(don.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
-                        </div>
-                        <span className="font-black text-[#34A853] text-right shrink-0">
-                          ₹{don.amount}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </motion.div>
+            </div>
           )}
 
-          {/* System Status Indicators */}
-          <motion.div 
-            variants={itemVariants}
-            className="bg-white/[0.01] border border-white/5 rounded-3xl p-6 shadow-2xl backdrop-blur-md"
-          >
-            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">System Status</h3>
-            <div className="flex items-center gap-3">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34A853] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#34A853]"></span>
-              </span>
-              <span className="text-xs font-black uppercase tracking-wider text-zinc-300">All Operations Online</span>
-            </div>
-            
-            <div className="border-t border-white/5 mt-6 pt-4 space-y-2.5">
+          {/* Recent Applications Feed */}
+          <div className="bg-white border-[3px] border-black rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000]">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-[9px] text-zinc-500 font-bold uppercase">Database Engine</p>
-                <p className="text-xs font-bold text-zinc-300 mt-0.5">Online (99.98% uptime)</p>
-              </div>
-              <div>
-                <p className="text-[9px] text-zinc-500 font-bold uppercase">Hiring Gate</p>
-                <p className="text-xs font-bold text-zinc-300 mt-0.5">
-                  {isHiringOpen ? 'Processing Active Submissions' : 'Closed'}
+                <h3 className="text-xl font-black uppercase italic tracking-tight text-black">
+                  Recent Submissions
+                </h3>
+                <p className="text-xs text-zinc-600 font-medium mt-0.5">
+                  Latest applicant registrations awaiting panel evaluation.
                 </p>
               </div>
+              <Link
+                href="/admin/applications"
+                className="px-3 py-1.5 bg-[#4285F4] text-white border-2 border-black rounded-lg text-xs font-mono font-black uppercase tracking-wider flex items-center gap-1 shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+              >
+                View all ({totalApps}) <ArrowUpRight className="h-3 w-3" />
+              </Link>
             </div>
-          </motion.div>
+
+            {recentApplications.length === 0 ? (
+              <div className="text-center py-10 border-2 border-dashed border-zinc-300 rounded-xl text-zinc-500 font-mono text-xs font-bold">
+                No applications submitted yet for Chapter {adminChapter}.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentApplications.map((app) => (
+                  <div
+                    key={app.id}
+                    className="p-4 bg-zinc-50 border-2 border-black rounded-xl flex items-center justify-between gap-4 hover:bg-yellow-50 transition-colors shadow-[3px_3px_0px_0px_#000000]"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-sm text-black truncate">{app.name}</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 bg-white text-black font-bold rounded border-2 border-black">
+                          {app.regNo}
+                        </span>
+                      </div>
+                      <div className="text-xs text-zinc-600 font-medium mt-1 flex items-center gap-2">
+                        <span className="font-bold text-black">{app.technicalDomain || app.domain}</span>
+                        <span>•</span>
+                        <span className="font-mono text-zinc-500">{formatRelativeTime(app.submittedAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className={cn(
+                        "text-[10px] font-mono font-black uppercase px-2.5 py-1 rounded border-2 border-black shadow-[1px_1px_0px_0px_#000000]",
+                        app.status === 'Hired' ? 'bg-[#00FF66] text-black' :
+                        app.status === 'Rejected' ? 'bg-[#FF0055] text-white' :
+                        'bg-[#FFE600] text-black'
+                      )}>
+                        {app.status || 'Pending'}
+                      </span>
+                      <Link
+                        href={`/admin/applications/${app.id}`}
+                        className="p-2 bg-white hover:bg-[#FFE600] text-black rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        {/* Right 1 Col: Quick Control Dock */}
+        <div className="space-y-6">
+          
+          {/* Quick Hub Navigation */}
+          <div className="bg-white border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0px_0px_#000000] space-y-4">
+            <h3 className="text-sm font-black uppercase tracking-wider text-black font-mono">
+              Quick Admin Actions
+            </h3>
+            
+            <div className="space-y-2.5">
+              <Link
+                href="/admin/applications"
+                className="w-full flex items-center justify-between p-3.5 bg-zinc-50 border-2 border-black hover:bg-[#4285F4]/15 rounded-xl transition-all shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-[#4285F4] text-white rounded-lg border-2 border-black shadow-[1px_1px_0px_0px_#000000]">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-black text-black group-hover:text-[#4285F4] transition-colors">Applicant Reviewer</div>
+                    <div className="text-[10px] text-zinc-500 font-mono font-bold">Score & filter candidates</div>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-black group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+
+              <Link
+                href="/admin/attendance"
+                className="w-full flex items-center justify-between p-3.5 bg-zinc-50 border-2 border-black hover:bg-[#00FF66]/15 rounded-xl transition-all shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-[#00FF66] text-black rounded-lg border-2 border-black shadow-[1px_1px_0px_0px_#000000]">
+                    <QrCode className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-black text-black group-hover:text-[#00B347] transition-colors">Attendance Scanner</div>
+                    <div className="text-[10px] text-zinc-500 font-mono font-bold">QR check-ins for events</div>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-black group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+
+              {isSuperAdmin && (
+                <>
+                  <Link
+                    href="/admin/team"
+                    className="w-full flex items-center justify-between p-3.5 bg-zinc-50 border-2 border-black hover:bg-[#FFE600]/25 rounded-xl transition-all shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-[#FFE600] text-black rounded-lg border-2 border-black shadow-[1px_1px_0px_0px_#000000]">
+                        <Users className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-xs font-black text-black group-hover:text-black transition-colors">Manage Team Roster</div>
+                        <div className="text-[10px] text-zinc-500 font-mono font-bold">Add, edit, or reorder members</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-black group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+
+                  <Link
+                    href="/admin/hiring-settings"
+                    className="w-full flex items-center justify-between p-3.5 bg-zinc-50 border-2 border-black hover:bg-[#FF0055]/15 rounded-xl transition-all shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-[#FF0055] text-white rounded-lg border-2 border-black shadow-[1px_1px_0px_0px_#000000]">
+                        <Settings className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-xs font-black text-black group-hover:text-[#FF0055] transition-colors">Chapter & Gates</div>
+                        <div className="text-[10px] text-zinc-500 font-mono font-bold">Switch chapter, deadlines, visibility</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-black group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Donation Ledger Card (Superadmin only) */}
+          {isSuperAdmin && (
+            <div className="bg-white border-[3px] border-black rounded-2xl p-6 shadow-[6px_6px_0px_0px_#000000] space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-black uppercase tracking-wider text-black font-mono">
+                  Club Treasury / ATS
+                </h3>
+                <div className="p-2 bg-[#00FF66] text-black rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                  <Coins className="h-4 w-4" />
+                </div>
+              </div>
+
+              <div className="p-4 bg-zinc-50 border-2 border-black rounded-xl shadow-[2px_2px_0px_0px_#000000]">
+                <div className="text-[10px] font-mono text-zinc-500 uppercase font-black">Total Inflow Collected</div>
+                <div className="text-3xl font-black text-black font-mono mt-1">₹{totalDonationsAmount}</div>
+                <div className="text-xs text-zinc-600 mt-1 font-bold">
+                  {paidDonationsCount} confirmed transactions
+                </div>
+              </div>
+
+              <Link
+                href="/admin/payments"
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-[#FFE600] hover:bg-yellow-300 text-black rounded-xl border-2 border-black text-xs font-mono font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+              >
+                View Ledger [↗]
+              </Link>
+            </div>
+          )}
 
         </div>
 
       </div>
-    </motion.div>
+
+    </div>
   );
 }

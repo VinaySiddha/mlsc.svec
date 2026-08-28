@@ -1,160 +1,209 @@
 "use client";
 
+import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Terminal, Code2, Users, Flame, Zap, ShieldCheck } from "lucide-react";
-import { FlipWords } from "@/components/ui/flip-words";
+import Image from "next/image";
 import Link from "next/link";
+import { 
+  ArrowRight, 
+  Zap, 
+  ShieldCheck, 
+  Sparkles, 
+  Users, 
+  Code2, 
+  Award,
+  BookOpen
+} from "lucide-react";
 
-const flipWords = ["INNOVATORS.", "BUILDERS.", "LEADERS.", "CREATORS.", "HACKERS."];
-
-export function DynamicHero({ images = [] }: { images?: any[] }) {
+export function DynamicHero({ images = [], activeChapter = "3.0" }: { images?: any[]; activeChapter?: string }) {
   return (
-    <section className="relative overflow-hidden min-h-[92vh] flex flex-col justify-center bg-white font-sans py-20 md:py-28 border-b-4 border-black">
-      {/* Background Graphic Grid */}
+    <section className="relative overflow-hidden bg-white font-sans pt-12 md:pt-20 pb-20 md:pb-28 border-b-4 border-black">
+      
+      {/* Crisp Subtle Grid Pattern */}
       <div 
-        className="absolute inset-0 opacity-[0.04] pointer-events-none" 
+        className="absolute inset-0 opacity-[0.035] pointer-events-none" 
         style={{
           backgroundImage: `linear-gradient(#000000 1px, transparent 1px), linear-gradient(90deg, #000000 1px, transparent 1px)`,
-          backgroundSize: '28px 28px'
+          backgroundSize: '36px 36px'
         }} 
       />
 
-      {/* Retro Ticker Top Strip */}
-      <div className="w-full bg-[#FFE600] border-y-2 border-black py-1.5 px-4 mb-12 overflow-hidden flex items-center justify-between text-black text-[11px] font-black uppercase tracking-widest font-mono">
-        <div className="flex items-center gap-3">
-          <span className="h-2 w-2 bg-black animate-ping" />
-          <span>MLSC_SVEC // CHAPTER 3.0 RECRUITMENT ACTIVE</span>
-        </div>
-        <div className="hidden sm:flex items-center gap-6">
-          <span>[ STATUS: 100% ONLINE ]</span>
-          <span>[ CAMPUS: SRI VASAVI ENG COLLEGE ]</span>
-          <span>[ POWERED BY MICROSOFT LEARN ]</span>
-        </div>
-      </div>
-
-      <div className="container relative z-10 mx-auto px-4 sm:px-6 text-center">
-
-        {/* Badge Stamp */}
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 max-w-5xl text-center">
+        
+        {/* ── 1. OFFICIAL ACCREDITATION PILL ── */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-8 flex justify-center"
+          transition={{ duration: 0.4 }}
+          className="inline-flex items-center gap-2.5 px-4 py-2 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#4285F4] text-white text-xs font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_#000000]">
-            <Sparkles className="h-3.5 w-3.5 fill-current" />
-            MICROSOFT LEARN STUDENT CLUB · CHAPTER 3.0
+          {/* Microsoft 4-Color Quad Badge */}
+          <div className="grid grid-cols-2 gap-0.5 w-4 h-4 shrink-0 border border-black shadow-[1px_1px_0px_0px_#000000]">
+            <span className="w-1.5 h-1.5 bg-[#F25022]" />
+            <span className="w-1.5 h-1.5 bg-[#7FBA00]" />
+            <span className="w-1.5 h-1.5 bg-[#00A4EF]" />
+            <span className="w-1.5 h-1.5 bg-[#FFB900]" />
           </div>
+
+          <span className="text-xs font-black uppercase tracking-wider text-black font-mono">
+            MICROSOFT LEARN STUDENT CLUB · CHAPTER {activeChapter}
+          </span>
         </motion.div>
 
-        {/* Main headline */}
+        {/* ── 2. MONUMENTAL "MLSC SVEC" HERO HEADLINE ── */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="space-y-4"
         >
-          <h1 className="hero-heading text-black flex flex-col items-center justify-center">
-            <span className="block text-4xl sm:text-6xl md:text-8xl lg:text-[7.5rem] font-black uppercase italic tracking-tighter text-black leading-[0.88]">
-              WE ARE
-            </span>
-
-            {/* FlipWords on the second line with wrapper */}
-            <span className="relative inline-flex items-center justify-center h-[1.15em] min-w-[240px] sm:min-w-[400px]">
-              <FlipWords
-                words={flipWords}
-                duration={2500}
-                className="text-[#4285F4] !p-0 !m-0 font-display font-black tracking-tighter uppercase italic"
+          {/* Official Logo + Institution Badge */}
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 relative bg-zinc-50 border-2 border-black shadow-[3px_3px_0px_0px_#000000] p-1.5 shrink-0">
+              <Image 
+                src="/logo.png" 
+                alt="MLSC SVEC Logo" 
+                fill 
+                className="object-contain p-1"
+                priority
               />
-            </span>
+            </div>
+            <div className="text-left">
+              <span className="text-[11px] font-mono font-black uppercase tracking-widest text-zinc-500 block">
+                SRI VASAVI ENGINEERING COLLEGE
+              </span>
+              <span className="text-xs font-black uppercase tracking-wider text-black">
+                OFFICIAL TECHNICAL GUILD
+              </span>
+            </div>
+          </div>
 
-            {/* Stamp line */}
-            <span className="inline-block mt-3 px-6 py-2 bg-[#FFE600] text-black font-display text-2xl sm:text-4xl md:text-6xl font-black uppercase tracking-tight border-4 border-black shadow-[8px_8px_0px_0px_#000000] -rotate-1 hover:rotate-0 transition-transform">
-              MLSC SVEC.
-            </span>
+          {/* THE HIGHLIGHTED WORDS */}
+          <h1 className="text-6xl sm:text-8xl md:text-9xl font-display font-black tracking-tight uppercase italic text-black leading-[0.88]">
+            MLSC <span className="text-[#4285F4] underline decoration-[#FFE600] decoration-8 underline-offset-8">SVEC.</span>
           </h1>
+
+          <p className="text-base sm:text-xl text-zinc-700 font-semibold max-w-2xl mx-auto leading-relaxed pt-2">
+            The flagship student developer community at Sri Vasavi Engineering College. Where curious minds build, ship, and lead across Artificial Intelligence, Cloud Infrastructure, and Full-Stack Engineering.
+          </p>
         </motion.div>
 
-        {/* Terminal Command Line */}
+        {/* ── 3. CLEAN HIGH-CONTRAST ACTION BUTTONS ── */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-100 border-2 border-black text-zinc-900 font-mono text-xs font-bold shadow-[2px_2px_0px_0px_#000000] mt-8 mb-4"
-        >
-          <Terminal className="h-3.5 w-3.5 text-[#4285F4]" />
-          <span>&gt; npx create-mlsc-builder --track=all</span>
-        </motion.div>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-2xl text-base sm:text-lg md:text-xl text-zinc-800 mx-auto mb-10 font-semibold leading-relaxed"
-        >
-          A premier student-led engineering powerhouse at Sri Vasavi Engineering College. Turning raw curiosity into production-grade software, AI architectures, and future tech leadership.
-        </motion.p>
-
-        {/* Action CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex flex-wrap items-center justify-center gap-4 pt-8"
         >
           <Link
             href="/apply"
-            className="w-full sm:w-auto px-8 py-4 bg-[#FFE600] text-black font-sans font-black text-sm uppercase tracking-wider border-2 border-black shadow-[5px_5px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000000] active:scale-95 transition-all text-center flex items-center justify-center gap-2"
+            className="px-8 sm:px-10 py-4 bg-[#FFE600] text-black font-sans font-black text-xs sm:text-sm uppercase tracking-wider border-3 border-black shadow-[5px_5px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000000] active:scale-95 transition-all text-center flex items-center gap-2 cursor-pointer"
           >
-            <Zap className="h-4 w-4 fill-current" />
-            JOIN CLUB / APPLY NOW [↗]
+            <Zap className="h-4 w-4 fill-current text-black" />
+            JOIN MLSC SVEC [↗]
           </Link>
 
           <Link
-            href="/schedule"
-            className="w-full sm:w-auto px-8 py-4 bg-white text-black font-sans font-black text-sm uppercase tracking-wider border-2 border-black shadow-[5px_5px_0px_0px_#000000] hover:bg-zinc-100 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000000] active:scale-95 transition-all text-center flex items-center justify-center gap-2"
+            href="/domains"
+            className="px-8 sm:px-10 py-4 bg-white text-black font-sans font-black text-xs sm:text-sm uppercase tracking-wider border-3 border-black shadow-[5px_5px_0px_0px_#000000] hover:bg-zinc-100 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_#000000] active:scale-95 transition-all text-center flex items-center gap-2 cursor-pointer"
           >
-            EXPLORE SCHEDULE <ArrowRight className="h-4 w-4 stroke-[2.5]" />
+            EXPLORE 06 DOMAINS <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </Link>
         </motion.div>
 
-        {/* Live HUD Stats Grid */}
+        {/* ── 4. BRAND PILLARS (LEARN · BUILD · LEAD) ── */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16"
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-left"
         >
-          <div className="bg-white border-2 border-black p-4 shadow-[5px_5px_0px_0px_#4285F4] text-left hover:translate-y-[-2px] transition-transform">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-display font-black text-black">300+</span>
-              <Users className="h-5 w-5 text-[#4285F4]" />
+          {/* Pillar 1 */}
+          <div className="bg-white border-3 border-black p-6 shadow-[6px_6px_0px_0px_#4285F4] flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="px-2.5 py-0.5 bg-[#4285F4] text-white text-[10px] font-black uppercase border border-black shadow-[2px_2px_0px_0px_#000000]">
+                  PILLAR 01
+                </span>
+                <span className="font-mono text-xs font-bold text-zinc-500">// UPSKILL</span>
+              </div>
+              <h3 className="text-2xl font-display font-black uppercase italic text-black mb-2">
+                LEARN
+              </h3>
+              <p className="text-xs font-semibold text-zinc-700 leading-relaxed">
+                Intensive hands-on bootcamps in Artificial Intelligence, Microsoft Azure Cloud, Modern Full-Stack, and DevOps.
+              </p>
             </div>
-            <p className="text-[10px] font-black text-[#4285F4] uppercase tracking-wider mt-1 font-mono">ACTIVE BUILDERS</p>
+            <div className="pt-4 mt-4 border-t-2 border-black/10 text-[11px] font-mono font-bold text-zinc-600">
+              → 6 Specialized Tracks
+            </div>
           </div>
 
-          <div className="bg-white border-2 border-black p-4 shadow-[5px_5px_0px_0px_#FFE600] text-left hover:translate-y-[-2px] transition-transform">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-display font-black text-black">15+</span>
-              <Flame className="h-5 w-5 text-[#FF6600]" />
+          {/* Pillar 2 */}
+          <div className="bg-white border-3 border-black p-6 shadow-[6px_6px_0px_0px_#FFE600] flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="px-2.5 py-0.5 bg-[#FFE600] text-black text-[10px] font-black uppercase border border-black shadow-[2px_2px_0px_0px_#000000]">
+                  PILLAR 02
+                </span>
+                <span className="font-mono text-xs font-bold text-zinc-500">// SHIP</span>
+              </div>
+              <h3 className="text-2xl font-display font-black uppercase italic text-black mb-2">
+                BUILD
+              </h3>
+              <p className="text-xs font-semibold text-zinc-700 leading-relaxed">
+                24-hour hackathons, overnight code sprints, and production software deployed to live cloud infrastructure.
+              </p>
             </div>
-            <p className="text-[10px] font-black text-black uppercase tracking-wider mt-1 font-mono">EVENTS HOSTED</p>
+            <div className="pt-4 mt-4 border-t-2 border-black/10 text-[11px] font-mono font-bold text-zinc-600">
+              → Live Codebases
+            </div>
           </div>
 
-          <div className="bg-white border-2 border-black p-4 shadow-[5px_5px_0px_0px_#00FF66] text-left hover:translate-y-[-2px] transition-transform">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-display font-black text-black">6</span>
-              <Code2 className="h-5 w-5 text-[#00AA44]" />
+          {/* Pillar 3 */}
+          <div className="bg-white border-3 border-black p-6 shadow-[6px_6px_0px_0px_#00AA44] flex flex-col justify-between hover:translate-y-[-2px] transition-transform">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="px-2.5 py-0.5 bg-[#00AA44] text-white text-[10px] font-black uppercase border border-black shadow-[2px_2px_0px_0px_#000000]">
+                  PILLAR 03
+                </span>
+                <span className="font-mono text-xs font-bold text-zinc-500">// INSPIRE</span>
+              </div>
+              <h3 className="text-2xl font-display font-black uppercase italic text-black mb-2">
+                LEAD
+              </h3>
+              <p className="text-xs font-semibold text-zinc-700 leading-relaxed">
+                Direct mentorship from Microsoft Student Ambassadors, career workshops, and alumni networks in top tech.
+              </p>
             </div>
-            <p className="text-[10px] font-black text-[#00AA44] uppercase tracking-wider mt-1 font-mono">CORE DOMAINS</p>
+            <div className="pt-4 mt-4 border-t-2 border-black/10 text-[11px] font-mono font-bold text-zinc-600">
+              → MLSA Mentorship
+            </div>
           </div>
+        </motion.div>
 
-          <div className="bg-white border-2 border-black p-4 shadow-[5px_5px_0px_0px_#FF0055] text-left hover:translate-y-[-2px] transition-transform">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-display font-black text-black">100%</span>
-              <ShieldCheck className="h-5 w-5 text-[#FF0055]" />
-            </div>
-            <p className="text-[10px] font-black text-[#FF0055] uppercase tracking-wider mt-1 font-mono">STUDENT-LED</p>
+        {/* ── 5. STATS & VERIFICATION STRIP ── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 pt-14 text-xs font-mono font-bold text-zinc-700"
+        >
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#4285F4]" />
+            <span className="text-black font-black">300+</span> ACTIVE BUILDERS
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#FFE600]" />
+            <span className="text-black font-black">06</span> CORE DOMAINS
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#00AA44]" />
+            <span className="text-black font-black">100%</span> STUDENT POWERED
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#FF0055]" />
+            <span className="text-black font-black">SVEC</span> CHAPTER 3.0
           </div>
         </motion.div>
 

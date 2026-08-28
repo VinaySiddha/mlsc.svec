@@ -19,7 +19,6 @@ export function NavProjects({
     icon: LucideIcon;
   }[];
 }) {
-  // If no projects provided, fallback to standard resources
   const items = projects && projects.length > 0 ? projects : [
     {
       name: "Public Home",
@@ -40,13 +39,18 @@ export function NavProjects({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Quick Links</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarGroupLabel className="text-[10px] font-mono font-black uppercase tracking-wider text-zinc-500 px-3 mb-1">
+        External Portals
+      </SidebarGroupLabel>
+      <SidebarMenu className="gap-1 px-1">
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <Link href={item.url}>
-                <item.icon />
+            <SidebarMenuButton 
+              asChild
+              className="rounded-xl font-bold text-xs uppercase tracking-wider text-zinc-700 hover:text-black hover:bg-zinc-100 border-2 border-transparent hover:border-black transition-all"
+            >
+              <Link href={item.url} target={item.url.startsWith('/') && item.url !== '/' ? undefined : '_blank'}>
+                <item.icon className="size-4 shrink-0 text-zinc-600" />
                 <span>{item.name}</span>
               </Link>
             </SidebarMenuButton>

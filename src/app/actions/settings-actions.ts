@@ -92,8 +92,8 @@ export async function setActiveChapterAction(chapter: string) {
 export async function createNewChapterAction(chapter: string) {
   try {
     const trimmed = chapter.trim();
-    if (!trimmed || !/^\d+\.\d+$/.test(trimmed)) {
-      return { error: 'Invalid chapter name. Please use format like "5.0".' };
+    if (!trimmed || trimmed.length > 20) {
+      return { error: 'Invalid chapter name. Please enter a valid chapter name (e.g., "3", "4", "3.0", "4.0").' };
     }
     await ApplicationDb.updateChapterSettings(trimmed, { isHiringOpen: false, isTeamVisible: true });
     
