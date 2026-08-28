@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
-import { FileText, Lock, UserX, Ban, Scale, Globe } from "lucide-react";
+import { FileText, ShieldCheck, UserCheck, AlertTriangle, Scale, Globe, Mail } from "lucide-react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms and Conditions — MLSC SVEC",
-  description: "Read the terms and conditions for the Microsoft Learn Student Club SVEC website.",
+  description: "Review the Terms and Conditions for using the Microsoft Learn Student Club SVEC website and services.",
   openGraph: {
     title: "Terms and Conditions — MLSC SVEC",
+    description: "Review the Terms and Conditions for using the Microsoft Learn Student Club SVEC website and services.",
     url: "https://mlscsvec.com/terms-and-conditions",
   },
 };
@@ -23,8 +25,12 @@ export default function TermsAndConditionsPage() {
           <div className="glow-sphere bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-[#34A853]/10" />
 
           {/* Header */}
-          <div className="mb-20 relative z-10">
+          <div className="mb-16 relative z-10">
             <ScrollReveal>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4] text-[11px] font-bold uppercase tracking-[0.2em] mb-6">
+                <FileText className="h-3.5 w-3.5" />
+                Legal Framework
+              </div>
               <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-6">
                 Terms & <br /> <span className="text-[#4285F4]">Conditions.</span>
               </h1>
@@ -35,7 +41,7 @@ export default function TermsAndConditionsPage() {
           </div>
 
           {/* Content Card */}
-          <div className="bg-zinc-950/40 border border-white/[0.08] backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-[0_24px_80px_rgba(0,0,0,0.95)] relative z-10 space-y-12 text-white/70 leading-relaxed text-lg font-medium">
+          <div className="bg-zinc-950/60 border border-white/[0.08] backdrop-blur-md rounded-2xl p-8 md:p-12 shadow-[0_24px_80px_rgba(0,0,0,0.95)] relative z-10 space-y-12 text-white/70 leading-relaxed text-base md:text-lg font-medium">
             
             {/* Section 1 */}
             <ScrollReveal>
@@ -44,12 +50,12 @@ export default function TermsAndConditionsPage() {
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]">
                     <FileText className="h-4 w-4" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
-                    1. Agreement to Terms
-                  </h3>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    1. Acceptance of Terms
+                  </h2>
                 </div>
                 <p>
-                  By accessing and using this website, you agree to be bound by these Terms and Conditions and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+                  By accessing and using this website (<a href="https://mlscsvec.com" className="text-[#4285F4] hover:underline">https://mlscsvec.com</a>), you agree to comply with and be bound by these Terms and Conditions, all applicable local, national, and international laws, and regulations. If you do not agree with any of these terms, you should refrain from accessing our services.
                 </p>
               </section>
             </ScrollReveal>
@@ -59,14 +65,17 @@ export default function TermsAndConditionsPage() {
               <section className="space-y-4">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#34A853]/10 border border-[#34A853]/20 text-[#34A853]">
-                    <Lock className="h-4 w-4" />
+                    <ShieldCheck className="h-4 w-4" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
-                    2. Intellectual Property
-                  </h3>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    2. Educational Use and Intellectual Property
+                  </h2>
                 </div>
                 <p>
-                  All content, branding, features, and assets displayed on this site, including logos, text, designs, roadmaps, and custom software, are the exclusive intellectual property of MLSC SVEC. Unauthorized replication, adaptation, or exploitation of these materials is strictly forbidden.
+                  All educational content, technical articles, roadmaps, project source code, graphics, and club logos made available on this website are authored and maintained by MLSC SVEC and its student contributors for educational purposes. 
+                </p>
+                <p>
+                  Users may read, learn from, and reference code snippets for personal educational and learning purposes in accordance with open-source licenses and academic integrity guidelines.
                 </p>
               </section>
             </ScrollReveal>
@@ -76,15 +85,20 @@ export default function TermsAndConditionsPage() {
               <section className="space-y-4">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FBBC04]/10 border border-[#FBBC04]/20 text-[#FBBC04]">
-                    <UserX className="h-4 w-4" />
+                    <UserCheck className="h-4 w-4" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
-                    3. Site Conduct and Copy Restrictions
-                  </h3>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    3. User Conduct and Acceptable Use
+                  </h2>
                 </div>
                 <p>
-                  To protect content integrity, this platform actively restricts data extraction. Sitewide text selection, copy-pasting, right-clicking, and automated content-scraping are disabled. You agree not to attempt to bypass these restrictions or compile any databases from this site.
+                  When interacting with our community features, event registrations, and discussion boards, you agree to:
                 </p>
+                <ul className="list-disc pl-8 space-y-2 text-sm md:text-base">
+                  <li>Provide accurate, truthful student credentials and contact information during application submissions.</li>
+                  <li>Maintain respectful, inclusive, and professional communication adhering to our <Link href="/guidelines" className="text-[#4285F4] hover:underline">Community Guidelines</Link>.</li>
+                  <li>Not attempt to disrupt server stability, conduct vulnerability exploitation, or interfere with system availability.</li>
+                </ul>
               </section>
             </ScrollReveal>
 
@@ -93,14 +107,14 @@ export default function TermsAndConditionsPage() {
               <section className="space-y-4">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#EA4335]/10 border border-[#EA4335]/20 text-[#EA4335]">
-                    <Ban className="h-4 w-4" />
+                    <AlertTriangle className="h-4 w-4" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
-                    4. Termination of Access
-                  </h3>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    4. External Links and Third-Party Services
+                  </h2>
                 </div>
                 <p>
-                  We reserve the right, in our sole discretion, to terminate or restrict your access to the website or community platform at any time, without notice, for conduct that we believe violates these Terms or is harmful to other users, the club, or third parties. Malicious actions will result in permanent IP blocking.
+                  Our website contains references and links to third-party services, including Microsoft Learn, GitHub, LinkedIn, Medium, and Google services. MLSC SVEC does not control third-party websites and is not responsible for their content or external privacy practices.
                 </p>
               </section>
             </ScrollReveal>
@@ -112,12 +126,12 @@ export default function TermsAndConditionsPage() {
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/20 text-[#7c3aed]">
                     <Scale className="h-4 w-4" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
-                    5. Limitation of Liability
-                  </h3>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    5. Disclaimer of Warranties and Limitation of Liability
+                  </h2>
                 </div>
                 <p>
-                  MLSC SVEC and its members shall not be held liable for any damages (including, without limitation, damages for loss of data, profits, or club membership opportunities) arising out of the use or inability to use the materials on this website.
+                  All materials, roadmaps, and software tools provided on this website are delivered on an "as is" and "as available" basis without express or implied warranties. MLSC SVEC shall not be held liable for any damages resulting from the use or inability to use materials on this site.
                 </p>
               </section>
             </ScrollReveal>
@@ -129,12 +143,29 @@ export default function TermsAndConditionsPage() {
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]">
                     <Globe className="h-4 w-4" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase italic text-white">
-                    6. Governing Law
-                  </h3>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    6. Governing Law and Jurisdiction
+                  </h2>
                 </div>
                 <p>
-                  Any claim relating to the MLSC SVEC website shall be governed by the laws of India, without regard to its conflict of law provisions.
+                  These Terms shall be governed and interpreted in accordance with the laws of India, under the jurisdiction of Andhra Pradesh.
+                </p>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 7 - Contact */}
+            <ScrollReveal>
+              <section className="space-y-4 pt-4 border-t border-white/[0.08]">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#EA4335]/10 border border-[#EA4335]/20 text-[#EA4335]">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <h2 className="text-2xl font-black tracking-tighter uppercase italic text-white">
+                    7. Inquiries Regarding Terms
+                  </h2>
+                </div>
+                <p>
+                  For questions regarding these Terms and Conditions, please contact us at <a href="mailto:svecmlsc@outlook.com" className="text-[#4285F4] hover:underline font-semibold">svecmlsc@outlook.com</a> or via our <Link href="/contact" className="text-[#4285F4] hover:underline font-semibold">Contact Us</Link> page.
                 </p>
               </section>
             </ScrollReveal>

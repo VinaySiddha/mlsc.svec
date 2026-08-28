@@ -190,11 +190,11 @@ git push -u origin main</code></pre>
 
       <h2>Resolving Merge Conflicts</h2>
       <p>A merge conflict occurs when two developers modify the exact same line of the same file in different ways. Git doesn't know which version is correct, so it highlights the conflict in the code using separators:</p>
-      <pre><code><<<<<<< HEAD
+      <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
 print("Welcome back, member!")
 =======
 print("Welcome to MLSC Portal")
->>>>>>> main</code></pre>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; main</code></pre>
       <p>To resolve it, simply edit the file to keep the correct version, delete the separators, stage the file, and commit.</p>
 
       <h2>Conclusion</h2>
@@ -353,7 +353,7 @@ db.execute(query, [userInputEmail]);</code></pre>
     readTime: "8 min read",
     image: "https://images.unsplash.com/photo-1605745341112-85968b19335b?q=80&w=2940&auto=format&fit=crop",
     content: `
-      <h2>The "Works on My Machine" Problem</h2>
+      <h2>The 'Works on My Machine' Problem</h2>
       <p>Every developer has faced the issue where their code runs perfectly on their local computer but crashes when deployed to production. This is usually caused by mismatching software versions, conflicting environment variables, or database configuration discrepancies. Docker solves this by packing the application and all its dependencies into a single lightweight container that runs identically on any system.</p>
 
       <h2>Containers vs. Virtual Machines (VMs)</h2>
@@ -419,7 +419,7 @@ services:
     author: "MLSC Web Dev Team",
     date: "August 12, 2026",
     readTime: "7 min read",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2940&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=2940&auto=format&fit=crop",
     content: `
       <h2>The Core Purpose of APIs</h2>
       <p>An Application Programming Interface (API) allows different software applications to communicate with each other, most commonly enabling client-side frontend applications to fetch and update data stored in backend databases. Designing a clean, performant API is critical for app response times and server costs.</p>
@@ -438,7 +438,7 @@ services:
       </ul>
 
       <h2>What is GraphQL?</h2>
-      <p>GraphQL is a query language for APIs created by Meta. Instead of having multiple endpoints for different resources, GraphQL exposes a **single endpoint** (typically <code>/graphql</code>) where the client sends a query specifying exactly which fields they need. The server resolves this query and returns exactly what was requested—no more, no less.</p>
+      <p>GraphQL is a query language for APIs created by Meta. Instead of having multiple endpoints for different resources, GraphQL exposes a single endpoint (typically <code>/graphql</code>) where the client sends a query specifying exactly which fields they need. The server resolves this query and returns exactly what was requested—no more, no less.</p>
       <h3>Example of a GraphQL Query:</h3>
       <pre><code>query GetUserDetails {
   user(id: "1") {
@@ -451,42 +451,9 @@ services:
 }</code></pre>
       <p>This query retrieves the user's name, email, and the titles of all their posts in a single request, eliminating both over-fetching and under-fetching.</p>
 
-      <h2>REST vs. GraphQL: Comparison Table</h2>
-      <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; margin: 20px 0;">
-        <thead>
-          <tr style="background-color: #111;">
-            <th>Feature</th>
-            <th>REST API</th>
-            <th>GraphQL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Endpoints</td>
-            <td>Multiple endpoints (URLs)</td>
-            <td>Single endpoint (usually /graphql)</td>
-          </tr>
-          <tr>
-            <td>Data Delivery</td>
-            <td>Fixed structure returned by server</td>
-            <td>Flexible structure defined by client query</td>
-          </tr>
-          <tr>
-            <td>Caching</td>
-            <td>Built-in HTTP caching works natively</td>
-            <td>Complex, requires specialized client libraries (Apollo)</td>
-          </tr>
-          <tr>
-            <td>Versioning</td>
-            <td>Done via URL changes (e.g., /v1/, /v2/)</td>
-            <td>No versioning needed; deprecate fields directly</td>
-          </tr>
-        </tbody>
-      </table>
-
       <h2>Which One Should You Choose?</h2>
       <ul>
-        <li><strong>Choose REST if:</strong> Your application uses standard CRUD operations, you want simple caching, or you are building simple web pages with limited database interactions.</li>
+        <li><strong>Choose REST if:</strong> Your application uses standard CRUD operations, you want simple HTTP caching, or you are building simple web pages with limited database interactions.</li>
         <li><strong>Choose GraphQL if:</strong> You are building complex mobile and web apps with nested relationships, want to minimize network payload sizes, or integrate data from multiple microservices into a unified schema.</li>
       </ul>
 
@@ -502,13 +469,13 @@ services:
     author: "MLSC Database Team",
     date: "August 14, 2026",
     readTime: "8 min read",
-    image: "https://images.unsplash.com/photo-1527474305487-b87b222841cc?q=80&w=2874&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=2821&auto=format&fit=crop",
     content: `
       <h2>The Criticality of Database Selection</h2>
       <p>Every software application requires a database to persist data. Choosing between a relational database (SQL) and a non-relational database (NoSQL) is one of the most critical decisions a system architect makes, as changing databases later in production is highly complex and costly.</p>
 
       <h2>Relational Databases (SQL)</h2>
-      <p>SQL databases store data in rows and columns inside tables. They enforce a **rigid schema**, meaning you must define tables and column data types before writing data. Tables are connected via **foreign keys** to establish relationships.</p>
+      <p>SQL databases store data in rows and columns inside tables. They enforce a <strong>rigid schema</strong>, meaning you must define tables and column data types before writing data. Tables are connected via <strong>foreign keys</strong> to establish relationships.</p>
       <h3>ACID Properties:</h3>
       <p>SQL databases guarantee transactional safety through ACID properties:</p>
       <ul>
@@ -520,7 +487,7 @@ services:
       <p>Popular SQL databases: PostgreSQL, MySQL, SQLite, Microsoft SQL Server.</p>
 
       <h2>Non-Relational Databases (NoSQL)</h2>
-      <p>NoSQL databases use a **flexible schema** and store data in formats like JSON documents, key-value pairs, wide-column tables, or graphs. You do not need to pre-define the structure of your data. Let's focus on **Document Stores** (like MongoDB):</p>
+      <p>NoSQL databases use a <strong>flexible schema</strong> and store data in formats like JSON documents, key-value pairs, wide-column tables, or graphs. You do not need to pre-define the structure of your data. Let's focus on <strong>Document Stores</strong> (like MongoDB):</p>
       <ul>
         <li>Data is stored in documents (JSON/BSON format).</li>
         <li>Ideal for unstructured or rapidly changing data.</li>
@@ -541,7 +508,472 @@ services:
       </ul>
 
       <h2>Conclusion</h2>
-      <p>There is no "better" database; there is only the right database for the right job. By analyzing transaction requirements, data relationship complexity, and horizontal scaling needs, you can pick the ideal storage engine for your software.</p>
+      <p>There is no single "best" database; there is only the right database for the specific workload. By analyzing transaction requirements, data relationship complexity, and horizontal scaling needs, you can pick the ideal storage engine for your software.</p>
+    `
+  },
+  {
+    slug: "building-scalable-microservices-with-nodejs-and-docker",
+    title: "Building Scalable Microservices Architecture with Node.js and Docker",
+    description: "Understand the core principles of microservices architecture. Learn how to decouple monolithic applications, build API gateways, manage service discovery, and containerize individual services.",
+    category: "Cloud & DevOps",
+    author: "MLSC Cloud Team",
+    date: "August 16, 2026",
+    readTime: "9 min read",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>Monolithic vs Microservices Architecture</h2>
+      <p>In a monolithic architecture, all software modules—user authentication, payment processing, product catalogs, and notification engines—are packaged into a single codebase and deployed as one unit. While simple to build initially, monoliths become brittle as organizations grow: a bug in one module can bring down the entire system, and scaling requires duplicating the entire application.</p>
+      <p><strong>Microservices architecture</strong> breaks the application into small, independent services. Each service runs in its own process, manages its own private database, and communicates via lightweight network protocols like HTTP REST, gRPC, or asynchronous message brokers (RabbitMQ/Apache Kafka).</p>
+
+      <h2>Key Components of a Microservices System</h2>
+      <ul>
+        <li><strong>API Gateway:</strong> Acts as the single entry point for client applications. It handles SSL termination, user authentication, rate limiting, and routes requests to downstream microservices.</li>
+        <li><strong>Service Discovery:</strong> Maintains a dynamic registry of live service instances and their IP addresses, enabling load balancing across auto-scaled replicas.</li>
+        <li><strong>Circuit Breakers:</strong> Prevents cascading failures. If a downstream service (like a fraud detection API) becomes unresponsive, the circuit opens and returns a graceful fallback immediately instead of tying up server threads.</li>
+      </ul>
+
+      <h2>Practical Example: Express API Gateway Routing</h2>
+      <pre><code>import express from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+
+const app = express();
+
+// Route traffic to Auth Microservice
+app.use('/api/auth', createProxyMiddleware({
+  target: 'http://auth-service:4001',
+  changeOrigin: true
+}));
+
+// Route traffic to Orders Microservice
+app.use('/api/orders', createProxyMiddleware({
+  target: 'http://orders-service:4002',
+  changeOrigin: true
+}));
+
+app.listen(8000, () => console.log('API Gateway running on port 8000'));</code></pre>
+
+      <h2>Conclusion</h2>
+      <p>Microservices offer organizational velocity and isolated fault domains, but introduce distributed system complexities like network latency and data consistency challenges. Adopting Docker containerization and clear API boundaries ensures a smooth transition to distributed architecture.</p>
+    `
+  },
+  {
+    slug: "mastering-typescript-advanced-types-and-generics",
+    title: "Mastering TypeScript: Advanced Types, Generics, and Type Guards",
+    description: "Elevate your TypeScript skills. Explore conditional types, mapped types, discriminated unions, utility types, and how to write robust, type-safe enterprise code.",
+    category: "Software Engineering",
+    author: "MLSC Dev Operations",
+    date: "August 18, 2026",
+    readTime: "8 min read",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>Why TypeScript Dominates Modern Software</h2>
+      <p>JavaScript is dynamically typed, which means type errors often go unnoticed until runtime in production. TypeScript adds a compile-time static type system that eliminates an entire class of runtime bugs, provides rich IDE autocompletion, and makes large codebases self-documenting.</p>
+
+      <h2>1. TypeScript Generics: Reusable Type-Safe Functions</h2>
+      <p>Generics allow you to write functions and classes that work with any datatype while preserving type information:</p>
+      <pre><code>// Generic API Response Wrapper
+interface ApiResponse&lt;T&gt; {
+  status: 'success' | 'error';
+  data: T;
+  timestamp: number;
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// Type-safe consumption
+function handleResponse(res: ApiResponse&lt;UserProfile&gt;) {
+  console.log(res.data.email); // Fully typed!
+}</code></pre>
+
+      <h2>2. Discriminated Unions for Clean State Handling</h2>
+      <p>A discriminated union is a pattern where multiple object types share a common literal property (the discriminator). This allows TypeScript to narrow down the exact type within switch or if blocks:</p>
+      <pre><code>type NetworkState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: string[] }
+  | { status: 'error'; error: Error };
+
+function renderUI(state: NetworkState) {
+  switch (state.status) {
+    case 'loading':
+      return 'Loading spinner...';
+    case 'success':
+      return state.data.join(', '); // state.data is guaranteed here
+    case 'error':
+      return state.error.message;
+    default:
+      return 'Ready';
+  }
+}</code></pre>
+
+      <h2>3. Advanced Utility Types: Mapped & Conditional Types</h2>
+      <p>TypeScript provides built-in utilities like <code>Partial&lt;T&gt;</code>, <code>Required&lt;T&gt;</code>, <code>Pick&lt;T, K&gt;</code>, and <code>Omit&lt;T, K&gt;</code>. You can also build your own conditional types using the <code>infer</code> keyword to unwrap promises or array element types.</p>
+
+      <h2>Summary</h2>
+      <p>Mastering TypeScript generics and discriminated unions transforms how you write software. You catch errors before runtime and provide an intuitive developer experience across your entire team.</p>
+    `
+  },
+  {
+    slug: "deep-dive-into-neural-networks-and-backpropagation",
+    title: "Deep Dive into Neural Networks: Architecture, Loss Functions, and Backpropagation",
+    description: "An intuitive mathematical and conceptual breakdown of Artificial Neural Networks (ANNs). Learn how forward passes, gradient descent, and backpropagation train deep models.",
+    category: "Machine Learning",
+    author: "MLSC ML Division",
+    date: "August 20, 2026",
+    readTime: "10 min read",
+    image: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>The Building Block: The Artificial Neuron (Perceptron)</h2>
+      <p>Artificial Neural Networks are computational systems inspired by biological brains. At the core is the artificial neuron, which receives multiple numerical inputs, multiplies each by a learnable <strong>weight (w)</strong>, adds a <strong>bias (b)</strong>, and passes the sum through a non-linear <strong>activation function (f)</strong>:</p>
+      <p><code>y = f(∑(w_i * x_i) + b)</code></p>
+
+      <h2>Why Non-Linear Activation Functions Matter</h2>
+      <p>Without non-linear activations, stacking multiple layers of neurons results in a simple linear combination, rendering deep networks no more powerful than a single linear regression model. Popular activations include:</p>
+      <ul>
+        <li><strong>ReLU (Rectified Linear Unit):</strong> <code>f(x) = max(0, x)</code>. Fast to compute and prevents vanishing gradients in positive regions.</li>
+        <li><strong>Sigmoid:</strong> Squashes values between 0 and 1. Ideal for binary classification probability outputs.</li>
+        <li><strong>Softmax:</strong> Converts a vector of raw logits into a probability distribution over multiple output classes.</li>
+      </ul>
+
+      <h2>The Forward Pass and Loss Function</h2>
+      <p>During the forward pass, data flows from the input layer through hidden layers to produce a prediction <code>ŷ</code>. A loss function (such as <strong>Mean Squared Error</strong> for regression or <strong>Cross-Entropy Loss</strong> for classification) quantifies the mathematical difference between the predicted output and the true ground truth label.</p>
+
+      <h2>Backpropagation: The Engine of Deep Learning</h2>
+      <p>Backpropagation computes the gradient of the loss function with respect to every weight and bias in the network using the calculus <strong>Chain Rule</strong>. These gradients indicate the direction and magnitude to adjust each parameter to minimize loss:</p>
+      <pre><code># Conceptual weight update with Stochastic Gradient Descent (SGD)
+weight = weight - (learning_rate * gradient_of_loss_with_respect_to_weight)</code></pre>
+
+      <h2>Conclusion</h2>
+      <p>By repeatedly cycling through forward passes, loss calculation, backpropagation, and weight updates across thousands of batches (epochs), neural networks learn intricate representations to recognize images, transcribe audio, and forecast time series data.</p>
+    `
+  },
+  {
+    slug: "comprehensive-guide-to-kubernetes-for-developers",
+    title: "Kubernetes for Developers: Pods, Deployments, and Cluster Management",
+    description: "Master container orchestration with Kubernetes. Learn how to define Pods, Deployments, Services, and Ingress to run highly available, self-healing cloud workloads.",
+    category: "Cloud & DevOps",
+    author: "MLSC Cloud Team",
+    date: "August 21, 2026",
+    readTime: "9 min read",
+    image: "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>Why Do We Need Container Orchestration?</h2>
+      <p>Running a single Docker container on a server is straightforward. But in production systems with dozens of microservices, hundreds of container instances, auto-scaling requirements, and rolling updates, managing containers manually becomes impossible. <strong>Kubernetes (K8s)</strong> is an open-source orchestration platform that automates the deployment, scaling, and operational management of containerized applications.</p>
+
+      <h2>Core Kubernetes Building Blocks</h2>
+      <ul>
+        <li><strong>Pod:</strong> The smallest deployable unit in Kubernetes. A Pod encapsulates one or more closely linked containers that share storage resources and an IP network.</li>
+        <li><strong>Deployment:</strong> Declares the desired state of your application (e.g., "Run 3 replicas of the frontend container"). K8s automatically restarts crashed pods and manages zero-downtime rolling upgrades.</li>
+        <li><strong>Service:</strong> An abstraction that defines a logical set of Pods and a policy to access them. Types include <code>ClusterIP</code> (internal cluster communication), <code>NodePort</code>, and <code>LoadBalancer</code> (external traffic).</li>
+        <li><strong>ConfigMaps & Secrets:</strong> Decouples configuration parameters and sensitive passwords from image code.</li>
+      </ul>
+
+      <h2>Sample Deployment Manifest (YAML)</h2>
+      <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+      - name: web-app
+        image: myregistry/web-app:v1.2
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"</code></pre>
+
+      <h2>Self-Healing and Auto-Scaling</h2>
+      <p>Kubernetes continuously monitors cluster health via <strong>liveness and readiness probes</strong>. If a container becomes unresponsive, K8s restarts it automatically. With the <strong>Horizontal Pod Autoscaler (HPA)</strong>, K8s automatically scales the number of pods up or down based on CPU, memory, or custom traffic metrics.</p>
+
+      <h2>Conclusion</h2>
+      <p>Kubernetes has become the operating system of the cloud. Understanding how to package applications into declarative YAML manifests and configure resilient cluster services is a foundational skill for modern DevOps engineering.</p>
+    `
+  },
+  {
+    slug: "prompt-engineering-and-agentic-workflows-with-genai",
+    title: "Building Autonomous AI Agents: Prompt Engineering and Agentic Workflows",
+    description: "Explore the next frontier of Generative AI. Learn how autonomous agents utilize the ReAct framework, tool calling, long-term memory, and multi-agent coordination.",
+    category: "Generative AI",
+    author: "MLSC AI Research",
+    date: "August 22, 2026",
+    readTime: "8 min read",
+    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>From Chatbots to Autonomous Agents</h2>
+      <p>The first wave of Generative AI focused on conversational question-answering. However, real-world utility requires models to perform multi-step actions in external environments: fetching database records, executing shell commands, browsing the web, and reviewing code. This paradigm shift is known as <strong>Agentic AI</strong>.</p>
+
+      <h2>The Core Architecture of an AI Agent</h2>
+      <p>An autonomous agent consists of four interconnected systems:</p>
+      <ul>
+        <li><strong>LLM Brain:</strong> The reasoning engine that parses instructions, formulates hypotheses, and chooses next steps.</li>
+        <li><strong>Planning & Reflection (ReAct):</strong> The agent alternates between <em>Reasoning</em> ("I need to find the user's latest invoice") and <em>Acting</em> ("Call fetchInvoice(userId)").</li>
+        <li><strong>Tools & Function Calling:</strong> APIs and scripts registered with structured JSON schemas that the LLM can invoke to interact with databases, web servers, or file systems.</li>
+        <li><strong>Memory:</strong> Short-term memory (conversation context window) and long-term memory (vector embeddings in databases like Pinecone, Milvus, or Chroma).</li>
+      </ul>
+
+      <h2>The ReAct (Reason + Act) Loop</h2>
+      <p>In a ReAct pattern, the agent executes in a cyclical loop:</p>
+      <ol>
+        <li><strong>Observation:</strong> Read the current user prompt or environment status.</li>
+        <li><strong>Thought:</strong> Decide what additional information or action is needed.</li>
+        <li><strong>Action:</strong> Call an external tool with typed arguments.</li>
+        <li><strong>Feedback:</strong> Observe tool results and evaluate if the goal is satisfied or if another tool call is necessary.</li>
+      </ol>
+
+      <h2>Conclusion</h2>
+      <p>Autonomous AI agents extend the power of large language models from passive text generators into active problem-solvers. Learning to orchestrate agents with deterministic tools and clear evaluation benchmarks unlocks powerful software automation capabilities.</p>
+    `
+  },
+  {
+    slug: "computer-vision-fundamentals-opencv-and-cnns",
+    title: "Computer Vision Fundamentals: Image Processing with OpenCV and CNNs",
+    description: "Discover how computers perceive visual data. Understand digital pixel representations, convolution kernels, edge detection filters, and how Convolutional Neural Networks classify images.",
+    category: "Machine Learning",
+    author: "MLSC ML Division",
+    date: "August 23, 2026",
+    readTime: "8 min read",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>How Computers See Images</h2>
+      <p>To a computer, a digital image is nothing more than a 2D or 3D grid of numbers. A grayscale image is a 2D matrix of pixel intensity values ranging from 0 (black) to 255 (white). A color RGB image consists of three stacked matrices corresponding to Red, Green, and Blue color channels.</p>
+
+      <h2>Image Processing with OpenCV</h2>
+      <p><strong>OpenCV (Open Source Computer Vision Library)</strong> provides hundreds of optimized algorithms for basic and intermediate visual tasks: image resizing, color space conversions (RGB to HSV/Grayscale), thresholding, and morphological filtering.</p>
+
+      <pre><code>import cv2
+
+# Read an image from disk
+img = cv2.imread('sample.jpg')
+
+# Convert color to grayscale
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Apply Canny Edge Detection
+edges = cv2.Canny(gray, threshold1=100, threshold2=200)
+
+# Save result
+cv2.imwrite('edges.jpg', edges)</code></pre>
+
+      <h2>Convolutional Neural Networks (CNNs)</h2>
+      <p>While traditional computer vision relied on manually engineered filters (e.g., Sobel filters for edge detection), <strong>Convolutional Neural Networks</strong> automatically learn optimal spatial filters directly from training datasets.</p>
+      <ul>
+        <li><strong>Convolutional Layers:</strong> Slide small weight matrices (kernels) across input images to create feature maps detecting edges, textures, and higher-order shapes.</li>
+        <li><strong>Pooling Layers:</strong> Reduce the spatial dimensions of feature maps (e.g., Max Pooling) to achieve translation invariance and decrease computational cost.</li>
+        <li><strong>Fully Connected Layers:</strong> Flatten feature maps into a classification vector that predicts category probabilities.</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      <p>Computer Vision bridges the gap between raw pixel arrays and semantic understanding, powering applications in medical imaging, autonomous vehicles, face recognition, and industrial robotics.</p>
+    `
+  },
+  {
+    slug: "building-real-time-applications-websockets-sse",
+    title: "Building Real-Time Web Applications: WebSockets vs. Server-Sent Events",
+    description: "Compare modern real-time protocols. Learn how WebSockets provide full-duplex communication, when to choose Server-Sent Events (SSE), and how to build a scalable real-time backend.",
+    category: "Web Development",
+    author: "MLSC Web Dev Team",
+    date: "August 24, 2026",
+    readTime: "7 min read",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>The Evolution of Real-Time Web</h2>
+      <p>In traditional HTTP/1.1 request-response cycles, clients must repeatedly poll the server (polling or long-polling) to check for updates, generating massive overhead. Modern interactive applications—such as multiplayer collaborative editors, live sports tickers, and AI chat streams—require efficient, low-latency streaming protocols.</p>
+
+      <h2>WebSockets: Full-Duplex Bidirectional Communication</h2>
+      <p>The WebSocket protocol (<code>ws://</code> and <code>wss://</code>) establishes a persistent, bidirectional TCP connection between client and server via an initial HTTP Upgrade handshake. Both client and server can send data frames at any time with minimal header overhead.</p>
+
+      <h2>Server-Sent Events (SSE): Lightweight One-Way Streaming</h2>
+      <p>Server-Sent Events (SSE) operate over standard HTTP, allowing a server to push real-time text updates to clients using a persistent connection. SSE is built into all modern browsers via the <code>EventSource</code> API and includes automatic reconnection and event IDs out of the box.</p>
+
+      <h2>Protocol Comparison Table</h2>
+      <ul>
+        <li><strong>Communication Direction:</strong> WebSockets are bidirectional (two-way); SSE is unidirectional (server-to-client only).</li>
+        <li><strong>Data Format:</strong> WebSockets support binary and text; SSE supports UTF-8 text streams.</li>
+        <li><strong>Firewall & Proxy Traversal:</strong> SSE uses standard HTTP/2 and HTTP/HTTPS ports (80/443), easily passing through corporate proxies without custom configuration.</li>
+      </ul>
+
+      <h2>Which Protocol Should You Choose?</h2>
+      <p>Use <strong>Server-Sent Events (SSE)</strong> for AI token streaming (e.g. ChatGPT-style responses), stock price feeds, and notifications. Use <strong>WebSockets</strong> for real-time multiplayer gaming, chat applications, and collaborative whiteboards.</p>
+    `
+  },
+  {
+    slug: "natural-language-processing-from-bag-of-words-to-transformers",
+    title: "Natural Language Processing (NLP): From Bag-of-Words to Transformers",
+    description: "Trace the evolution of Natural Language Processing. Understand tokenization, TF-IDF, Word2Vec vector embeddings, Recurrent Neural Networks (RNNs), and the Transformer revolution.",
+    category: "Generative AI",
+    author: "MLSC AI Research",
+    date: "August 25, 2026",
+    readTime: "9 min read",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>The Challenge of Human Language</h2>
+      <p>Human language is ambiguous, context-dependent, and full of idioms, metaphors, and cultural nuances. Natural Language Processing (NLP) is the branch of computer science and AI concerned with giving computers the ability to understand text and spoken words in much the same way human beings can.</p>
+
+      <h2>1. Classical NLP: Bag-of-Words and TF-IDF</h2>
+      <p>Early NLP models represented text through word frequencies. <strong>TF-IDF (Term Frequency - Inverse Document Frequency)</strong> scores words higher if they appear frequently within a document but rarely across the general corpus, helping identify key topical keywords. However, it completely ignores word order and syntactic context.</p>
+
+      <h2>2. Dense Word Embeddings: Word2Vec and GloVe</h2>
+      <p>Word2Vec transformed NLP by mapping words to continuous vector spaces (e.g., 300-dimensional vectors) where semantic similarity corresponds to geometric proximity. Famous relationships like <code>vector('king') - vector('man') + vector('woman') ≈ vector('queen')</code> demonstrated that neural networks could capture conceptual analogies.</p>
+
+      <h2>3. The Transformer Breakthrough: Self-Attention</h2>
+      <p>While Recurrent Neural Networks (RNNs and LSTMs) processed sentences word-by-word sequentially—suffering from gradient vanishing on long texts—Transformers process entire sentences in parallel. Through <strong>Multi-Head Self-Attention</strong>, every word dynamically attends to every other word, determining meaning based on full contextual surrounding.</p>
+
+      <h2>Conclusion</h2>
+      <p>From simple statistical word counting to billions-of-parameters Transformer models, NLP has evolved into the cornerstone of modern AI, powering search engines, automated translation, and conversational intelligence.</p>
+    `
+  },
+  {
+    slug: "modern-css-and-responsive-design-systems-with-tailwind",
+    title: "Modern CSS Architecture: Building Responsive Design Systems with Tailwind CSS",
+    description: "Learn modern styling techniques. Master CSS Grid, Flexbox, Container Queries, the :has() parent selector, and scalable design token architecture with Tailwind CSS.",
+    category: "Web Development",
+    author: "MLSC Design & Web",
+    date: "August 26, 2026",
+    readTime: "7 min read",
+    image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=2855&auto=format&fit=crop",
+    content: `
+      <h2>The Evolution of CSS</h2>
+      <p>CSS has undergone a renaissance in recent years. Features that previously required complex JavaScript workarounds—like parent selectors, container-relative styling, and smooth scroll animations—are now natively supported across all evergreen browsers.</p>
+
+      <h2>1. Container Queries: Beyond Viewport Breakpoints</h2>
+      <p>Traditional media queries adapt layouts based on the total browser window width. <strong>Container Queries</strong> allow a component to adapt its styling based on the size of its parent container, making UI widgets truly modular and reusable across sidebars, modal popups, and full-width banners:</p>
+      <pre><code>@container (min-width: 400px) {
+  .card {
+    display: flex;
+    flex-direction: row;
+  }
+}</code></pre>
+
+      <h2>2. The Powerful :has() Relational Selector</h2>
+      <p>Often referred to as the "parent selector", <code>:has()</code> lets you apply styles to an element based on its descendant children. For example: <code>article:has(img) { grid-template-columns: 1fr 2fr; }</code>.</p>
+
+      <h2>3. Tailwind CSS: Utility-First Architecture</h2>
+      <p>Tailwind CSS solves class-naming fatigue and stylesheet bloat by providing low-level utility classes that compile directly to an optimized, purge-able CSS bundle. By defining shared design tokens (colors, typography scales, spacing) in <code>tailwind.config.ts</code>, teams maintain consistent visual hierarchy across complex applications.</p>
+
+      <h2>Conclusion</h2>
+      <p>Combining modern native CSS capabilities with a utility-first design system like Tailwind results in blazing fast rendering, minimal CSS payload sizes, and exceptional user experiences on any device screen size.</p>
+    `
+  },
+  {
+    slug: "securing-web-applications-jwt-oauth-and-cors",
+    title: "Web Security Architecture: Mastering JWT, OAuth 2.0, and CORS",
+    description: "A deep dive into modern web authentication and authorization. Learn how JSON Web Tokens work, understand OAuth 2.0 PKCE flows, and configure Cross-Origin Resource Sharing safely.",
+    category: "Cyber Security",
+    author: "MLSC Security Operations",
+    date: "August 27, 2026",
+    readTime: "8 min read",
+    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>Authentication vs. Authorization</h2>
+      <p><strong>Authentication (AuthN)</strong> verifies who a user is (e.g., logging in with email and password). <strong>Authorization (AuthZ)</strong> determines what permissions and resources the authenticated user is allowed to access (e.g., an admin user editing a post versus a student viewing an event).</p>
+
+      <h2>JSON Web Tokens (JWT) Under the Hood</h2>
+      <p>A JWT is a compact, URL-safe token consisting of three dot-separated Base64Url-encoded parts:</p>
+      <ul>
+        <li><strong>Header:</strong> Specifies the signing algorithm (e.g., HMAC-SHA256 or RSA).</li>
+        <li><strong>Payload:</strong> Contains claims (user ID, expiration timestamp <code>exp</code>, user roles).</li>
+        <li><strong>Signature:</strong> Cryptographic hash generated using a secret key or private certificate, ensuring the payload has not been tampered with.</li>
+      </ul>
+      <p>Best practice: Store short-lived access tokens in memory and long-lived refresh tokens in <strong>HttpOnly, Secure, SameSite=Strict cookies</strong> to prevent token theft via XSS attacks.</p>
+
+      <h2>Demystifying CORS (Cross-Origin Resource Sharing)</h2>
+      <p>CORS is a browser security mechanism that restricts web applications from making HTTP requests to a different domain than the one that served the web page. To allow authorized clients, backend APIs must return appropriate HTTP response headers:</p>
+      <pre><code>Access-Control-Allow-Origin: https://mlscsvec.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization</code></pre>
+
+      <h2>Conclusion</h2>
+      <p>Securing authentication flows and configuring strict CORS policies prevents unauthorized data access and ensures trust and compliance across distributed client-server applications.</p>
+    `
+  },
+  {
+    slug: "ci-cd-pipelines-with-github-actions-and-docker",
+    title: "Automating Deployments: CI/CD Pipelines with GitHub Actions and Docker",
+    description: "Learn how to build automated Continuous Integration and Continuous Deployment (CI/CD) pipelines. Automate linting, unit testing, Docker image building, and production deployment.",
+    category: "Cloud & DevOps",
+    author: "MLSC Cloud Team",
+    date: "August 28, 2026",
+    readTime: "8 min read",
+    image: "https://images.unsplash.com/photo-1618401471353-b98aedd07871?q=80&w=2832&auto=format&fit=crop",
+    content: `
+      <h2>What is CI/CD?</h2>
+      <p><strong>Continuous Integration (CI)</strong> automatically tests and builds code every time a developer opens a pull request or pushes a commit, catching regressions early. <strong>Continuous Deployment (CD)</strong> automatically deploys verified code artifacts into staging and production environments without manual server logins.</p>
+
+      <h2>GitHub Actions Workflow Structure</h2>
+      <p>GitHub Actions workflows are declared in YAML files located inside <code>.github/workflows/</code>:</p>
+      <pre><code>name: Build and Test Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test</code></pre>
+
+      <h2>Building and Publishing Docker Images</h2>
+      <p>Using GitHub Actions' <code>docker/build-push-action</code>, you can automatically build multi-platform Docker container images, tag them with the Git commit hash, and push them to container registries like GitHub Packages (GHCR) or Docker Hub.</p>
+
+      <h2>Conclusion</h2>
+      <p>Automated CI/CD pipelines remove human error from deployment workflows, increase shipping speed, and give software teams confidence that every production release meets quality standards.</p>
+    `
+  },
+  {
+    slug: "progressive-web-apps-service-workers-and-offline-caching",
+    title: "Progressive Web Apps (PWA): Service Workers, Caching Strategies, and Offline Mode",
+    description: "Transform your web applications into installable, fast, and resilient Progressive Web Apps. Learn Service Worker lifecycles, CacheStorage strategies, and offline capabilities.",
+    category: "Web Development",
+    author: "MLSC Web Dev Team",
+    date: "August 28, 2026",
+    readTime: "7 min read",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2940&auto=format&fit=crop",
+    content: `
+      <h2>What Makes a Progressive Web App?</h2>
+      <p>Progressive Web Apps (PWAs) combine the reach of the web with the performance and richness of native mobile applications. A PWA is fast, installable on mobile and desktop home screens, capable of working offline, and able to receive push notifications.</p>
+
+      <h2>Core Pillars of a PWA</h2>
+      <ul>
+        <li><strong>Web App Manifest:</strong> A JSON metadata file that defines the app icon, theme colors, display mode (e.g., <code>standalone</code>), and launch URL.</li>
+        <li><strong>Service Worker:</strong> A background JavaScript worker thread that intercepts network requests, manages client-side caching, and enables offline capability.</li>
+        <li><strong>HTTPS:</strong> PWAs require a secure encrypted connection to ensure scripts cannot be intercepted or tampered with.</li>
+      </ul>
+
+      <h2>Popular Caching Strategies</h2>
+      <ul>
+        <li><strong>Cache First (Cache-Falling-Back-to-Network):</strong> Serves static assets (fonts, images, compiled JS) instantly from local cache; only hits the network if not found.</li>
+        <li><strong>Network First (Network-Falling-Back-to-Cache):</strong> Tries to fetch the newest data from the network; falls back to cached content if the user is offline.</li>
+        <li><strong>Stale-While-Revalidate:</strong> Immediately serves cached content for instant load times while fetching an updated copy in the background to update the cache for next time.</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      <p>By implementing Service Workers and smart caching policies, PWAs deliver instant page transitions, reduce backend server load, and provide reliable access even in low or zero connectivity environments.</p>
     `
   }
 ];

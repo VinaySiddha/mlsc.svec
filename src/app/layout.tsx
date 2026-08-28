@@ -233,6 +233,14 @@ export default function RootLayout({
       className="dark"
       suppressHydrationWarning
     >
+      <head>
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body
         className={cn(
           'antialiased',
@@ -367,17 +375,6 @@ export default function RootLayout({
 
         {/* Toast Notifications */}
         <Toaster />
-
-        {/* =====================================================
-            GOOGLE ADSENSE
-        ===================================================== */}
-
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4523569844866132"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
 
         {/* =====================================================
             GOOGLE ANALYTICS

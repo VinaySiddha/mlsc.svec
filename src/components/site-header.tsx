@@ -26,6 +26,7 @@ import {
     PenTool,
     Heart,
     CreditCard,
+    Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 import { UserNav } from '@/components/user-nav';
@@ -47,13 +48,14 @@ const navLinks = [
     { href: '/contributors', label: 'Contributors' },
     { href: '/study', label: 'Study' },
     { href: '/blog', label: 'Blog' },
+    { href: '/contact', label: 'Contact' },
     { href: '/schedule', label: 'Schedule' },
     { href: '/donate', label: 'Donate' },
 ];
 
 export function SiteHeader() {
     const pathname = usePathname();
-    const isMoreActive = ['/contributors', '/study', '/blog', '/schedule'].some(
+    const isMoreActive = ['/contributors', '/study', '/blog', '/contact', '/schedule'].some(
         (href) => pathname.startsWith(href)
     );
     const [domainsOpen, setDomainsOpen] = useState(false);
@@ -243,6 +245,15 @@ export function SiteHeader() {
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
                                         <Link
+                                            href="/contact"
+                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                        >
+                                            <Mail className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" />
+                                            Contact Us
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link
                                             href="/donate"
                                             className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
                                         >
@@ -335,7 +346,7 @@ export function SiteHeader() {
                     domainsOpen
                         ? "opacity-100 visible translate-y-0 pointer-events-auto"
                         : "opacity-0 invisible translate-y-3",
-                    "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    "transition-all duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]"
                 )}
                 style={{ top: 'calc(100% + 8px)' }}
             >
