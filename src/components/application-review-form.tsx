@@ -254,9 +254,11 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
     }
   };
 
-  const aiRatings = application.aiRatings || (
+  const isSuperAdmin = userRole === 'super_admin';
+
+  const aiRatings = isSuperAdmin ? (application.aiRatings || (
     !application.manualRatings && application.ratings ? application.ratings : undefined
-  );
+  )) : undefined;
   
   return (
     <div className="space-y-8">
@@ -269,7 +271,9 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                 Manual Interview Evaluation
               </CardTitle>
               <CardDescription className="text-xs text-white/50 mt-1">
-                Score the candidate during the interview. AI benchmark scores are displayed beside each category for reference.
+                {isSuperAdmin
+                  ? "Score the candidate during the interview. AI benchmark scores are displayed beside each category for reference."
+                  : "Score the candidate during the interview based on live rubric criteria."}
               </CardDescription>
             </div>
           </div>
@@ -431,7 +435,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                   <FormLabel className="text-xs font-bold uppercase tracking-wider text-white/70">
                     Live Interview Star Rubric
                   </FormLabel>
-                  {aiRatings && (
+                  {isSuperAdmin && aiRatings && (
                     <span className="text-[10px] text-[#4285F4] flex items-center gap-1 font-semibold">
                       <Bot className="size-3" /> AI Screening Baseline Shown
                     </span>
@@ -439,7 +443,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                 </div>
 
                 {ratingCategories.map((category) => {
-                  const aiScore = aiRatings ? (aiRatings as any)[category] : undefined;
+                  const aiScore = isSuperAdmin && aiRatings ? (aiRatings as any)[category] : undefined;
                   return (
                     <Controller
                       key={category}
@@ -451,7 +455,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                             <FormLabel className="font-medium text-xs text-white/80">
                               {categoryLabels[category]}
                             </FormLabel>
-                            {aiScore !== undefined && aiScore > 0 && (
+                            {isSuperAdmin && aiScore !== undefined && aiScore > 0 && (
                               <span 
                                 title={`AI resume screening rated this dimension ${aiScore.toFixed(1)}/5.0`}
                                 className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]"
