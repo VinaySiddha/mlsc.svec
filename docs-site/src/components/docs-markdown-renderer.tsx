@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { Check, Copy, Info, AlertTriangle, AlertCircle, Lightbulb, ShieldAlert } from "lucide-react";
+import { MermaidDiagram } from "./mermaid-diagram";
 
 interface CodeBlockProps {
   inline?: boolean;
@@ -17,6 +18,19 @@ function CodeBlock({ inline, className, children, ...props }: CodeBlockProps) {
   const match = /language-(\w+)/.exec(className || "");
   const language = match ? match[1] : "";
   const codeString = String(children).replace(/\n$/, "");
+
+  const isMermaid =
+    language === "mermaid" ||
+    (!inline &&
+      (codeString.trim().startsWith("sequenceDiagram") ||
+        codeString.trim().startsWith("graph ") ||
+        codeString.trim().startsWith("graph TD") ||
+        codeString.trim().startsWith("graph LR") ||
+        codeString.trim().startsWith("flowchart ")));
+
+  if (isMermaid) {
+    return <MermaidDiagram chart={codeString} />;
+  }
 
   if (inline) {
     return (

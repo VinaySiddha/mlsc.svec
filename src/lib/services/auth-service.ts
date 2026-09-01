@@ -1,4 +1,4 @@
-import * as jose from 'jose';
+import { SignJWT } from 'jose';
 
 export class AuthService {
   static checkRequiredSecrets() {
@@ -46,7 +46,7 @@ export class AuthService {
   static async generateToken(payload: { role: string; domain?: string; username: string; email?: string }) {
     const JWT_SECRET = process.env.JWT_SECRET!;
     const secret = new TextEncoder().encode(JWT_SECRET);
-    const token = await new jose.SignJWT(payload)
+    const token = await new SignJWT(payload)
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('1d')

@@ -66,6 +66,7 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "lucide-react": "^0.475.0",
+    "mermaid": "^11.17.2",
     "motion": "^12.40.0",
     "next": "^16.2.7",
     "nodemailer": "^6.9.14",
