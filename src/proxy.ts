@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as jose from "jose";
+import { jwtVerify } from "jose";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -10,7 +10,7 @@ async function verifyToken(token: string) {
   }
   const secret = new TextEncoder().encode(JWT_SECRET);
   try {
-    const { payload } = await jose.jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret);
     return payload;
   } catch (error) {
     return null;
