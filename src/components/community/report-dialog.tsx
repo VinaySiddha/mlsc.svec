@@ -1,10 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Flag, Loader2 } from 'lucide-react';
 import { reportContent } from '@/app/community-actions';
 import { useAuth } from '@/lib/auth-context';
@@ -49,37 +46,57 @@ export function ReportDialog({ contentType, contentId, postId }: ReportDialogPro
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
-          <Flag className="h-3.5 w-3.5" />
-          Report
-        </Button>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-black uppercase tracking-wider text-black bg-white hover:bg-zinc-100 border-2 border-black shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer"
+        >
+          <Flag className="h-3 w-3 stroke-[2.5] text-[#FF0055]" />
+          <span>REPORT</span>
+        </button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Report {contentType}</DialogTitle>
-          <DialogDescription>Please describe why you are reporting this content.</DialogDescription>
+      <DialogContent className="bg-white text-black border-4 border-black shadow-[10px_10px_0px_0px_#000000] p-6 max-w-md">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-xl font-black uppercase tracking-tight text-black flex items-center gap-2">
+            <span className="p-1 bg-[#FF0055] text-white border-2 border-black">
+              <Flag className="h-4 w-4 stroke-[3]" />
+            </span>
+            Report {contentType}
+          </DialogTitle>
+          <DialogDescription className="text-xs font-medium text-zinc-600">
+            Please describe why this content violates community guidelines.
+          </DialogDescription>
         </DialogHeader>
-        <InputGroup className="bg-white/5 border-white/10">
-          <InputGroupTextarea
-            placeholder="Reason for reporting..."
+        <div className="space-y-3 py-2">
+          <textarea
+            placeholder="Provide context or explanation..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+            className="w-full min-h-[100px] p-3 text-xs md:text-sm text-black bg-white border-2 border-black focus:outline-none focus:ring-2 focus:ring-[#FFE600] font-sans placeholder:text-zinc-400"
           />
-          <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
-            <InputGroupText className="text-white/40 tabular-nums">
-              {(reason || "").length} characters
-            </InputGroupText>
-          </InputGroupAddon>
-        </InputGroup>
-        <DialogFooter>
-          <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={submitting || !reason.trim()}>
-            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <div className="flex justify-end text-[10px] font-mono text-zinc-500 font-bold">
+            {reason.length} characters
+          </div>
+        </div>
+        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="px-4 py-2 text-xs font-black uppercase tracking-wider bg-white text-black border-2 border-black hover:bg-zinc-100 shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting || !reason.trim()}
+            className="inline-flex items-center gap-1.5 px-5 py-2 text-xs font-black uppercase tracking-wider bg-[#FF0055] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] disabled:opacity-50 transition-all cursor-pointer"
+          >
+            {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             Submit Report
-          </Button>
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+

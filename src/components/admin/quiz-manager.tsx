@@ -258,14 +258,14 @@ export function QuizManager() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-sans text-black">
       {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 dark:border-zinc-800 gap-4">
+      <div className="flex border-b-2 border-black gap-2">
         <button
           onClick={() => setActiveTab('create')}
           className={cn(
-            "pb-4 px-2 text-sm font-bold uppercase tracking-wider transition-colors relative",
-            activeTab === 'create' ? "text-[#4285F4] border-b-2 border-[#4285F4]" : "text-slate-400 dark:text-zinc-500 hover:text-white"
+            "pb-3 px-4 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-t-2 border-x-2 border-black -mb-[2px]",
+            activeTab === 'create' ? "bg-[#FFE600] text-black shadow-[2px_2px_0px_0px_#000000]" : "bg-white text-zinc-600 hover:text-black"
           )}
         >
           Create Daily Quiz
@@ -273,8 +273,8 @@ export function QuizManager() {
         <button
           onClick={() => setActiveTab('list')}
           className={cn(
-            "pb-4 px-2 text-sm font-bold uppercase tracking-wider transition-colors relative",
-            activeTab === 'list' ? "text-[#4285F4] border-b-2 border-[#4285F4]" : "text-slate-400 dark:text-zinc-500 hover:text-white"
+            "pb-3 px-4 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-t-2 border-x-2 border-black -mb-[2px]",
+            activeTab === 'list' ? "bg-[#FFE600] text-black shadow-[2px_2px_0px_0px_#000000]" : "bg-white text-zinc-600 hover:text-black"
           )}
         >
           Scheduled Quizzes ({quizzesList.length})
@@ -287,25 +287,25 @@ export function QuizManager() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Topic Input */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 dark:text-zinc-400 uppercase tracking-widest block">Quiz Topic</label>
+              <label className="text-xs font-black uppercase tracking-wider block text-black">Quiz Topic</label>
               <input
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g. React Context, Data Structures Arrays, CSS Selectors"
-                className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 text-sm focus:outline-none focus:border-[#4285F4] transition-colors"
+                className="w-full h-11 px-4 border-2 border-black bg-white text-sm font-semibold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
               />
             </div>
 
             {/* Date Selection */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 dark:text-zinc-400 uppercase tracking-widest block font-sans">Schedule Date</label>
+              <label className="text-xs font-black uppercase tracking-wider block font-sans text-black">Schedule Date</label>
               <div className="relative flex items-center">
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 text-sm focus:outline-none focus:border-[#4285F4] transition-colors pr-10"
+                  className="w-full h-11 px-4 border-2 border-black bg-white text-sm font-semibold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
                 />
               </div>
             </div>
@@ -315,7 +315,7 @@ export function QuizManager() {
             <Button
               onClick={handleGenerateQuestions}
               disabled={generating || !topic.trim()}
-              className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold uppercase tracking-wider text-xs h-11 px-6 rounded-xl flex items-center gap-2"
+              className="bg-[#4285F4] hover:bg-[#3367d6] text-white font-black uppercase tracking-wider text-xs h-11 px-6 border-2 border-black shadow-[3px_3px_0px_0px_#000000] flex items-center gap-2 cursor-pointer rounded-none"
             >
               {generating ? (
                 <>
@@ -323,7 +323,7 @@ export function QuizManager() {
                 </>
               ) : (
                 <>
-                  <Brain className="h-4 w-4" /> AI Generate MCQs
+                  <Brain className="h-4 w-4 stroke-[2.5]" /> AI Generate MCQs
                 </>
               )}
             </Button>
@@ -332,7 +332,7 @@ export function QuizManager() {
               <Button
                 onClick={handleSaveQuiz}
                 disabled={saving}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-wider text-xs h-11 px-6 rounded-xl flex items-center gap-2 ml-auto"
+                className="bg-[#00FF66] hover:bg-[#00dd55] text-black font-black uppercase tracking-wider text-xs h-11 px-6 border-2 border-black shadow-[3px_3px_0px_0px_#000000] flex items-center gap-2 ml-auto cursor-pointer rounded-none"
               >
                 {saving ? (
                   <>
@@ -340,7 +340,7 @@ export function QuizManager() {
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4" /> Publish Challenge
+                    <Save className="h-4 w-4 stroke-[2.5]" /> Publish Challenge
                   </>
                 )}
               </Button>
@@ -349,42 +349,42 @@ export function QuizManager() {
 
           {/* Feedback banners */}
           {errorMsg && (
-            <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 text-red-500 text-xs flex items-start gap-2 max-w-3xl">
-              <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+            <div className="p-4 border-2 border-black bg-[#FF0055] text-white font-bold text-xs flex items-start gap-2 shadow-[3px_3px_0px_0px_#000000]">
+              <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5 stroke-[2.5]" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-xs flex items-start gap-2 max-w-3xl">
-              <CheckCircle className="h-5 w-5 shrink-0 mt-0.5" />
+            <div className="p-4 border-2 border-black bg-[#00FF66] text-black font-bold text-xs flex items-start gap-2 shadow-[3px_3px_0px_0px_#000000]">
+              <CheckCircle className="h-5 w-5 shrink-0 mt-0.5 stroke-[2.5]" />
               <span>{successMsg}</span>
             </div>
           )}
 
           {/* Preview Question Cards */}
           {questions.length > 0 && (
-            <div className="space-y-6 pt-4 border-t border-slate-200 dark:border-zinc-800">
-              <h3 className="text-base font-black uppercase tracking-wide text-slate-800 dark:text-white flex items-center gap-2">
-                <FileText className="h-5 w-5 text-[#4285F4]" /> Quiz Questions Preview & Editor
+            <div className="space-y-6 pt-4 border-t-2 border-black">
+              <h3 className="text-base font-black uppercase tracking-wide text-black flex items-center gap-2 font-display">
+                <FileText className="h-5 w-5 text-[#4285F4] stroke-[2.5]" /> Quiz Questions Preview & Editor
               </h3>
               
-              <div className="space-y-6 max-w-4xl">
+              <div className="space-y-6">
                 {questions.map((q, qIdx) => (
-                  <div key={qIdx} className="p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/20 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800/80 pb-2">
+                  <div key={qIdx} className="p-6 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000000] space-y-4">
+                    <div className="flex items-center justify-between border-b-2 border-black pb-2">
                       <span className="text-xs font-black uppercase tracking-wider text-[#4285F4]">Question {qIdx + 1}</span>
-                      <span className="text-[10px] text-white/35 font-bold uppercase">Must choose correct answer matching options</span>
+                      <span className="text-[10px] text-zinc-600 font-bold uppercase">Must choose correct answer matching options</span>
                     </div>
 
                     {/* Question text field */}
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">Question Text</label>
+                      <label className="text-[10px] font-black text-black uppercase tracking-wider">Question Text</label>
                       <input
                         type="text"
                         value={q.question}
                         onChange={(e) => handleQuestionTextChange(qIdx, e.target.value)}
-                        className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs text-white"
+                        className="w-full h-10 px-3 border-2 border-black bg-white text-xs font-semibold text-black shadow-[1px_1px_0px_0px_#000000]"
                       />
                     </div>
 
@@ -392,12 +392,12 @@ export function QuizManager() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {q.options.map((opt, optIdx) => (
                         <div key={optIdx} className="space-y-1">
-                          <label className="text-[9px] font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">Option {String.fromCharCode(65 + optIdx)}</label>
+                          <label className="text-[9px] font-black text-zinc-700 uppercase tracking-wider">Option {String.fromCharCode(65 + optIdx)}</label>
                           <input
                             type="text"
                             value={opt}
                             onChange={(e) => handleOptionTextChange(qIdx, optIdx, e.target.value)}
-                            className="w-full h-9 px-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs text-white"
+                            className="w-full h-9 px-3 border-2 border-black bg-white text-xs font-semibold text-black shadow-[1px_1px_0px_0px_#000000]"
                           />
                         </div>
                       ))}
@@ -407,11 +407,11 @@ export function QuizManager() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {/* Correct answer dropdown */}
                       <div className="space-y-1 md:col-span-1">
-                        <label className="text-[9px] font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">Correct Answer</label>
+                        <label className="text-[9px] font-black text-black uppercase tracking-wider">Correct Answer</label>
                         <select
                           value={q.answer}
                           onChange={(e) => handleCorrectAnswerChange(qIdx, e.target.value)}
-                          className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs text-white uppercase font-bold"
+                          className="w-full h-10 px-3 border-2 border-black bg-white text-xs text-black uppercase font-black shadow-[1px_1px_0px_0px_#000000] focus:outline-none"
                         >
                           {q.options.map((o, idx) => (
                             <option key={idx} value={o}>
@@ -423,12 +423,12 @@ export function QuizManager() {
 
                       {/* Explanation */}
                       <div className="space-y-1 md:col-span-2">
-                        <label className="text-[9px] font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider block">Explanation Details</label>
+                        <label className="text-[9px] font-black text-black uppercase tracking-wider block">Explanation Details</label>
                         <textarea
                           rows={2}
                           value={q.explanation}
                           onChange={(e) => handleExplanationChange(qIdx, e.target.value)}
-                          className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs text-white resize-none"
+                          className="w-full p-2.5 border-2 border-black bg-white text-xs font-medium text-black resize-none shadow-[1px_1px_0px_0px_#000000]"
                         />
                       </div>
                     </div>
@@ -444,62 +444,64 @@ export function QuizManager() {
       {activeTab === 'list' && (
         <div className="space-y-6">
           {loadingList ? (
-            <div className="py-12 text-center text-slate-400 dark:text-zinc-500">
+            <div className="py-12 text-center text-black">
               <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-[#4285F4]" />
-              <p className="text-xs font-bold uppercase tracking-wider">Loading scheduled quizzes...</p>
+              <p className="text-xs font-black uppercase tracking-wider">Loading scheduled quizzes...</p>
             </div>
           ) : quizzesList.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 dark:text-zinc-500 space-y-2">
-              <Calendar className="h-10 w-10 mx-auto" />
-              <p className="text-sm font-bold uppercase tracking-wider">No quizzes scheduled yet</p>
-              <p className="text-xs max-w-[300px] mx-auto leading-normal">
+            <div className="p-12 text-center border-4 border-dashed border-zinc-300 bg-zinc-50 space-y-2">
+              <Calendar className="h-10 w-10 mx-auto text-zinc-400" />
+              <p className="text-sm font-black uppercase tracking-wider text-black">No quizzes scheduled yet</p>
+              <p className="text-xs font-bold text-zinc-600 max-w-[300px] mx-auto leading-normal">
                 Click "Create Daily Quiz" to select a date and let the AI compile a challenge.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto border-2 border-black">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr>
-                    <th className="text-left py-3 px-4 font-bold uppercase tracking-wider text-[10px]">Date Scheduled</th>
-                    <th className="text-left py-3 px-4 font-bold uppercase tracking-wider text-[10px]">Quiz Topic</th>
-                    <th className="text-center py-3 px-4 font-bold uppercase tracking-wider text-[10px]">Participants</th>
-                    <th className="text-left py-3 px-4 font-bold uppercase tracking-wider text-[10px]">Unique Link</th>
-                    <th className="text-center py-3 px-4 font-bold uppercase tracking-wider text-[10px]">Actions</th>
+                  <tr className="bg-[#FFE600] border-b-2 border-black">
+                    <th className="text-left py-3 px-4 font-black uppercase tracking-wider text-xs text-black">Date Scheduled</th>
+                    <th className="text-left py-3 px-4 font-black uppercase tracking-wider text-xs text-black">Quiz Topic</th>
+                    <th className="text-center py-3 px-4 font-black uppercase tracking-wider text-xs text-black">Participants</th>
+                    <th className="text-left py-3 px-4 font-black uppercase tracking-wider text-xs text-black">Unique Link</th>
+                    <th className="text-center py-3 px-4 font-black uppercase tracking-wider text-xs text-black">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y-2 divide-black">
                   {quizzesList.map((quiz) => {
                     const participantCount = participantCounts[quiz.id] || 0;
                     return (
-                      <tr key={quiz.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                      <tr key={quiz.id} className="hover:bg-zinc-50 bg-white transition-colors">
                         {/* Date */}
-                        <td className="py-4 px-4 font-bold text-xs uppercase tracking-wide text-slate-800 dark:text-white">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[#4285F4]">
+                        <td className="py-4 px-4 font-black text-xs uppercase tracking-wide text-black">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#4285F4] text-white border border-black shadow-[1px_1px_0px_0px_#000000] font-mono">
                             <Calendar className="h-3.5 w-3.5" /> {quiz.date}
                           </span>
                         </td>
                         {/* Topic */}
-                        <td className="py-4 px-4 font-black uppercase text-xs tracking-wider text-slate-800 dark:text-white">
+                        <td className="py-4 px-4 font-black uppercase text-xs tracking-wider text-black">
                           {quiz.topic}
                         </td>
                         {/* Participants */}
-                        <td className="py-4 px-4 text-center font-bold text-xs text-slate-800 dark:text-white">
-                          {participantCount}
+                        <td className="py-4 px-4 text-center font-black text-xs text-black">
+                          <span className="px-2 py-0.5 bg-zinc-100 border border-black font-mono">
+                            {participantCount}
+                          </span>
                         </td>
                         {/* Unique Link */}
                         <td className="py-4 px-4 min-w-[200px]">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-500 select-all truncate max-w-[150px]">
+                            <span className="font-mono text-[10px] text-zinc-700 select-all truncate max-w-[150px] font-bold">
                               /quiz/{quiz.id}
                             </span>
                             <button
                               onClick={() => copyQuizLink(quiz.id)}
-                              className="p-1 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-400 hover:text-white transition-all flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider"
+                              className="p-1 border border-black bg-white hover:bg-zinc-100 text-black shadow-[1px_1px_0px_0px_#000000] flex items-center gap-1 text-[9px] font-black uppercase tracking-wider cursor-pointer"
                             >
                               {copiedId === quiz.id ? (
                                 <>
-                                  <Check className="h-3 w-3 text-emerald-400" /> Copied
+                                  <Check className="h-3 w-3 text-emerald-600 stroke-[3]" /> Copied
                                 </>
                               ) : (
                                 <>
@@ -516,7 +518,7 @@ export function QuizManager() {
                               asChild
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-500 hover:text-white"
+                              className="h-8 w-8 bg-white border border-black hover:bg-zinc-100 text-black shadow-[1px_1px_0px_0px_#000000] cursor-pointer rounded-none"
                             >
                               <a href={`/quiz/${quiz.id}`} target="_blank" rel="noopener noreferrer">
                                 <Eye className="h-4 w-4" />
@@ -526,7 +528,7 @@ export function QuizManager() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDeleteQuiz(quiz.id)}
-                              className="h-8 w-8 hover:bg-red-500/10 text-red-500 hover:text-red-400"
+                              className="h-8 w-8 bg-white border border-black hover:bg-red-50 text-red-600 shadow-[1px_1px_0px_0px_#000000] cursor-pointer rounded-none"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

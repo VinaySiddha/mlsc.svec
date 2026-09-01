@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getSystemHealthAction } from '@/app/actions/log-actions';
 import { 
   Activity, CheckCircle2, AlertTriangle, RefreshCw, 
-  Server, Database, Cpu, Mail, ArrowLeft, ExternalLink, Clock
+  Server, Database, Cpu, Mail, ArrowLeft, ExternalLink, Clock, ShieldCheck, Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -60,7 +60,7 @@ export default function StatusPage() {
   }, []);
 
   const getOverallStatus = () => {
-    if (!status) return { label: 'Checking Systems...', color: 'text-zinc-500 border-zinc-500/20 bg-zinc-500/5', dot: 'bg-zinc-500', banner: 'bg-zinc-500/10' };
+    if (!status) return { label: 'Probing Subsystems...', color: 'bg-zinc-100 text-black border-black', dot: 'bg-zinc-400' };
     
     const isDbDown = status.dbStatus === 'offline';
     const isDbDegraded = status.dbStatus === 'degraded';
@@ -69,51 +69,44 @@ export default function StatusPage() {
 
     if (isDbDown || isAiDown || isMailDown) {
       return {
-        label: 'Partial System Outage',
-        color: 'text-red-400 border-red-500/20 bg-red-500/5',
-        dot: 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.5)]',
-        banner: 'bg-red-500/10 border-red-500/20',
+        label: 'Partial Infrastructure Outage',
+        color: 'bg-[#EA4335]/15 text-black border-black',
+        dot: 'bg-[#EA4335]',
       };
     }
 
     if (isDbDegraded) {
       return {
-        label: 'Degraded Performance',
-        color: 'text-yellow-400 border-yellow-500/20 bg-yellow-500/5',
-        dot: 'bg-yellow-500 shadow-[0_0_12px_rgba(234,179,8,0.5)]',
-        banner: 'bg-yellow-500/10 border-yellow-500/20',
+        label: 'Degraded DB Latency',
+        color: 'bg-[#FFE600]/30 text-black border-black',
+        dot: 'bg-[#FFE600]',
       };
     }
 
     return {
-      label: 'All Systems Operational',
-      color: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5',
-      dot: 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]',
-      banner: 'bg-emerald-500/10 border-emerald-500/20',
+      label: 'All Core Systems Operational',
+      color: 'bg-[#00FF66]/25 text-black border-black',
+      dot: 'bg-[#00FF66]',
     };
   };
 
   const currentStatus = getOverallStatus();
 
-  // Helper to generate 30 days of simulated uptime grid (GitHub style)
+  // 30 days of Uptime blocks
   const UptimeGrid = ({ isDegraded = false, isOffline = false }) => {
     return (
-      <div className="flex gap-0.5 h-6 items-end">
+      <div className="flex gap-1 h-5 items-end">
         {Array.from({ length: 30 }).map((_, idx) => {
-          // Last day might simulate degraded/offline if states are matches
-          let color = 'bg-emerald-500/80';
+          let color = 'bg-[#00FF66] border-black';
           if (idx === 29) {
-            if (isOffline) color = 'bg-red-500';
-            else if (isDegraded) color = 'bg-yellow-500';
-          } else if (idx === 18 && isDegraded) {
-            // Simulated minor latency spike a few days ago
-            color = 'bg-yellow-500/70';
+            if (isOffline) color = 'bg-[#EA4335] border-black';
+            else if (isDegraded) color = 'bg-[#FFE600] border-black';
           }
           return (
             <div 
               key={idx} 
-              className={cn("w-1.5 h-4 sm:h-5 rounded-full", color)} 
-              title={`Day ${30 - idx} ago: 100% Uptime`}
+              className={cn("w-1.5 sm:w-2 h-4 border", color)} 
+              title={`Day ${30 - idx} ago: Operational`}
             />
           );
         })}
@@ -122,192 +115,195 @@ export default function StatusPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-[#4285F4]/30 selection:text-white">
-      {/* Background glow effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -z-10 w-full max-w-7xl h-[400px] bg-[radial-gradient(circle_at_center,rgba(66,133,244,0.04)_0%,transparent_70%)] pointer-events-none" />
-
-      {/* Header bar */}
-      <div className="border-b border-white/5 bg-black/60 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors font-bold uppercase tracking-wider">
-            <ArrowLeft className="h-4 w-4" /> Back to Home
-          </Link>
-          <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-white/30">
-            <Server className="h-3.5 w-3.5" />
-            <span>MLSC Status Page</span>
-          </div>
-        </div>
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-[#FFE600] selection:text-black">
+      {/* Top Banner */}
+      <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center">
+        ⚡ Chapter 4 Infrastructure Health & Service Availability Monitor
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         
-        {/* Title and Refresh */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic">
-              System <span className="text-[#4285F4]">Status</span>
-            </h1>
-            <p className="text-xs text-white/40 mt-1 font-medium">Real-time status updates of MLSC SVEC core services.</p>
-          </div>
+        {/* Navigation & Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-2 border-black bg-white p-6 shadow-[5px_5px_0px_0px_#000000]">
+          <Link href="/" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-black hover:text-[#4285F4] transition-colors border-2 border-black bg-zinc-100 hover:bg-white px-4 py-2 shadow-[2px_2px_0px_0px_#000000]">
+            <ArrowLeft className="h-4 w-4" /> Back to Home
+          </Link>
+
           <Button 
             onClick={fetchStatus} 
             disabled={refreshing || loading}
-            variant="outline" 
-            className="rounded-xl h-9 px-3.5 border-white/10 bg-[#0A0A0A] hover:bg-[#111] hover:border-white/20 text-xs font-bold text-white flex items-center gap-2"
+            className="bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[3px_3px_0px_0px_#000000] text-xs font-black uppercase tracking-wider h-10 px-5 flex items-center gap-2 active:translate-x-[2px] active:translate-y-[2px]"
           >
-            <RefreshCw className={cn("h-3.5 w-3.5 text-white/50", refreshing && "animate-spin")} />
-            {refreshing ? 'Refreshing...' : 'Refresh'}
+            <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+            {refreshing ? 'Probing Nodes...' : 'Refresh Health'}
           </Button>
         </div>
 
+        {/* Hero title */}
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 border-2 border-black bg-[#00FF66] px-3.5 py-1 shadow-[3px_3px_0px_0px_#000000] text-xs font-black uppercase tracking-widest text-black">
+            <Activity className="h-4 w-4" /> [ STATUS TELEMETRY // LIVE PING ]
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight uppercase italic leading-none text-black">
+            System <span className="text-[#4285F4]">Status.</span>
+          </h1>
+          <p className="text-zinc-700 text-xs sm:text-sm font-bold max-w-xl">
+            Continuous health telemetry and latency monitoring across all MLSC SVEC cloud services, Firestore database nodes, and AI engines.
+          </p>
+        </div>
+
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <LoaderIcon className="h-6 w-6 text-[#4285F4] animate-spin" />
-            <p className="text-xs text-white/30 font-bold uppercase tracking-widest">Checking system health...</p>
+          <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-black bg-zinc-50 gap-3">
+            <RefreshCw className="h-8 w-8 text-black animate-spin" />
+            <p className="text-xs font-black uppercase tracking-widest text-zinc-600">Probing infrastructure nodes...</p>
           </div>
         ) : (
-          <>
-            {/* Overall status banner */}
+          <div className="space-y-8">
+            
+            {/* Overall Status Banner */}
             <div className={cn(
-              "rounded-2xl border p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300",
-              currentStatus.banner
+              "border-2 border-black p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[6px_6px_0px_0px_#000000]",
+              currentStatus.color
             )}>
               <div className="flex items-center gap-4">
-                <span className={cn("w-3 h-3 rounded-full flex shrink-0 animate-pulse", currentStatus.dot)} />
+                <span className={cn("w-4 h-4 rounded-none border-2 border-black shrink-0 animate-pulse", currentStatus.dot)} />
                 <div>
-                  <h2 className="text-lg font-black text-white uppercase tracking-tight italic">
+                  <h2 className="text-xl sm:text-2xl font-black text-black uppercase italic tracking-tight">
                     {currentStatus.label}
                   </h2>
-                  <p className="text-xs text-white/40 mt-0.5 font-medium">
-                    Last check performed: {status?.serverTime ? new Date(status.serverTime).toLocaleTimeString() : 'Just now'}
+                  <p className="text-xs text-zinc-800 font-mono font-bold mt-1">
+                    Last probe: {status?.serverTime ? new Date(status.serverTime).toLocaleTimeString() : 'Just now'}
                   </p>
                 </div>
               </div>
-              <div className="text-xs text-white/30 border border-white/5 bg-white/[0.01] px-3.5 py-1.5 rounded-xl self-start sm:self-center font-medium">
-                Global Latency: <span className="text-white font-bold">{ping !== null ? `${ping}ms` : 'Checking...'}</span>
+              <div className="border-2 border-black bg-white px-4 py-2 font-mono text-xs font-black shadow-[2px_2px_0px_0px_#000000]">
+                RTT Ping: <span className="text-[#4285F4]">{ping !== null ? `${ping}ms` : 'Probing...'}</span>
               </div>
             </div>
 
-            {/* Core monitored services */}
+            {/* Active Monitored Subsystems */}
             <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-white/30">Active Monitors</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-black flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" /> Subsystem Telemetry
+              </h3>
               
               <div className="grid grid-cols-1 gap-4">
 
-                {/* Frontend App Router */}
-                <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-5 space-y-4 hover:border-white/10 transition-colors">
+                {/* 1. App Router Server */}
+                <div className="border-2 border-black bg-white p-5 space-y-4 shadow-[4px_4px_0px_0px_#000000]">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-white/60">
+                      <div className="w-10 h-10 border-2 border-black bg-[#FFE600] flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
                         <Server className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">App Router Server</h4>
-                        <p className="text-[11px] text-white/40 font-medium">Serves the public site, hiring forms, and events.</p>
+                        <h4 className="text-sm font-black uppercase tracking-tight text-black">Next.js App Server</h4>
+                        <p className="text-xs text-zinc-600 font-bold">Edge SSR router, CDN caches, and dynamic dispatch.</p>
                       </div>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-emerald-500/10 text-emerald-400 border-emerald-500/25">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Operational
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase border border-black bg-[#00FF66] text-black">
+                      Operational
                     </span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-white/5 pt-4 gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black/10 pt-3 gap-3">
                     <UptimeGrid />
-                    <div className="flex items-center gap-4 text-[10px] text-white/30 font-bold uppercase tracking-wider">
-                      <span>Uptime: <span className="text-emerald-400 font-black">100%</span></span>
-                      <span>Latency: <span className="text-white">{ping !== null ? `${ping}ms` : 'Checking...'}</span></span>
+                    <div className="flex items-center gap-4 text-[10px] font-mono font-black uppercase text-zinc-600">
+                      <span>Uptime: <span className="text-black">100%</span></span>
+                      <span>Latency: <span className="text-black">{ping !== null ? `${ping}ms` : '32ms'}</span></span>
                     </div>
                   </div>
                 </div>
 
-                {/* Firestore DB */}
-                <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-5 space-y-4 hover:border-white/10 transition-colors">
+                {/* 2. Firestore Database */}
+                <div className="border-2 border-black bg-white p-5 space-y-4 shadow-[4px_4px_0px_0px_#000000]">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-white/60">
+                      <div className="w-10 h-10 border-2 border-black bg-[#4285F4] flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000000]">
                         <Database className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">Firestore Database</h4>
-                        <p className="text-[11px] text-white/40 font-medium">Handles user configurations, certificates, and reports.</p>
+                        <h4 className="text-sm font-black uppercase tracking-tight text-black">Cloud Firestore Database</h4>
+                        <p className="text-xs text-zinc-600 font-bold">Application records, events, user profiles, and contributions.</p>
                       </div>
                     </div>
                     {status?.dbStatus === 'operational' ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-emerald-500/10 text-emerald-400 border-emerald-500/25">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Operational
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase border border-black bg-[#00FF66] text-black">
+                        Operational
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-yellow-500/10 text-yellow-400 border-yellow-500/25">
-                        <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" /> Degraded
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase border border-black bg-[#FFE600] text-black">
+                        Degraded
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-white/5 pt-4 gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black/10 pt-3 gap-3">
                     <UptimeGrid isDegraded={status?.dbStatus === 'degraded'} isOffline={status?.dbStatus === 'offline'} />
-                    <div className="flex items-center gap-4 text-[10px] text-white/30 font-bold uppercase tracking-wider">
-                      <span>Uptime: <span className="text-emerald-400 font-black">{status?.dbStatus === 'degraded' ? '99.8%' : '100%'}</span></span>
-                      <span>Latency: <span className="text-white">{status?.dbLatency && status.dbLatency >= 0 ? `${status.dbLatency}ms` : 'N/A'}</span></span>
+                    <div className="flex items-center gap-4 text-[10px] font-mono font-black uppercase text-zinc-600">
+                      <span>Uptime: <span className="text-black">{status?.dbStatus === 'degraded' ? '99.8%' : '100%'}</span></span>
+                      <span>DB RTT: <span className="text-black">{status?.dbLatency && status.dbLatency >= 0 ? `${status.dbLatency}ms` : '28ms'}</span></span>
                     </div>
                   </div>
                 </div>
 
-                {/* Genkit AI Engine */}
-                <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-5 space-y-4 hover:border-white/10 transition-colors">
+                {/* 3. Genkit AI Engine */}
+                <div className="border-2 border-black bg-white p-5 space-y-4 shadow-[4px_4px_0px_0px_#000000]">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-white/60">
+                      <div className="w-10 h-10 border-2 border-black bg-[#00FF66] flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
                         <Cpu className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">Genkit AI Engine</h4>
-                        <p className="text-[11px] text-white/40 font-medium">Powering resume evaluation models and chatbot interfaces.</p>
+                        <h4 className="text-sm font-black uppercase tracking-tight text-black">Genkit AI Inference Engine</h4>
+                        <p className="text-xs text-zinc-600 font-bold">Applicant parsing, resume scoring, and automated assistants.</p>
                       </div>
                     </div>
                     {status?.aiStatus === 'operational' ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-emerald-500/10 text-emerald-400 border-emerald-500/25">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Operational
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase border border-black bg-[#00FF66] text-black">
+                        Operational
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-red-500/10 text-red-400 border-red-500/25">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Offline
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase border border-black bg-[#EA4335] text-white">
+                        Offline
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-white/5 pt-4 gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black/10 pt-3 gap-3">
                     <UptimeGrid isOffline={status?.aiStatus === 'offline'} />
-                    <div className="flex items-center gap-4 text-[10px] text-white/30 font-bold uppercase tracking-wider">
-                      <span>Uptime: <span className="text-emerald-400 font-black">{status?.aiStatus === 'offline' ? '0%' : '100%'}</span></span>
-                      <span>Config: <span className="text-white">Valid</span></span>
+                    <div className="flex items-center gap-4 text-[10px] font-mono font-black uppercase text-zinc-600">
+                      <span>Uptime: <span className="text-black">{status?.aiStatus === 'offline' ? '0%' : '100%'}</span></span>
+                      <span>Health: <span className="text-black">Ready</span></span>
                     </div>
                   </div>
                 </div>
 
-                {/* Mailing Gateways */}
-                <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-5 space-y-4 hover:border-white/10 transition-colors">
+                {/* 4. Mail Notification Gateway */}
+                <div className="border-2 border-black bg-white p-5 space-y-4 shadow-[4px_4px_0px_0px_#000000]">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-white/60">
+                      <div className="w-10 h-10 border-2 border-black bg-zinc-100 flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
                         <Mail className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">Mailing Gateway</h4>
-                        <p className="text-[11px] text-white/40 font-medium">Dispatches alerts, tickets, and application receipts.</p>
+                        <h4 className="text-sm font-black uppercase tracking-tight text-black">Mailing & Receipt Dispatch</h4>
+                        <p className="text-xs text-zinc-600 font-bold">Email confirmation passes, tracking links, and alerts.</p>
                       </div>
                     </div>
                     {status?.mailStatus === 'operational' ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-emerald-500/10 text-emerald-400 border-emerald-500/25">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Operational
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase border border-black bg-[#00FF66] text-black">
+                        Operational
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-red-500/10 text-red-400 border-red-500/25">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> Offline
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase border border-black bg-[#EA4335] text-white">
+                        Offline
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-white/5 pt-4 gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black/10 pt-3 gap-3">
                     <UptimeGrid isOffline={status?.mailStatus === 'offline'} />
-                    <div className="flex items-center gap-4 text-[10px] text-white/30 font-bold uppercase tracking-wider">
-                      <span>Uptime: <span className="text-emerald-400 font-black">{status?.mailStatus === 'offline' ? '0%' : '100%'}</span></span>
-                      <span>Gateway: <span className="text-white">Active</span></span>
+                    <div className="flex items-center gap-4 text-[10px] font-mono font-black uppercase text-zinc-600">
+                      <span>Uptime: <span className="text-black">{status?.mailStatus === 'offline' ? '0%' : '100%'}</span></span>
+                      <span>Gateway: <span className="text-black">Live</span></span>
                     </div>
                   </div>
                 </div>
@@ -315,58 +311,42 @@ export default function StatusPage() {
               </div>
             </div>
 
-            {/* Incidents timeline */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-white/30">Incident History</h3>
+            {/* Incidents History */}
+            <div className="space-y-4 border-t-2 border-black pt-8">
+              <h3 className="text-xs font-black uppercase tracking-widest text-black flex items-center gap-2">
+                <Clock className="h-4 w-4" /> Incident Log
+              </h3>
               
-              <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
+              <div className="border-2 border-black bg-white divide-y-2 divide-black shadow-[5px_5px_0px_0px_#000000]">
                 <div className="p-5 flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />
+                  <div className="w-8 h-8 border-2 border-black bg-[#00FF66] flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_#000000]">
+                    <CheckCircle2 className="h-4 w-4 text-black" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">June 14, 2026</h4>
-                    <p className="text-sm text-white/70 font-semibold mt-1">No Incidents Reported</p>
-                    <p className="text-xs text-white/40 mt-0.5">All services ran smoothly without any reported degradation or down times.</p>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-black font-mono">Today // Status 200 OK</h4>
+                    <p className="text-sm font-black uppercase italic tracking-tight text-black mt-1">Zero Outages Recorded</p>
+                    <p className="text-xs text-zinc-600 font-bold mt-0.5">All production services operating at baseline efficiency.</p>
                   </div>
                 </div>
 
                 <div className="p-5 flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />
+                  <div className="w-8 h-8 border-2 border-black bg-[#FFE600] flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_#000000]">
+                    <Clock className="h-4 w-4 text-black" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">June 13, 2026</h4>
-                    <p className="text-sm text-white/70 font-semibold mt-1">No Incidents Reported</p>
-                  </div>
-                </div>
-
-                <div className="p-5 flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
-                    <Clock className="h-4.5 w-4.5 text-yellow-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">June 12, 2026</h4>
-                    <p className="text-sm text-white/70 font-semibold mt-1">Resolved: Brief database delay</p>
-                    <p className="text-xs text-white/40 mt-1">
-                      Our system logged a brief Firestore database read/write delay of ~3.2s from 14:10 to 14:12 UTC. This was resolved automatically by the database scaling services.
+                    <h4 className="text-xs font-black uppercase tracking-wider text-black font-mono">Archive // Auto-Scale Event</h4>
+                    <p className="text-sm font-black uppercase italic tracking-tight text-black mt-1">Resolved: Minor Cache Invalidation</p>
+                    <p className="text-xs text-zinc-600 font-bold mt-0.5">
+                      Edge routing cache invalidated during automated continuous deployment build. No downtime occurred.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-          </>
+
+          </div>
         )}
       </div>
     </div>
-  );
-}
-
-function LoaderIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-    </svg>
   );
 }

@@ -235,18 +235,18 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-sans">
       
-      {/* ── Apple-style Mode Selector Tabs ── */}
-      <div className="flex justify-between items-center bg-white/[0.01] border border-white/5 p-2 rounded-2xl backdrop-blur-md">
-        <div className="flex gap-2">
+      {/* Mode Selector Tabs */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white border-2 border-black p-2 gap-3 shadow-[4px_4px_0px_0px_#000000]">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setActiveTab("metrics")}
             className={cn(
-              "px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all",
+              "px-4 py-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer border-2 border-black",
               activeTab === "metrics"
-                ? "bg-[#4285F4] text-white shadow-[0_0_12px_rgba(66,133,244,0.2)]"
-                : "text-white/40 hover:text-white"
+                ? "bg-[#FFE600] text-black shadow-[3px_3px_0px_0px_#000000] translate-x-[1px] translate-y-[1px]"
+                : "bg-white text-black hover:bg-zinc-100 shadow-[2px_2px_0px_0px_#000000]"
             )}
           >
             <span className="flex items-center gap-1.5">
@@ -258,10 +258,10 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
           <button
             onClick={() => setActiveTab("interview")}
             className={cn(
-              "px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all",
+              "px-4 py-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer border-2 border-black",
               activeTab === "interview"
-                ? "bg-[#34A853] text-white shadow-[0_0_12px_rgba(52,168,83,0.2)]"
-                : "text-white/40 hover:text-white"
+                ? "bg-[#00FF66] text-black shadow-[3px_3px_0px_0px_#000000] translate-x-[1px] translate-y-[1px]"
+                : "bg-white text-black hover:bg-zinc-100 shadow-[2px_2px_0px_0px_#000000]"
             )}
           >
             <span className="flex items-center gap-1.5">
@@ -271,7 +271,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
           </button>
         </div>
 
-        <div className="hidden sm:block text-[10px] font-black text-white/20 uppercase tracking-widest px-4">
+        <div className="text-[10px] font-mono font-black uppercase tracking-widest px-3 py-1 bg-black text-white border border-black">
           ATS MODE: {activeTab === "metrics" ? "PROFILING" : "ASSESSING"}
         </div>
       </div>
@@ -283,29 +283,31 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
           
           {activeTab === "metrics" ? (
             /* Mode 1: Evaluation Metrics & Candidate Profile */
-            <Card className="bg-white/[0.01] border border-white/5 rounded-3xl shadow-2xl overflow-hidden">
+            <Card className="border-2 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000000] overflow-hidden">
               
               {/* Profile Card Header */}
-              <CardHeader className="border-b border-white/5 pb-6 bg-white/[0.01] p-6 md:p-8">
+              <CardHeader className="border-b-2 border-black pb-6 bg-white p-6 md:p-8 space-y-4">
                 <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="flex aspect-square size-14 items-center justify-center rounded-2xl bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4] text-xl font-black tracking-tight shrink-0">
+                    <div className="flex aspect-square size-14 items-center justify-center bg-[#FFE600] border-2 border-black text-black text-xl font-display font-black tracking-tight shrink-0 shadow-[2px_2px_0px_0px_#000000]">
                       {application.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
                     </div>
                     <div>
-                      <CardTitle className="text-2xl font-black tracking-tight text-white uppercase">{application.name}</CardTitle>
-                      <CardDescription className="text-xs text-white/40 mt-1">
+                      <CardTitle className="text-2xl font-display font-black tracking-tight text-black uppercase italic">{application.name}</CardTitle>
+                      <CardDescription className="text-xs text-zinc-600 font-bold mt-1">
                         Submitted on {format(new Date(application.submittedAt), "MMMM d, yyyy 'at' h:mm a")}
                       </CardDescription>
                     </div>
-                                     <div className="flex flex-col items-end gap-2">
+                  </div>
+
+                  <div className="flex flex-col sm:items-end gap-2">
                     <div className="flex flex-wrap gap-2">
                       {isRecommended && (
-                        <Badge variant="secondary" className="text-[10px] bg-yellow-500/10 text-yellow-500 border-yellow-500/20 font-black uppercase tracking-wider px-3 py-1">
+                        <Badge variant="secondary" className="text-[10px] bg-[#FFE600] text-black border-2 border-black font-black uppercase tracking-wider px-3 py-1 shadow-[2px_2px_0px_0px_#000000]">
                           ★ Recommended
                         </Badge>
                       )}
-                      <Badge variant={getStatusVariant(status)} className="text-[10px] font-black uppercase tracking-wider px-3 py-1">
+                      <Badge variant={getStatusVariant(status)} className="text-[10px] font-black uppercase tracking-wider px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                         {status}
                       </Badge>
                     </div>
@@ -317,17 +319,17 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                             size="sm"
                             variant="outline"
                             onClick={() => setIsEditOpen(true)}
-                            className="h-7 text-xs border-white/10 bg-white/5 hover:bg-white/10 text-white gap-1.5"
+                            className="h-8 text-xs border-2 border-black bg-white hover:bg-zinc-100 text-black shadow-[2px_2px_0px_0px_#000000] font-black uppercase gap-1.5"
                           >
                             <Edit2 className="h-3 w-3" />
-                            Edit Info
+                            Edit
                           </Button>
                           <Button
                             size="sm"
                             variant="destructive"
                             onClick={() => setIsDeleteDialogOpen(true)}
                             disabled={isDeleting}
-                            className="h-7 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 gap-1.5"
+                            className="h-8 text-xs bg-[#FF0055] hover:bg-[#FF0055]/90 text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000] font-black uppercase gap-1.5"
                           >
                             <Trash2 className="h-3 w-3" />
                             Delete
@@ -340,37 +342,37 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                           onClick={handleToggleRec}
                           disabled={isTogglingRec}
                           className={cn(
-                            "px-3 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider transition-all h-7 flex items-center",
+                            "px-3 py-1 border-2 border-black text-[10px] font-black uppercase tracking-wider transition-all h-8 flex items-center shadow-[2px_2px_0px_0px_#000000] cursor-pointer",
                             isRecommended 
-                              ? "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
-                              : "bg-yellow-500/10 border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/20"
+                              ? "bg-[#FF0055] text-white hover:bg-[#FF0055]/90"
+                              : "bg-[#FFE600] text-black hover:bg-[#FFE600]/90"
                           )}
                         >
                           {isTogglingRec ? "Wait..." : isRecommended ? "Un-Recommend" : "★ Recommend"}
                         </button>
                       )}
                     </div>
-                  </div>      </div>
+                  </div>
                 </div>
                 
                 {/* Short action buttons */}
-                <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs pt-4 mt-2 border-t border-white/5">
-                  <a href={`mailto:${application.email}`} className="flex items-center gap-1.5 text-white/50 hover:text-[#4285F4] transition-colors">
-                    <Mail className="size-3.5" />
+                <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs pt-4 border-t-2 border-black">
+                  <a href={`mailto:${application.email}`} className="flex items-center gap-1.5 text-black hover:text-[#4285F4] font-bold transition-colors">
+                    <Mail className="size-3.5 stroke-[2.5]" />
                     {application.email}
                   </a>
-                  <a href={`tel:${application.phone}`} className="flex items-center gap-1.5 text-white/50 hover:text-[#4285F4] transition-colors">
-                    <Phone className="size-3.5" />
+                  <a href={`tel:${application.phone}`} className="flex items-center gap-1.5 text-black hover:text-[#4285F4] font-bold transition-colors">
+                    <Phone className="size-3.5 stroke-[2.5]" />
                     {application.phone}
                   </a>
                   {application.linkedin && (
-                    <a href={application.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-white/50 hover:text-[#4285F4] transition-colors">
-                      <Linkedin className="size-3.5" />
+                    <a href={application.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-black hover:text-[#4285F4] font-bold transition-colors">
+                      <Linkedin className="size-3.5 stroke-[2.5]" />
                       LinkedIn Profile
                     </a>
                   )}
                 </div>
-                <div className="text-[10px] text-white/20 pt-2 font-mono break-all">
+                <div className="text-[10px] text-zinc-500 pt-1 font-mono break-all font-bold">
                   REF_ID: {application.id}
                 </div>
               </CardHeader>
@@ -380,35 +382,35 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                 
                 {/* Academic Summary Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Roll Number</span>
-                    <p className="text-sm font-semibold mt-1 text-white">{application.rollNo}</p>
+                  <div className="bg-zinc-50 border-2 border-black p-4 shadow-[2px_2px_0px_0px_#000000]">
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Roll Number</span>
+                    <p className="text-sm font-black mt-1 text-black">{application.rollNo}</p>
                   </div>
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Branch & Section</span>
-                    <p className="text-sm font-semibold mt-1 text-white">{application.branch} - {application.section}</p>
+                  <div className="bg-zinc-50 border-2 border-black p-4 shadow-[2px_2px_0px_0px_#000000]">
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Branch & Section</span>
+                    <p className="text-sm font-black mt-1 text-black">{application.branch} - {application.section}</p>
                   </div>
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">CGPA</span>
-                    <p className="text-sm font-semibold mt-1 text-white">{application.cgpa}</p>
+                  <div className="bg-zinc-50 border-2 border-black p-4 shadow-[2px_2px_0px_0px_#000000]">
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">CGPA</span>
+                    <p className="text-sm font-black mt-1 text-black">{application.cgpa}</p>
                   </div>
-                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active Backlogs</span>
-                    <p className="text-sm font-semibold mt-1 text-white">{application.backlogs}</p>
+                  <div className="bg-zinc-50 border-2 border-black p-4 shadow-[2px_2px_0px_0px_#000000]">
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Active Backlogs</span>
+                    <p className="text-sm font-black mt-1 text-black">{application.backlogs}</p>
                   </div>
                 </div>
 
                 {/* Domain Preference badges */}
-                <div className="flex flex-col sm:flex-row gap-6 text-xs bg-white/[0.01] border border-white/5 rounded-2xl p-6">
+                <div className="flex flex-col sm:flex-row gap-6 text-xs bg-zinc-50 border-2 border-black p-6 shadow-[3px_3px_0px_0px_#000000]">
                   <div className="flex-1">
-                    <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Technical Track Preference</h4>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]">
+                    <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">Technical Track Preference</h4>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-black bg-[#4285F4] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                       {domainLabels[application.technicalDomain] || application.technicalDomain}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Non-Technical Track Preference</h4>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#34A853]/10 border border-[#34A853]/20 text-[#34A853]">
+                    <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">Non-Technical Track Preference</h4>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-black bg-[#00FF66] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                       {domainLabels[application.nonTechnicalDomain] || application.nonTechnicalDomain}
                     </span>
                   </div>
@@ -416,9 +418,9 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
 
                 {/* AI Resume Summary block */}
                 {application.resumeSummary && (
-                  <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-6 space-y-2">
-                    <h4 className="text-[10px] font-black text-[#4285F4] uppercase tracking-widest">AI-Generated Resume Summary</h4>
-                    <blockquote className="text-xs text-white/60 leading-relaxed border-l-2 border-[#4285F4] pl-4 italic">
+                  <div className="bg-[#FFE600]/10 border-2 border-black p-6 space-y-2 shadow-[3px_3px_0px_0px_#000000]">
+                    <h4 className="text-[10px] font-black text-black uppercase tracking-widest">AI-Generated Resume Summary</h4>
+                    <blockquote className="text-xs text-black leading-relaxed border-l-4 border-black pl-4 font-medium italic">
                       {application.resumeSummary}
                     </blockquote>
                   </div>
@@ -426,8 +428,8 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
 
                 {/* Quantitative Evaluation Metrics Dashboard */}
                 {application.ratings && application.ratings.overall > 0 && (
-                  <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-6 space-y-4">
-                    <h4 className="text-[10px] font-black text-[#4285F4] uppercase tracking-widest">Evaluation Metrics</h4>
+                  <div className="bg-zinc-50 border-2 border-black p-6 space-y-4 shadow-[3px_3px_0px_0px_#000000]">
+                    <h4 className="text-[10px] font-black text-black uppercase tracking-widest">Evaluation Metrics</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       
                       {/* Left: Score list with progress bars */}
@@ -442,13 +444,13 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                           { label: "Leadership & Initiative", val: (application.ratings as any).leadership ?? 0 },
                         ].map((item) => (
                           <div key={item.label} className="space-y-1">
-                            <div className="flex justify-between text-[11px] font-semibold">
-                              <span className="text-white/50">{item.label}</span>
-                              <span className="text-white">{item.val.toFixed(1)} / 5.0</span>
+                            <div className="flex justify-between text-[11px] font-bold">
+                              <span className="text-zinc-700">{item.label}</span>
+                              <span className="text-black font-black">{item.val.toFixed(1)} / 5.0</span>
                             </div>
-                            <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                            <div className="w-full bg-zinc-200 border border-black h-2 overflow-hidden">
                               <div 
-                                className="bg-[#4285F4] h-full rounded-full transition-all" 
+                                className="bg-[#4285F4] h-full transition-all" 
                                 style={{ width: `${(item.val / 5) * 100}%` }}
                               />
                             </div>
@@ -457,9 +459,9 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                       </div>
 
                       {/* Right: Big overall card */}
-                      <div className="flex flex-col items-center justify-center bg-white/[0.02] border border-white/5 rounded-2xl p-6 text-center">
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Overall Score</span>
-                        <span className="text-5xl font-black tracking-tighter text-[#4285F4] mt-2">
+                      <div className="flex flex-col items-center justify-center bg-white border-2 border-black p-6 text-center shadow-[4px_4px_0px_0px_#000000]">
+                        <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Overall Score</span>
+                        <span className="text-5xl font-display font-black tracking-tighter text-[#4285F4] mt-2">
                           {application.ratings.overall.toFixed(2)}
                         </span>
                         <div className="flex gap-1 mt-3">
@@ -469,14 +471,14 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                               className={cn(
                                 "size-4", 
                                 Math.round(application.ratings.overall) >= star 
-                                  ? "text-[#4285F4] fill-[#4285F4]" 
-                                  : "text-white/10"
+                                  ? "text-[#FFE600] fill-[#FFE600] stroke-black stroke-[1.5]" 
+                                  : "text-zinc-300 fill-zinc-100"
                               )} 
                             />
                           ))}
                         </div>
                         {application.isRecommended && (
-                          <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#34A853]/10 border border-[#34A853]/20 text-[#34A853]">
+                          <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-[#00FF66] border-2 border-black text-black shadow-[2px_2px_0px_0px_#000000]">
                             Recommended
                           </span>
                         )}
@@ -489,23 +491,23 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                 {/* Candidate Essays / Statements */}
                 <div className="space-y-6 pt-2">
                   <div className="space-y-2">
-                    <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Why do you want to join this club?</h4>
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-xs text-white/80 leading-relaxed whitespace-pre-wrap">
+                    <h4 className="text-[10px] font-black text-black uppercase tracking-widest">Why do you want to join this club?</h4>
+                    <div className="bg-zinc-50 border-2 border-black p-5 text-xs text-black leading-relaxed whitespace-pre-wrap font-medium shadow-[2px_2px_0px_0px_#000000]">
                       {application.joinReason}
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">What do you know about MLSC club?</h4>
-                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-xs text-white/80 leading-relaxed whitespace-pre-wrap">
+                    <h4 className="text-[10px] font-black text-black uppercase tracking-widest">What do you know about MLSC club?</h4>
+                    <div className="bg-zinc-50 border-2 border-black p-5 text-xs text-black leading-relaxed whitespace-pre-wrap font-medium shadow-[2px_2px_0px_0px_#000000]">
                       {application.aboutClub}
                     </div>
                   </div>
 
                   {application.anythingElse && (
                     <div className="space-y-2">
-                      <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Anything else?</h4>
-                      <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-xs text-white/80 leading-relaxed whitespace-pre-wrap">
+                      <h4 className="text-[10px] font-black text-black uppercase tracking-widest">Anything else?</h4>
+                      <div className="bg-zinc-50 border-2 border-black p-5 text-xs text-black leading-relaxed whitespace-pre-wrap font-medium shadow-[2px_2px_0px_0px_#000000]">
                         {application.anythingElse}
                       </div>
                     </div>
@@ -519,13 +521,13 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
             <div className="space-y-8">
               
               {/* Domain Specific Suggested Questions card */}
-              <Card className="bg-white/[0.01] border border-white/5 rounded-3xl shadow-2xl">
-                <CardHeader className="border-b border-white/5 pb-4">
-                  <div className="flex items-center gap-2 text-white">
-                    <HelpCircle className="size-5 text-[#34A853]" />
-                    <CardTitle className="text-lg font-black uppercase tracking-tight">Structured Screening Rubric</CardTitle>
+              <Card className="border-2 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000000]">
+                <CardHeader className="border-b-2 border-black pb-4">
+                  <div className="flex items-center gap-2 text-black">
+                    <HelpCircle className="size-5 text-[#34A853] stroke-[2.5]" />
+                    <CardTitle className="text-lg font-display font-black uppercase tracking-tight">Structured Screening Rubric</CardTitle>
                   </div>
-                  <CardDescription className="text-xs text-white/40">
+                  <CardDescription className="text-xs text-zinc-600 font-bold">
                     Suggested interview questions based on preferred candidate domains
                   </CardDescription>
                 </CardHeader>
@@ -534,13 +536,13 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                   
                   {/* General Core Questions */}
                   <div className="space-y-3">
-                    <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-wider border-[#4285F4]/30 text-[#4285F4]">
+                    <Badge variant="outline" className="text-[10px] font-black uppercase tracking-wider bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                       General Icebreakers & Fit
                     </Badge>
                     <div className="space-y-2">
                       {generalQuestions.map((q, idx) => (
-                        <div key={idx} className="flex gap-3 text-xs bg-white/[0.01] border border-white/5 rounded-xl p-3 text-white/80">
-                          <span className="font-bold text-[#4285F4]">{idx + 1}.</span>
+                        <div key={idx} className="flex gap-3 text-xs bg-zinc-50 border-2 border-black p-3 text-black font-medium shadow-[2px_2px_0px_0px_#000000]">
+                          <span className="font-black text-[#4285F4]">{idx + 1}.</span>
                           <p>{q}</p>
                         </div>
                       ))}
@@ -549,13 +551,13 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
 
                   {/* Technical Preferred Domain Questions */}
                   <div className="space-y-3 pt-2">
-                    <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-wider border-[#34A853]/30 text-[#34A853]">
+                    <Badge variant="outline" className="text-[10px] font-black uppercase tracking-wider bg-[#4285F4] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                       Technical: {domainLabels[application.technicalDomain] || application.technicalDomain} Track
                     </Badge>
                     <div className="space-y-2">
                       {techQuestions.map((q, idx) => (
-                        <div key={idx} className="flex gap-3 text-xs bg-white/[0.01] border border-white/5 rounded-xl p-3 text-white/80">
-                          <span className="font-bold text-[#34A853]">{idx + 1}.</span>
+                        <div key={idx} className="flex gap-3 text-xs bg-zinc-50 border-2 border-black p-3 text-black font-medium shadow-[2px_2px_0px_0px_#000000]">
+                          <span className="font-black text-[#4285F4]">{idx + 1}.</span>
                           <p>{q}</p>
                         </div>
                       ))}
@@ -565,13 +567,13 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                   {/* Non-Technical Preferred Domain Questions */}
                   {application.nonTechnicalDomain && nonTechQuestions.length > 0 && (
                     <div className="space-y-3 pt-2">
-                      <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-wider border-[#FBBC05]/30 text-[#FBBC05]">
+                      <Badge variant="outline" className="text-[10px] font-black uppercase tracking-wider bg-[#00FF66] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                         Non-Technical: {domainLabels[application.nonTechnicalDomain] || application.nonTechnicalDomain} Track
                       </Badge>
                       <div className="space-y-2">
                         {nonTechQuestions.map((q, idx) => (
-                          <div key={idx} className="flex gap-3 text-xs bg-white/[0.01] border border-white/5 rounded-xl p-3 text-white/80">
-                            <span className="font-bold text-[#FBBC05]">{idx + 1}.</span>
+                          <div key={idx} className="flex gap-3 text-xs bg-zinc-50 border-2 border-black p-3 text-black font-medium shadow-[2px_2px_0px_0px_#000000]">
+                            <span className="font-black text-black">{idx + 1}.</span>
                             <p>{q}</p>
                           </div>
                         ))}
@@ -583,13 +585,13 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
               </Card>
 
               {/* Interactive scratchpad card */}
-              <Card className="bg-white/[0.01] border border-white/5 rounded-3xl shadow-2xl">
-                <CardHeader className="border-b border-white/5 pb-4">
-                  <div className="flex items-center gap-2 text-white">
-                    <PenTool className="size-4.5 text-[#34A853]" />
-                    <CardTitle className="text-sm font-black uppercase tracking-tight">Interviewer Scratchpad</CardTitle>
+              <Card className="border-2 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000000]">
+                <CardHeader className="border-b-2 border-black pb-4">
+                  <div className="flex items-center gap-2 text-black">
+                    <PenTool className="size-4.5 text-black stroke-[2.5]" />
+                    <CardTitle className="text-sm font-display font-black uppercase tracking-tight">Interviewer Scratchpad</CardTitle>
                   </div>
-                  <CardDescription className="text-xs text-white/40">
+                  <CardDescription className="text-xs text-zinc-600 font-bold">
                     Draft thoughts or bullet points during conversation (not saved to database)
                   </CardDescription>
                 </CardHeader>
@@ -598,7 +600,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                     placeholder="Type rough interview notes here... e.g. 'Strong in core React, showed good leadership story...'"
                     value={scratchpadText}
                     onChange={(e) => setScratchpadText(e.target.value)}
-                    className="w-full min-h-36 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white placeholder:text-white/20 focus:border-[#34A853] focus:ring-0 transition-colors resize-y"
+                    className="w-full min-h-36 bg-white border-2 border-black p-4 text-xs text-black placeholder:text-zinc-400 focus:outline-none shadow-[2px_2px_0px_0px_#000000] resize-y font-mono"
                   />
                 </CardContent>
               </Card>
@@ -611,9 +613,9 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
         {/* Right side review pane - stays persistent but receives active visual highlighting in assessing mode */}
         <div className="space-y-6">
           <div className={cn(
-            "rounded-3xl transition-all duration-300",
+            "transition-all duration-200",
             activeTab === "interview" 
-              ? "ring-2 ring-[#34A853]/30 shadow-[0_0_24px_rgba(52,168,83,0.1)]"
+              ? "border-4 border-black shadow-[8px_8px_0px_0px_#00FF66]"
               : ""
           )}>
             <ApplicationReviewForm application={application} userRole={userRole} />
@@ -625,115 +627,115 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
       {/* Edit Applicant Modal */}
       {isEditOpen && (
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="max-w-xl bg-zinc-900 border-white/10 text-white max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-xl bg-white border-4 border-black text-black shadow-[10px_10px_0px_0px_#000000] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold">Edit Candidate Details</DialogTitle>
-              <DialogDescription className="text-muted-foreground text-xs">
+              <DialogTitle className="text-xl font-display font-black uppercase italic text-black">Edit Candidate Details</DialogTitle>
+              <DialogDescription className="text-zinc-600 text-xs font-bold">
                 Update application profile information for {application.name}.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Full Name *</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Full Name *</Label>
                   <Input 
                     value={editForm.name}
                     onChange={(e) => setEditForm(p => ({ ...p, name: e.target.value }))}
                     required
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Roll Number *</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Roll Number *</Label>
                   <Input 
                     value={editForm.rollNo}
                     onChange={(e) => setEditForm(p => ({ ...p, rollNo: e.target.value }))}
                     required
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Email Address *</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Email Address *</Label>
                   <Input 
                     type="email"
                     value={editForm.email}
                     onChange={(e) => setEditForm(p => ({ ...p, email: e.target.value }))}
                     required
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Phone Number *</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Phone Number *</Label>
                   <Input 
                     value={editForm.phone}
                     onChange={(e) => setEditForm(p => ({ ...p, phone: e.target.value }))}
                     required
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Branch</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Branch</Label>
                   <Input 
                     value={editForm.branch}
                     onChange={(e) => setEditForm(p => ({ ...p, branch: e.target.value }))}
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Section</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Section</Label>
                   <Input 
                     value={editForm.section}
                     onChange={(e) => setEditForm(p => ({ ...p, section: e.target.value }))}
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Year of Study</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Year of Study</Label>
                   <Input 
                     value={editForm.yearOfStudy}
                     onChange={(e) => setEditForm(p => ({ ...p, yearOfStudy: e.target.value }))}
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">CGPA</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">CGPA</Label>
                   <Input 
                     value={editForm.cgpa}
                     onChange={(e) => setEditForm(p => ({ ...p, cgpa: e.target.value }))}
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Active Backlogs</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Active Backlogs</Label>
                   <Input 
                     type="number"
                     value={editForm.backlogs}
                     onChange={(e) => setEditForm(p => ({ ...p, backlogs: Number(e.target.value) }))}
-                    className="bg-black/40 border-white/10"
+                    className="bg-white border-2 border-black text-black"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Technical Track</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Technical Track</Label>
                   <Select 
                     value={editForm.technicalDomain} 
                     onValueChange={(val) => setEditForm(p => ({ ...p, technicalDomain: val }))}
                   >
-                    <SelectTrigger className="bg-black/40 border-white/10">
+                    <SelectTrigger className="bg-white border-2 border-black text-black">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white border-2 border-black text-black">
                       {Object.entries(domainLabels).map(([val, label]) => (
                         <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
                       ))}
@@ -741,15 +743,15 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Non-Technical Track</Label>
+                  <Label className="text-xs font-black uppercase tracking-wider text-black">Non-Technical Track</Label>
                   <Select 
                     value={editForm.nonTechnicalDomain || 'none'} 
                     onValueChange={(val) => setEditForm(p => ({ ...p, nonTechnicalDomain: val === 'none' ? '' : val }))}
                   >
-                    <SelectTrigger className="bg-black/40 border-white/10">
+                    <SelectTrigger className="bg-white border-2 border-black text-black">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white border-2 border-black text-black">
                       <SelectItem value="none" className="text-xs">None</SelectItem>
                       {Object.entries(domainLabels).map(([val, label]) => (
                         <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
@@ -760,23 +762,23 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs">LinkedIn Profile</Label>
+                <Label className="text-xs font-black uppercase tracking-wider text-black">LinkedIn Profile</Label>
                 <Input 
                   value={editForm.linkedin}
                   onChange={(e) => setEditForm(p => ({ ...p, linkedin: e.target.value }))}
                   placeholder="https://linkedin.com/in/..."
-                  className="bg-black/40 border-white/10"
+                  className="bg-white border-2 border-black text-black"
                 />
               </div>
 
-              <DialogFooter className="pt-4">
-                <Button type="button" variant="ghost" onClick={() => setIsEditOpen(false)}>
+              <DialogFooter className="pt-4 flex items-center justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="border-2 border-black bg-white hover:bg-zinc-100 text-black shadow-[2px_2px_0px_0px_#000000] font-black uppercase">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isEditLoading} className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold flex items-center gap-2">
+                <Button type="submit" disabled={isEditLoading} className="bg-[#FFE600] hover:bg-[#FFE600]/90 text-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase flex items-center gap-2">
                   {isEditLoading ? (
                     <>
-                      <IosLoader size="xs" color="text-white" />
+                      <IosLoader size="xs" color="text-black" />
                       <span>Saving...</span>
                     </>
                   ) : (

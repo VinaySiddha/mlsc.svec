@@ -109,20 +109,25 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
-          Announcement <span className="text-[#4285F4]">Ticker</span>
-        </h1>
-        <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Manage public website top scrolling announcement bar content</p>
+    <div className="space-y-6 font-sans text-black">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 bg-[#4285F4] border-2 border-black shadow-[3px_3px_0px_0px_#000000] text-white">
+          <Plus className="h-7 w-7 text-white stroke-[2.5]" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-black uppercase font-display">
+            Announcement <span className="text-[#4285F4]">Ticker</span>
+          </h1>
+          <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest mt-0.5">Manage public website top scrolling announcement bar content</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Form to add notifications */}
-        <Card className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm">
-          <CardHeader className="p-6 border-b border-slate-100 dark:border-zinc-800">
-            <CardTitle className="text-sm font-bold text-slate-950 dark:text-white uppercase tracking-widest">Add Announcement</CardTitle>
-            <CardDescription className="text-xs text-slate-400 dark:text-zinc-500">
+        <Card className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
+          <CardHeader className="p-6 border-b-2 border-black bg-[#FAFAFA]">
+            <CardTitle className="text-sm font-black text-black uppercase font-display tracking-tight">Add Announcement</CardTitle>
+            <CardDescription className="text-xs text-zinc-600 font-bold mt-1">
               Add a new scrolling announcement message to the ticker at the top of the public website.
             </CardDescription>
           </CardHeader>
@@ -136,17 +141,17 @@ export default function NotificationsPage() {
                     <FormItem>
                       <FormLabel className="sr-only">Message</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter announcement text (e.g., Chapter 4.0 recruitment is live!)..." {...field} className="rounded-xl border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 text-sm focus:ring-[#4285F4] focus:border-transparent" />
+                        <Input placeholder="Enter announcement text (e.g., Chapter 4.0 recruitment is live!)..." {...field} className="border-2 border-black bg-white text-xs font-bold text-black shadow-[2px_2px_0px_0px_#000000] focus:outline-none placeholder:text-zinc-400" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-bold text-xs py-5">
+                <Button type="submit" disabled={isSubmitting} className="w-full bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-black text-xs uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_0px_#000000] py-5">
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : (
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4 mr-2 stroke-[3]" />
                   )}
                   Add to Ticker
                 </Button>
@@ -156,37 +161,37 @@ export default function NotificationsPage() {
         </Card>
 
         {/* List of current notifications */}
-        <Card className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm">
-          <CardHeader className="p-6 border-b border-slate-100 dark:border-zinc-800">
-              <CardTitle className="text-sm font-bold text-slate-950 dark:text-white uppercase tracking-widest">Current Scrolled Announcements</CardTitle>
-              <CardDescription className="text-xs text-slate-400 dark:text-zinc-500">
+        <Card className="lg:col-span-2 bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
+          <CardHeader className="p-6 border-b-2 border-black bg-[#FAFAFA]">
+              <CardTitle className="text-sm font-black text-black uppercase font-display tracking-tight">Current Scrolled Announcements</CardTitle>
+              <CardDescription className="text-xs text-zinc-600 font-bold mt-1">
                   These messages are currently looping on the top announcement bar of the public portal.
               </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
               {isLoading ? (
                   <div className="flex justify-center items-center h-24">
-                      <Loader2 className="h-6 w-6 animate-spin text-[#4285F4]" />
+                      <Loader2 className="h-6 w-6 animate-spin text-black" />
                   </div>
               ) : notifications.length > 0 ? (
-                  <ul className="divide-y divide-slate-100 dark:divide-zinc-800/60">
+                  <ul className="divide-y-2 divide-black">
                       {notifications.map((notification) => (
-                          <li key={notification.id} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
-                              <p className="text-sm text-slate-700 dark:text-zinc-300 font-medium">{notification.message}</p>
+                          <li key={notification.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0 gap-4">
+                              <p className="text-xs text-black font-bold">{notification.message}</p>
                               <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="icon"
                                   onClick={() => handleDelete(notification.id)}
                                   disabled={isDeleting === notification.id}
-                                  className="h-9 w-9 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 rounded-lg shrink-0"
+                                  className="h-8 w-8 border-2 border-black bg-white hover:bg-[#FF0055] hover:text-white text-black shadow-[2px_2px_0px_0px_#000000] shrink-0"
                               >
-                                  {isDeleting === notification.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                  {isDeleting === notification.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5 stroke-[2.5]" />}
                               </Button>
                           </li>
                       ))}
                   </ul>
               ) : (
-                  <p className="text-center text-slate-400 dark:text-zinc-500 text-xs py-8 font-semibold uppercase tracking-wider">No notifications found.</p>
+                  <p className="text-center text-zinc-500 text-xs py-8 font-black uppercase tracking-wider">No notifications found.</p>
               )}
           </CardContent>
         </Card>

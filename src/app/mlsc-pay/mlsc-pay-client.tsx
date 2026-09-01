@@ -11,14 +11,14 @@ import {
   CreditCard,
   Building2, 
   ArrowRight, 
-  ArrowLeft,
+  ArrowLeft, 
   Info, 
-  Copy,
-  Check,
-  RefreshCcw,
-  AlertCircle,
-  ExternalLink,
-  Wallet
+  Copy, 
+  Check, 
+  RefreshCcw, 
+  AlertCircle, 
+  ExternalLink, 
+  Wallet 
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Script from 'next/script';
@@ -28,6 +28,7 @@ import {
   getGatewaySettingsAction, 
   submitMLSCManualPaymentAction 
 } from '@/app/actions/mlsc-pay-actions';
+import { cn } from '@/lib/utils';
 
 export function MLSCPayClient() {
   const { toast } = useToast();
@@ -83,7 +84,6 @@ export function MLSCPayClient() {
         if (res.success && res.settings) {
           setGatewaySettings(res.settings);
           
-          // Pre-select gateway if only one is enabled to save a click
           if (res.settings.cashfree.enabled && !res.settings.mlscPay.enabled) {
             setSelectedGateway('cashfree');
           } else if (!res.settings.cashfree.enabled && res.settings.mlscPay.enabled) {
@@ -109,7 +109,6 @@ export function MLSCPayClient() {
     setTimeout(() => setCopiedUpi(false), 2000);
   };
 
-  // Submit payment
   const handleSubmitPayment = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -134,7 +133,6 @@ export function MLSCPayClient() {
     } : null;
 
     if (selectedGateway === 'cashfree') {
-      // ── ONLINE CASHFREE REDIRECT ──
       try {
         const originUrl = window.location.origin;
         const initRes = await initiateMLSCPaymentAction({
@@ -181,7 +179,6 @@ export function MLSCPayClient() {
         });
       }
     } else if (selectedGateway === 'mlsc_pay') {
-      // ── OFFLINE UPI / QR MANUAL CHECKOUT ──
       if (!utr || utr.trim().length < 6) {
         setIsSubmitting(false);
         toast({
@@ -242,43 +239,52 @@ export function MLSCPayClient() {
   };
 
   return (
-    <div className="w-full bg-[#f4f6f8] min-h-screen py-12 md:py-20 text-slate-800 relative flex items-center justify-center font-sans">
-      <div className="w-full max-w-4xl px-4 md:px-6">
+    <div className="w-full bg-white min-h-screen py-12 md:py-20 text-black font-sans selection:bg-[#FFE600] selection:text-black flex items-center justify-center">
+      <div className="w-full max-w-4xl px-4 md:px-6 space-y-6">
         
+        {/* Top Banner */}
+        <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center shadow-[3px_3px_0px_0px_#000000]">
+          ⚡ Chapter 4 MLSC Checkout & Secure Payment Gateway
+        </div>
+
         {settingsLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
-            <RefreshCcw className="h-8 w-8 text-blue-600 animate-spin" />
-            <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-4">Loading Secure Checkout...</span>
+          <div className="border-2 border-black bg-white p-12 shadow-[8px_8px_0px_0px_#000000] text-center space-y-4">
+            <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin mx-auto" />
+            <span className="text-xs text-black uppercase tracking-widest font-black block">
+              Initializing Gateway Services...
+            </span>
           </div>
         ) : (
-          /* Standalone Razorpay-style White Checkout Card Frame */
-          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.04)] overflow-hidden grid grid-cols-1 md:grid-cols-12 animate-in fade-in zoom-in-95 duration-300">
+          <div className="border-2 border-black bg-white shadow-[10px_10px_0px_0px_#000000] grid grid-cols-1 md:grid-cols-12 overflow-hidden">
             
-            {/* LEFT COLUMN: Merchant & Invoice Summary (Navy Panel) */}
-            <div className="md:col-span-4 bg-[#0c1a30] text-white p-6 md:p-8 flex flex-col justify-between min-h-[300px] md:min-h-[520px]">
+            {/* LEFT COLUMN: Merchant & Invoice Summary (Yellow/Black Brutalist Panel) */}
+            <div className="md:col-span-5 bg-[#FFE600] text-black p-6 md:p-8 flex flex-col justify-between border-b-2 md:border-b-0 md:border-r-2 border-black">
               <div className="space-y-6">
-                {/* Logo and Merchant Name */}
+                
+                {/* Brand Banner */}
                 <div className="space-y-2">
-                  <div className="h-9 w-9 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-blue-400 font-extrabold text-sm">
+                  <div className="h-10 w-10 border-2 border-black bg-white flex items-center justify-center text-black font-black text-lg shadow-[2px_2px_0px_0px_#000000]">
                     M
                   </div>
-                  <h2 className="text-sm font-extrabold uppercase tracking-tight text-white/95 leading-tight">
+                  <h2 className="text-lg font-black uppercase italic tracking-tight text-black leading-tight">
                     Microsoft Learn Student Club
                   </h2>
-                  <span className="text-[9px] text-blue-400 font-extrabold uppercase tracking-wider block">SVEC Chapter</span>
+                  <span className="text-[10px] bg-black text-white px-2 py-0.5 font-black uppercase tracking-wider inline-block">
+                    SVEC Chapter Checkout
+                  </span>
                 </div>
 
                 {/* Billing Summary */}
-                <div className="border-t border-white/10 pt-4 space-y-4 text-xs">
+                <div className="border-t-2 border-black pt-4 space-y-4 text-xs">
                   <div className="space-y-1">
-                    <span className="text-[9px] text-white/45 font-bold uppercase tracking-wider block">Purpose of Payment</span>
-                    <h3 className="font-bold text-white uppercase leading-normal">{queryPurpose}</h3>
+                    <span className="text-[10px] font-black uppercase text-zinc-800 tracking-wider block">Purpose of Payment</span>
+                    <h3 className="font-black text-black uppercase text-sm leading-normal">{queryPurpose}</h3>
                   </div>
                   
                   {name && (
                     <div className="space-y-1">
-                      <span className="text-[9px] text-white/45 font-bold uppercase tracking-wider block">Billed To</span>
-                      <p className="text-[10px] text-white/75 leading-relaxed font-semibold uppercase">
+                      <span className="text-[10px] font-black uppercase text-zinc-800 tracking-wider block">Billed To</span>
+                      <p className="text-xs text-black font-bold uppercase leading-relaxed font-mono">
                         {name} {queryRollNo && `(${queryRollNo})`} <br />
                         {queryBranch && `${queryBranch} - `}{queryYearOfStudy && `${queryYearOfStudy} Year`}
                       </p>
@@ -287,30 +293,30 @@ export function MLSCPayClient() {
                 </div>
               </div>
 
-              {/* Secure payment elements & Amount */}
-              <div className="space-y-4 pt-6 border-t border-white/10">
+              {/* Amount & Security */}
+              <div className="space-y-3 pt-6 border-t-2 border-black mt-6">
                 <div className="flex justify-between items-end">
-                  <span className="text-[10px] text-white/45 font-bold uppercase">Amount Due:</span>
-                  <span className="text-2xl font-black text-white italic">₹{totalAmount}.00</span>
+                  <span className="text-xs font-black uppercase text-zinc-800">Total Payable:</span>
+                  <span className="text-3xl font-black text-black font-mono">₹{totalAmount}.00</span>
                 </div>
-                <div className="flex items-center gap-2 text-[8px] text-white/40 font-bold uppercase tracking-wider">
-                  <Lock className="h-3.5 w-3.5 text-blue-400" /> 256-Bit SSL Secured
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-black">
+                  <Lock className="h-4 w-4" /> 256-Bit SSL Secured Transaction
                 </div>
               </div>
             </div>
 
             {/* RIGHT COLUMN: Payment Actions Frame */}
-            <div className="md:col-span-8 p-6 md:p-8 flex flex-col justify-between min-h-[400px]">
+            <div className="md:col-span-7 p-6 md:p-8 flex flex-col justify-between bg-white">
               
               {/* STATE A: Selecting Gateway (Cashfree vs. MLSC Pay) */}
               {selectedGateway === null && (
                 <div className="space-y-6 my-auto">
-                  <div className="space-y-1.5 text-left">
-                    <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">
-                      Choose Payment Method
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-black uppercase tracking-wider text-black">
+                      Select Payment Protocol
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium">
-                      Select one of the secure options below to complete your payment.
+                    <p className="text-xs text-zinc-600 font-bold">
+                      Choose an active checkout gateway to finalize your registration.
                     </p>
                   </div>
 
@@ -323,45 +329,45 @@ export function MLSCPayClient() {
                           setSelectedGateway('cashfree');
                         }
                       }}
-                      className={`relative rounded-xl border p-5 flex flex-col justify-between text-left transition-all duration-300 min-h-[160px]
-                        ${gatewaySettings.cashfree.enabled 
-                          ? 'border-slate-200 bg-slate-50 hover:bg-slate-100/60 hover:border-blue-300 hover:shadow-sm cursor-pointer' 
-                          : 'border-slate-200 bg-slate-50/50 opacity-60 cursor-not-allowed'
-                        }`}
+                      className={cn(
+                        'border-2 border-black p-4 flex flex-col justify-between text-left transition-all min-h-[160px] shadow-[3px_3px_0px_0px_#000000]',
+                        gatewaySettings.cashfree.enabled 
+                          ? 'bg-white hover:bg-zinc-50 cursor-pointer active:translate-x-[2px] active:translate-y-[2px]' 
+                          : 'bg-zinc-100 opacity-60 cursor-not-allowed'
+                      )}
                     >
-                      <div className="space-y-2.5">
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <div className={`p-2 rounded-lg ${gatewaySettings.cashfree.enabled ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
-                            <CreditCard className="h-5 w-5" />
+                          <div className="p-2 border-2 border-black bg-[#FFE600] text-black shadow-[1px_1px_0px_0px_#000000]">
+                            <CreditCard className="h-4 w-4" />
                           </div>
                           {gatewaySettings.cashfree.enabled ? (
-                            <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-[#00FF66] border border-black text-black">
                               Instant Online
                             </span>
                           ) : (
-                            <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-100">
-                              Downtime Paused
+                            <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-[#EA4335] text-white border border-black">
+                              Paused
                             </span>
                           )}
                         </div>
                         <div>
-                          <h4 className="text-xs font-black uppercase text-slate-800">Online Gateway</h4>
-                          <p className="text-[10px] text-slate-400 leading-normal font-medium mt-1">
-                            Pay securely via Cards, Net Banking, or automated UPI.
+                          <h4 className="text-xs font-black uppercase text-black">Online Gateway</h4>
+                          <p className="text-[10px] text-zinc-600 font-bold leading-normal mt-1">
+                            Cards, UPI Apps (GPay, PhonePe), & Net Banking.
                           </p>
                         </div>
                       </div>
 
-                      {/* Downtime explanation or click indicator */}
-                      <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider">
+                      <div className="pt-2 border-t border-black flex items-center justify-between text-[10px] font-black uppercase">
                         {gatewaySettings.cashfree.enabled ? (
                           <>
-                            <span className="text-blue-600">Select Instant Pay</span>
-                            <ArrowRight className="h-3.5 w-3.5 text-blue-600" />
+                            <span className="text-black">Select Instant Pay</span>
+                            <ArrowRight className="h-4 w-4" />
                           </>
                         ) : (
-                          <span className="text-red-500 text-[8px] leading-tight font-semibold">
-                            {gatewaySettings.cashfree.message || 'Offline due to maintenance.'}
+                          <span className="text-[#EA4335] text-[9px] font-bold">
+                            {gatewaySettings.cashfree.message || 'Offline.'}
                           </span>
                         )}
                       </div>
@@ -375,44 +381,45 @@ export function MLSCPayClient() {
                             setSelectedGateway('mlsc_pay');
                           }
                         }}
-                        className={`relative rounded-xl border p-5 flex flex-col justify-between text-left transition-all duration-300 min-h-[160px]
-                          ${gatewaySettings.mlscPay.enabled 
-                            ? 'border-slate-200 bg-slate-50 hover:bg-slate-100/60 hover:border-blue-300 hover:shadow-sm cursor-pointer' 
-                            : 'border-slate-200 bg-slate-50/50 opacity-60 cursor-not-allowed'
-                          }`}
+                        className={cn(
+                          'border-2 border-black p-4 flex flex-col justify-between text-left transition-all min-h-[160px] shadow-[3px_3px_0px_0px_#000000]',
+                          gatewaySettings.mlscPay.enabled 
+                            ? 'bg-white hover:bg-zinc-50 cursor-pointer active:translate-x-[2px] active:translate-y-[2px]' 
+                            : 'bg-zinc-100 opacity-60 cursor-not-allowed'
+                        )}
                       >
-                        <div className="space-y-2.5">
+                        <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <div className={`p-2 rounded-lg ${gatewaySettings.mlscPay.enabled ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
-                              <QrCode className="h-5 w-5" />
+                            <div className="p-2 border-2 border-black bg-[#4285F4] text-white shadow-[1px_1px_0px_0px_#000000]">
+                              <QrCode className="h-4 w-4" />
                             </div>
                             {gatewaySettings.mlscPay.enabled ? (
-                              <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                              <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-[#FFE600] border border-black text-black">
                                 Manual QR
                               </span>
                             ) : (
-                              <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-100">
-                                Paused / Disabled
+                              <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-[#EA4335] text-white border border-black">
+                                Disabled
                               </span>
                             )}
                           </div>
                           <div>
-                            <h4 className="text-xs font-black uppercase text-slate-800">MLSC Pay (UPI QR)</h4>
-                            <p className="text-[10px] text-slate-400 leading-normal font-medium mt-1">
-                              Scan our merchant QR code and submit UTR reference.
+                            <h4 className="text-xs font-black uppercase text-black">MLSC Pay (QR)</h4>
+                            <p className="text-[10px] text-zinc-600 font-bold leading-normal mt-1">
+                              Direct bank transfer & UTR confirmation.
                             </p>
                           </div>
                         </div>
 
-                        <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider">
+                        <div className="pt-2 border-t border-black flex items-center justify-between text-[10px] font-black uppercase">
                           {gatewaySettings.mlscPay.enabled ? (
                             <>
-                              <span className="text-blue-600">Scan & Submit Ref</span>
-                              <ArrowRight className="h-3.5 w-3.5 text-blue-600" />
+                              <span className="text-black">Scan & Submit Ref</span>
+                              <ArrowRight className="h-4 w-4" />
                             </>
                           ) : (
-                            <span className="text-red-500 text-[8px] leading-tight font-semibold">
-                              {gatewaySettings.mlscPay.message || 'Offline / Disabled.'}
+                            <span className="text-[#EA4335] text-[9px] font-bold">
+                              {gatewaySettings.mlscPay.message || 'Offline.'}
                             </span>
                           )}
                         </div>
@@ -423,123 +430,115 @@ export function MLSCPayClient() {
                 </div>
               )}
 
-              {/* STATE B: Specific Gateway Forms (with back button) */}
+              {/* STATE B: Specific Gateway Forms */}
               {selectedGateway !== null && (
                 <div className="space-y-6 flex-1 flex flex-col justify-between">
                   
-                  {/* Form Header */}
-                  <div className="space-y-4">
+                  {/* Header */}
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <button 
                         type="button" 
                         onClick={() => {
-                          // Only allow going back to selector if both are enabled
                           if (gatewaySettings.cashfree.enabled && gatewaySettings.mlscPay.enabled) {
                             setSelectedGateway(null);
                           }
                         }}
                         disabled={!gatewaySettings.cashfree.enabled || !gatewaySettings.mlscPay.enabled}
-                        className={`inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors
-                          ${(gatewaySettings.cashfree.enabled && gatewaySettings.mlscPay.enabled) 
-                            ? 'text-slate-400 hover:text-slate-800' 
-                            : 'text-slate-300 cursor-not-allowed'}`}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider',
+                          (gatewaySettings.cashfree.enabled && gatewaySettings.mlscPay.enabled) 
+                            ? 'text-black hover:underline cursor-pointer' 
+                            : 'text-zinc-400 cursor-not-allowed'
+                        )}
                       >
-                        <ArrowLeft className="h-3.5 w-3.5" /> Change Payment Method
+                        <ArrowLeft className="h-3.5 w-3.5" /> Back to Methods
                       </button>
-                      <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">
-                        {selectedGateway === 'cashfree' ? 'Online Gateway' : 'MLSC Pay Offline'}
+                      <span className="text-[10px] font-black uppercase bg-zinc-100 border border-black px-2 py-0.5">
+                        {selectedGateway === 'cashfree' ? 'Cashfree Gateway' : 'MLSC Direct UPI'}
                       </span>
                     </div>
 
-                    <div className="h-px bg-slate-100" />
+                    <div className="h-0.5 bg-black" />
                   </div>
 
-                  {/* Form Core Contents */}
+                  {/* Contents */}
                   <div className="flex-1 flex flex-col justify-center">
                     
                     {/* CASHFREE FORM */}
                     {selectedGateway === 'cashfree' && (
-                      <div className="space-y-5 py-4 max-w-md mx-auto text-center">
-                        <div className="mx-auto w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                      <div className="space-y-4 py-2 text-center">
+                        <div className="mx-auto w-12 h-12 border-2 border-black bg-[#FFE600] flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
                           <Wallet className="h-6 w-6" />
                         </div>
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-black uppercase text-slate-800">Redirecting to Online Portal</h4>
-                          <p className="text-[10px] text-slate-500 leading-relaxed max-w-xs mx-auto">
-                            Clicking proceed will open Cashfree's secure processing portal. You can pay instantly using cards, GPay, PhonePe, or netbanking.
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-black uppercase text-black">Instant Checkout Gateway</h4>
+                          <p className="text-xs text-zinc-600 font-bold max-w-sm mx-auto">
+                            You will be transferred to Cashfree's PCI-DSS compliant payment portal to complete this transaction.
                           </p>
                         </div>
 
-                        {/* Customer data check (Visual indicator) */}
-                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-left text-[10px] space-y-2 text-slate-500">
+                        <div className="border-2 border-black bg-zinc-50 p-3 text-left text-xs font-mono space-y-1.5 shadow-[2px_2px_0px_0px_#000000]">
                           <div className="flex justify-between">
-                            <span>Billed Name:</span>
-                            <span className="font-bold text-slate-700">{name}</span>
+                            <span className="text-zinc-500 font-sans font-bold">Billed Name:</span>
+                            <span className="font-bold text-black">{name}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Email Address:</span>
-                            <span className="font-bold text-slate-700">{email}</span>
+                            <span className="text-zinc-500 font-sans font-bold">Email:</span>
+                            <span className="font-bold text-black">{email}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Contact Phone:</span>
-                            <span className="font-bold text-slate-700">{phone}</span>
+                            <span className="text-zinc-500 font-sans font-bold">Phone:</span>
+                            <span className="font-bold text-black">{phone}</span>
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* MLSC PAY FORM (Scan QR and enter UTR) */}
+                    {/* MLSC PAY FORM */}
                     {selectedGateway === 'mlsc_pay' && (
-                      <div className="space-y-5 py-2">
-                        <div className="flex flex-col md:flex-row items-center gap-5 bg-slate-50 p-4 rounded-xl border border-slate-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+                      <div className="space-y-4 py-2">
+                        <div className="flex flex-col sm:flex-row items-center gap-4 border-2 border-black p-3 bg-zinc-50 shadow-[2px_2px_0px_0px_#000000]">
                           
-                          {/* QR Code Container with Image & Fallback */}
-                          <div className="flex flex-col items-center gap-1.5 shrink-0">
-                            <div className="relative w-32 h-32 flex items-center justify-center border border-slate-200 rounded-xl p-2 bg-white shadow-sm">
+                          <div className="flex flex-col items-center gap-1 shrink-0">
+                            <div className="relative w-28 h-28 flex items-center justify-center border-2 border-black p-1 bg-white">
                               <img 
                                 src="/images/qr.jpeg" 
                                 alt="MLSC UPI QR Code" 
                                 className="w-full h-full object-contain"
                                 onError={(e) => {
-                                  // Fallback to SVG if image is not uploaded yet by the user
                                   e.currentTarget.style.display = 'none';
                                   const fallback = e.currentTarget.parentElement?.querySelector('.qr-fallback');
                                   if (fallback) fallback.classList.remove('hidden');
                                 }}
                               />
-                              <div className="qr-fallback hidden flex flex-col items-center justify-center text-slate-800">
-                                <svg className="w-20 h-20 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <rect x="2" y="2" width="6" height="6" />
-                                  <rect x="16" y="2" width="6" height="6" />
-                                  <rect x="2" y="16" width="6" height="6" />
-                                  <path d="M9 5h6v2H9V5zm0 12h6v2H9v-2zm7-7h2v4h-2v-4zm-4 0h2v2h-2v-2zm4 4h2v2h-2v-2zm-8-4h2v2H8v-2zm0 4h2v2H8v-2zm4-4h2v2h-2v-2z" fill="currentColor" />
-                                </svg>
-                                <span className="text-[7px] font-black text-blue-600 uppercase tracking-widest mt-1">Scan to Pay</span>
+                              <div className="qr-fallback hidden flex flex-col items-center justify-center text-black">
+                                <QrCode className="h-12 w-12" />
+                                <span className="text-[7px] font-black text-black uppercase mt-1">Scan to Pay</span>
                               </div>
                             </div>
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">SVEC Merchant QR</span>
+                            <span className="text-[8px] font-black uppercase text-zinc-500">Merchant QR</span>
                           </div>
 
-                          {/* Instructions & Copyable UPI */}
-                          <div className="flex-1 space-y-3 text-left">
+                          <div className="flex-1 space-y-2 text-left">
                             <div>
-                              <h4 className="text-[11px] font-black uppercase text-slate-800">Step 1: Scan & Transfer</h4>
-                              <p className="text-[10px] text-slate-400 leading-normal font-medium mt-0.5">
-                                Scan the QR code using GPay, PhonePe, Paytm, or GPay and transfer exactly <strong className="text-slate-800 font-bold">₹{totalAmount}</strong>.
+                              <h4 className="text-xs font-black uppercase text-black">1. Scan & Transfer</h4>
+                              <p className="text-[11px] text-zinc-600 font-bold leading-normal">
+                                Send exactly <strong className="text-black font-black">₹{totalAmount}.00</strong> using any UPI app.
                               </p>
                             </div>
                             
-                            <div className="space-y-1.5">
-                              <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider block">Or transfer to UPI ID:</span>
-                              <div className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-3 py-2 text-[9px] w-full shadow-sm">
-                                <span className="font-mono text-slate-700 font-extrabold">9849372827@kotakbank</span>
+                            <div className="space-y-1">
+                              <span className="text-[9px] font-black uppercase text-zinc-500 block">UPI ID</span>
+                              <div className="flex items-center justify-between bg-white border-2 border-black px-2 py-1 text-xs shadow-[1px_1px_0px_0px_#000000]">
+                                <span className="font-mono text-black font-black text-[11px]">9849372827@kotakbank</span>
                                 <button 
                                   type="button" 
                                   onClick={handleCopyUpi}
-                                  className="text-blue-600 hover:text-blue-800 p-0.5 transition-colors"
+                                  className="text-black hover:text-[#4285F4] p-1"
                                   title="Copy UPI ID"
                                 >
-                                  {copiedUpi ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                                  {copiedUpi ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
                                 </button>
                               </div>
                             </div>
@@ -547,22 +546,18 @@ export function MLSCPayClient() {
 
                         </div>
 
-                        {/* STEP 2: UTR Reference Input */}
-                        <div className="space-y-1.5 text-left">
-                          <label className="text-[9px] font-black uppercase tracking-wider text-slate-500">
-                            Step 2: Enter Transaction UTR / Ref Number <span className="text-red-500 font-black">*</span>
+                        <div className="space-y-1 text-left">
+                          <label className="text-[10px] font-black uppercase tracking-wider text-black block">
+                            2. Transaction UTR / Ref Number <span className="text-[#EA4335]">*</span>
                           </label>
                           <input
                             type="text"
                             required
                             value={utr}
                             onChange={(e) => setUtr(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
-                            placeholder="Enter the 12-digit UPI UTR number after paying"
-                            className="w-full h-11 px-3 border border-slate-200 bg-white rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-600 transition-all shadow-sm"
+                            placeholder="Enter 12-digit UTR from your UPI app receipt"
+                            className="w-full h-10 px-3 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
                           />
-                          <span className="text-[9px] text-slate-400 font-medium block leading-normal">
-                            Note: Admin will verify this credit against our statements. You will receive progress updates by email.
-                          </span>
                         </div>
 
                       </div>
@@ -570,34 +565,32 @@ export function MLSCPayClient() {
 
                   </div>
 
-                  {/* Summary Invoice & Action Buttons */}
-                  <div className="space-y-4 pt-4 border-t border-slate-100">
-                    {/* Fee Details Box */}
-                    <div className="bg-slate-50 border border-slate-200/50 rounded-xl p-4 text-[10px] space-y-1.5 font-semibold text-slate-500">
+                  {/* Summary Breakdown & Actions */}
+                  <div className="space-y-3 pt-3 border-t-2 border-black">
+                    <div className="border-2 border-black bg-zinc-50 p-3 text-xs space-y-1 font-mono shadow-[2px_2px_0px_0px_#000000]">
                       <div className="flex justify-between">
-                        <span>Base Price:</span>
-                        <span className="text-slate-700">₹{basePrice}.00</span>
+                        <span className="font-sans font-bold text-zinc-600">Base Pass Price:</span>
+                        <span className="text-black font-bold">₹{basePrice}.00</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>GST (18%):</span>
-                        <span className="text-slate-700">₹{gstAmount}.00</span>
+                        <span className="font-sans font-bold text-zinc-600">GST (18%):</span>
+                        <span className="text-black font-bold">₹{gstAmount}.00</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Convenience Fee:</span>
-                        <span className="text-slate-700">₹{convenienceFee}.00</span>
+                        <span className="font-sans font-bold text-zinc-600">Handling Fee:</span>
+                        <span className="text-black font-bold">₹{convenienceFee}.00</span>
                       </div>
-                      <div className="flex justify-between border-t border-slate-200 pt-1.5 font-extrabold text-xs">
-                        <span className="text-slate-800">Total Bill Amount:</span>
-                        <span className="text-blue-600">₹{totalAmount}.00</span>
+                      <div className="flex justify-between border-t border-black pt-1 font-black text-sm text-black">
+                        <span className="font-sans">Total Amount:</span>
+                        <span>₹{totalAmount}.00</span>
                       </div>
                     </div>
 
-                    {/* Pay Submit Button */}
                     <form onSubmit={handleSubmitPayment}>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-100 flex items-center justify-center gap-2 disabled:opacity-60"
+                        className="w-full h-12 bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] flex items-center justify-center gap-2 disabled:opacity-60"
                       >
                         {isSubmitting ? (
                           <>
@@ -607,7 +600,7 @@ export function MLSCPayClient() {
                           <>
                             {selectedGateway === 'cashfree' 
                               ? `Pay Online ₹${totalAmount}.00` 
-                              : `Submit Payment Reference ₹${totalAmount}.00`} 
+                              : `Submit UTR Reference ₹${totalAmount}.00`} 
                             <ArrowRight className="h-4 w-4" />
                           </>
                         )}

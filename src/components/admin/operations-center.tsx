@@ -419,49 +419,49 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
         return {
           title: "System Activity Logs",
           desc: "Live feed of club registrations, settings changes, and admin operations",
-          icon: <Activity className="h-5 w-5 text-[#4285F4]" />
+          icon: <Activity className="h-5 w-5 text-black stroke-[2.5]" />
         };
       case 'errors':
         return {
           title: "System Error Reports",
           desc: "Real-time logging of database failures and server exceptions",
-          icon: <AlertCircle className="h-5 w-5 text-red-500" />
+          icon: <AlertCircle className="h-5 w-5 text-black stroke-[2.5]" />
         };
       case 'bugs':
         return {
           title: "Bug Tickets & Feedback",
           desc: "User-submitted bug reports and feature requests from the public site",
-          icon: <Bug className="h-5 w-5 text-amber-500" />
+          icon: <Bug className="h-5 w-5 text-black stroke-[2.5]" />
         };
       case 'moderation':
         return {
           title: "Community Moderation Flags",
           desc: "Reported comments and posts pending moderator actions",
-          icon: <ShieldAlert className="h-5 w-5 text-purple-500" />
+          icon: <ShieldAlert className="h-5 w-5 text-black stroke-[2.5]" />
         };
       case 'users':
         return {
           title: "Latest Registered Users",
           desc: "Live list of student profiles newly onboarding onto the portal",
-          icon: <Users className="h-5 w-5 text-emerald-500" />
+          icon: <Users className="h-5 w-5 text-black stroke-[2.5]" />
         };
       case 'contributors':
         return {
           title: "Contributor Requests",
           desc: "Applications from students interested in open-source contribution",
-          icon: <Users className="h-5 w-5 text-indigo-500" />
+          icon: <Users className="h-5 w-5 text-black stroke-[2.5]" />
         };
       case 'pullrequests':
         return {
           title: "PR Merge Requests",
           desc: "Pull request review and merge requests submitted by open-source contributors",
-          icon: <GitPullRequest className="h-5 w-5 text-[#34A853]" />
+          icon: <GitPullRequest className="h-5 w-5 text-black stroke-[2.5]" />
         };
       case 'ats-payments':
         return {
           title: "ATS Credit Payments",
           desc: "Verify and approve UPI transaction UTR codes to unlock ATS Resume evaluation credits",
-          icon: <CreditCard className="h-5 w-5 text-indigo-500" />
+          icon: <CreditCard className="h-5 w-5 text-black stroke-[2.5]" />
         };
     }
   };
@@ -469,31 +469,31 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
   const config = getTitleAndDesc();
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-6 shadow-sm">
+    <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_#000000] font-sans text-black">
       {/* Header section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-zinc-800 pb-5 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-black pb-5 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950/40 border border-slate-100 dark:border-zinc-800/50">
+          <div className="p-2.5 bg-[#FFE600] border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
             {config.icon}
           </div>
           <div>
-            <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">
+            <h2 className="text-xl font-black text-black uppercase tracking-tight font-display">
               {config.title}
             </h2>
-            <p className="text-xs text-slate-400 dark:text-zinc-500 font-medium">
+            <p className="text-xs text-zinc-600 font-bold uppercase tracking-wider mt-0.5">
               {config.desc}
             </p>
           </div>
         </div>
 
         <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 dark:text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black stroke-[2.5]" />
           <input
             type="text"
             placeholder={`Filter results...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 text-xs focus:outline-none focus:ring-1 focus:ring-[#4285F4] focus:border-transparent transition-all text-slate-900 dark:text-white"
+            className="w-full pl-9 pr-4 py-2 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none focus:ring-0 shadow-[2px_2px_0px_0px_#000000] transition-all placeholder:text-zinc-400"
           />
         </div>
       </div>
@@ -501,103 +501,105 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
       {/* Dynamic contents list */}
       <div className="min-h-[350px] max-h-[600px] overflow-y-auto pr-2">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 text-slate-400 dark:text-zinc-500">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4285F4] mb-3" />
-            <p className="text-xs font-bold uppercase tracking-wider">Listening to database...</p>
+          <div className="flex flex-col items-center justify-center py-24 text-black">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mb-3" />
+            <p className="text-xs font-black uppercase tracking-wider">Listening to database...</p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-slate-400 dark:text-zinc-500 border border-dashed border-slate-100 dark:border-zinc-800/80 rounded-xl">
-            <Clock className="h-8 w-8 opacity-40 mb-3" />
-            <p className="text-xs font-bold uppercase tracking-wider">No logs found</p>
-            <p className="text-[10px] opacity-80 mt-1">Real-time listeners are active and waiting</p>
+          <div className="flex flex-col items-center justify-center py-24 text-black border-4 border-dashed border-zinc-300 bg-zinc-50">
+            <Clock className="h-8 w-8 text-zinc-400 mb-3 stroke-[2.5]" />
+            <p className="text-xs font-black uppercase tracking-wider">No logs found</p>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1">Real-time listeners are active and waiting</p>
           </div>
         ) : (
           <div className="space-y-3">
             {mode === 'activity' && (filteredItems as LogEntry[]).map((log) => (
-              <div key={log.id} className="flex items-start justify-between gap-4 p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+              <div key={log.id} className="flex items-start justify-between gap-4 p-4 border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-colors">
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#4285F4]" />
-                    <p className="text-xs font-bold text-slate-900 dark:text-white">{log.message}</p>
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#4285F4] border border-black" />
+                    <p className="text-xs font-black text-black">{log.message}</p>
                   </div>
                   {log.details && (
-                    <p className="text-[11px] text-slate-400 dark:text-zinc-500 pl-3.5 font-medium leading-relaxed">
+                    <p className="text-xs text-zinc-600 pl-4.5 font-medium leading-relaxed">
                       {log.details}
                     </p>
                   )}
                   {log.userName && (
-                    <p className="text-[9px] text-slate-400 dark:text-zinc-650 pl-3.5 font-bold uppercase">
+                    <p className="text-[10px] text-zinc-500 pl-4.5 font-bold uppercase tracking-wider">
                       By: {log.userName} {log.userEmail ? `(${log.userEmail})` : ''}
                     </p>
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[9px] font-bold text-slate-400 dark:text-zinc-650 select-none">
+                  <span className="text-[10px] font-mono font-bold text-zinc-600 select-none">
                     {formatTime(log.timestamp)}
                   </span>
                   <Button
                     onClick={() => handleDeleteItem('systemLogs', log.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none transition-colors"
                     title="Delete Log"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
             ))}
 
             {mode === 'errors' && (filteredItems as LogEntry[]).map((err) => (
-              <div key={err.id} className="flex items-start justify-between gap-4 p-3.5 rounded-xl border border-red-500/10 bg-red-500/[0.02] hover:border-red-500/20 transition-colors">
+              <div key={err.id} className="flex items-start justify-between gap-4 p-4 border-2 border-black bg-[#FF0055]/5 shadow-[3px_3px_0px_0px_#000000] transition-colors">
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                    <p className="text-xs font-bold text-red-500">{err.message}</p>
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#FF0055] border border-black" />
+                    <p className="text-xs font-black text-[#FF0055]">{err.message}</p>
                   </div>
                   {err.details && (
-                    <pre className="text-[10px] text-slate-400 dark:text-zinc-500 pl-3.5 font-mono bg-black/40 p-2.5 rounded-md overflow-x-auto mt-2 max-w-full">
+                    <pre className="text-[11px] text-black pl-4.5 font-mono bg-white border-2 border-black p-3 mt-2 max-w-full overflow-x-auto shadow-[2px_2px_0px_0px_#000000]">
                       <code>{err.details}</code>
                     </pre>
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[9px] font-bold text-red-400 dark:text-red-900/60 select-none">
+                  <span className="text-[10px] font-mono font-bold text-[#FF0055] select-none">
                     {formatTime(err.timestamp)}
                   </span>
                   <Button
                     onClick={() => handleDeleteItem('systemLogs', err.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none"
                     title="Delete Error Log"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
             ))}
 
             {mode === 'bugs' && (filteredItems as BugReport[]).map((bug) => (
-              <div key={bug.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+              <div key={bug.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-colors">
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2.5">
-                    <Badge variant={bug.status === 'open' ? 'destructive' : 'secondary'} className="text-[9px] uppercase tracking-wider font-bold h-4.5 px-2">
+                    <span className={`px-2 py-0.5 border-2 border-black text-[10px] font-black uppercase tracking-wider ${
+                      bug.status === 'open' ? 'bg-[#FF0055] text-white' : 'bg-[#00FF66] text-black'
+                    }`}>
                       {bug.status}
-                    </Badge>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">{bug.title}</h4>
+                    </span>
+                    <h4 className="text-xs font-black text-black">{bug.title}</h4>
                   </div>
-                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 leading-relaxed font-medium">
+                  <p className="text-xs text-zinc-700 leading-relaxed font-semibold">
                     {bug.description}
                   </p>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase">
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-zinc-600 font-bold uppercase">
                     <span>Reporter: {bug.userName} ({bug.userEmail})</span>
                     <span>•</span>
                     <span>Reported: {formatTime(bug.createdAt)}</span>
                     {bug.resolvedAt && (
                       <>
                         <span>•</span>
-                        <span className="text-emerald-500">Resolved: {formatTime(bug.resolvedAt)}</span>
+                        <span className="text-[#00AA44] font-black">Resolved: {formatTime(bug.resolvedAt)}</span>
                       </>
                     )}
                   </div>
@@ -608,10 +610,9 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     <Button
                       onClick={() => handleResolveBug(bug.id)}
                       size="sm"
-                      variant="outline"
-                      className="h-8 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-xs font-bold uppercase tracking-wider shrink-0 gap-1.5"
+                      className="h-8 bg-[#00FF66] hover:bg-[#00dd55] text-black border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                     >
-                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" />
                       Resolve
                     </Button>
                   )}
@@ -619,31 +620,33 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     onClick={() => handleDeleteItem('bugReports', bug.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none"
                     title="Delete Bug Ticket"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
             ))}
 
             {mode === 'moderation' && (filteredItems as CommunityReport[]).map((report) => (
-              <div key={report.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+              <div key={report.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-colors">
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2.5">
-                    <Badge variant={report.resolved ? 'secondary' : 'outline'} className={cn("text-[9px] uppercase tracking-wider font-bold h-4.5 px-2", !report.resolved && "border-purple-500/30 text-purple-500 bg-purple-500/5")}>
+                    <span className={`px-2 py-0.5 border-2 border-black text-[10px] font-black uppercase tracking-wider ${
+                      report.resolved ? 'bg-zinc-200 text-black' : 'bg-[#FFE600] text-black'
+                    }`}>
                       {report.resolved ? 'Resolved' : 'Active Flag'}
-                    </Badge>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    </span>
+                    <h4 className="text-xs font-black text-black uppercase tracking-wider">
                       Reported {report.contentType}
                     </h4>
                   </div>
-                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 leading-relaxed font-medium">
-                    Reason: <span className="text-slate-800 dark:text-zinc-300 font-semibold">"{report.reason}"</span>
+                  <p className="text-xs text-zinc-700 leading-relaxed font-semibold">
+                    Reason: <span className="text-black font-black">"{report.reason}"</span>
                   </p>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase">
-                    <span>Flagged content ID: {report.contentId}</span>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-zinc-600 font-bold uppercase">
+                    <span>Content ID: {report.contentId}</span>
                     <span>•</span>
                     <span>Flagged By: {report.reporterName}</span>
                     <span>•</span>
@@ -656,8 +659,7 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     <Button
                       onClick={() => handleResolveReport(report.id)}
                       size="sm"
-                      variant="outline"
-                      className="h-8 border-slate-200 dark:border-zinc-850 hover:bg-slate-50 dark:hover:bg-zinc-850 hover:border-slate-300 text-xs font-bold uppercase tracking-wider gap-1.5 text-slate-600 dark:text-zinc-300"
+                      className="h-8 bg-white hover:bg-zinc-100 text-black border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                     >
                       Dismiss Flag
                     </Button>
@@ -665,51 +667,50 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                   <Button
                     onClick={() => window.open(`/community/${report.postId}`, '_blank')}
                     size="sm"
-                    variant="outline"
-                    className="h-8 border-[#4285F4]/20 text-[#4285F4] bg-[#4285F4]/5 hover:bg-[#4285F4]/10 hover:border-[#4285F4]/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                    className="h-8 bg-[#4285F4] hover:bg-[#3367d6] text-white border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                   >
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <ExternalLink className="h-3.5 w-3.5 stroke-[2.5]" />
                     Moderate
                   </Button>
                   <Button
                     onClick={() => handleDeleteItem('communityReports', report.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none"
                     title="Delete Flag"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
             ))}
 
             {mode === 'users' && (filteredItems as UserProfile[]).map((user) => (
-              <div key={user.uid} className="flex items-center justify-between gap-4 p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+              <div key={user.uid} className="flex items-center justify-between gap-4 p-4 border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
                   {user.photoURL ? (
                     <img 
                       src={user.photoURL} 
                       alt={user.displayName} 
-                      className="h-8 w-8 rounded-full border border-slate-200 dark:border-zinc-800 select-none object-cover"
+                      className="h-9 w-9 rounded-full border-2 border-black select-none object-cover"
                     />
                   ) : (
-                    <div className="h-8 w-8 rounded-full bg-[#4285F4]/10 border border-[#4285F4]/25 flex items-center justify-center select-none text-xs font-black text-[#4285F4] uppercase">
+                    <div className="h-9 w-9 rounded-full bg-[#FFE600] border-2 border-black flex items-center justify-center select-none text-xs font-black text-black uppercase">
                       {user.displayName.substring(0, 2)}
                     </div>
                   )}
                   <div className="space-y-0.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-xs font-bold text-slate-800 dark:text-zinc-200 truncate">{user.displayName}</p>
-                      <Badge className={cn("text-[8px] uppercase tracking-wider font-extrabold px-1.5 h-4 select-none", 
-                        user.role === 'super_admin' ? "bg-red-500/10 text-red-500 border border-red-500/20" :
-                        user.role === 'admin' ? "bg-[#4285F4]/10 text-[#4285F4] border border-[#4285F4]/20" :
-                        "bg-slate-100 dark:bg-zinc-850 text-slate-500 dark:text-zinc-400"
-                      )}>
+                      <p className="text-xs font-black text-black truncate">{user.displayName}</p>
+                      <span className={`text-[9px] uppercase tracking-wider font-black px-1.5 py-0.5 border border-black ${ 
+                        user.role === 'super_admin' ? "bg-[#FF0055] text-white" :
+                        user.role === 'admin' ? "bg-[#4285F4] text-white" :
+                        "bg-zinc-100 text-black"
+                      }`}>
                         {user.role}
-                      </Badge>
+                      </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium truncate">
+                    <p className="text-[10px] text-zinc-600 font-mono font-bold truncate">
                       {user.email} {user.username ? `• @${user.username}` : ''}
                     </p>
                   </div>
@@ -717,8 +718,8 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
 
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right select-none">
-                    <p className="text-[9px] font-bold text-slate-400 dark:text-zinc-650">Registered</p>
-                    <p className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-[9px] font-black text-zinc-500 uppercase">Registered</p>
+                    <p className="text-[10px] font-mono font-bold text-black mt-0.5">
                       {formatTime(user.createdAt)}
                     </p>
                   </div>
@@ -726,54 +727,50 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     onClick={() => handleDeleteItem('users', user.uid)}
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none"
                     title="Delete User"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
             ))}
 
             {mode === 'contributors' && (filteredItems as ContributorApplication[]).map((app) => (
-              <div key={app.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+              <div key={app.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-colors">
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2.5">
-                    <Badge 
-                      variant={app.status === 'approved' ? 'secondary' : 'destructive'} 
-                      className={cn(
-                        "text-[9px] uppercase tracking-wider font-bold h-4.5 px-2 border-none select-none",
-                        app.status === 'approved' && "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-                        app.status === 'pending' && "bg-red-500/10 text-red-400 border border-red-500/20",
-                        app.status === 'resubmitted' && "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20",
-                        app.status === 'insufficient' && "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                      )}
-                    >
+                    <span className={`px-2 py-0.5 border-2 border-black text-[10px] font-black uppercase tracking-wider ${
+                      app.status === 'approved' ? "bg-[#00FF66] text-black" :
+                      app.status === 'pending' ? "bg-[#FFE600] text-black" :
+                      app.status === 'resubmitted' ? "bg-[#4285F4] text-white" :
+                      "bg-[#FF0055] text-white"
+                    }`}>
                       {app.status === 'insufficient' ? 'details requested' : app.status}
-                    </Badge>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">{app.name}</h4>
+                    </span>
+                    <h4 className="text-xs font-black text-black">{app.name}</h4>
                   </div>
-                  <p className="text-[11px] text-slate-700 dark:text-zinc-350 leading-relaxed font-semibold">
-                    Department: <span className="text-[#4285F4]">{app.department}</span>
+                  <p className="text-xs text-zinc-700 leading-relaxed font-semibold">
+                    Department: <span className="text-black font-black">{app.department}</span>
                   </p>
-                  <p className="text-[11px] text-slate-600 dark:text-zinc-400 font-medium">
+                  <p className="text-xs text-zinc-600 font-semibold">
                     Skills: {app.skills}
                   </p>
-                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 leading-relaxed">
+                  <p className="text-xs text-zinc-700 leading-relaxed">
                     Message: "{app.message}"
                   </p>
                   {app.feedback && (
-                    <div className="text-[11px] text-amber-500 dark:text-amber-400 bg-amber-500/[0.02] border border-amber-500/10 rounded-lg p-2.5 mt-2 max-w-lg font-medium leading-relaxed">
+                    <div className="text-xs text-black bg-[#FFE600]/20 border-2 border-black p-2.5 mt-2 max-w-lg font-bold leading-relaxed shadow-[2px_2px_0px_0px_#000000]">
                       <strong>Admin Feedback:</strong> "{app.feedback}"
                     </div>
                   )}
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase mt-2">
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-zinc-600 font-bold uppercase mt-2">
                     <span>Email: {app.email}</span>
                     {app.github && (
                       <>
                         <span>•</span>
-                        <a href={`https://github.com/${app.github}`} target="_blank" rel="noreferrer" className="text-[#4285F4] hover:underline inline-flex items-center gap-0.5 lowercase normal-case tracking-normal">
-                          GitHub: @{app.github} <ExternalLink className="h-2 w-2" />
+                        <a href={`https://github.com/${app.github}`} target="_blank" rel="noreferrer" className="text-[#4285F4] hover:underline inline-flex items-center gap-0.5 font-mono lowercase normal-case">
+                          GitHub: @{app.github} <ExternalLink className="h-2.5 w-2.5" />
                         </a>
                       </>
                     )}
@@ -788,19 +785,17 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                       <Button
                         onClick={() => setFeedbackAppId(app.id)}
                         size="sm"
-                        variant="outline"
-                        className="h-8 border-amber-500/20 text-amber-500 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                        className="h-8 bg-[#FFE600] hover:bg-[#f5dc00] text-black border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                       >
-                        <AlertCircle className="h-3.5 w-3.5" />
+                        <AlertCircle className="h-3.5 w-3.5 stroke-[2.5]" />
                         Request Updates
                       </Button>
                       <Button
                         onClick={() => handleReviewContribution(app.id)}
                         size="sm"
-                        variant="outline"
-                        className="h-8 border-indigo-500/20 text-indigo-500 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                        className="h-8 bg-[#00FF66] hover:bg-[#00dd55] text-black border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                       >
-                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" />
                         Approve Request
                       </Button>
                     </>
@@ -809,42 +804,44 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     onClick={() => handleDeleteItem('contributions', app.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg animate-in fade-in duration-200"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none"
                     title="Delete Contributor Application"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
             ))}
 
             {mode === 'pullrequests' && (filteredItems as PRSubmission[]).map((pr) => (
-              <div key={pr.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors">
+              <div key={pr.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-colors">
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2.5">
-                    <Badge variant={pr.status === 'merged' ? 'secondary' : 'destructive'} className="text-[9px] uppercase tracking-wider font-bold h-4.5 px-2 bg-white/5 text-white" style={{ backgroundColor: pr.status === 'merged' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: pr.status === 'merged' ? '#10b981' : '#ef4444' }}>
+                    <span className={`px-2 py-0.5 border-2 border-black text-[10px] font-black uppercase tracking-wider ${
+                      pr.status === 'merged' ? "bg-[#00FF66] text-black" : "bg-[#FFE600] text-black"
+                    }`}>
                       {pr.status === 'merged' ? 'Merged' : 'Pending'}
-                    </Badge>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">{pr.title}</h4>
+                    </span>
+                    <h4 className="text-xs font-black text-black">{pr.title}</h4>
                   </div>
-                  <p className="text-[11px] text-slate-750 dark:text-zinc-350 leading-relaxed font-semibold">
-                    Branch: <code className="bg-slate-100 dark:bg-zinc-800 px-1 rounded text-slate-800 dark:text-zinc-200">{pr.branchName}</code>
+                  <p className="text-xs text-zinc-700 leading-relaxed font-semibold">
+                    Branch: <code className="bg-zinc-100 border border-black px-1.5 py-0.5 font-mono text-black font-bold">{pr.branchName}</code>
                   </p>
-                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 leading-relaxed">
+                  <p className="text-xs text-zinc-700 leading-relaxed">
                     Description: "{pr.description}"
                   </p>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase mt-2">
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-zinc-600 font-bold uppercase mt-2">
                     <span>By: {pr.name} ({pr.email})</span>
                     <span>•</span>
-                    <a href={pr.prLink} target="_blank" rel="noreferrer" className="text-[#4285F4] hover:underline inline-flex items-center gap-0.5 lowercase normal-case tracking-normal">
-                      PR Link: {pr.prLink} <ExternalLink className="h-2 w-2" />
+                    <a href={pr.prLink} target="_blank" rel="noreferrer" className="text-[#4285F4] hover:underline inline-flex items-center gap-0.5 font-mono lowercase normal-case">
+                      PR Link: {pr.prLink} <ExternalLink className="h-2.5 w-2.5" />
                     </a>
                     <span>•</span>
                     <span>Submitted: {formatTime(pr.createdAt)}</span>
                     {pr.mergedAt && (
                       <>
                         <span>•</span>
-                        <span className="text-emerald-500 font-bold">Merged: {formatTime(pr.mergedAt)}</span>
+                        <span className="text-[#00AA44] font-black">Merged: {formatTime(pr.mergedAt)}</span>
                       </>
                     )}
                   </div>
@@ -855,10 +852,9 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     <Button
                       onClick={() => handleMergePR(pr.id)}
                       size="sm"
-                      variant="outline"
-                      className="h-8 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-xs font-bold uppercase tracking-wider shrink-0 gap-1.5"
+                      className="h-8 bg-[#00FF66] hover:bg-[#00dd55] text-black border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                     >
-                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" />
                       Merge / Accept
                     </Button>
                   )}
@@ -866,31 +862,33 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     onClick={() => handleDeleteItem('pullRequests', pr.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none"
                     title="Delete PR Submission"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
             ))}
 
             {mode === 'ats-payments' && (filteredItems as any[]).map((pay) => (
-              <div key={pay.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/20 dark:bg-zinc-950/20 hover:border-slate-200 dark:hover:border-zinc-700 transition-colors animate-in fade-in duration-300">
+              <div key={pay.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 p-4 border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-colors">
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2.5">
-                    <Badge variant={pay.status === 'approved' ? 'secondary' : 'destructive'} className="text-[9px] uppercase tracking-wider font-bold h-4.5 px-2 bg-white/5 text-white" style={{ backgroundColor: pay.status === 'approved' ? 'rgba(16,185,129,0.1)' : pay.status === 'pending' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)', color: pay.status === 'approved' ? '#10b981' : pay.status === 'pending' ? '#f59e0b' : '#ef4444' }}>
+                    <span className={`px-2 py-0.5 border-2 border-black text-[10px] font-black uppercase tracking-wider ${
+                      pay.status === 'approved' ? "bg-[#00FF66] text-black" : pay.status === 'pending' ? "bg-[#FFE600] text-black" : "bg-[#FF0055] text-white"
+                    }`}>
                       {pay.status}
-                    </Badge>
-                    <h4 className="text-xs font-mono font-bold text-slate-900 dark:text-white">UTR Reference: {pay.utr}</h4>
+                    </span>
+                    <h4 className="text-xs font-mono font-black text-black">UTR: {pay.utr}</h4>
                   </div>
-                  <p className="text-[11px] text-slate-750 dark:text-zinc-350 leading-relaxed font-semibold">
-                    Credit Amount: <span className="text-emerald-500 font-black">₹{pay.amount}.00</span>
+                  <p className="text-xs text-zinc-700 leading-relaxed font-semibold">
+                    Credit Amount: <span className="text-black font-black">₹{pay.amount}.00</span>
                   </p>
-                  <p className="text-[11px] text-slate-600 dark:text-zinc-400 font-medium">
+                  <p className="text-xs text-zinc-600 font-mono font-bold">
                     Purchaser: {pay.email}
                   </p>
-                  <div className="text-[9px] text-slate-400 dark:text-zinc-650 font-bold uppercase mt-1">
+                  <div className="text-[10px] text-zinc-600 font-bold uppercase mt-1">
                     Submitted: {formatTime(pay.createdAt)}
                   </div>
                 </div>
@@ -901,16 +899,14 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                       <Button
                         onClick={() => handleVerifyPayment(pay.id, false)}
                         size="sm"
-                        variant="outline"
-                        className="h-8 border-rose-500/20 text-rose-500 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                        className="h-8 bg-[#FF0055] hover:bg-[#dd0044] text-white border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                       >
                         Reject Reference
                       </Button>
                       <Button
                         onClick={() => handleVerifyPayment(pay.id, true)}
                         size="sm"
-                        variant="outline"
-                        className="h-8 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 text-xs font-bold uppercase tracking-wider gap-1.5"
+                        className="h-8 bg-[#00FF66] hover:bg-[#00dd55] text-black border-2 border-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] cursor-pointer rounded-none gap-1.5"
                       >
                         Verify & Approve
                       </Button>
@@ -920,10 +916,10 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     onClick={() => handleDeleteItem('atsPayments', pay.id)}
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg animate-in fade-in duration-200"
+                    className="h-8 w-8 text-[#FF0055] hover:bg-[#FF0055]/10 border border-transparent hover:border-black rounded-none"
                     title="Delete Payment Reference"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 stroke-[2.5]" />
                   </Button>
                 </div>
               </div>
@@ -934,32 +930,32 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
       
       {/* Request Details Dialog */}
       <Dialog open={feedbackAppId !== null} onOpenChange={(open) => { if(!open) setFeedbackAppId(null); }}>
-        <DialogContent className="max-w-md bg-[#080808]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.95)]">
+        <DialogContent className="max-w-md bg-white border-4 border-black p-6 text-black shadow-[8px_8px_0px_0px_#000000] rounded-none font-sans">
           <DialogHeader className="mb-4">
-            <DialogTitle className="text-sm font-black tracking-tight text-white uppercase italic flex items-center gap-2">
-              <AlertCircle className="h-4.5 w-4.5 text-amber-500" /> Request Application Update
+            <DialogTitle className="text-base font-black tracking-tight text-black uppercase flex items-center gap-2 font-display">
+              <AlertCircle className="h-5 w-5 text-black stroke-[2.5]" /> Request Application Update
             </DialogTitle>
-            <DialogDescription className="text-[11px] text-zinc-400 font-medium">
+            <DialogDescription className="text-xs text-zinc-600 font-semibold">
               Explain what details are missing (e.g. GitHub URL, portfolio details). The applicant will receive this feedback via email along with a reverification link.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[9px] font-black uppercase tracking-widest text-white/40">Admin Feedback</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-black">Admin Feedback</label>
               <textarea
                 value={adminFeedback}
                 onChange={(e) => setAdminFeedback(e.target.value)}
                 placeholder="Your GitHub link is incorrect, or we need more details about your Next.js experience..."
                 rows={4}
-                className="w-full bg-black border border-white/10 hover:border-white/20 focus:border-white/30 transition-all rounded-xl p-3 text-xs text-white focus:outline-none placeholder-white/20 resize-none"
+                className="w-full bg-white border-2 border-black p-3 text-xs font-bold text-black focus:outline-none placeholder:text-zinc-400 resize-none rounded-none shadow-[2px_2px_0px_0px_#000000]"
                 required
               />
             </div>
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <Button 
                 variant="outline" 
                 onClick={() => { setFeedbackAppId(null); setAdminFeedback(''); }} 
-                className="rounded-xl h-9 text-xs"
+                className="rounded-none h-9 text-xs font-black uppercase border-2 border-black bg-white hover:bg-zinc-100 text-black shadow-[2px_2px_0px_0px_#000000]"
               >
                 Cancel
               </Button>
@@ -988,7 +984,7 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                   }
                 }}
                 disabled={submittingFeedback}
-                className="rounded-xl h-9 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider disabled:opacity-40"
+                className="rounded-none h-9 bg-[#FFE600] hover:bg-[#f5dc00] text-black border-2 border-black font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] disabled:opacity-50 cursor-pointer"
               >
                 {submittingFeedback ? "Sending Request..." : "Send Feedback Request"}
               </Button>

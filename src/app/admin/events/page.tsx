@@ -27,25 +27,30 @@ export default async function EventsPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 font-sans text-black">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
-                        Manage <span className="text-[#34A853]">Events</span>
-                    </h1>
-                    <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Create, update, and manage all club events</p>
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-[#00FF66] border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+                        <PlusCircle className="h-7 w-7 text-black stroke-[2.5]" />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-black tracking-tight text-black uppercase font-display">
+                            Manage <span className="text-[#34A853]">Events</span>
+                        </h1>
+                        <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest mt-0.5">Create, update, and manage all club events</p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Button asChild variant="outline" className="rounded-full px-6 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
+                    <Button asChild className="bg-[#FFE600] hover:bg-[#FFE600]/90 text-black border-2 border-black font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] px-6 h-11">
                         <Link href="/admin/events/new">
-                            <PlusCircle className="mr-2 h-4 w-4 text-[#34A853]" />
+                            <PlusCircle className="mr-2 h-4 w-4 stroke-[3]" />
                             Create Event
                         </Link>
                     </Button>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 md:p-8 shadow-sm">
+            <div className="bg-white border-2 border-black p-6 md:p-8 shadow-[6px_6px_0px_0px_#000000]">
                 <EventsTable events={events || []} />
             </div>
         </div>

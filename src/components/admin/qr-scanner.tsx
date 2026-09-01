@@ -402,39 +402,38 @@ export function QRScanner({ eventId, isOpen, onClose, onCheckInSuccess }: QRScan
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-zinc-950 text-zinc-100 border-zinc-800 p-0 overflow-hidden max-h-[95vh] flex flex-col">
-        <DialogHeader className="p-4 border-b border-zinc-800">
-          <DialogTitle className="text-zinc-100 flex items-center gap-2 text-lg">
-            <Camera className="h-5 w-5 text-emerald-500 animate-pulse" />
+      <DialogContent className="sm:max-w-md bg-white text-black border-4 border-black p-0 overflow-hidden max-h-[95vh] flex flex-col shadow-[10px_10px_0px_0px_#000000] rounded-none font-sans">
+        <DialogHeader className="p-4 border-b-2 border-black bg-[#FFE600]">
+          <DialogTitle className="text-black flex items-center gap-2 text-base font-black uppercase tracking-tight font-display">
+            <Camera className="h-5 w-5 text-black stroke-[2.5]" />
             Live Ticket Scanner
           </DialogTitle>
-          <DialogDescription className="text-zinc-400 text-xs">
-            Point the camera at the attendee's email ticket QR code.
+          <DialogDescription className="text-black text-xs font-bold uppercase tracking-wider">
+            Point camera at the attendee's ticket QR code.
           </DialogDescription>
         </DialogHeader>
 
         {/* Scanner Feed Viewport */}
-        <div className="relative aspect-square w-full bg-black overflow-hidden flex items-center justify-center">
+        <div className="relative aspect-square w-full bg-black overflow-hidden flex items-center justify-center border-b-2 border-black">
           {!jsQrLoaded && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-400 bg-zinc-950">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-              <p className="text-sm">Initializing scanning engine...</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-black bg-white">
+              <Loader2 className="h-8 w-8 animate-spin text-black" />
+              <p className="text-xs font-black uppercase tracking-wider">Initializing scanning engine...</p>
             </div>
           )}
 
           {jsQrLoaded && cameraPermission === 'denied' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center gap-4 bg-zinc-950">
-              <AlertCircle className="h-12 w-12 text-red-500" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center gap-4 bg-white text-black">
+              <AlertCircle className="h-12 w-12 text-[#FF0055] stroke-[2.5]" />
               <div>
-                <p className="font-semibold text-sm">Camera Permission Denied</p>
-                <p className="text-xs text-zinc-400 mt-1">
+                <p className="font-black text-sm uppercase">Camera Permission Denied</p>
+                <p className="text-xs text-zinc-600 font-bold mt-1">
                   Please enable camera access in your browser settings to scan QR tickets directly.
                 </p>
               </div>
               <Button 
                 onClick={() => startCamera(activeDeviceId)} 
-                variant="outline" 
-                className="border-zinc-700 hover:bg-zinc-800 text-zinc-100"
+                className="bg-[#FFE600] hover:bg-[#f5dc00] text-black border-2 border-black font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] rounded-none"
               >
                 Try Accessing Camera Again
               </Button>
@@ -452,35 +451,35 @@ export function QRScanner({ eventId, isOpen, onClose, onCheckInSuccess }: QRScan
               <canvas ref={canvasRef} className="hidden" />
 
               {!scanning && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-400 bg-zinc-950">
-                  <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-                  <p className="text-sm">Connecting to camera...</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-black bg-white">
+                  <Loader2 className="h-8 w-8 animate-spin text-black" />
+                  <p className="text-xs font-black uppercase tracking-wider">Connecting to camera...</p>
                 </div>
               )}
 
               {/* Glowing Scan HUD Overlay */}
               <div className="absolute inset-0 border-[30px] border-black/60 pointer-events-none flex items-center justify-center">
-                <div className={`w-64 h-64 border-2 rounded-2xl relative transition-all duration-300 ${
+                <div className={`w-64 h-64 border-2 rounded-none relative transition-all duration-300 ${
                   processingCode 
-                    ? 'border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.4)] bg-emerald-500/10' 
-                    : 'border-zinc-400/50 shadow-[0_0_15px_rgba(255,255,255,0.1)]'
+                    ? 'border-[#00FF66] shadow-[0_0_25px_rgba(0,255,102,0.6)] bg-[#00FF66]/20' 
+                    : 'border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
                 }`}>
                   {/* Glowing Laser Scan Line */}
                   {scanning && !processingCode && (
-                    <div className="absolute inset-x-0 h-[2px] bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)] animate-[scan_2s_ease-in-out_infinite] top-0" />
+                    <div className="absolute inset-x-0 h-[3px] bg-[#00FF66] shadow-[0_0_10px_#00FF66] animate-[scan_2s_ease-in-out_infinite] top-0" />
                   )}
 
                   {/* Corner Targets */}
-                  <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-emerald-500 rounded-tl-lg" />
-                  <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-emerald-500 rounded-tr-lg" />
-                  <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-emerald-500 rounded-bl-lg" />
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-emerald-500 rounded-br-lg" />
+                  <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-[#00FF66]" />
+                  <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-[#00FF66]" />
+                  <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-[#00FF66]" />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-[#00FF66]" />
                   
                   {processingCode && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs rounded-2xl">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-xs">
                       <div className="flex flex-col items-center gap-1">
-                        <UserCheck className="h-8 w-8 text-emerald-500 animate-bounce" />
-                        <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400">Verifying Ticket</span>
+                        <UserCheck className="h-8 w-8 text-[#00FF66] animate-bounce stroke-[2.5]" />
+                        <span className="text-[10px] uppercase font-black tracking-widest text-[#00FF66]">Verifying Ticket</span>
                       </div>
                     </div>
                   )}
@@ -492,24 +491,24 @@ export function QRScanner({ eventId, isOpen, onClose, onCheckInSuccess }: QRScan
                 <button 
                   onClick={switchCamera}
                   type="button"
-                  className="absolute bottom-4 right-4 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700 p-3 rounded-full text-zinc-100 shadow-md backdrop-blur-xs transition-all active:scale-95"
+                  className="absolute bottom-4 right-4 bg-white hover:bg-zinc-100 border-2 border-black p-3 text-black shadow-[2px_2px_0px_0px_#000000] transition-all cursor-pointer"
                   title="Switch Camera"
                 >
-                  <RotateCw className="h-5 w-5" />
+                  <RotateCw className="h-5 w-5 stroke-[2.5]" />
                 </button>
               )}
 
               {/* Sound Status indicator */}
-              <div className="absolute top-4 left-4 flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full border border-zinc-800 text-[10px] text-zinc-400 backdrop-blur-xs">
-                <Volume2 className="h-3.5 w-3.5 text-zinc-400" />
-                <span>Audio Feedback On</span>
+              <div className="absolute top-4 left-4 flex items-center gap-1 bg-white px-2 py-1 border-2 border-black text-[10px] text-black font-black uppercase shadow-[2px_2px_0px_0px_#000000]">
+                <Volume2 className="h-3.5 w-3.5 text-black stroke-[2.5]" />
+                <span>Audio On</span>
               </div>
             </>
           )}
         </div>
 
         {/* Controls, Manual entry, & History */}
-        <div className="p-4 space-y-4 bg-zinc-900 flex-1 overflow-y-auto max-h-[40vh]">
+        <div className="p-4 space-y-4 bg-white flex-1 overflow-y-auto max-h-[40vh]">
           {/* Manual Input Form */}
           <form onSubmit={handleManualSubmit} className="flex gap-2">
             <div className="relative flex-1">
@@ -518,53 +517,53 @@ export function QRScanner({ eventId, isOpen, onClose, onCheckInSuccess }: QRScan
                 value={manualId}
                 onChange={(e) => setManualId(e.target.value)}
                 disabled={manualLoading}
-                className="bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 pr-10 focus-visible:ring-emerald-500 focus-visible:ring-offset-0 focus-visible:border-emerald-500 text-sm h-9"
+                className="bg-white border-2 border-black text-black placeholder:text-zinc-400 font-bold pr-10 text-xs h-9 rounded-none shadow-[2px_2px_0px_0px_#000000] focus-visible:ring-0"
               />
-              <CornerDownLeft className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
+              <CornerDownLeft className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 stroke-[2.5]" />
             </div>
             <Button 
               type="submit" 
               disabled={manualLoading || !manualId.trim()}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white h-9 px-3"
+              className="bg-[#00FF66] hover:bg-[#00dd55] text-black font-black text-xs uppercase tracking-wider h-9 px-3 border-2 border-black rounded-none shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
             >
-              {manualLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Check In'}
+              {manualLoading ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : 'Check In'}
             </Button>
           </form>
 
           {/* Recent Scan History */}
           <div className="space-y-2">
-            <p className="text-[10px] uppercase font-bold tracking-wider text-zinc-500">
+            <p className="text-[10px] uppercase font-black tracking-wider text-zinc-600">
               Recent Scans ({history.length})
             </p>
             {history.length === 0 ? (
-              <p className="text-xs text-zinc-600 italic">No tickets scanned in this session.</p>
+              <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider">No tickets scanned in this session.</p>
             ) : (
               <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
                 {history.map((item, index) => (
                   <div 
                     key={index}
-                    className={`flex items-center justify-between p-2 rounded-lg text-xs border transition-all ${
+                    className={`flex items-center justify-between p-2.5 border-2 border-black text-xs font-bold shadow-[2px_2px_0px_0px_#000000] transition-all ${
                       item.status === 'success' 
-                        ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-300' 
+                        ? 'bg-[#00FF66]/20 text-black' 
                         : item.status === 'already'
-                        ? 'bg-amber-950/20 border-amber-900/40 text-amber-300'
-                        : 'bg-red-950/20 border-red-900/40 text-red-300'
+                        ? 'bg-[#FFE600]/30 text-black'
+                        : 'bg-[#FF0055]/20 text-black'
                     }`}
                   >
                     <div className="flex flex-col min-w-0">
-                      <span className="font-semibold truncate">{item.name}</span>
-                      <span className="text-[10px] text-zinc-500 font-mono truncate">
+                      <span className="font-black truncate">{item.name}</span>
+                      <span className="text-[10px] text-zinc-600 font-mono font-bold truncate">
                         ID: {item.id.slice(0, 8)}... ({item.rollNo})
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                      <span className="text-[10px] opacity-80 font-medium">
+                      <span className="text-[10px] font-black uppercase">
                         {item.message}
                       </span>
                       {item.status === 'success' ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-black flex-shrink-0 stroke-[2.5]" />
                       ) : (
-                        <AlertCircle className={`h-4 w-4 flex-shrink-0 ${item.status === 'already' ? 'text-amber-500' : 'text-red-500'}`} />
+                        <AlertCircle className="h-4 w-4 text-black flex-shrink-0 stroke-[2.5]" />
                       )}
                     </div>
                   </div>
@@ -575,11 +574,11 @@ export function QRScanner({ eventId, isOpen, onClose, onCheckInSuccess }: QRScan
         </div>
 
         {/* Footer actions */}
-        <div className="p-3 bg-zinc-950 border-t border-zinc-800 flex justify-end">
+        <div className="p-3 bg-zinc-50 border-t-2 border-black flex justify-end">
           <Button 
             onClick={onClose} 
-            variant="ghost" 
-            className="text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-xs py-1 h-8"
+            variant="outline" 
+            className="border-2 border-black bg-white hover:bg-zinc-100 text-black text-xs font-black uppercase tracking-wider py-1 h-8 rounded-none shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
           >
             Close Scanner
           </Button>

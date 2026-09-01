@@ -49,22 +49,22 @@ export function ConfirmDeleteDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !isLoading) onClose(); }}>
-      <DialogContent className="max-w-md border-rose-500/30 bg-white dark:bg-zinc-950/90 shadow-2xl backdrop-blur-md">
+      <DialogContent className="max-w-md border-4 border-black bg-white text-black shadow-[10px_10px_0px_0px_#000000] p-6 sm:p-8 font-sans">
         <DialogHeader>
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 mb-4 border border-rose-100 dark:border-rose-900/50">
-            <AlertTriangle className="h-6 w-6" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center bg-[#FF0055] text-white mb-4 border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+            <AlertTriangle className="h-7 w-7 stroke-[2.5]" />
           </div>
-          <DialogTitle className="text-center text-slate-900 dark:text-white font-black uppercase tracking-tight text-xl">
+          <DialogTitle className="text-center text-black font-display font-black uppercase tracking-tight text-xl italic">
             {title}
           </DialogTitle>
-          <DialogDescription className="text-center text-slate-500 dark:text-zinc-400 mt-2 font-medium leading-relaxed">
+          <DialogDescription className="text-center text-zinc-600 mt-2 font-bold leading-relaxed text-xs">
             {description}
           </DialogDescription>
         </DialogHeader>
 
         <div className="my-3 space-y-2">
-          <label className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest block">
-            To proceed, type <span className="text-rose-500 select-all font-mono font-black">confirm</span> below:
+          <label className="text-[10px] font-black text-black uppercase tracking-widest block">
+            To proceed, type <span className="text-[#FF0055] select-all font-mono font-black">confirm</span> below:
           </label>
           <Input
             type="text"
@@ -72,7 +72,7 @@ export function ConfirmDeleteDialog({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading}
-            className="w-full rounded-xl border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/40 text-center font-bold tracking-wide focus-visible:ring-rose-500 dark:focus-visible:ring-rose-500"
+            className="w-full border-2 border-black bg-white text-black text-center font-black tracking-wide"
             onKeyDown={(e) => {
               if (e.key === "Enter" && isConfirmed) {
                 handleConfirm();
@@ -87,7 +87,7 @@ export function ConfirmDeleteDialog({
             variant="outline"
             onClick={onClose}
             disabled={isLoading}
-            className="w-full rounded-xl border-slate-200 dark:border-zinc-800 font-bold uppercase tracking-wider text-xs h-10 select-none cursor-pointer"
+            className="w-full border-2 border-black bg-white hover:bg-zinc-100 text-black font-black uppercase tracking-wider text-xs h-10 select-none cursor-pointer shadow-[2px_2px_0px_0px_#000000]"
           >
             Cancel
           </Button>
@@ -96,7 +96,7 @@ export function ConfirmDeleteDialog({
             variant="destructive"
             onClick={handleConfirm}
             disabled={!isConfirmed || isLoading}
-            className="w-full rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold uppercase tracking-wider text-xs h-10 select-none cursor-pointer flex items-center justify-center gap-2"
+            className="w-full bg-[#FF0055] hover:bg-[#FF0055]/90 text-white border-2 border-black font-black uppercase tracking-wider text-xs h-10 select-none cursor-pointer shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>

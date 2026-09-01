@@ -47,18 +47,18 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
   const application = result.application;
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/60 backdrop-blur-sm">
+    <div className="flex flex-col min-h-screen bg-[#FAFAFA] text-black">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-black bg-white">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 md:px-8">
           <Link href="/" className="flex items-center gap-2">
             <MLSCLogo className="h-8 w-8 text-[#4285F4]" />
-            <h1 className="text-xl font-bold tracking-tight uppercase">
-              MLSC 4.0 Hiring
+            <h1 className="text-xl font-black tracking-tight uppercase italic text-black">
+              MLSC 4.0 <span className="text-[#4285F4]">Hiring</span>
             </h1>
           </Link>
-          <Button asChild variant="outline" className="border-white/10 bg-white/5 hover:bg-white/10 rounded-xl" size="sm">
+          <Button asChild variant="outline" size="sm">
             <Link href="/admin/applications" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 stroke-[2.5]" />
               <span>Back to Applications</span>
             </Link>
           </Button>

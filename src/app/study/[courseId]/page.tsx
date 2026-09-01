@@ -7,16 +7,14 @@ import { getUserStudyProgress, updateUserStudyProgress, getStudyLeaderboard } fr
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, ArrowLeft, ExternalLink, BookOpen, AlertCircle, CheckCircle, Play, Search, Filter, Trophy } from 'lucide-react';
+import { Loader2, ArrowLeft, ExternalLink, BookOpen, AlertCircle, CheckCircle2, Play, Search, Filter, Trophy, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { courses, Course, Topic } from '@/lib/study-data';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 interface Props {
   params: Promise<{
@@ -86,8 +84,11 @@ export default function CourseDetailPage({ params }: Props) {
 
   if (authLoading || loadingProgress || !course) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <Loader2 className="h-12 w-12 animate-spin text-[#7C3AED]" />
+      <div className="flex min-h-screen items-center justify-center bg-white text-black">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-10 w-10 animate-spin text-black" />
+          <p className="text-xs font-black uppercase tracking-widest">Loading Syllabus Workspace...</p>
+        </div>
       </div>
     );
   }
@@ -115,7 +116,6 @@ export default function CourseDetailPage({ params }: Props) {
       if (!res.success) {
         toast({ variant: 'destructive', title: 'Sync Failed', description: 'Could not sync progress to database.' });
       } else {
-        // Immediately fetch the updated leaderboard
         const data = await getStudyLeaderboard(5);
         setLeaderboard(data);
       }
@@ -172,94 +172,113 @@ export default function CourseDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
-      <main className="flex-1 pt-32 pb-32">
-        <div className="container mx-auto px-6">
+    <div className="flex flex-col min-h-screen bg-white text-black font-sans selection:bg-[#FFE600] selection:text-black">
+      {/* Top Banner */}
+      <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center">
+        ⚡ Chapter 4 Interactive Learning Portals — Curated Technical Roadmaps
+      </div>
+
+      <main className="flex-1 py-10 md:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8 max-w-7xl">
           
-          {/* Header navigation bar */}
-          <div className="max-w-6xl mx-auto mb-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          {/* Header Navigation Bar */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-2 border-black bg-white p-6 shadow-[5px_5px_0px_0px_#000000]">
             <Link 
               href="/study" 
-              className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors group font-semibold uppercase tracking-wider"
+              className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-black hover:text-[#4285F4] transition-colors border-2 border-black bg-zinc-100 hover:bg-white px-4 py-2 shadow-[2px_2px_0px_0px_#000000]"
             >
-              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              Roadmaps Hub
+              <ArrowLeft className="h-4 w-4" /> Back to Roadmaps Hub
             </Link>
             
             <div className="flex items-center gap-3">
-              <span className="text-3xl">{course.icon}</span>
+              <span className="text-3xl p-2 border-2 border-black bg-[#FFE600] shadow-[2px_2px_0px_0px_#000000]">
+                {course.icon}
+              </span>
               <div>
-                <h1 className="text-xl md:text-2xl font-black uppercase tracking-tight text-white">{course.title}</h1>
-                <p className="text-xs text-white/30 font-bold uppercase tracking-widest">Interactive Study Roadmap</p>
+                <h1 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight text-black">
+                  {course.title}
+                </h1>
+                <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
+                  Chapter 4 Curated Curriculum
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Warning banner */}
+          {/* Anonymous Warning Banner */}
           {!user && (
-            <div className="max-w-6xl mx-auto mb-10 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="border-2 border-black bg-[#FFE600]/20 p-4 shadow-[4px_4px_0px_0px_#000000] flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <AlertCircle className="h-5 w-5 text-yellow-500 shrink-0" />
-                <p className="text-sm text-white/80 font-medium">
-                  Saving progress locally. <span className="text-yellow-500 font-bold">Sign in</span> to permanently back up your progress.
+                <AlertCircle className="h-5 w-5 text-black shrink-0" />
+                <p className="text-xs font-bold text-black">
+                  Saving progress locally on this browser. <span className="underline font-black">Sign in</span> to permanently back up your score.
                 </p>
               </div>
-              <Button asChild size="sm" className="rounded-xl bg-yellow-500 text-black font-bold hover:bg-yellow-500/90 tracking-wide uppercase text-xs h-9 px-4 shrink-0">
+              <Button asChild size="sm" className="bg-black text-white hover:bg-zinc-800 border-2 border-black shadow-[2px_2px_0px_0px_#FFE600] font-black uppercase text-xs h-8 px-4 shrink-0">
                 <Link href="/auth/login?redirect=/study">Sign In</Link>
               </Button>
             </div>
           )}
 
-          {/* Main Workspace layout */}
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Main Layout Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            {/* Left Column: Sticky Control Panel & Index Sidebar */}
-            <div className="lg:col-span-3 lg:sticky lg:top-28 space-y-6">
+            {/* Left Column: Progress & Workspace Filters (3 Cols) */}
+            <div className="lg:col-span-3 lg:sticky lg:top-24 space-y-6">
               
-              {/* Course Progress metrics */}
-              <div className="bento-card border border-white/5 bg-[#0e0e0e]/50 backdrop-blur-xl p-6 rounded-3xl space-y-4">
-                <div className="flex justify-between items-end">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-[#7C3AED]">Roadmap Progress</h3>
-                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{completedCount} / {totalCount} completed</span>
+              {/* Progress Box */}
+              <div className="border-2 border-black bg-white p-5 shadow-[4px_4px_0px_0px_#000000] space-y-4">
+                <div className="flex justify-between items-end border-b-2 border-black pb-2">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-[#4285F4]">Roadmap Progress</h3>
+                  <span className="text-[10px] font-black font-mono">{completedCount}/{totalCount}</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-black tracking-tighter" style={{ color: course.color }}>{percent}%</span>
-                  <span className="text-xs font-semibold text-white/30 uppercase tracking-wider">Completed</span>
+                  <span className="text-5xl font-black tracking-tighter font-mono text-black">
+                    {percent}%
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-zinc-500">Done</span>
                 </div>
-                <Progress value={percent} className="h-2 bg-white/5" />
+                
+                <div className="w-full h-3 border-2 border-black bg-zinc-100 overflow-hidden">
+                  <div
+                    className="h-full bg-[#00FF66] border-r border-black transition-all duration-300"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
               </div>
 
-              {/* Filters Panel */}
-              <div className="bento-card border border-white/5 bg-[#0e0e0e]/50 backdrop-blur-xl p-6 rounded-3xl space-y-6">
-                <h4 className="text-xs font-black uppercase tracking-widest text-white/50 flex items-center gap-2">
+              {/* Filters Box */}
+              <div className="border-2 border-black bg-white p-5 shadow-[4px_4px_0px_0px_#000000] space-y-5">
+                <h4 className="text-xs font-black uppercase tracking-widest text-black flex items-center gap-2 border-b-2 border-black pb-2">
                   <Filter className="h-3.5 w-3.5" /> Workspace Filters
                 </h4>
                 
                 {/* Search query input */}
                 <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
                   <input
                     type="text"
                     placeholder="Search problems..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-white/[0.02] border border-white/5 focus:border-white/20 focus:bg-white/[0.04] outline-none text-sm font-semibold rounded-2xl py-3 pl-11 pr-4 text-white placeholder-white/20 transition-all"
+                    className="w-full bg-zinc-50 border-2 border-black text-xs font-bold py-2 pl-9 pr-3 text-black placeholder:text-zinc-400 focus:bg-white focus:outline-none"
                   />
                 </div>
 
-                {/* Difficulty Filter Selector */}
+                {/* Difficulty Filter */}
                 <div className="space-y-2">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-white/30">Difficulty</p>
-                  <div className="grid grid-cols-4 gap-1.5 bg-white/[0.02] border border-white/5 p-1 rounded-xl">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-600">Difficulty</p>
+                  <div className="grid grid-cols-4 gap-1 border-2 border-black p-1 bg-zinc-50">
                     {(['All', 'Easy', 'Medium', 'Hard'] as const).map((diff) => (
                       <button
                         key={diff}
                         onClick={() => setSelectedDifficulty(diff)}
-                        className={`py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        className={cn(
+                          "py-1 text-[9px] font-black uppercase tracking-wider transition-all",
                           selectedDifficulty === diff
-                            ? 'bg-white text-black font-extrabold shadow-lg'
-                            : 'text-white/40 hover:text-white hover:bg-white/5'
-                        }`}
+                            ? "bg-black text-white"
+                            : "text-zinc-600 hover:text-black hover:bg-zinc-200"
+                        )}
                       >
                         {diff}
                       </button>
@@ -267,19 +286,20 @@ export default function CourseDetailPage({ params }: Props) {
                   </div>
                 </div>
 
-                {/* Status Filter Selector */}
+                {/* Status Filter */}
                 <div className="space-y-2">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-white/30">Completion Status</p>
-                  <div className="grid grid-cols-3 gap-1.5 bg-white/[0.02] border border-white/5 p-1 rounded-xl">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-600">Completion Status</p>
+                  <div className="grid grid-cols-3 gap-1 border-2 border-black p-1 bg-zinc-50">
                     {(['All', 'Completed', 'Uncompleted'] as const).map((status) => (
                       <button
                         key={status}
                         onClick={() => setSelectedStatus(status)}
-                        className={`py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        className={cn(
+                          "py-1 text-[9px] font-black uppercase tracking-wider transition-all",
                           selectedStatus === status
-                            ? 'bg-white text-black font-extrabold shadow-lg'
-                            : 'text-white/40 hover:text-white hover:bg-white/5'
-                        }`}
+                            ? "bg-black text-white"
+                            : "text-zinc-600 hover:text-black hover:bg-zinc-200"
+                        )}
                       >
                         {status === 'Uncompleted' ? 'Todo' : status}
                       </button>
@@ -288,34 +308,26 @@ export default function CourseDetailPage({ params }: Props) {
                 </div>
               </div>
 
-              {/* Sidebar Syllabus quick list */}
-              <div className="bento-card border border-white/5 bg-[#0e0e0e]/50 backdrop-blur-xl p-6 rounded-3xl hidden lg:block max-h-[300px] overflow-y-auto custom-scrollbar">
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/30 px-1 mb-4">Syllabus Index</p>
-                <div className="space-y-1.5">
+              {/* Quick Syllabus Index */}
+              <div className="border-2 border-black bg-zinc-50 p-4 shadow-[4px_4px_0px_0px_#000000] hidden lg:block max-h-[300px] overflow-y-auto">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3">Syllabus Modules</p>
+                <div className="space-y-1">
                   {course.modules.map((m) => {
                     const mTotal = m.topics.length;
                     const mCompleted = m.topics.filter(t => completedTopics.includes(t.id)).length;
                     const isModuleCompleted = mTotal > 0 && mCompleted === mTotal;
-                    const matchingTopics = filterTopics(m.topics);
-                    const isHidden = matchingTopics.length === 0;
-
-                    if (isHidden) return null;
 
                     return (
                       <a
                         key={m.id}
                         href={`#${m.id}`}
-                        className="w-full text-left px-3 py-2 rounded-xl border border-transparent hover:border-white/5 hover:bg-white/[0.02] flex items-center justify-between transition-all group/sidebar"
+                        className="w-full text-left px-2 py-1.5 border border-transparent hover:border-black hover:bg-white flex items-center justify-between text-[11px] font-bold text-zinc-700 hover:text-black transition-all"
                       >
-                        <span className="text-[11px] text-white/50 group-hover/sidebar:text-white font-semibold truncate max-w-[190px]">
-                          {m.title}
-                        </span>
+                        <span className="truncate max-w-[150px]">{m.title}</span>
                         {isModuleCompleted ? (
-                          <CheckCircle className="h-3.5 w-3.5 text-[#34A853] shrink-0" />
+                          <CheckCircle2 className="h-3.5 w-3.5 text-black shrink-0" />
                         ) : (
-                          <span className="text-[9px] font-bold text-white/20 group-hover/sidebar:text-white/40 shrink-0">
-                            {mCompleted}/{mTotal}
-                          </span>
+                          <span className="text-[9px] font-mono text-zinc-400">{mCompleted}/{mTotal}</span>
                         )}
                       </a>
                     );
@@ -325,12 +337,10 @@ export default function CourseDetailPage({ params }: Props) {
 
             </div>
 
-            {/* Center Column: Syllabus Detail and Cards */}
-            <div className="lg:col-span-6 space-y-8">
+            {/* Center Column: Modules & Topics Checklist (6 Cols) */}
+            <div className="lg:col-span-6 space-y-6">
               {course.modules.map((module) => {
                 const matchingTopics = filterTopics(module.topics);
-                
-                // Hide day module card entirely if filters remove all topics
                 if (matchingTopics.length === 0) return null;
 
                 const mTotal = module.topics.length;
@@ -338,97 +348,102 @@ export default function CourseDetailPage({ params }: Props) {
                 const isModuleCompleted = mTotal > 0 && mCompleted === mTotal;
 
                 return (
-                  <div 
-                    key={module.id} 
-                    id={module.id} 
-                    className={`bento-card border bg-[#0e0e0e]/40 p-6 md:p-8 rounded-3xl space-y-6 scroll-mt-28 transition-all duration-300 ${
-                      isModuleCompleted 
-                        ? 'border-[#34A853]/20 bg-[#34A853]/01' 
-                        : 'border-white/5'
-                    }`}
+                  <div
+                    key={module.id}
+                    id={module.id}
+                    className={cn(
+                      "border-2 border-black p-6 space-y-5 scroll-mt-24 transition-all",
+                      isModuleCompleted
+                        ? "bg-[#00FF66]/10 shadow-[4px_4px_0px_0px_#00FF66]"
+                        : "bg-white shadow-[5px_5px_0px_0px_#000000]"
+                    )}
                   >
                     {/* Module Title Header */}
-                    <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                      <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white">
+                    <div className="flex justify-between items-center pb-3 border-b-2 border-black">
+                      <h3 className="text-sm font-black uppercase italic tracking-tight text-black">
                         {module.title}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{mCompleted} / {mTotal} Done</span>
+                        <span className="text-[10px] font-black uppercase tracking-wider bg-zinc-100 px-2 py-0.5 border border-black font-mono">
+                          {mCompleted} / {mTotal} Done
+                        </span>
                         {isModuleCompleted && (
-                          <CheckCircle className="h-4 w-4 text-[#34A853]" />
+                          <CheckCircle2 className="h-4 w-4 text-black" />
                         )}
                       </div>
                     </div>
 
                     {/* Topics listing */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {matchingTopics.map((topic) => {
                         const isCompleted = completedTopics.includes(topic.id);
 
                         return (
                           <div
                             key={topic.id}
-                            className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col gap-4 ${
+                            className={cn(
+                              "p-4 border-2 border-black flex flex-col gap-3 transition-all",
                               isCompleted
-                                ? 'border-[#34A853]/15 bg-[#34A853]/03'
-                                : 'border-white/5 bg-white/[0.01] hover:border-white/10 hover:bg-white/[0.02]'
-                            }`}
+                                ? "bg-zinc-50 border-black/60 opacity-80"
+                                : "bg-white shadow-[2px_2px_0px_0px_#000000]"
+                            )}
                           >
-                            {/* Topic title row */}
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex items-start gap-4">
+                            {/* Topic Title Row */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-start gap-3">
                                 <Checkbox
                                   id={topic.id}
                                   checked={isCompleted}
                                   onCheckedChange={(checked) =>
                                     handleTopicToggle(course.id, topic.id, !!checked)
                                   }
-                                  className="h-5 w-5 rounded-md mt-0.5 border-white/20 data-[state=checked]:bg-[#34A853] data-[state=checked]:border-none cursor-pointer"
+                                  className="h-5 w-5 rounded-none mt-0.5 border-2 border-black data-[state=checked]:bg-[#00FF66] data-[state=checked]:text-black cursor-pointer"
                                 />
-                                <div className="space-y-1">
+                                <div>
                                   <div className="flex flex-wrap items-center gap-2">
                                     <label
                                       htmlFor={topic.id}
-                                      className={`text-sm font-bold cursor-pointer transition-colors ${
-                                        isCompleted ? 'text-white/40 line-through' : 'text-white hover:text-white/90'
-                                      }`}
+                                      className={cn(
+                                        "text-xs sm:text-sm font-black uppercase tracking-tight cursor-pointer",
+                                        isCompleted ? "line-through text-zinc-500" : "text-black"
+                                      )}
                                     >
                                       {topic.title}
                                     </label>
-                                    <Badge
-                                      variant="outline"
-                                      className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                                    <span
+                                      className={cn(
+                                        "text-[9px] font-black uppercase tracking-wider px-2 py-0.2 border border-black",
                                         topic.difficulty === 'Easy'
-                                          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                          ? "bg-[#00FF66]/40 text-black"
                                           : topic.difficulty === 'Medium'
-                                          ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                                          : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
-                                      }`}
+                                          ? "bg-[#FFE600] text-black"
+                                          : "bg-[#EA4335] text-white"
+                                      )}
                                     >
                                       {topic.difficulty}
-                                    </Badge>
+                                    </span>
                                   </div>
-                                  <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider">
-                                    Estimate: {topic.duration}
+                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">
+                                    Est: {topic.duration}
                                   </p>
                                 </div>
                               </div>
                               {isCompleted && (
-                                <CheckCircle className="h-5 w-5 text-[#34A853] shrink-0 mt-0.5" />
+                                <CheckCircle2 className="h-4 w-4 text-black shrink-0" />
                               )}
                             </div>
 
                             {/* Resource Links & Video Solutions */}
-                            <div className="pl-9 flex flex-wrap gap-2 items-center">
+                            <div className="pl-8 flex flex-wrap gap-2 items-center">
                               {topic.leetcodeUrl && (
                                 <a
                                   href={topic.leetcodeUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-[#FFA116] bg-[#FFA116]/5 border border-[#FFA116]/20 hover:border-[#FFA116]/40 px-3 py-1.5 rounded-xl transition-all font-semibold"
+                                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-black bg-[#FFA116]/20 border border-black px-2.5 py-1 hover:bg-[#FFA116]/40 transition-all shadow-[1px_1px_0px_0px_#000000]"
                                 >
                                   <span>LeetCode</span>
-                                  <ExternalLink className="h-3 w-3 opacity-60" />
+                                  <ExternalLink className="h-3 w-3" />
                                 </a>
                               )}
                               {topic.codingNinjasUrl && (
@@ -436,10 +451,10 @@ export default function CourseDetailPage({ params }: Props) {
                                   href={topic.codingNinjasUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-[#F37A20] bg-[#F37A20]/5 border border-[#F37A20]/20 hover:border-[#F37A20]/40 px-3 py-1.5 rounded-xl transition-all font-semibold"
+                                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-black bg-orange-100 border border-black px-2.5 py-1 hover:bg-orange-200 transition-all shadow-[1px_1px_0px_0px_#000000]"
                                 >
                                   <span>Coding Ninjas</span>
-                                  <ExternalLink className="h-3 w-3 opacity-60" />
+                                  <ExternalLink className="h-3 w-3" />
                                 </a>
                               )}
                               {topic.gfgUrl && (
@@ -447,10 +462,10 @@ export default function CourseDetailPage({ params }: Props) {
                                   href={topic.gfgUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-[#2F8D46] bg-[#2F8D46]/5 border border-[#2F8D46]/20 hover:border-[#2F8D46]/40 px-3 py-1.5 rounded-xl transition-all font-semibold"
+                                  className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-black bg-green-100 border border-black px-2.5 py-1 hover:bg-green-200 transition-all shadow-[1px_1px_0px_0px_#000000]"
                                 >
-                                  <span>GeeksforGeeks</span>
-                                  <ExternalLink className="h-3 w-3 opacity-60" />
+                                  <span>GFG</span>
+                                  <ExternalLink className="h-3 w-3" />
                                 </a>
                               )}
                               {topic.youtubeId && (
@@ -461,17 +476,17 @@ export default function CourseDetailPage({ params }: Props) {
                                       youtubeId: topic.youtubeId!,
                                     })
                                   }
-                                  className="inline-flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-rose-600/10 border border-rose-500/20 hover:bg-rose-600/25 hover:border-rose-500/40 px-3 py-1.5 rounded-xl transition-all font-bold cursor-pointer"
+                                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-white bg-[#EA4335] border border-black px-2.5 py-1 hover:bg-[#EA4335]/90 transition-all shadow-[1px_1px_0px_0px_#000000] cursor-pointer"
                                 >
-                                  <Play className="h-3 w-3 fill-current text-rose-500 animate-pulse" />
-                                  <span>Watch Video</span>
+                                  <Play className="h-3 w-3 fill-current" />
+                                  <span>Video Tutorial</span>
                                 </button>
                               )}
                             </div>
 
-                            {/* Additional Resources */}
+                            {/* Additional documentation links */}
                             {topic.resources && topic.resources.length > 0 && (
-                              <div className="pl-9 border-l border-white/5 ml-2.5">
+                              <div className="pl-8 border-l-2 border-zinc-200 ml-2 pt-1">
                                 <div className="flex flex-wrap gap-2">
                                   {topic.resources.map((res, i) => (
                                     <a
@@ -479,9 +494,9 @@ export default function CourseDetailPage({ params }: Props) {
                                       href={res.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1.5 text-[11px] text-white/40 hover:text-white bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 px-3 py-1 rounded-xl transition-all"
+                                      className="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-700 hover:text-black border border-zinc-300 bg-zinc-50 px-2 py-0.5 hover:bg-zinc-100 transition-all"
                                     >
-                                      {res.name} <ExternalLink className="h-3 w-3 shrink-0 opacity-60" />
+                                      {res.name} <ExternalLink className="h-2.5 w-2.5" />
                                     </a>
                                   ))}
                                 </div>
@@ -497,125 +512,57 @@ export default function CourseDetailPage({ params }: Props) {
               })}
             </div>
 
-            {/* Right Column: Leaderboard (lg:col-span-3) */}
-            <div className="lg:col-span-3 lg:sticky lg:top-28 space-y-6">
-              <div className="bento-card border border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl p-5 rounded-3xl space-y-5 relative overflow-hidden">
-                <div className="glow-sphere top-[-20%] right-[-20%] w-[50%] h-[50%] bg-yellow-500/10 pointer-events-none" />
-                
-                <div className="flex items-center gap-2.5 relative z-10">
-                  <div className="bg-yellow-500/10 p-2 rounded-xl border border-yellow-500/20">
-                    <Trophy className="h-4 w-4 text-yellow-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-tight text-white">Leaderboard</h3>
-                    <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-0.5">Top Solvers Performance</p>
-                  </div>
+            {/* Right Column: Real Solvers Leaderboard (3 Cols) */}
+            <div className="lg:col-span-3 lg:sticky lg:top-24 space-y-6">
+              <div className="border-2 border-black bg-white p-5 shadow-[5px_5px_0px_0px_#FFE600] space-y-4">
+                <div className="flex items-center gap-2 border-b-2 border-black pb-2">
+                  <Trophy className="h-4 w-4 text-black" />
+                  <h3 className="text-xs font-black uppercase italic tracking-tight">Leaderboard</h3>
                 </div>
 
-                <Separator className="bg-white/5" />
-
                 {loadingLeaderboard ? (
-                  <div className="flex flex-col items-center justify-center py-8 gap-2">
-                    <Loader2 className="h-6 w-6 animate-spin text-[#7C3AED]" />
-                    <p className="text-[9px] text-white/30 font-bold uppercase tracking-widest">Loading solvers...</p>
+                  <div className="flex flex-col items-center justify-center py-6 gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-black" />
+                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Loading...</p>
                   </div>
                 ) : leaderboard.length === 0 ? (
-                  <div className="text-center py-6 text-white/30 text-[10px] font-bold uppercase tracking-widest">
+                  <div className="text-center py-4 text-xs font-bold text-zinc-500">
                     No solved problems yet.
                   </div>
                 ) : (
-                  <div className="space-y-3 relative z-10">
+                  <div className="space-y-2.5">
                     {leaderboard.map((leader, index) => {
                       const isCurrentUser = user && leader.uid === user.uid;
-                      const rankColors = [
-                        'text-yellow-500', // Gold
-                        'text-zinc-300',   // Silver
-                        'text-amber-700',  // Bronze
-                      ];
 
                       return (
-                        <div 
+                        <div
                           key={leader.uid}
-                          className={`p-2.5 rounded-xl border flex items-center justify-between transition-all duration-300 ${
-                            isCurrentUser 
-                              ? 'border-[#7C3AED]/30 bg-[#7C3AED]/05'
-                              : 'border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/10'
-                          }`}
-                        >
-                          {leader.username ? (
-                            <Link 
-                              href={`/profile/${leader.username}`} 
-                              className="flex items-center gap-2 min-w-0 group hover:opacity-80 transition-opacity"
-                            >
-                              {/* Rank Badge */}
-                              <span className={`text-xs font-black w-4 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
-                                {index + 1}
-                              </span>
-                              
-                              {/* Avatar or Initial */}
-                              <Avatar className="h-7 w-7 shrink-0 border border-white/10">
-                                <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
-                                <AvatarFallback className="text-[10px] font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
-                                  {leader.displayName.substring(0, 2)}
-                                </AvatarFallback>
-                              </Avatar>
-
-                              {/* User details */}
-                              <div className="min-w-0">
-                                <h4 className="text-[11px] font-bold text-white truncate max-w-[90px] leading-tight group-hover:underline">
-                                  {leader.displayName}
-                                </h4>
-                                <p className="text-[9px] text-white/30 truncate leading-none mt-0.5">
-                                  @{leader.username}
-                                </p>
-                              </div>
-                            </Link>
-                          ) : (
-                            <div className="flex items-center gap-2 min-w-0">
-                              {/* Rank Badge */}
-                              <span className={`text-xs font-black w-4 shrink-0 text-center ${rankColors[index] || 'text-white/40'}`}>
-                                {index + 1}
-                              </span>
-                              
-                              {/* Avatar or Initial */}
-                              <Avatar className="h-7 w-7 shrink-0 border border-white/10">
-                                <AvatarImage src={leader.photoURL || undefined} alt={leader.displayName} className="object-cover h-full w-full" />
-                                <AvatarFallback className="text-[10px] font-black uppercase text-white/40 bg-white/5 flex items-center justify-center h-full w-full">
-                                  {leader.displayName.substring(0, 2)}
-                                </AvatarFallback>
-                              </Avatar>
-
-                              {/* User details */}
-                              <div className="min-w-0">
-                                <h4 className="text-[11px] font-bold text-white truncate max-w-[90px] leading-tight">
-                                  {leader.displayName}
-                                </h4>
-                              </div>
-                            </div>
+                          className={cn(
+                            "p-2 border-2 border-black flex items-center justify-between text-xs transition-all",
+                            isCurrentUser ? "bg-[#FFE600]/40" : "bg-zinc-50"
                           )}
-
-                          {/* Problems Solved Badge */}
-                          <div className="text-right shrink-0 pl-1">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md border-white/10 bg-white/5 ${
-                                index === 0 ? 'text-yellow-500 border-yellow-500/20 bg-yellow-500/03' : 'text-white/60'
-                              }`}
-                            >
-                              {leader.studyProblemsSolved} solved
-                            </Badge>
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-black text-xs w-4 shrink-0 text-center font-mono">
+                              {index + 1}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="font-black uppercase truncate text-[11px] text-black">
+                                {leader.displayName}
+                              </p>
+                              {leader.username && (
+                                <p className="text-[9px] text-zinc-500 truncate">@{leader.username}</p>
+                              )}
+                            </div>
                           </div>
+                          <span className="text-[9px] font-black uppercase bg-black text-white px-1.5 py-0.5 border border-black shrink-0 font-mono">
+                            {leader.studyProblemsSolved || 0}
+                          </span>
                         </div>
                       );
                     })}
                   </div>
                 )}
-
-                <div className="pt-1 text-center relative z-10">
-                  <p className="text-[8px] text-white/20 font-bold uppercase tracking-wider leading-relaxed">
-                    Check off problems to level up!
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -623,26 +570,26 @@ export default function CourseDetailPage({ params }: Props) {
         </div>
       </main>
 
-      {/* ── Premium Video Player Dialog ── */}
+      {/* Video Player Modal */}
       <Dialog open={!!activeVideo} onOpenChange={(open) => !open && setActiveVideo(null)}>
-        <DialogContent className="bg-[#0c0c0c] border border-white/10 text-white rounded-3xl p-6 md:p-8 max-w-4xl w-[90vw] overflow-hidden">
-          <DialogHeader className="mb-4">
-            <DialogTitle className="text-xl md:text-2xl font-black uppercase tracking-tight flex items-center gap-2 text-white">
-              <span className="text-[#FF0000] animate-pulse">●</span> Video Tutorial
+        <DialogContent className="bg-white border-4 border-black text-black p-6 max-w-3xl w-[95vw] shadow-[8px_8px_0px_0px_#000000] rounded-none">
+          <DialogHeader className="border-b-2 border-black pb-3 mb-4">
+            <DialogTitle className="text-xl font-black uppercase italic tracking-tight flex items-center gap-2 text-black">
+              <span className="w-3 h-3 rounded-full bg-[#EA4335] animate-ping" /> Video Solution & Lecture
             </DialogTitle>
-            <DialogDescription className="text-white/60 text-sm font-semibold mt-1">
+            <DialogDescription className="text-zinc-700 text-xs font-bold mt-1">
               {activeVideo?.title}
             </DialogDescription>
           </DialogHeader>
 
           {activeVideo && (
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/5 bg-black">
+            <div className="relative aspect-video w-full border-2 border-black bg-black">
               <iframe
                 src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`}
                 title={activeVideo.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
-                className="absolute top-0 left-0 w-full h-full border-none rounded-2xl"
+                className="absolute top-0 left-0 w-full h-full border-none"
               ></iframe>
             </div>
           )}
@@ -650,9 +597,9 @@ export default function CourseDetailPage({ params }: Props) {
           <div className="mt-4 flex justify-end">
             <Button
               onClick={() => setActiveVideo(null)}
-              className="rounded-xl border border-white/10 bg-white/5 text-white font-bold hover:bg-white/10 tracking-wide uppercase text-xs h-9 px-4 shrink-0 transition-transform active:scale-95"
+              className="bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-9 px-5"
             >
-              Close Player
+              Close Video
             </Button>
           </div>
         </DialogContent>

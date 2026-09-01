@@ -15,8 +15,9 @@ export function RichTextDisplay({ content, className = '' }: RichTextDisplayProp
 
   return (
     <div
-      className={`prose prose-sm dark:prose-invert max-w-none ${className}`}
+      className={`prose prose-sm max-w-none text-black leading-relaxed font-sans ${className}`}
       dangerouslySetInnerHTML={{ __html: clean }}
     />
   );
 }
+

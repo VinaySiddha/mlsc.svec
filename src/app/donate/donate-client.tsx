@@ -1,9 +1,6 @@
-
-
 "use client";
 
 import React, { useState } from "react";
-import { FundraiseButton } from "@/components/fundraise-button";
 import { 
   Heart, 
   ShieldCheck, 
@@ -19,14 +16,19 @@ import {
   Lock,
   User,
   Mail,
-  Phone
+  Phone,
+  HelpCircle,
+  Zap,
+  DollarSign
 } from "lucide-react";
 import Link from "next/link";
 import Script from "next/script";
 import { useToast } from "@/hooks/use-toast";
 import { createCashfreeOrderAction } from "@/app/actions/cashfree-actions";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface Tier {
   id: string;
@@ -35,7 +37,8 @@ interface Tier {
   tagline: string;
   description: string;
   icon: React.ReactNode;
-  color: string;
+  bg: string;
+  shadow: string;
 }
 
 export function DonateClient() {
@@ -62,7 +65,6 @@ export function DonateClient() {
   React.useEffect(() => {
     const fetchCustomPayments = async () => {
       try {
-        // Query using only orderBy to avoid requiring a manual Firestore composite index
         const q = query(
           collection(db, "customPayments"),
           orderBy("createdAt", "desc")
@@ -71,7 +73,6 @@ export function DonateClient() {
         const list: any[] = [];
         snap.forEach((doc) => {
           const data = doc.data();
-          // Filter active items on the client side
           if (data && data.active === true) {
             list.push({ id: doc.id, ...data });
           }
@@ -98,36 +99,40 @@ export function DonateClient() {
       amount: 250,
       name: "Bronze Tier",
       tagline: "Server & Hosting",
-      description: "Pays for cloud database operations, API testing, and hosting our community portals for 1 month.",
-      icon: <Server className="h-5 w-5" />,
-      color: "from-amber-500/20 to-orange-500/10 border-amber-500/30 text-amber-400"
+      description: "Funds cloud server operations, Firebase quota, and hosting student tools for 1 month.",
+      icon: <Server className="h-5 w-5 text-black" />,
+      bg: "bg-amber-100",
+      shadow: "shadow-[5px_5px_0px_0px_#000000]"
     },
     {
       id: "domain",
       amount: 500,
       name: "Silver Tier",
       tagline: "Domain & API Access",
-      description: "Funds domain registration, secure SSL certificates, and transactional email API services for our club projects.",
-      icon: <Globe className="h-5 w-5" />,
-      color: "from-slate-400/20 to-zinc-500/10 border-slate-400/30 text-slate-300"
+      description: "Funds domain registration, security certificates, and transactional email infrastructure.",
+      icon: <Globe className="h-5 w-5 text-black" />,
+      bg: "bg-[#4285F4]/15",
+      shadow: "shadow-[5px_5px_0px_0px_#4285F4]"
     },
     {
       id: "workshop",
       amount: 1000,
       name: "Gold Tier",
       tagline: "Workshop Supplies",
-      description: "Sponsors microcontrollers, sensors, cables, stickers, and learning kits for 1 student hands-on hardware workshop.",
-      icon: <BookOpen className="h-5 w-5" />,
-      color: "from-yellow-500/20 to-amber-600/10 border-yellow-500/30 text-yellow-400"
+      description: "Sponsors microcontrollers, sensors, stickers, and kits for 1 student hands-on hardware workshop.",
+      icon: <BookOpen className="h-5 w-5 text-black" />,
+      bg: "bg-[#FFE600]/25",
+      shadow: "shadow-[5px_5px_0px_0px_#FFE600]"
     },
     {
       id: "hackathon",
       amount: 2500,
       name: "Platinum Tier",
       tagline: "Hackathon Prizes",
-      description: "Helps fund developer cash prizes, trophies, and premium learning certificates for our annual student hackathons.",
-      icon: <Award className="h-5 w-5" />,
-      color: "from-purple-500/20 to-indigo-600/10 border-purple-500/30 text-purple-400"
+      description: "Helps fund developer cash prizes, trophies, and premium rewards for our annual student hackathons.",
+      icon: <Award className="h-5 w-5 text-black" />,
+      bg: "bg-[#00FF66]/20",
+      shadow: "shadow-[5px_5px_0px_0px_#00FF66]"
     }
   ];
 
@@ -176,7 +181,7 @@ export function DonateClient() {
       toast({
         variant: "destructive",
         title: "Missing Details",
-        description: "Please fill in your name, email, and phone number to proceed with the donation.",
+        description: "Please fill in your name, email, and phone number to proceed.",
       });
       return;
     }
@@ -230,20 +235,20 @@ export function DonateClient() {
 
   const faqs = [
     {
-      q: "Where does my donation go?",
-      a: "100% of all contributions are directly invested back into our student community. The funds pay for cloud server costs, domain renewals, workshop materials, and prize pools for student hackathons. We maintain a public transparency record of all expenses."
+      q: "Where does my contribution go?",
+      a: "100% of all contributions are directly invested back into our student community. Funds pay for cloud servers, domain renewals, hardware kits, and prize pools for hackathons. We maintain public transparency of all club operations."
     },
     {
       q: "Is this a secure payment portal?",
-      a: "Yes. All payments are processed securely via our production Cashfree Payments integration. We support UPI, Credit/Debit Cards, and Net Banking."
+      a: "Yes. All payments are processed securely via our production Cashfree Payments integration. We support UPI, Credit/Debit Cards, and Net Banking with 256-bit encryption."
     },
     {
       q: "Can I donate my technical skills instead?",
-      a: "Absolutely! We welcome developers, designers, and technical writers to build with us. You can join our developer force by submitting an application on our Contribution Portal."
+      a: "Absolutely! We welcome developers, designers, and technical writers to build with us. You can join our developer force by submitting a contribution on our Contribution Portal."
     },
     {
       q: "Will I receive recognition for my contribution?",
-      a: "Yes! All donors (regardless of size) are featured on our website's supporters ledger, receive an exclusive digital donor badge, and are invited to our annual community showcase."
+      a: "Yes! All supporters are acknowledged in our community records and receive an official digital contributor receipt."
     }
   ];
 
@@ -252,29 +257,46 @@ export function DonateClient() {
   };
 
   return (
-    <div className="w-full bg-black min-h-screen py-24 md:py-32 text-white relative overflow-hidden">
-      {/* Visual background accents */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-yellow-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+    <div className="w-full bg-white min-h-screen py-16 md:py-24 text-black font-sans selection:bg-[#FFE600] selection:text-black">
+      
+      {/* Top Banner */}
+      <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center">
+        ⚡ Chapter 4 Student Innovation Fund — Powered by Cashfree Payments
+      </div>
 
-      <div className="mx-auto max-w-5xl px-6 md:px-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-12 py-10">
         
+        {/* Header Section */}
+        <div className="space-y-4 max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 border-2 border-black bg-[#FFE600] px-4 py-1.5 shadow-[3px_3px_0px_0px_#000000] text-xs font-black uppercase tracking-widest text-black">
+            <Heart className="h-4 w-4 fill-black" /> [ COMMUNITY FUND // STUDENT INNOVATION ]
+          </div>
+          
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.95] text-black">
+            Fuel Student <br />
+            <span className="text-[#4285F4]">Innovation.</span>
+          </h1>
+          
+          <p className="text-zinc-700 font-bold text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+            Support the next generation of engineers at MLSC SVEC. Your sponsorship funds cloud infrastructure, hardware workshops, hackathon prizes, and community tooling.
+          </p>
+        </div>
 
         {isSuccess ? (
           /* Success Screen */
-          <div className="max-w-xl mx-auto border border-emerald-500/30 bg-emerald-950/10 backdrop-blur-md rounded-3xl p-10 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in duration-300">
-            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <CheckCircle2 className="h-10 w-10 fill-current" />
+          <div className="max-w-xl mx-auto border-2 border-black bg-[#00FF66]/20 p-8 sm:p-10 text-center space-y-6 shadow-[8px_8px_0px_0px_#000000] animate-in fade-in zoom-in duration-300">
+            <div className="mx-auto w-16 h-16 border-2 border-black bg-[#00FF66] flex items-center justify-center text-black shadow-[3px_3px_0px_0px_#000000]">
+              <CheckCircle2 className="h-10 w-10" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-3xl font-black uppercase italic tracking-tight">Contribution Received!</h2>
-              <p className="text-emerald-400/90 font-bold text-sm">Thank you, {name || "Generous Supporter"}!</p>
-              <p className="text-white/60 text-xs max-w-md mx-auto leading-relaxed">
-                You have successfully contributed <span className="text-yellow-400 font-bold">${getActiveAmount()}</span> to MLSC SVEC. Your support keeps our servers running and enables our student workshops to thrive.
+              <h2 className="text-3xl font-black uppercase italic tracking-tight text-black">Contribution Received!</h2>
+              <p className="text-black font-black text-base">Thank you, {name || "Generous Supporter"}!</p>
+              <p className="text-zinc-800 text-xs sm:text-sm font-bold max-w-md mx-auto leading-relaxed">
+                You have successfully contributed <span className="bg-[#FFE600] px-2 py-0.5 border border-black font-black">₹{getActiveAmount()}</span> to MLSC SVEC. Your support keeps our servers running and empowers student developers.
               </p>
             </div>
-            <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row justify-center gap-4">
-              <button 
+            <div className="pt-4 border-t-2 border-black flex flex-col sm:flex-row justify-center gap-4">
+              <Button 
                 onClick={() => {
                   setIsSuccess(false);
                   setSelectedAmount(500);
@@ -284,74 +306,71 @@ export function DonateClient() {
                   setEmail("");
                   setPhone("");
                 }}
-                className="inline-flex items-center justify-center h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider bg-white text-black hover:bg-white/90 transition-all"
+                className="bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-11 px-6"
               >
                 Make Another Contribution
-              </button>
-              <Link
-                href="/contribute"
-                className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider border border-white/10 hover:border-white/20 bg-transparent text-white transition-all"
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="bg-white text-black hover:bg-zinc-100 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-11 px-6"
               >
-                Code with Us <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+                <Link href="/contribute">
+                  Code with Us <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                </Link>
+              </Button>
             </div>
           </div>
         ) : (
           /* Main Fundraising Layout */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            {/* Left Side: Impact Tiers */}
-            <div className="lg:col-span-7 space-y-8">
+            {/* Left Side: Impact Tiers (7 Cols) */}
+            <div className="lg:col-span-7 space-y-6">
               
-              {/* Custom Payment Requests Section */}
+              {/* Custom Payment Requests (if available) */}
               {customPayments.length > 0 && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-black uppercase tracking-tight italic text-white/90 flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-emerald-400 animate-pulse" /> Active Payment Requests
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1 border-2 border-black bg-[#FFE600]">
+                      <Zap className="h-4 w-4 text-black" />
+                    </span>
+                    <h2 className="text-base font-black uppercase italic tracking-tight text-black">
+                      Active Community Invoices
                     </h2>
-                    <p className="text-white/40 text-xs font-medium">
-                      Administrative payment requests set by the club officers (e.g. for domains, server renewals). Select one to pay.
-                    </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-3">
                     {customPayments.map((item) => {
                       const isActive = selectedCustomId === item.id;
                       return (
                         <div
                           key={item.id}
                           onClick={() => handleSelectCustomPayment(item)}
-                          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group ${
+                          className={cn(
+                            "cursor-pointer border-2 border-black p-4 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3",
                             isActive
-                              ? "border-emerald-500/50 bg-gradient-to-r from-emerald-500/10 to-transparent shadow-lg shadow-black/40"
-                              : "border-white/5 bg-[#050505] hover:border-white/10 hover:bg-[#090909]"
-                          }`}
+                              ? "bg-[#FFE600] shadow-[5px_5px_0px_0px_#000000]"
+                              : "bg-white hover:bg-zinc-50 shadow-[3px_3px_0px_0px_#000000]"
+                          )}
                         >
-                          <div className="space-y-1.5 max-w-md">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[9px] bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                Custom Request
-                              </span>
-                              <h3 className="text-xs font-black uppercase tracking-tight text-white group-hover:text-emerald-300 transition-colors">
-                                {item.purpose}
-                              </h3>
-                            </div>
+                          <div className="space-y-1 max-w-md">
+                            <span className="text-[9px] bg-black text-white font-black px-2 py-0.5 uppercase tracking-wider">
+                              Special Target
+                            </span>
+                            <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight text-black">
+                              {item.purpose}
+                            </h3>
                             {item.description && (
-                              <p className="text-[10px] text-white/50 leading-relaxed font-medium">
+                              <p className="text-[11px] text-zinc-700 font-semibold leading-relaxed">
                                 {item.description}
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 self-end sm:self-auto">
-                            <span className="text-2xl font-black uppercase italic tracking-tighter text-emerald-450">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl font-black uppercase italic font-mono text-black">
                               ₹{item.amount}
                             </span>
-                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                              isActive ? "border-emerald-400 bg-emerald-500/20 text-emerald-400" : "border-white/10 bg-transparent"
-                            }`}>
-                              {isActive && <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />}
-                            </div>
                           </div>
                         </div>
                       );
@@ -361,11 +380,16 @@ export function DonateClient() {
               )}
 
               <div className="space-y-2">
-                <h2 className="text-xl font-black uppercase tracking-tight italic text-white/90 flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-yellow-400" /> Choose Your Impact Tier
-                </h2>
-                <p className="text-white/40 text-xs font-medium">
-                  Select a tier below to see what your contribution funds directly.
+                <div className="flex items-center gap-2">
+                  <span className="p-1 border-2 border-black bg-[#4285F4] text-white">
+                    <TrendingUp className="h-4 w-4" />
+                  </span>
+                  <h2 className="text-base font-black uppercase italic tracking-tight text-black">
+                    Choose Your Impact Tier
+                  </h2>
+                </div>
+                <p className="text-zinc-600 text-xs font-bold">
+                  Select a tier below to sponsor a designated initiative.
                 </p>
               </div>
 
@@ -377,29 +401,28 @@ export function DonateClient() {
                     <div
                       key={tier.id}
                       onClick={() => handleSelectTier(tier.amount)}
-                      className={`cursor-pointer rounded-2xl border p-5 transition-all duration-300 flex flex-col justify-between gap-4 h-52 relative group ${
+                      className={cn(
+                        "cursor-pointer border-2 border-black p-5 transition-all flex flex-col justify-between gap-3 relative",
                         isActive
-                          ? `bg-gradient-to-br ${tier.color.split(" ").slice(0, 2).join(" ")} ${tier.color.split(" ")[2]} shadow-lg shadow-black/40`
-                          : "border-white/5 bg-[#050505] hover:border-white/10 hover:bg-[#090909]"
-                      }`}
+                          ? `${tier.bg} shadow-[6px_6px_0px_0px_#000000] ring-2 ring-black`
+                          : "bg-white hover:bg-zinc-50 shadow-[4px_4px_0px_0px_#000000]"
+                      )}
                     >
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <div className={`p-2 rounded-lg bg-white/5 border border-white/10 text-white/90 group-hover:scale-105 transition-all duration-300`}>
+                          <div className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_#000000]">
                             {tier.icon}
                           </div>
-                          <span className={`text-2xl font-black uppercase italic tracking-tighter ${
-                            isActive ? tier.color.split(" ")[3] : "text-white/40 group-hover:text-white/70"
-                          }`}>
+                          <span className="text-2xl font-black uppercase italic font-mono text-black">
                             ₹{tier.amount}
                           </span>
                         </div>
                         <div>
-                          <h3 className="text-xs font-bold uppercase tracking-wider text-white/80">{tier.name}</h3>
-                          <p className="text-[10px] text-white/40 font-bold tracking-wide uppercase italic mt-0.5">{tier.tagline}</p>
+                          <h3 className="text-xs font-black uppercase tracking-wider text-black">{tier.name}</h3>
+                          <p className="text-[10px] text-zinc-600 font-black uppercase tracking-wider mt-0.5">{tier.tagline}</p>
                         </div>
                       </div>
-                      <p className="text-[10px] text-white/50 leading-relaxed font-medium">
+                      <p className="text-xs text-zinc-700 font-semibold leading-relaxed border-t-2 border-black/20 pt-2">
                         {tier.description}
                       </p>
                     </div>
@@ -407,33 +430,34 @@ export function DonateClient() {
                 })}
               </div>
 
-              {/* Custom Amount option */}
+              {/* Custom Amount Option */}
               <div 
                 onClick={handleCustomClick}
-                className={`cursor-pointer rounded-2xl border p-5 transition-all duration-300 flex flex-col justify-between gap-3 relative ${
+                className={cn(
+                  "cursor-pointer border-2 border-black p-5 transition-all flex flex-col justify-between gap-3",
                   isCustom 
-                    ? "border-yellow-400/40 bg-gradient-to-r from-yellow-500/10 to-transparent" 
-                    : "border-white/5 bg-[#050505] hover:border-white/10"
-                }`}
+                    ? "bg-[#FFE600]/30 shadow-[6px_6px_0px_0px_#000000] ring-2 ring-black" 
+                    : "bg-white hover:bg-zinc-50 shadow-[4px_4px_0px_0px_#000000]"
+                )}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-white/80 flex items-center gap-2">
-                      <Heart className="h-4 w-4 text-rose-500 fill-rose-500" /> Enter a Custom Amount
+                    <h3 className="text-xs font-black uppercase tracking-wider text-black flex items-center gap-2">
+                      <Heart className="h-4 w-4 text-[#EA4335] fill-[#EA4335]" /> Enter a Custom Amount
                     </h3>
-                    <p className="text-[10px] text-white/40 font-medium">
-                      Every dollar supports our community projects and developer workshops.
+                    <p className="text-[11px] text-zinc-600 font-bold">
+                      Any contribution powers our student workshops and open-source infrastructure.
                     </p>
                   </div>
                   {isCustom && (
                     <div className="relative flex items-center max-w-[160px] self-end sm:self-auto">
-                      <span className="absolute left-4 text-sm font-bold text-yellow-400">₹</span>
+                      <span className="absolute left-3 text-sm font-black text-black">₹</span>
                       <input
                         type="text"
                         value={customAmount}
                         onChange={handleCustomAmountChange}
                         placeholder="Amount"
-                        className="w-full h-10 pl-8 pr-4 rounded-xl bg-black border border-yellow-500/30 text-yellow-400 text-sm font-black tracking-tight focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/30 transition-all placeholder-white/20"
+                        className="w-full h-10 pl-8 pr-3 border-2 border-black bg-white text-black text-sm font-black tracking-tight focus:outline-none focus:bg-[#FFE600]/20"
                         autoFocus
                       />
                     </div>
@@ -442,91 +466,89 @@ export function DonateClient() {
               </div>
 
               {/* Security info banner */}
-              <div className="flex gap-4 items-start p-4 rounded-xl border border-white/5 bg-[#050505]">
-                <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+              <div className="flex gap-3 items-center p-4 border-2 border-black bg-zinc-50 shadow-[3px_3px_0px_0px_#000000]">
+                <div className="p-2 border-2 border-black bg-[#00FF66] text-black shrink-0">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-white/80">Secured Contribution Processing</h4>
-                  <p className="text-[10px] text-white/40 leading-relaxed mt-1 font-medium">
-                    All transaction data is processed using a secure 256-bit encrypted SSL link. No card or sensitive banking credentials are saved on our servers.
+                  <h4 className="text-xs font-black uppercase tracking-wider text-black">Secured 256-Bit SSL Processing</h4>
+                  <p className="text-[10px] text-zinc-600 font-bold leading-relaxed">
+                    Zero card data is stored on our servers. Transactions execute directly via Cashfree's PCI-DSS Level 1 compliant gateway.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Side: Secure Checkout Form */}
+            {/* Right Side: Checkout Form (5 Cols) */}
             <div className="lg:col-span-5">
-              <div className="rounded-3xl border border-white/[0.08] bg-[#0A0A0A] p-6 md:p-8 space-y-6 shadow-2xl relative">
-                {/* Neon glow effect border */}
-                <div className="absolute -inset-px bg-gradient-to-b from-white/10 to-transparent rounded-3xl pointer-events-none -z-10" />
-
-                <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-white/40 uppercase tracking-wider">
-                    <Lock className="h-3.5 w-3.5" /> Secure SSL Terminal
+              <div className="border-2 border-black bg-white p-6 sm:p-8 space-y-6 shadow-[6px_6px_0px_0px_#000000]">
+                
+                <div className="space-y-1 border-b-2 border-black pb-4">
+                  <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider bg-black text-white px-2 py-0.5">
+                    <Lock className="h-3 w-3" /> Secure Payment Gateway
                   </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight italic text-white/90">
-                    Checkout Portal
+                  <h3 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight text-black mt-2">
+                    Contribution Desk
                   </h3>
-                  <p className="text-white/40 text-[11px] font-medium leading-relaxed">
-                    Confirm your details to finalize your community support contribution.
+                  <p className="text-zinc-600 text-xs font-bold">
+                    Provide donor details to finalize your contribution receipt.
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Summary of contribution */}
-                  <div className="p-4 rounded-xl bg-black border border-white/5 space-y-2">
+                  <div className="p-4 border-2 border-black bg-zinc-50 space-y-2 shadow-[2px_2px_0px_0px_#000000]">
                     {selectedCustomPayment && (
-                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-white/45">Purpose:</span>
-                        <span className="text-xs font-black uppercase text-emerald-450 truncate max-w-[180px]">
+                      <div className="flex items-center justify-between border-b border-zinc-300 pb-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">Purpose:</span>
+                        <span className="text-xs font-black uppercase text-black truncate max-w-[180px]">
                           {selectedCustomPayment.purpose}
                         </span>
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-white/50">
-                        {selectedCustomPayment ? "Required Amount:" : "Total Donation:"}
+                      <span className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                        {selectedCustomPayment ? "Target Amount:" : "Total Contribution:"}
                       </span>
-                      <span className={`text-xl font-black uppercase tracking-tight italic ${selectedCustomPayment ? "text-emerald-450" : "text-yellow-400"}`}>
+                      <span className="text-2xl font-black uppercase italic font-mono text-black">
                         ₹{getActiveAmount()}
                       </span>
                     </div>
                   </div>
 
                   {/* Personal details */}
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-1.5">
-                      <User className="h-3.5 w-3.5 text-indigo-400" /> Full Name
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-1.5">
+                      <User className="h-3.5 w-3.5 text-black" /> Donor Name
                     </label>
                     <input
                       type="text"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Jane Doe"
-                      className="w-full h-11 px-4 rounded-xl bg-black border border-white/10 text-xs font-semibold tracking-wide text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all placeholder-white/20"
+                      placeholder="e.g. John Doe"
+                      className="w-full h-11 px-3 border-2 border-black bg-zinc-50 text-xs font-bold text-black focus:bg-white focus:outline-none"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5 text-indigo-400" /> Email Address
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5 text-black" /> Registered Email
                     </label>
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="jane.doe@example.com"
-                      className="w-full h-11 px-4 rounded-xl bg-black border border-white/10 text-xs font-semibold tracking-wide text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all placeholder-white/20"
+                      placeholder="e.g. john@example.com"
+                      className="w-full h-11 px-3 border-2 border-black bg-zinc-50 text-xs font-bold text-black focus:bg-white focus:outline-none"
                     />
                   </div>
 
                   {/* Phone Number */}
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-1.5">
-                      <Phone className="h-3.5 w-3.5 text-indigo-400" /> Phone Number
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 text-black" /> Mobile Number
                     </label>
                     <input
                       type="tel"
@@ -538,20 +560,20 @@ export function DonateClient() {
                           setPhone(value);
                         }
                       }}
-                      placeholder="9999999999"
-                      className="w-full h-11 px-4 rounded-xl bg-black border border-white/10 text-xs font-semibold tracking-wide text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all placeholder-white/20"
+                      placeholder="e.g. 9876543210"
+                      className="w-full h-11 px-3 border-2 border-black bg-zinc-50 text-xs font-bold text-black focus:bg-white focus:outline-none"
                     />
                   </div>
 
-                  {/* Custom animated fundraising button styled from Uiverse */}
-                  <div className="pt-4 flex justify-center">
-                    <FundraiseButton
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <Button
                       type="submit"
                       disabled={isSubmitting || getActiveAmount() <= 0}
-                      playText={isSubmitting ? "Processing" : "Support Now"}
-                      nowText={isSubmitting ? "..." : "Confirm"}
-                      className="w-full"
-                    />
+                      className="w-full bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[4px_4px_0px_0px_#000000] font-black uppercase tracking-wider text-xs h-12 active:translate-x-[2px] active:translate-y-[2px]"
+                    >
+                      {isSubmitting ? "Connecting to Cashfree..." : `Pay ₹${getActiveAmount()} via Cashfree →`}
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -561,40 +583,39 @@ export function DonateClient() {
         )}
 
         {/* FAQs Section */}
-        <div className="mt-24 border-t border-white/[0.08] pt-16 max-w-3xl mx-auto space-y-8">
+        <div className="border-t-2 border-black pt-12 max-w-4xl mx-auto space-y-6">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black uppercase tracking-tight italic text-white/90">
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight italic text-black">
               Frequently Asked Questions
             </h2>
-            <p className="text-white/40 text-xs font-medium">
-              Have questions about how contributions are managed? Find answers here.
+            <p className="text-zinc-600 text-xs font-bold">
+              Learn how donor funds are transparently allocated and audited.
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {faqs.map((faq, index) => {
               const isOpen = openFaq === index;
               return (
                 <div
                   key={index}
-                  className="rounded-2xl border border-white/5 bg-[#050505] overflow-hidden transition-all duration-300"
+                  className="border-2 border-black bg-white shadow-[3px_3px_0px_0px_#000000] overflow-hidden"
                 >
                   <button
                     onClick={() => toggleFaq(index)}
-                    className="w-full p-5 flex items-center justify-between text-left hover:bg-[#0a0a0a] transition-all"
+                    className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-50 transition-all font-black text-xs sm:text-sm uppercase tracking-tight"
                   >
-                    <span className="text-xs font-bold uppercase tracking-wider text-white/80">
-                      {faq.q}
-                    </span>
+                    <span>{faq.q}</span>
                     <ChevronDown
-                      className={`h-4 w-4 text-white/40 transition-transform duration-300 ${
-                        isOpen ? "transform rotate-180 text-yellow-400" : ""
-                      }`}
+                      className={cn(
+                        "h-4 w-4 text-black transition-transform duration-200 shrink-0",
+                        isOpen && "transform rotate-180"
+                      )}
                     />
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 border-t border-white/5 animate-in slide-in-from-top-2 duration-200">
-                      <p className="text-[11px] text-white/55 leading-relaxed font-medium">
+                    <div className="px-4 pb-4 pt-1 border-t-2 border-black bg-zinc-50">
+                      <p className="text-xs text-zinc-700 font-medium leading-relaxed">
                         {faq.a}
                       </p>
                     </div>
@@ -606,21 +627,23 @@ export function DonateClient() {
         </div>
 
         {/* Bottom Banner */}
-        <div className="mt-20 border border-white/5 bg-gradient-to-r from-indigo-950/15 to-transparent rounded-3xl p-8 text-center sm:text-left flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="border-2 border-black bg-[#FFE600] p-8 shadow-[6px_6px_0px_0px_#000000] flex flex-col sm:flex-row sm:items-center justify-between gap-6 max-w-4xl mx-auto">
           <div className="space-y-1">
-            <h3 className="text-sm font-bold uppercase tracking-wide text-white/80">
-              Want to Donate Your Skills Instead?
+            <h3 className="text-base font-black uppercase tracking-tight text-black">
+              Want to Donate Your Developer Skills Instead?
             </h3>
-            <p className="text-[10px] text-white/40 font-medium max-w-md leading-relaxed">
-              If you are a student, designer, or programmer, you can contribute code, write documentation, or manage our community infrastructure.
+            <p className="text-xs text-zinc-800 font-bold max-w-md leading-relaxed">
+              Join the MLSC developer army to build student products, maintain server nodes, and design UI systems.
             </p>
           </div>
-          <Link
-            href="/contribute"
-            className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white transition-all shrink-0"
+          <Button
+            asChild
+            className="bg-black text-white hover:bg-zinc-800 border-2 border-black shadow-[3px_3px_0px_0px_#ffffff] font-black uppercase tracking-wider text-xs h-11 px-6 shrink-0"
           >
-            Apply to Contribute <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+            <Link href="/contribute">
+              Apply to Contribute <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            </Link>
+          </Button>
         </div>
 
         <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="lazyOnload" />

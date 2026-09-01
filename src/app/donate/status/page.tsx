@@ -15,20 +15,19 @@ export default async function DonateStatusPage({ searchParams }: Props) {
 
   if (!order_id) {
     return (
-      <div className="w-full bg-black min-h-screen py-32 text-white flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/20 to-black pointer-events-none" />
-        <div className="max-w-md mx-auto border border-red-500/30 bg-red-950/5 backdrop-blur-md rounded-3xl p-10 text-center space-y-6 shadow-2xl relative z-10">
-          <div className="mx-auto w-16 h-16 rounded-full bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red-400">
+      <div className="w-full bg-white min-h-screen py-32 text-black flex items-center justify-center font-sans">
+        <div className="max-w-md mx-auto border-2 border-black bg-white p-8 sm:p-10 text-center space-y-6 shadow-[8px_8px_0px_0px_#EA4335]">
+          <div className="mx-auto w-16 h-16 border-2 border-black bg-[#EA4335] text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#000000]">
             <XCircle className="h-10 w-10" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Invalid Order Reference</h2>
-            <p className="text-white/55 text-xs leading-relaxed">
-              No order identifier was found in the session. If you believe this is an error, please reach out to our community support.
+            <h2 className="text-2xl font-black uppercase italic tracking-tight text-black">Invalid Order Token</h2>
+            <p className="text-zinc-700 text-xs font-bold leading-relaxed">
+              No valid order identifier was detected in the active session. If you experienced an issue during checkout, please reach out to support.
             </p>
           </div>
-          <div className="pt-4 border-t border-white/5">
-            <Button asChild className="w-full rounded-xl bg-white text-black hover:bg-white/90 font-bold uppercase tracking-wider text-xs h-11">
+          <div className="pt-4 border-t-2 border-black">
+            <Button asChild className="w-full bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black font-black uppercase tracking-wider text-xs h-11 shadow-[3px_3px_0px_0px_#000000]">
               <Link href="/donate">Back to Donations</Link>
             </Button>
           </div>
@@ -45,94 +44,82 @@ export default async function DonateStatusPage({ searchParams }: Props) {
   const isFailed = !result.success || result.status === 'FAILED';
 
   return (
-    <div className="w-full bg-black min-h-screen py-32 text-white relative overflow-hidden flex items-center justify-center">
-      {/* Decorative background glows */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
-      
-      {isPaid && (
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none -z-10" />
-      )}
-
-      <div className="w-full max-w-lg px-6 relative z-10">
+    <div className="w-full bg-white min-h-screen py-24 md:py-32 text-black font-sans flex items-center justify-center selection:bg-[#FFE600] selection:text-black">
+      <div className="w-full max-w-lg px-4 sm:px-6">
         
         {isPaid && (
           /* SUCCESS STATE */
-          <div className="border border-emerald-500/20 bg-emerald-950/[0.03] backdrop-blur-xl rounded-3xl p-8 md:p-10 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in duration-300">
-            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
-              <CheckCircle2 className="h-9 w-9 fill-current" />
+          <div className="border-2 border-black bg-white p-8 md:p-10 text-center space-y-6 shadow-[8px_8px_0px_0px_#00FF66]">
+            <div className="mx-auto w-16 h-16 border-2 border-black bg-[#00FF66] text-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000000]">
+              <CheckCircle2 className="h-9 w-9" />
             </div>
             
             <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-[9px] font-black tracking-widest text-emerald-400 uppercase">
-                <Sparkles className="h-3 w-3 fill-emerald-400" /> {isEvent ? 'Pass Confirmed' : 'Transaction Verified'}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-black bg-[#FFE600] text-[10px] font-black tracking-widest text-black uppercase shadow-[2px_2px_0px_0px_#000000]">
+                <Sparkles className="h-3 w-3" /> {isEvent ? 'Pass Confirmed' : 'Payment Verified'}
               </span>
-              <h2 className="text-3xl font-black uppercase italic tracking-tight text-white mt-3">
+              <h2 className="text-3xl font-black uppercase italic tracking-tight text-black mt-2">
                 {isEvent ? 'Seat Confirmed!' : 'Contribution Received!'}
               </h2>
-              <p className="text-emerald-400/90 font-bold text-sm">Thank you, {result.customerName || 'Supporter'}!</p>
-              <p className="text-white/50 text-xs max-w-sm mx-auto leading-relaxed">
+              <p className="text-black font-black text-sm">Thank you, {result.customerName || 'Supporter'}!</p>
+              <p className="text-zinc-700 text-xs font-bold max-w-sm mx-auto leading-relaxed">
                 {isEvent 
-                  ? `Your event pass has been successfully generated. We have emailed the official ticket details to your registered address.`
-                  : `Your payment was successfully processed. Your generous support fuels student hackathons, workshop supplies, and cloud hosting for the community.`}
+                  ? `Your event registration is finalized. An official confirmation pass has been dispatched to your email.`
+                  : `Your contribution was successfully processed. Your generosity fuels student hackathons, workshops, and cloud infrastructure.`}
               </p>
             </div>
 
-            {/* Receipt details */}
-            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left space-y-3 font-sans">
-              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-white/30 pb-2 border-b border-white/5">
-                <Receipt className="h-3.5 w-3.5" /> {isEvent ? 'Event Ticket Details' : 'Contribution Receipt'}
+            {/* Receipt Details Card */}
+            <div className="border-2 border-black bg-zinc-50 p-5 text-left space-y-3 shadow-[3px_3px_0px_0px_#000000]">
+              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-black pb-2 border-b-2 border-black">
+                <Receipt className="h-3.5 w-3.5" /> {isEvent ? 'Event Registration Receipt' : 'Donation Tax Receipt'}
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-white/40 font-medium">{isEvent ? 'Attendee Name:' : 'Donor Name:'}</span>
-                <span className="text-white font-semibold">{result.customerName}</span>
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-zinc-600 uppercase text-[10px]">{isEvent ? 'Attendee:' : 'Donor:'}</span>
+                <span className="text-black">{result.customerName}</span>
               </div>
               {isEvent && (result as any).eventTitle && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-white/40 font-medium">Event Name:</span>
-                  <span className="text-[#34A853] font-black truncate max-w-[220px]">{(result as any).eventTitle}</span>
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-zinc-600 uppercase text-[10px]">Event Title:</span>
+                  <span className="text-black truncate max-w-[200px]">{(result as any).eventTitle}</span>
                 </div>
               )}
-              <div className="flex justify-between text-xs">
-                <span className="text-white/40 font-medium">Registered Email:</span>
-                <span className="text-white font-mono">{result.customerEmail}</span>
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-zinc-600 uppercase text-[10px]">Email:</span>
+                <span className="text-black font-mono text-[11px]">{result.customerEmail}</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-white/40 font-medium">Ticket ID:</span>
-                <span className="text-white font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">{order_id}</span>
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-zinc-600 uppercase text-[10px]">Order ID:</span>
+                <span className="text-black font-mono text-[10px] bg-zinc-200 px-2 py-0.5 border border-black">{order_id}</span>
               </div>
-              <div className="flex justify-between items-end pt-2 border-t border-white/5">
-                <span className="text-xs text-white/40 font-medium">Amount Cleared:</span>
-                <span className="text-lg font-black text-yellow-400 tracking-tight italic">
+              <div className="flex justify-between items-end pt-2 border-t-2 border-black">
+                <span className="text-xs font-black uppercase text-zinc-600">Amount Cleared:</span>
+                <span className="text-xl font-black text-black font-mono tracking-tight">
                   ₹{result.amount}
                 </span>
               </div>
-              {result.isMock && (
-                <div className="text-center pt-2 text-[9px] font-extrabold text-yellow-500/70 uppercase tracking-widest bg-yellow-500/5 rounded-lg py-1 border border-yellow-500/10">
-                  Sandbox Simulation Mode
-                </div>
-              )}
             </div>
 
-            <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row gap-3">
+            <div className="pt-4 border-t-2 border-black flex flex-col sm:flex-row gap-3">
               {isEvent ? (
                 <>
-                  <Button asChild className="flex-1 rounded-xl bg-white text-black hover:bg-white/90 font-bold uppercase tracking-wider text-xs h-12">
+                  <Button asChild className="flex-1 bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-12">
                     <Link href="/events">Explore Events</Link>
                   </Button>
-                  <Button asChild variant="outline" className="flex-1 rounded-xl border-white/10 hover:border-white/20 bg-transparent text-white font-bold uppercase tracking-wider text-xs h-12">
+                  <Button asChild variant="outline" className="flex-1 bg-white text-black hover:bg-zinc-100 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-12">
                     <Link href="/study" className="flex items-center justify-center gap-1.5">
-                      View Roadmap <ArrowRight className="h-3.5 w-3.5" />
+                      Roadmaps <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button asChild className="flex-1 rounded-xl bg-white text-black hover:bg-white/90 font-bold uppercase tracking-wider text-xs h-12">
+                  <Button asChild className="flex-1 bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-12">
                     <Link href="/donate">Donate Again</Link>
                   </Button>
-                  <Button asChild variant="outline" className="flex-1 rounded-xl border-white/10 hover:border-white/20 bg-transparent text-white font-bold uppercase tracking-wider text-xs h-12">
+                  <Button asChild variant="outline" className="flex-1 bg-white text-black hover:bg-zinc-100 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-12">
                     <Link href="/contribute" className="flex items-center justify-center gap-1.5">
-                      Code with Us <ArrowRight className="h-3.5 w-3.5" />
+                      Contribute <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </Button>
                 </>
@@ -142,37 +129,37 @@ export default async function DonateStatusPage({ searchParams }: Props) {
         )}
 
         {isPending && (
-          /* PENDING/PROCESSING STATE */
-          <div className="border border-yellow-500/20 bg-yellow-950/[0.03] backdrop-blur-xl rounded-3xl p-8 md:p-10 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in duration-300">
-            <div className="mx-auto w-16 h-16 rounded-full bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center text-yellow-400 animate-pulse">
-              <Clock className="h-9 w-9" />
+          /* PENDING STATE */
+          <div className="border-2 border-black bg-white p-8 md:p-10 text-center space-y-6 shadow-[8px_8px_0px_0px_#FFE600]">
+            <div className="mx-auto w-16 h-16 border-2 border-black bg-[#FFE600] text-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000000]">
+              <Clock className="h-9 w-9 animate-pulse" />
             </div>
             
             <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-yellow-500/20 bg-yellow-500/5 text-[9px] font-black tracking-widest text-yellow-400 uppercase">
-                Processing Payment
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-black bg-zinc-100 text-[10px] font-black tracking-widest text-black uppercase">
+                Processing Transaction
               </span>
-              <h2 className="text-3xl font-black uppercase italic tracking-tight text-white mt-3">Awaiting Verification</h2>
-              <p className="text-white/50 text-xs max-w-sm mx-auto leading-relaxed">
-                The payment status is currently pending or awaiting bank clearance. We will update the status as soon as we receive confirmation from Cashfree.
+              <h2 className="text-3xl font-black uppercase italic tracking-tight text-black mt-2">Awaiting Confirmation</h2>
+              <p className="text-zinc-700 text-xs font-bold max-w-sm mx-auto leading-relaxed">
+                Payment status is pending bank confirmation. We will update your record automatically once verified by Cashfree.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left space-y-3 font-sans">
-              <div className="flex justify-between text-xs">
-                <span className="text-white/40 font-medium">Order ID:</span>
-                <span className="text-white font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">{order_id}</span>
+            <div className="border-2 border-black bg-zinc-50 p-4 text-left space-y-2 shadow-[2px_2px_0px_0px_#000000]">
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-zinc-600">Order ID:</span>
+                <span className="text-black font-mono text-[10px]">{order_id}</span>
               </div>
-              <div className="flex justify-between items-end pt-2 border-t border-white/5">
-                <span className="text-xs text-white/40 font-medium">Amount:</span>
-                <span className="text-lg font-black text-yellow-400 tracking-tight italic">
+              <div className="flex justify-between items-end pt-2 border-t border-zinc-300">
+                <span className="text-xs font-black uppercase text-zinc-600">Amount:</span>
+                <span className="text-lg font-black text-black font-mono">
                   ₹{result.amount}
                 </span>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-white/5">
-              <Button asChild className="w-full rounded-xl bg-white text-black hover:bg-white/90 font-bold uppercase tracking-wider text-xs h-12">
+            <div className="pt-4 border-t-2 border-black">
+              <Button asChild className="w-full bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-12">
                 <Link href="/donate">Return to Hub</Link>
               </Button>
             </div>
@@ -181,23 +168,23 @@ export default async function DonateStatusPage({ searchParams }: Props) {
 
         {isFailed && (
           /* FAILED STATE */
-          <div className="border border-red-500/20 bg-red-950/[0.03] backdrop-blur-xl rounded-3xl p-8 md:p-10 text-center space-y-6 shadow-2xl animate-in fade-in zoom-in duration-300">
-            <div className="mx-auto w-16 h-16 rounded-full bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red-400">
+          <div className="border-2 border-black bg-white p-8 md:p-10 text-center space-y-6 shadow-[8px_8px_0px_0px_#EA4335]">
+            <div className="mx-auto w-16 h-16 border-2 border-black bg-[#EA4335] text-white flex items-center justify-center shadow-[3px_3px_0px_0px_#000000]">
               <XCircle className="h-9 w-9" />
             </div>
             
             <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-500/20 bg-red-500/5 text-[9px] font-black tracking-widest text-red-400 uppercase">
-                Verification Failed
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-black bg-[#EA4335]/10 text-[10px] font-black tracking-widest text-[#EA4335] uppercase">
+                Payment Failed
               </span>
-              <h2 className="text-3xl font-black uppercase italic tracking-tight text-white mt-3">Payment Unsuccessful</h2>
-              <p className="text-white/50 text-xs max-w-sm mx-auto leading-relaxed">
-                {result.error || 'We could not verify your donation payment. The transaction may have been cancelled or declined by the bank.'}
+              <h2 className="text-3xl font-black uppercase italic tracking-tight text-black mt-2">Transaction Declined</h2>
+              <p className="text-zinc-700 text-xs font-bold max-w-sm mx-auto leading-relaxed">
+                {result.error || 'We could not verify your payment. The transaction may have been cancelled or declined by your financial institution.'}
               </p>
             </div>
 
-            <div className="pt-4 border-t border-white/5">
-              <Button asChild className="w-full rounded-xl bg-white text-black hover:bg-white/90 font-bold uppercase tracking-wider text-xs h-12">
+            <div className="pt-4 border-t-2 border-black">
+              <Button asChild className="w-full bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[3px_3px_0px_0px_#000000] font-black uppercase text-xs h-12">
                 <Link href="/donate">Try Again</Link>
               </Button>
             </div>

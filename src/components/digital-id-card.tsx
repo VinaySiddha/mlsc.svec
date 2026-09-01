@@ -1,13 +1,11 @@
-
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Card, CardContent } from './ui/card';
 import { MLSCLogo } from './icons';
 import { Button } from './ui/button';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
-import { Image } from './image';
+import Image from 'next/image';
 
 interface DigitalIdCardProps {
   member?: {
@@ -23,9 +21,9 @@ export function DigitalIdCard({ member, name, referenceId }: DigitalIdCardProps)
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   
-  const displayName = member?.name || name || 'Applicant';
-  const displayRole = member?.role || `Ref: ${referenceId}` || 'Applicant';
-  const displayImage = member?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D8ABC&color=fff&size=128`;
+  const displayName = member?.name || name || 'Member';
+  const displayRole = member?.role || (referenceId ? `Ref: ${referenceId}` : 'Core Contributor');
+  const displayImage = member?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=FFE600&color=000&size=200&bold=true`;
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -49,52 +47,79 @@ export function DigitalIdCard({ member, name, referenceId }: DigitalIdCardProps)
   };
 
   return (
-    <div className="space-y-4">
-        <div ref={cardRef}>
-            <Card className="w-full max-w-sm mx-auto bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl border-blue-700/50 overflow-hidden">
-                <div className="p-4 bg-white/5 backdrop-blur-sm">
-                   <div className="flex items-center gap-3">
-                    <MLSCLogo className="h-12 w-12" />
-                    <div className="text-left">
-                        <h2 className="text-lg font-bold tracking-wider">MLSC SVEC</h2>
-                        <p className="text-xs text-blue-200/80">Microsoft Learn Student Club</p>
-                    </div>
-                    </div>
-                </div>
-
-                <CardContent className="p-6 pt-4">
-                <div className="flex flex-col items-center text-center space-y-4">
-                    
-                    <div className="relative mt-[-40px] border-4 border-blue-500/50 rounded-full p-1 shadow-lg">
-                        <Image 
-                            src={displayImage} 
-                            alt={`Photo of ${displayName}`}
-                            width={128}
-                            height={128}
-                            className="rounded-full object-cover bg-gray-700"
-                            style={{ height: 'auto' }}
-                            data-ai-hint="person portrait"
-                        />
-                    </div>
-
-                    <div className="space-y-1">
-                        <p className="text-2xl font-bold tracking-wide">{displayName}</p>
-                        <p className="font-mono text-sm text-blue-300 bg-white/10 px-3 py-1 rounded-full break-all">
-                            {displayRole}
-                        </p>
-                    </div>
-                    
-                    <div className="w-full pt-2 text-center">
-                        <p className="text-sm font-semibold text-blue-300">MLSC 3.0 HIRING</p>
-                    </div>
-                </div>
-                </CardContent>
-            </Card>
+    <div className="space-y-6 max-w-sm mx-auto">
+      {/* Printable ID Card Element */}
+      <div ref={cardRef} className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_#000000] text-black overflow-hidden font-sans">
+        
+        {/* Header Ribbon */}
+        <div className="bg-[#FFE600] border-b-4 border-black p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <MLSCLogo className="h-8 w-8 text-black" />
+            <div>
+              <h2 className="text-sm font-black uppercase tracking-tight text-black leading-none">MLSC SVEC</h2>
+              <p className="text-[9px] font-black uppercase tracking-widest text-black/80 mt-0.5">Chapter 4.0</p>
+            </div>
+          </div>
+          <span className="text-[9px] font-black uppercase border-2 border-black bg-white px-2 py-0.5 shadow-[2px_2px_0px_0px_#000000]">
+            Verified
+          </span>
         </div>
-        <Button onClick={handleDownload} className="w-full" variant="secondary" disabled={isDownloading}>
-            {isDownloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-            Download ID Card
-        </Button>
+
+        {/* Member Photo & Details */}
+        <div className="p-6 space-y-5 text-center">
+          
+          <div className="relative mx-auto w-28 h-28 border-4 border-black shadow-[4px_4px_0px_0px_#000000] bg-[#FFE600] overflow-hidden">
+            <Image 
+              src={displayImage} 
+              alt={`Photo of ${displayName}`}
+              fill
+              className="object-cover"
+              sizes="112px"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <h3 className="text-xl font-black uppercase italic tracking-tight text-black break-words">
+              {displayName}
+            </h3>
+            <div className="inline-block border-2 border-black bg-[#4285F4] text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 shadow-[2px_2px_0px_0px_#000000]">
+              {displayRole}
+            </div>
+          </div>
+
+          {/* Verification Badge footer */}
+          <div className="border-t-2 border-dashed border-black pt-4 space-y-2">
+            <div className="flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-black">
+              <CheckCircle2 className="h-3.5 w-3.5 text-[#00A844]" />
+              <span>Official Chapter Credential</span>
+            </div>
+            <p className="text-[8px] font-mono font-bold text-zinc-500 uppercase tracking-widest">
+              SRI VASAVI ENGINEERING COLLEGE
+            </p>
+          </div>
+
+        </div>
+
+        {/* Bottom Color Bar */}
+        <div className="h-2 bg-[#00FF66] border-t-2 border-black w-full" />
+      </div>
+
+      {/* Action Button */}
+      <Button 
+        onClick={handleDownload} 
+        disabled={isDownloading}
+        className="w-full bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[4px_4px_0px_0px_#000000] font-black uppercase tracking-wider text-xs h-12 active:translate-x-[2px] active:translate-y-[2px]"
+      >
+        {isDownloading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating PNG...
+          </>
+        ) : (
+          <>
+            <Download className="mr-2 h-4 w-4" /> Download ID Card
+          </>
+        )}
+      </Button>
     </div>
   );
 }

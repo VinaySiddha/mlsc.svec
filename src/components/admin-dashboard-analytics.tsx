@@ -284,15 +284,15 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
 
   if (!data) {
     return (
-      <div className="space-y-6 animate-pulse">
+      <div className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 rounded-2xl bg-slate-200 dark:bg-zinc-800" />
+            <div key={i} className="h-32 border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000000] animate-pulse" />
           ))}
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 h-96 rounded-2xl bg-slate-200 dark:bg-zinc-800" />
-          <div className="h-96 rounded-2xl bg-slate-200 dark:bg-zinc-800" />
+          <div className="lg:col-span-2 h-96 border-2 border-black bg-white shadow-[6px_6px_0px_0px_#000000] animate-pulse" />
+          <div className="h-96 border-2 border-black bg-white shadow-[6px_6px_0px_0px_#000000] animate-pulse" />
         </div>
       </div>
     );
@@ -326,80 +326,80 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
   })) || [];
 
   return (
-    <div className="space-y-8">
-      {/* 4 Stat Cards precisely mirroring TailAdmin screenshot layout */}
+    <div className="space-y-8 font-sans text-black">
+      {/* 4 Stat Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* Card 1: Applicants */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_#4285F4]">
           <div className="flex justify-between items-start">
-            <div className="h-11 w-11 rounded-full bg-[#4285F4]/10 border border-[#4285F4]/30 flex items-center justify-center">
-              <Users className="h-5.5 w-5.5 text-[#4285F4]" />
+            <div className="h-11 w-11 bg-[#4285F4] border-2 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000000]">
+              <Users className="h-5 w-5 stroke-[2.5]" />
             </div>
-            <span className="flex items-center gap-1 text-[11px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
-              <TrendingUp className="h-3 w-3" />
+            <span className="flex items-center gap-1 text-[11px] font-black text-black bg-[#00FF66] border border-black px-2 py-0.5 shadow-[1px_1px_0px_0px_#000000]">
+              <TrendingUp className="h-3 w-3 stroke-[3]" />
               11.01%
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Total Applicants</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+            <p className="text-xs font-black text-zinc-600 uppercase tracking-wider">Total Applicants</p>
+            <h4 className="text-2xl font-black text-black tracking-tight mt-1 font-display">
               {data.totalApplications.toLocaleString()}
             </h4>
           </div>
         </div>
 
         {/* Card 2: Interviews Done */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_#34A853]">
           <div className="flex justify-between items-start">
-            <div className="h-11 w-11 rounded-full bg-[#34A853]/10 border border-[#34A853]/30 flex items-center justify-center">
-              <UserCheck className="h-5.5 w-5.5 text-[#34A853]" />
+            <div className="h-11 w-11 bg-[#00FF66] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
+              <UserCheck className="h-5 w-5 stroke-[2.5]" />
             </div>
-            <span className="flex items-center gap-1 text-[11px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
-              <TrendingUp className="h-3 w-3" />
+            <span className="flex items-center gap-1 text-[11px] font-black text-black bg-[#00FF66] border border-black px-2 py-0.5 shadow-[1px_1px_0px_0px_#000000]">
+              <TrendingUp className="h-3 w-3 stroke-[3]" />
               8.34%
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Interviews Done</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+            <p className="text-xs font-black text-zinc-600 uppercase tracking-wider">Interviews Done</p>
+            <h4 className="text-2xl font-black text-black tracking-tight mt-1 font-display">
               {data.attendedCount.toLocaleString()}
             </h4>
           </div>
         </div>
 
         {/* Card 3: New Members */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_#FFE600]">
           <div className="flex justify-between items-start">
-            <div className="h-11 w-11 rounded-full bg-[#FBBC05]/10 border border-[#FBBC05]/30 flex items-center justify-center">
-              <CheckCircle className="h-5.5 w-5.5 text-[#FBBC05]" />
+            <div className="h-11 w-11 bg-[#FFE600] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
+              <CheckCircle className="h-5 w-5 stroke-[2.5]" />
             </div>
-            <span className="flex items-center gap-1 text-[11px] font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
-              <TrendingDown className="h-3 w-3" />
+            <span className="flex items-center gap-1 text-[11px] font-black text-white bg-[#FF0055] border border-black px-2 py-0.5 shadow-[1px_1px_0px_0px_#000000]">
+              <TrendingDown className="h-3 w-3 stroke-[3]" />
               2.50%
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Hired Members</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+            <p className="text-xs font-black text-zinc-600 uppercase tracking-wider">Hired Members</p>
+            <h4 className="text-2xl font-black text-black tracking-tight mt-1 font-display">
               {data.hiredCount.toLocaleString()}
             </h4>
           </div>
         </div>
 
         {/* Card 4: Selectivity */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_#FF0055]">
           <div className="flex justify-between items-start">
-            <div className="h-11 w-11 rounded-full bg-[#EA4335]/10 border border-[#EA4335]/30 flex items-center justify-center">
-              <UserX className="h-5.5 w-5.5 text-[#EA4335]" />
+            <div className="h-11 w-11 bg-[#FF0055] border-2 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000000]">
+              <UserX className="h-5 w-5 stroke-[2.5]" />
             </div>
-            <span className="flex items-center gap-1 text-[11px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
-              <TrendingUp className="h-3 w-3" />
+            <span className="flex items-center gap-1 text-[11px] font-black text-black bg-[#00FF66] border border-black px-2 py-0.5 shadow-[1px_1px_0px_0px_#000000]">
+              <TrendingUp className="h-3 w-3 stroke-[3]" />
               14.2%
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Conversion Rate</p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+            <p className="text-xs font-black text-zinc-600 uppercase tracking-wider">Conversion Rate</p>
+            <h4 className="text-2xl font-black text-black tracking-tight mt-1 font-display">
               {conversionRate}%
             </h4>
           </div>
@@ -410,11 +410,11 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Large Chart: Domain Applications (Line/Area) */}
         <div className="lg:col-span-2">
-          <Card className="pt-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm h-full flex flex-col justify-between">
-            <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+          <Card className="pt-0 bg-white border-2 border-black rounded-none shadow-[6px_6px_0px_0px_#000000] h-full flex flex-col justify-between">
+            <CardHeader className="flex items-center gap-2 space-y-0 border-b-2 border-black py-4 sm:flex-row bg-[#FAFAFA]">
               <div className="grid flex-1 gap-1">
-                <CardTitle className="text-base font-bold text-slate-900 dark:text-white">Domain Applications</CardTitle>
-                <CardDescription className="text-xs text-slate-400 dark:text-zinc-500 font-semibold">
+                <CardTitle className="text-base font-black uppercase font-display text-black">Domain Applications</CardTitle>
+                <CardDescription className="text-xs text-zinc-600 font-bold">
                   View of domain-wise registrations (Technical vs Non-Technical)
                 </CardDescription>
               </div>
@@ -430,35 +430,35 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                       <stop
                         offset="5%"
                         stopColor="#4285F4"
-                        stopOpacity={0.2}
+                        stopOpacity={0.3}
                       />
                       <stop
                         offset="95%"
                         stopColor="#4285F4"
-                        stopOpacity={0.01}
+                        stopOpacity={0.05}
                       />
                     </linearGradient>
                     <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
                       <stop
                         offset="5%"
                         stopColor="#34A853"
-                        stopOpacity={0.2}
+                        stopOpacity={0.3}
                       />
                       <stop
                         offset="95%"
                         stopColor="#34A853"
-                        stopOpacity={0.01}
+                        stopOpacity={0.05}
                       />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid vertical={false} stroke="currentColor" className="text-slate-100 dark:text-zinc-800" />
+                  <CartesianGrid vertical={false} stroke="#e4e4e7" />
                   <XAxis
                     dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
                     minTickGap={32}
-                    className="text-slate-400 dark:text-zinc-500 font-semibold text-[10px]"
+                    className="text-black font-bold text-[10px]"
                     tickFormatter={(value) => {
                       const date = new Date(value)
                       return date.toLocaleDateString("en-US", {
@@ -487,7 +487,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     fill="url(#fillMobile)"
                     stroke="#34A853"
                     stackId="a"
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                   />
                   <Area
                     dataKey="desktop"
@@ -495,7 +495,7 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                     fill="url(#fillDesktop)"
                     stroke="#4285F4"
                     stackId="a"
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                   />
                   <ChartLegend content={<ChartLegendContent />} />
                 </AreaChart>
@@ -506,39 +506,43 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
 
         {/* Branch Radar Chart (1/3 width) */}
         <div className="lg:col-span-1">
-          <Card className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm h-full flex flex-col justify-between">
-            <CardHeader className="items-center pb-2">
-              <CardTitle className="text-base font-bold text-slate-900 dark:text-white">Branch Distribution</CardTitle>
-              <CardDescription className="text-xs text-slate-400 dark:text-zinc-500 font-semibold text-center">
+          <Card className="bg-white border-2 border-black rounded-none shadow-[6px_6px_0px_0px_#000000] h-full flex flex-col justify-between">
+            <CardHeader className="items-center pb-2 border-b-2 border-black bg-[#FAFAFA]">
+              <CardTitle className="text-base font-black uppercase font-display text-black">Branch Distribution</CardTitle>
+              <CardDescription className="text-xs text-zinc-600 font-bold text-center">
                 Applicants by engineering branch
               </CardDescription>
             </CardHeader>
-            <CardContent className="pb-0 flex-1 flex items-center justify-center">
+            <CardContent className="pb-0 pt-4 flex-1 flex items-center justify-center">
               <ChartContainer
                 config={branchChartConfig}
                 className="mx-auto aspect-square w-full max-h-[220px]"
               >
                 <RadarChart data={branchRadarData}>
                   <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 9, fill: "currentColor", className: "text-slate-400 dark:text-zinc-500 font-bold" }} />
-                  <PolarGrid stroke="currentColor" className="text-slate-100 dark:text-zinc-800/50" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 9, fill: "#000000", className: "text-black font-black" }} />
+                  <PolarGrid stroke="#e4e4e7" />
                   <Radar
                     dataKey="count"
                     fill="var(--color-count)"
                     fillOpacity={0.6}
+                    stroke="#4285F4"
+                    strokeWidth={2}
                     dot={{
                       r: 4,
                       fillOpacity: 1,
+                      stroke: "#000000",
+                      strokeWidth: 1,
                     }}
                   />
                 </RadarChart>
               </ChartContainer>
             </CardContent>
-            <CardFooter className="flex-col gap-2 text-xs border-t border-slate-100 dark:border-zinc-800/50 pt-4">
-              <div className="flex items-center gap-2 leading-none font-semibold text-slate-600 dark:text-zinc-400">
-                <TrendingUp className="h-4 w-4 text-[#4285F4]" /> Branch-wise hiring metrics
+            <CardFooter className="flex-col gap-2 text-xs border-t-2 border-black pt-4 bg-[#FAFAFA]">
+              <div className="flex items-center gap-2 leading-none font-black text-black">
+                <TrendingUp className="h-4 w-4 text-[#4285F4] stroke-[2.5]" /> Branch-wise hiring metrics
               </div>
-              <div className="flex items-center gap-2 leading-none text-[10px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-widest">
+              <div className="flex items-center gap-2 leading-none text-[10px] text-zinc-600 uppercase font-black tracking-widest">
                 Active Recruitment Cycle
               </div>
             </CardFooter>
@@ -549,14 +553,14 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
       {/* Bottom Row: Technical Domain Radar Chart, Non-Technical Domain Radar Chart & Year Radar Chart */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Technical Domain Distribution Radar Chart (1/3 width) */}
-        <div className="lg:col-span-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-          <div className="flex justify-between items-center mb-4">
+        <div className="lg:col-span-1 bg-white border-2 border-black rounded-none shadow-[6px_6px_0px_0px_#000000] p-6 flex flex-col justify-between">
+          <div className="flex justify-between items-center mb-4 border-b-2 border-black pb-3">
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Technical Domain</h3>
-              <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-semibold mt-0.5">Applicants and interviews per domain</p>
+              <h3 className="text-base font-black uppercase font-display text-black">Technical Domain</h3>
+              <p className="text-[10px] text-zinc-600 font-bold mt-0.5">Applicants and interviews per domain</p>
             </div>
-            <div className="h-9 w-9 rounded-full bg-[#4285F4]/10 flex items-center justify-center">
-              <Layers className="h-4.5 w-4.5 text-[#4285F4]" />
+            <div className="h-9 w-9 bg-[#4285F4] border-2 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000000]">
+              <Layers className="h-4 w-4 stroke-[2.5]" />
             </div>
           </div>
 
@@ -578,35 +582,37 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                   cursor={false}
                   content={<ChartTooltipContent indicator="line" />}
                 />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fill: "currentColor", className: "text-slate-400 dark:text-zinc-500 font-bold" }} />
-                <PolarGrid stroke="currentColor" className="text-slate-100 dark:text-zinc-800/50" />
+                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fill: "#000000", className: "text-black font-black" }} />
+                <PolarGrid stroke="#e4e4e7" />
                 <Radar
                   dataKey="applicants"
                   fill="var(--color-applicants)"
                   fillOpacity={0.6}
+                  stroke="#4285F4"
+                  strokeWidth={2}
                 />
-                <Radar dataKey="attended" fill="var(--color-attended)" fillOpacity={0.4} />
+                <Radar dataKey="attended" fill="var(--color-attended)" fillOpacity={0.4} stroke="#34A853" strokeWidth={2} />
                 <ChartLegend className="mt-4" content={<ChartLegendContent />} />
               </RadarChart>
             </ChartContainer>
           </div>
           
-          <CardFooter className="flex-col gap-2 text-xs border-t border-slate-100 dark:border-zinc-800/50 pt-4 px-0 pb-0 mt-4">
-            <div className="flex items-center gap-2 leading-none font-semibold text-slate-600 dark:text-zinc-400 w-full justify-start">
-              <TrendingUp className="h-4 w-4 text-[#4285F4]" /> Engagement level analysis
+          <CardFooter className="flex-col gap-2 text-xs border-t-2 border-black pt-4 px-0 pb-0 mt-4">
+            <div className="flex items-center gap-2 leading-none font-black text-black w-full justify-start">
+              <TrendingUp className="h-4 w-4 text-[#4285F4] stroke-[2.5]" /> Engagement level analysis
             </div>
           </CardFooter>
         </div>
 
         {/* Non-Technical Domain Distribution Radar Chart (1/3 width) */}
-        <div className="lg:col-span-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-          <div className="flex justify-between items-center mb-4">
+        <div className="lg:col-span-1 bg-white border-2 border-black rounded-none shadow-[6px_6px_0px_0px_#000000] p-6 flex flex-col justify-between">
+          <div className="flex justify-between items-center mb-4 border-b-2 border-black pb-3">
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Non-Technical Domain</h3>
-              <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-semibold mt-0.5">Applicants and interviews per domain</p>
+              <h3 className="text-base font-black uppercase font-display text-black">Non-Technical Domain</h3>
+              <p className="text-[10px] text-zinc-600 font-bold mt-0.5">Applicants and interviews per domain</p>
             </div>
-            <div className="h-9 w-9 rounded-full bg-[#FBBC05]/10 flex items-center justify-center">
-              <Layers className="h-4.5 w-4.5 text-[#FBBC05]" />
+            <div className="h-9 w-9 bg-[#FFE600] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
+              <Layers className="h-4 w-4 stroke-[2.5]" />
             </div>
           </div>
 
@@ -628,59 +634,65 @@ export function AdminDashboardAnalytics({ data }: { data: AnalyticsData }) {
                   cursor={false}
                   content={<ChartTooltipContent indicator="line" />}
                 />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fill: "currentColor", className: "text-slate-400 dark:text-zinc-500 font-bold" }} />
-                <PolarGrid stroke="currentColor" className="text-slate-100 dark:text-zinc-800/50" />
+                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fill: "#000000", className: "text-black font-black" }} />
+                <PolarGrid stroke="#e4e4e7" />
                 <Radar
                   dataKey="applicants"
                   fill="var(--color-applicants)"
                   fillOpacity={0.6}
+                  stroke="#FBBC05"
+                  strokeWidth={2}
                 />
-                <Radar dataKey="attended" fill="var(--color-attended)" fillOpacity={0.4} />
+                <Radar dataKey="attended" fill="var(--color-attended)" fillOpacity={0.4} stroke="#EA4335" strokeWidth={2} />
                 <ChartLegend className="mt-4" content={<ChartLegendContent />} />
               </RadarChart>
             </ChartContainer>
           </div>
           
-          <CardFooter className="flex-col gap-2 text-xs border-t border-slate-100 dark:border-zinc-800/50 pt-4 px-0 pb-0 mt-4">
-            <div className="flex items-center gap-2 leading-none font-semibold text-slate-600 dark:text-zinc-400 w-full justify-start">
-              <TrendingUp className="h-4 w-4 text-[#FBBC05]" /> Engagement level analysis
+          <CardFooter className="flex-col gap-2 text-xs border-t-2 border-black pt-4 px-0 pb-0 mt-4">
+            <div className="flex items-center gap-2 leading-none font-black text-black w-full justify-start">
+              <TrendingUp className="h-4 w-4 text-[#FBBC05] stroke-[2.5]" /> Engagement level analysis
             </div>
           </CardFooter>
         </div>
 
         {/* Year Radar Chart (1/3 width) */}
         <div className="lg:col-span-1">
-          <Card className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm h-full flex flex-col justify-between">
-            <CardHeader className="items-center pb-2 px-0 pt-0">
-              <CardTitle className="text-base font-bold text-slate-900 dark:text-white">Year Distribution</CardTitle>
-              <CardDescription className="text-xs text-slate-400 dark:text-zinc-500 font-semibold text-center">
+          <Card className="bg-white border-2 border-black rounded-none shadow-[6px_6px_0px_0px_#000000] h-full flex flex-col justify-between">
+            <CardHeader className="items-center pb-2 border-b-2 border-black bg-[#FAFAFA]">
+              <CardTitle className="text-base font-black uppercase font-display text-black">Year Distribution</CardTitle>
+              <CardDescription className="text-xs text-zinc-600 font-bold text-center">
                 Applicants by academic year
               </CardDescription>
             </CardHeader>
-            <CardContent className="pb-0 px-0 flex-1 flex items-center justify-center min-h-[220px]">
+            <CardContent className="pb-0 pt-4 flex-1 flex items-center justify-center min-h-[220px]">
               <ChartContainer
                 config={yearChartConfig}
                 className="mx-auto aspect-square w-full max-h-[230px]"
               >
                 <RadarChart data={yearRadarData}>
                   <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fill: "currentColor", className: "text-slate-400 dark:text-zinc-500 font-bold" }} />
-                  <PolarGrid stroke="currentColor" className="text-slate-100 dark:text-zinc-800/50" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fill: "#000000", className: "text-black font-black" }} />
+                  <PolarGrid stroke="#e4e4e7" />
                   <Radar
                     dataKey="count"
                     fill="var(--color-count)"
                     fillOpacity={0.6}
+                    stroke="#34A853"
+                    strokeWidth={2}
                     dot={{
                       r: 4,
                       fillOpacity: 1,
+                      stroke: "#000000",
+                      strokeWidth: 1,
                     }}
                   />
                 </RadarChart>
               </ChartContainer>
             </CardContent>
-            <CardFooter className="flex-col gap-2 text-xs border-t border-slate-100 dark:border-zinc-800/50 pt-4 px-0 pb-0 mt-4">
-              <div className="flex items-center gap-2 leading-none font-semibold text-slate-600 dark:text-zinc-400 w-full justify-start">
-                <TrendingUp className="h-4 w-4 text-[#34A853]" /> Year-wise hiring metrics
+            <CardFooter className="flex-col gap-2 text-xs border-t-2 border-black pt-4 bg-[#FAFAFA]">
+              <div className="flex items-center gap-2 leading-none font-black text-black w-full justify-start">
+                <TrendingUp className="h-4 w-4 text-[#34A853] stroke-[2.5]" /> Year-wise hiring metrics
               </div>
             </CardFooter>
           </Card>

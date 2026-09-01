@@ -7,16 +7,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { MLSCLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Lock, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { cn } from '@/lib/utils';
 import { LegalModal } from '@/components/legal-modal';
 import { checkUsernameAvailable } from '@/lib/user-service';
 
@@ -92,7 +90,6 @@ function LoginContent() {
   const onSignupSubmit = async (values: SignupFormValues) => {
     setIsSubmitting(true);
     try {
-      // Check if username is available first
       const isAvailable = await checkUsernameAvailable(values.username);
       if (!isAvailable) {
         toast({
@@ -154,164 +151,51 @@ function LoginContent() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-[#4285F4]" />
+      <div className="flex min-h-screen items-center justify-center bg-white text-black font-sans">
+        <div className="border-2 border-black bg-white p-8 shadow-[6px_6px_0px_0px_#000000] text-center space-y-3">
+          <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-black uppercase tracking-wider text-black">Authenticating Session...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-black p-4 md:p-10 font-sans">
-      <div className="w-full max-w-sm md:max-w-4xl">
-        <div className="bg-[#0E0E10] border-2 border-white/20 shadow-[10px_10px_0px_0px_#4285F4] overflow-hidden">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4 sm:p-6 md:p-10 font-sans text-black selection:bg-[#FFE600] selection:text-black">
+      
+      {/* Top Banner */}
+      <div className="w-full max-w-4xl mb-6">
+        <div className="border-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center shadow-[4px_4px_0px_0px_#000000]">
+          ⚡ MLSC SVEC Community Identity & Access Management
+        </div>
+      </div>
+
+      <div className="w-full max-w-4xl">
+        <div className="bg-white border-2 border-black shadow-[10px_10px_0px_0px_#000000] overflow-hidden">
           <div className="grid md:grid-cols-2">
 
             {/* ── Left: form panel ── */}
-            <div className="p-8 md:p-10 flex flex-col justify-center gap-6 bg-[#0E0E10] border-b-2 md:border-b-0 md:border-r-2 border-white/20">
+            <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center gap-6 bg-white border-b-2 md:border-b-0 md:border-r-2 border-black">
               {/* Logo + heading */}
-              <div className="flex flex-col items-center gap-2 text-center">
-                <Link href="/" className="inline-block hover:translate-x-[1px] hover:translate-y-[1px] transition-transform mb-1">
-                  <div className="inline-flex h-14 w-14 items-center justify-center bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_#FFFFFF]">
-                    <MLSCLogo className="h-8 w-8 text-black" />
-                  </div>
-                </Link>
-                <div className="inline-block px-3 py-1 bg-[#4285F4] text-white text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF]">
-                  [ SVEC COMMUNITY PORTAL ]
-                </div>
-                <h1 className="text-3xl font-display font-black uppercase italic tracking-tighter text-white">
-                  {isSignUp ? 'CREATE ' : 'USER '}
-                  <span className="text-[#FFE600]">{isSignUp ? 'ACCOUNT.' : 'LOGIN.'}</span>
-                </h1>
-                <p className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">
-                  {isSignUp ? 'Join the MLSC developer network' : 'Access your member dashboard'}
-                </p>
-              </div>
-
-              {/* Email/password form */}
-              {isSignUp ? (
-                <Form {...signupForm}>
-                  <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
-                    <FormField
-                      control={signupForm.control}
-                      name="displayName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Full Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Doe" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
-                          </FormControl>
-                          <FormMessage className="text-red-400 text-[11px]" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={signupForm.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Username</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="username" 
-                              {...field}
-                              onChange={(e) => {
-                                const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
-                                field.onChange(val);
-                              }}
-                              className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" 
-                            />
-                          </FormControl>
-                          <FormMessage className="text-red-400 text-[11px]" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={signupForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Email Address</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="john@example.com" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
-                          </FormControl>
-                          <FormMessage className="text-red-400 text-[11px]" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={signupForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#FFE600] focus:shadow-[3px_3px_0px_0px_#FFE600]" />
-                          </FormControl>
-                          <FormMessage className="text-red-400 text-[11px]" />
-                        </FormItem>
-                      )}
-                    />
-                    <button 
-                      type="submit" 
-                      className="w-full h-11 bg-[#00FF66] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4" 
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                      REGISTER ACCOUNT [↗]
-                    </button>
-                  </form>
-                </Form>
-              ) : (
-                <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                    <FormField
-                      control={loginForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Email Address</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="john@example.com" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
-                          </FormControl>
-                          <FormMessage className="text-red-400 text-[11px]" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={loginForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-black uppercase tracking-wider text-white">Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} className="bg-black border-2 border-white/20 rounded-none h-11 px-4 text-xs text-white placeholder-zinc-500 focus:border-[#4285F4] focus:shadow-[3px_3px_0px_0px_#4285F4]" />
-                          </FormControl>
-                          <FormMessage className="text-red-400 text-[11px]" />
-                        </FormItem>
-                      )}
-                    />
-                    <button 
-                      type="submit" 
-                      className="w-full h-11 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4" 
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                      SIGN IN NOW [→]
-                    </button>
-                  </form>
-                </Form>
-              )}
-
-              {/* Divider */}
-              <div className="relative my-2">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t-2 border-white/10" />
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="bg-[#0E0E10] px-3 text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
-                    OR INSTANT AUTH
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Link href="/" className="inline-block hover:translate-x-[1px] hover:translate-y-[1px] transition-transform">
+                    <div className="inline-flex h-12 w-12 items-center justify-center bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+                      <MLSCLogo className="h-7 w-7 text-black" />
+                    </div>
+                  </Link>
+                  <span className="text-[10px] font-black uppercase px-2 py-1 bg-black text-white">
+                    {isSignUp ? 'New Member' : 'Member Access'}
                   </span>
                 </div>
+
+                <h1 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight text-black pt-2">
+                  {isSignUp ? 'CREATE ' : 'STUDENT '}
+                  <span className="bg-[#FFE600] border border-black px-1.5">{isSignUp ? 'ACCOUNT' : 'LOGIN'}</span>
+                </h1>
+                <p className="text-xs text-zinc-600 font-bold">
+                  {isSignUp ? 'Join the MLSC student developer network at SVEC' : 'Sign in to access workshops, leaderboards & events'}
+                </p>
               </div>
 
               {/* OAuth buttons */}
@@ -320,10 +204,10 @@ function LoginContent() {
                   type="button"
                   onClick={() => handleOAuthSignIn('google')}
                   disabled={isOAuthSigningIn !== null}
-                  className="bg-black border-2 border-white/20 hover:border-white text-white h-11 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all"
+                  className="bg-white hover:bg-zinc-50 border-2 border-black text-black h-11 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] transition-all"
                 >
                   {isOAuthSigningIn === 'google' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin text-black" />
                   ) : (
                     <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -338,10 +222,10 @@ function LoginContent() {
                   type="button"
                   onClick={() => handleOAuthSignIn('github')}
                   disabled={isOAuthSigningIn !== null}
-                  className="bg-black border-2 border-white/20 hover:border-white text-white h-11 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider transition-all"
+                  className="bg-white hover:bg-zinc-50 border-2 border-black text-black h-11 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] transition-all"
                 >
                   {isOAuthSigningIn === 'github' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin text-black" />
                   ) : (
                     <svg className="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                       <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
@@ -351,56 +235,189 @@ function LoginContent() {
                 </button>
               </div>
 
+              {/* Divider */}
+              <div className="relative my-1">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t-2 border-zinc-200" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-white px-3 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                    OR SIGN IN WITH EMAIL
+                  </span>
+                </div>
+              </div>
+
+              {/* Email/password form */}
+              {isSignUp ? (
+                <Form {...signupForm}>
+                  <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
+                    <FormField
+                      control={signupForm.control}
+                      name="displayName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Full Name <span className="text-[#EA4335]">*</span></FormLabel>
+                          <FormControl>
+                            <Input placeholder="John Doe" {...field} className="h-11 px-3 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]" />
+                          </FormControl>
+                          <FormMessage className="text-[#EA4335] text-[11px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Username <span className="text-[#EA4335]">*</span></FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="username" 
+                              {...field}
+                              onChange={(e) => {
+                                const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                                field.onChange(val);
+                              }}
+                              className="h-11 px-3 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]" 
+                            />
+                          </FormControl>
+                          <FormMessage className="text-[#EA4335] text-[11px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Email Address <span className="text-[#EA4335]">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="john@example.com" {...field} className="h-11 px-3 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]" />
+                          </FormControl>
+                          <FormMessage className="text-[#EA4335] text-[11px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signupForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Password <span className="text-[#EA4335]">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} className="h-11 px-3 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]" />
+                          </FormControl>
+                          <FormMessage className="text-[#EA4335] text-[11px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <button 
+                      type="submit" 
+                      className="w-full h-11 bg-[#00FF66] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] hover:bg-[#00FF66]/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-2" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin text-black" />}
+                      REGISTER ACCOUNT [↗]
+                    </button>
+                  </form>
+                </Form>
+              ) : (
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Email Address <span className="text-[#EA4335]">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="john@example.com" {...field} className="h-11 px-3 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]" />
+                          </FormControl>
+                          <FormMessage className="text-[#EA4335] text-[11px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Password <span className="text-[#EA4335]">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} className="h-11 px-3 border-2 border-black bg-white text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]" />
+                          </FormControl>
+                          <FormMessage className="text-[#EA4335] text-[11px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <button 
+                      type="submit" 
+                      className="w-full h-11 bg-[#FFE600] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] hover:bg-[#FFE600]/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-2" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin text-black" />}
+                      SIGN IN NOW [→]
+                    </button>
+                  </form>
+                </Form>
+              )}
+
               {/* Toggle sign in / sign up */}
-              <p className="text-center text-xs text-zinc-400">
+              <p className="text-center text-xs text-zinc-600 font-bold">
                 {isSignUp ? 'Already registered?' : "Don't have an account?"}{' '}
                 <button
                   type="button"
                   onClick={() => setIsSignUp(!isSignUp)}
-                  className="text-[#FFE600] underline font-bold uppercase tracking-wider text-xs ml-1"
+                  className="text-black underline font-black uppercase tracking-wider text-xs ml-1 hover:text-[#4285F4]"
                 >
                   {isSignUp ? 'Sign In [→]' : 'Create Account [↗]'}
                 </button>
               </p>
 
               {/* Terms */}
-              <p className="text-center text-[11px] text-zinc-500 leading-relaxed">
+              <p className="text-center text-[10px] text-zinc-500 font-bold leading-relaxed">
                 By accessing, you agree to our{' '}
-                <LegalModal type="terms" className="text-zinc-400 underline">
+                <LegalModal type="terms" className="text-black underline font-bold">
                   Terms
                 </LegalModal>{' '}and{' '}
-                <LegalModal type="privacy" className="text-zinc-400 underline">
+                <LegalModal type="privacy" className="text-black underline font-bold">
                   Privacy Policy
                 </LegalModal>.
               </p>
             </div>
 
             {/* ── Right: image panel ── */}
-            <div className="relative hidden md:flex flex-col justify-between p-10 bg-black">
-              <div className="absolute inset-0 z-0">
-                <Image
-                  src="/mlsc-preview.png"
-                  alt="MLSC SVEC"
-                  fill
-                  sizes="50vw"
-                  className="object-cover opacity-30 grayscale"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-              </div>
-              
-              <div className="relative z-10">
-                <div className="inline-block px-3 py-1 bg-[#00FF66] text-black text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF] mb-4">
+            <div className="relative hidden md:flex flex-col justify-between p-10 bg-zinc-100 border-l border-zinc-200">
+              <div className="space-y-4">
+                <div className="inline-block px-3 py-1 bg-[#00FF66] text-black text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                   [ ⚡ CORE ECOSYSTEM ]
                 </div>
+                <h3 className="text-3xl font-black uppercase italic tracking-tight text-black leading-none">
+                  Sri Vasavi<br />
+                  <span className="text-[#4285F4]">Engineering</span><br />
+                  College
+                </h3>
+                <p className="text-xs text-zinc-600 font-bold leading-relaxed">
+                  Join hundreds of students building real software, competing in hackathons, and preparing for top-tier careers.
+                </p>
               </div>
 
-              <div className="relative z-10">
-                <p className="text-white font-display font-black text-3xl uppercase italic tracking-tight leading-[0.9]">
-                  SRI VASAVI<br />
-                  <span className="text-[#FFE600]">ENGINEERING COLLEGE</span>
-                </p>
-                <p className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-400 mt-2">
-                  MICROSOFT LEARN STUDENT CHAPTER · AP, INDIA
+              <div className="border-2 border-black bg-white p-4 shadow-[4px_4px_0px_0px_#000000] space-y-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-[#FFE600] fill-[#FFE600]" />
+                  <span className="text-xs font-black uppercase tracking-wider text-black">Member Privileges</span>
+                </div>
+                <ul className="text-[11px] text-zinc-600 font-bold space-y-1">
+                  <li>✓ Digital Member Verification Card</li>
+                  <li>✓ Daily AI Quiz Arena Leaderboard Ranking</li>
+                  <li>✓ Direct GitHub Contributor Access</li>
+                  <li>✓ Event Ticketing & Certification Vault</li>
+                </ul>
+              </div>
+
+              <div className="pt-4">
+                <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-500">
+                  Microsoft Learn Student Club · Chapter 4.0
                 </p>
               </div>
             </div>
@@ -409,12 +426,12 @@ function LoginContent() {
         </div>
 
         {/* Bottom links */}
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <Link href="/login" className="px-4 py-2 bg-zinc-900 border-2 border-white/20 hover:border-white text-zinc-400 hover:text-white text-xs font-black uppercase tracking-wider transition-all">
-            [ ADMIN PORTAL ]
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <Link href="/login" className="px-4 py-2 bg-white border-2 border-black text-black text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-50 transition-all">
+            [ Admin Portal ]
           </Link>
-          <Link href="/" className="px-4 py-2 bg-[#FFE600] border-2 border-black text-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all">
-            [ PUBLIC HOME ]
+          <Link href="/" className="px-4 py-2 bg-[#FFE600] border-2 border-black text-black text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] hover:bg-[#FFE600]/90 transition-all">
+            [ Return to Home ]
           </Link>
         </div>
       </div>
@@ -425,8 +442,11 @@ function LoginContent() {
 export default function UserLoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-[#4285F4]" />
+      <div className="flex min-h-screen items-center justify-center bg-white text-black font-sans">
+        <div className="border-2 border-black bg-white p-8 shadow-[6px_6px_0px_0px_#000000] text-center space-y-3">
+          <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-black uppercase tracking-wider text-black">Loading Login Portal...</p>
+        </div>
       </div>
     }>
       <LoginContent />

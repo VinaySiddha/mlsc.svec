@@ -7,7 +7,7 @@ import {
   Bug, Search, CheckCircle2, Clock, AlertTriangle, Plus,
   ThumbsUp, MessageSquare, Calendar, User, ArrowUpDown,
   ChevronRight, Circle, GitPullRequest, ExternalLink, GitBranch,
-  AlertCircle, Tag, Filter, TrendingUp, Activity
+  AlertCircle, Tag, Filter, TrendingUp, Activity, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -46,10 +46,10 @@ interface PRSubmission {
 }
 
 const SEVERITY_CONFIG = {
-  low: { color: 'bg-blue-500/15 text-blue-300 border-blue-500/30', label: 'Low', dot: 'bg-blue-400' },
-  medium: { color: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30', label: 'Medium', dot: 'bg-yellow-400' },
-  high: { color: 'bg-orange-500/15 text-orange-300 border-orange-500/30', label: 'High', dot: 'bg-orange-400' },
-  critical: { color: 'bg-red-500/15 text-red-300 border-red-500/30', label: 'Critical', dot: 'bg-red-400' },
+  low: { color: 'bg-[#4285F4]/20 text-black border-black', label: 'Low', dot: 'bg-[#4285F4]' },
+  medium: { color: 'bg-[#FFE600] text-black border-black', label: 'Medium', dot: 'bg-black' },
+  high: { color: 'bg-orange-300 text-black border-black', label: 'High', dot: 'bg-orange-600' },
+  critical: { color: 'bg-[#EA4335] text-white border-black', label: 'Critical', dot: 'bg-white' },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -57,12 +57,12 @@ const CATEGORY_LABELS: Record<string, string> = {
   database: 'Database', auth: 'Authentication', other: 'General',
 };
 const CATEGORY_COLORS: Record<string, string> = {
-  frontend: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-  backend: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-  'ui-ux': 'bg-pink-500/15 text-pink-300 border-pink-500/30',
-  database: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-  auth: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  other: 'bg-zinc-500/15 text-zinc-300 border-zinc-500/30',
+  frontend: 'bg-purple-100 text-black border-black',
+  backend: 'bg-cyan-100 text-black border-black',
+  'ui-ux': 'bg-pink-100 text-black border-black',
+  database: 'bg-amber-100 text-black border-black',
+  auth: 'bg-emerald-100 text-black border-black',
+  other: 'bg-zinc-100 text-black border-black',
 };
 
 // ─── Activity Graph Component ─────────────────────────────────────────────────
@@ -71,7 +71,6 @@ function ActivityGraph({ bugs }: { bugs: BugReport[] }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Build a map: dateStr -> { raised, resolved }
   const activityMap = useMemo(() => {
     const map: Record<string, { raised: number; resolved: number }> = {};
     bugs.forEach(bug => {
@@ -92,13 +91,10 @@ function ActivityGraph({ bugs }: { bugs: BugReport[] }) {
     return map;
   }, [bugs]);
 
-  // Build grid of last N weeks
   const cells = useMemo(() => {
     const grid: { date: Date; key: string; raised: number; resolved: number; total: number }[][] = [];
-    // Start from the beginning of the week `weeks` weeks ago
     const start = new Date(today);
     start.setDate(start.getDate() - (weeks * 7) + 1);
-    // Align to Monday
     const dayOfWeek = start.getDay();
     start.setDate(start.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
 
@@ -120,7 +116,7 @@ function ActivityGraph({ bugs }: { bugs: BugReport[] }) {
     }
     if (col.length > 0) {
       while (col.length < 7) {
-        col.push({ date: new Date(current), key: '', raised: 0, resolved: 0, total: -1 }); // filler
+        col.push({ date: new Date(current), key: '', raised: 0, resolved: 0, total: -1 });
         current.setDate(current.getDate() + 1);
       }
       grid.push(col);
@@ -131,18 +127,17 @@ function ActivityGraph({ bugs }: { bugs: BugReport[] }) {
   const maxActivity = useMemo(() => Math.max(...Object.values(activityMap).map(v => v.raised + v.resolved), 1), [activityMap]);
 
   const getCellColor = (cell: { total: number; resolved: number; raised: number }) => {
-    if (cell.total < 0) return 'bg-transparent'; // filler
-    if (cell.total === 0) return 'bg-white/[0.04] border-white/[0.04]';
+    if (cell.total < 0) return 'bg-transparent';
+    if (cell.total === 0) return 'bg-zinc-100 border-zinc-300';
     const ratio = cell.total / maxActivity;
     if (cell.resolved > 0 && cell.raised === 0) {
-      // Pure resolved day
-      if (ratio > 0.75) return 'bg-emerald-500 border-emerald-400/50';
-      if (ratio > 0.4) return 'bg-emerald-500/70 border-emerald-400/30';
-      return 'bg-emerald-500/40 border-emerald-400/20';
+      if (ratio > 0.75) return 'bg-[#00FF66] border-black';
+      if (ratio > 0.4) return 'bg-[#00FF66]/70 border-black';
+      return 'bg-[#00FF66]/40 border-black';
     }
-    if (ratio > 0.75) return 'bg-[#4285F4] border-[#4285F4]/50';
-    if (ratio > 0.4) return 'bg-[#4285F4]/60 border-[#4285F4]/30';
-    return 'bg-[#4285F4]/25 border-[#4285F4]/15';
+    if (ratio > 0.75) return 'bg-[#4285F4] border-black';
+    if (ratio > 0.4) return 'bg-[#4285F4]/70 border-black';
+    return 'bg-[#4285F4]/40 border-black';
   };
 
   const monthLabels = useMemo(() => {
@@ -168,55 +163,54 @@ function ActivityGraph({ bugs }: { bugs: BugReport[] }) {
   }, [bugs]);
 
   return (
-    <div className="bg-[#0A0A0A] border border-white/5 rounded-xl p-5 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="border-2 border-black bg-white p-5 space-y-4 shadow-[5px_5px_0px_0px_#000000]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-black pb-3">
         <div>
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Activity className="h-4 w-4 text-emerald-400" />
-            Issue Activity
+          <h3 className="text-sm font-black uppercase italic tracking-tight text-black flex items-center gap-2">
+            <Activity className="h-4 w-4 text-[#4285F4]" />
+            Telemetry & Issue Velocity
           </h3>
-          <p className="text-xs text-white/40 mt-0.5">
+          <p className="text-xs text-zinc-600 font-bold mt-0.5">
             {totalResolved} issues resolved · {totalRaisedLast30} raised in the last 30 days
           </p>
         </div>
-        <div className="flex items-center gap-4 text-[10px] text-white/40 font-medium">
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-[#4285F4]/60 border border-[#4285F4]/30 inline-block" /> Raised</div>
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500/60 border border-emerald-400/30 inline-block" /> Resolved</div>
-          <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-white/[0.02] border border-white/5 inline-block" /> None</div>
+        <div className="flex items-center gap-4 text-[10px] font-black uppercase text-black">
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-[#4285F4] border border-black inline-block shadow-[1px_1px_0px_0px_#000000]" /> Raised</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-[#00FF66] border border-black inline-block shadow-[1px_1px_0px_0px_#000000]" /> Resolved</div>
+          <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-zinc-100 border border-black inline-block" /> Idle</div>
         </div>
       </div>
 
-      {/* Month labels */}
+      {/* Heatmap */}
       <div className="overflow-x-auto">
-        <div style={{ minWidth: `${cells.length * 14}px` }}>
+        <div style={{ minWidth: `${cells.length * 15}px` }}>
           <div className="flex gap-0.5 mb-1">
             <div className="w-6 shrink-0" />
             {cells.map((col, i) => {
               const ml = monthLabels.find(m => m.colIndex === i);
               return (
                 <div key={i} className="w-3 flex-shrink-0 flex items-center justify-center">
-                  {ml && <span className="text-[8px] text-white/30 font-bold whitespace-nowrap -ml-1">{ml.label}</span>}
+                  {ml && <span className="text-[8px] text-black font-black uppercase whitespace-nowrap -ml-1 font-mono">{ml.label}</span>}
                 </div>
               );
             })}
           </div>
 
-          {/* Day labels + Grid */}
           {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((day, dayIdx) => (
             <div key={dayIdx} className="flex gap-0.5 mb-0.5">
               <div className="w-6 shrink-0 flex items-center">
-                <span className="text-[8px] text-white/20 font-bold">{day}</span>
+                <span className="text-[8px] text-zinc-600 font-mono font-black uppercase">{day}</span>
               </div>
               {cells.map((col, colIdx) => {
                 const cell = col[dayIdx];
-                if (!cell) return <div key={colIdx} className="w-3 h-3 flex-shrink-0" />;
+                if (!cell) return <div key={colIdx} className="w-3.5 h-3.5 flex-shrink-0" />;
                 const color = getCellColor(cell);
                 const isFuture = cell.date > today;
                 return (
                   <div
                     key={colIdx}
                     className={cn(
-                      'w-3 h-3 rounded-sm border flex-shrink-0 transition-transform hover:scale-125 cursor-default',
+                      'w-3.5 h-3.5 border flex-shrink-0 transition-transform hover:scale-125 cursor-default',
                       color,
                       isFuture && 'opacity-0 pointer-events-none'
                     )}
@@ -228,53 +222,6 @@ function ActivityGraph({ bugs }: { bugs: BugReport[] }) {
           ))}
         </div>
       </div>
-
-      {/* Monthly breakdown bar */}
-      <div className="pt-3 border-t border-white/[0.06]">
-        <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mb-3">Monthly Resolution Rate</p>
-        {(() => {
-          const months: Record<string, { resolved: number; raised: number }> = {};
-          bugs.forEach(b => {
-            const d = new Date(b.createdAt);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            if (!months[key]) months[key] = { raised: 0, resolved: 0 };
-            months[key].raised++;
-            if (b.status === 'resolved') months[key].resolved++;
-          });
-          const sorted = Object.entries(months).sort(([a], [b]) => a.localeCompare(b)).slice(-6);
-          const maxVal = Math.max(...sorted.map(([, v]) => v.raised), 1);
-          return (
-            <div className="flex items-end gap-2 h-16">
-              {sorted.map(([key, val]) => {
-                const [year, month] = key.split('-');
-                const label = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('default', { month: 'short' });
-                const resolvedPct = val.raised > 0 ? (val.resolved / val.raised) * 100 : 0;
-                const heightPct = (val.raised / maxVal) * 100;
-                return (
-                  <div key={key} className="flex-1 flex flex-col items-center gap-1 group">
-                    <div className="relative w-full flex items-end justify-center" style={{ height: '44px' }}>
-                      <div
-                        className="w-full max-w-8 bg-white/[0.06] rounded-t-sm relative overflow-hidden"
-                        style={{ height: `${Math.max(heightPct, 4)}%` }}
-                      >
-                        <div
-                          className="absolute bottom-0 left-0 right-0 bg-emerald-500/70 rounded-t-sm transition-all"
-                          style={{ height: `${resolvedPct}%` }}
-                        />
-                        <div className="absolute inset-0 bg-[#4285F4]/30" style={{ bottom: `${resolvedPct}%` }} />
-                      </div>
-                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#1c2128] border border-white/10 rounded px-1.5 py-0.5 text-[9px] text-white whitespace-nowrap z-10">
-                        {val.raised} raised · {val.resolved} fixed
-                      </div>
-                    </div>
-                    <span className="text-[8px] text-white/30 font-bold">{label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
-      </div>
     </div>
   );
 }
@@ -282,10 +229,8 @@ function ActivityGraph({ bugs }: { bugs: BugReport[] }) {
 // ─── Avatar ──────────────────────────────────────────────────────────────────
 function AvatarInitial({ name }: { name: string }) {
   const initial = name?.charAt(0)?.toUpperCase() || '?';
-  const colors = ['bg-blue-600', 'bg-purple-600', 'bg-emerald-600', 'bg-orange-600', 'bg-pink-600', 'bg-cyan-600'];
-  const idx = (name?.charCodeAt(0) || 0) % colors.length;
   return (
-    <div className={cn('w-6 h-6 rounded-full flex items-center justify-center font-bold text-white text-xs shrink-0', colors[idx])}>
+    <div className="w-7 h-7 border-2 border-black bg-[#FFE600] flex items-center justify-center font-black text-black text-xs shrink-0 shadow-[1px_1px_0px_0px_#000000]">
       {initial}
     </div>
   );
@@ -307,7 +252,6 @@ export default function IssueTrackerPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Bug reports stream
   useEffect(() => {
     const q = query(collection(db, 'bugReports'), orderBy('createdAt', 'asc'));
     const unsub = onSnapshot(q, (snap) => {
@@ -334,7 +278,6 @@ export default function IssueTrackerPage() {
         });
         issueIdx++;
       });
-      // Re-sort by createdAt desc for display
       list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setBugs(list);
       setLoading(false);
@@ -342,7 +285,6 @@ export default function IssueTrackerPage() {
     return () => unsub();
   }, []);
 
-  // PR stream
   useEffect(() => {
     const q = query(collection(db, 'pullRequests'), orderBy('createdAt', 'desc'));
     const unsub = onSnapshot(q, (snap) => {
@@ -405,40 +347,52 @@ export default function IssueTrackerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Page Header */}
-      <div className="border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-16">
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-[#FFE600] selection:text-black">
+      {/* Top Banner */}
+      <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center">
+        ⚡ Chapter 4 Developer Issue Tracker & Open Source Pipeline
+      </div>
+
+      {/* Header */}
+      <div className="border-b-2 border-black bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-black uppercase tracking-widest text-red-400 mb-3">
-                <Bug className="h-3 w-3" /> Issue Tracker
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FFE600] border-2 border-black text-xs font-black uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_#000000]">
+                <Bug className="h-3.5 w-3.5" /> [ ISSUE TRACKER // REPO RADAR ]
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-                MLSC SVEC <span className="text-white/40">/</span> <span className="text-[#4285F4]">mlsc.svec</span>
+              <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tight text-black">
+                MLSC SVEC <span className="text-zinc-400">/</span> <span className="text-[#4285F4]">mlsc.svec</span>
               </h1>
-              <p className="text-white/40 text-sm mt-2 max-w-lg">
-                Track bugs, feature requests, and contributions to the MLSC SVEC open-source platform.
+              <p className="text-zinc-700 text-xs sm:text-sm font-bold max-w-xl">
+                Report bugs, submit feature proposals, and track open pull requests across the official platform codebase.
               </p>
-              <div className="flex flex-wrap gap-3 mt-4 text-xs text-white/40">
-                <span className="flex items-center gap-1.5"><Circle className="h-3 w-3 fill-green-400 text-green-400" /> {openCount} open</span>
-                <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-purple-400" /> {closedCount} closed</span>
-                <span className="flex items-center gap-1.5"><GitMerge className="h-3 w-3 text-purple-400" /> {mergedPrCount} merged PRs</span>
+              <div className="flex flex-wrap gap-3 pt-2 text-xs font-black uppercase font-mono">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-black bg-[#00FF66]">
+                  <Circle className="h-3 w-3 fill-black text-black" /> {openCount} Open
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-black bg-purple-200">
+                  <CheckCircle2 className="h-3 w-3 text-black" /> {closedCount} Closed
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-black bg-[#FFE600]">
+                  <GitBranch className="h-3 w-3 text-black" /> {mergedPrCount} Merged PRs
+                </span>
               </div>
             </div>
+
             <Dialog open={reportOpen} onOpenChange={setReportOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#238636] hover:bg-[#2ea043] text-white rounded-lg h-10 px-5 text-sm font-semibold flex items-center gap-2 transition-colors shrink-0">
-                  <Plus className="h-4 w-4" /> New issue
+                <Button className="bg-[#FFE600] text-black hover:bg-[#FFE600]/90 border-2 border-black shadow-[4px_4px_0px_0px_#000000] h-12 px-6 text-xs font-black uppercase tracking-wider flex items-center gap-2 active:translate-x-[2px] active:translate-y-[2px] shrink-0">
+                  <Plus className="h-4 w-4" /> Open New Issue
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md bg-[#0A0A0A]/98 backdrop-blur-xl border border-white/5 rounded-2xl p-6 text-white shadow-2xl">
+              <DialogContent className="max-w-md bg-white border-2 border-black p-6 sm:p-8 text-black shadow-[8px_8px_0px_0px_#000000]">
                 <DialogHeader className="mb-4">
-                  <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
-                    <Bug className="h-5 w-5 text-red-400" /> Open a new issue
+                  <DialogTitle className="text-xl font-black uppercase italic tracking-tight text-black flex items-center gap-2">
+                    <Bug className="h-5 w-5 text-[#EA4335]" /> Open a New Issue
                   </DialogTitle>
-                  <DialogDescription className="text-xs text-zinc-400">
-                    Describe the bug clearly. Confirmation will be sent to your email.
+                  <DialogDescription className="text-xs font-bold text-zinc-600">
+                    Describe the bug clearly. Live confirmation will be dispatched to your email.
                   </DialogDescription>
                 </DialogHeader>
                 <BugReportForm isDialog onSuccess={() => setReportOpen(false)} />
@@ -448,35 +402,35 @@ export default function IssueTrackerPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Activity Graph */}
         {!loading && bugs.length > 0 && (
           <ActivityGraph bugs={bugs} />
         )}
 
-        {/* Tab bar */}
-        <div className="flex gap-2 border-b border-white/5">
+        {/* Tab switcher */}
+        <div className="flex gap-3 border-b-2 border-black pb-1">
           <button
             onClick={() => { setActiveTab('issues'); setSearch(''); }}
             className={cn(
-              'flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors',
-              activeTab === 'issues' ? 'border-[#4285F4] text-white' : 'border-transparent text-white/40 hover:text-white/70'
+              'flex items-center gap-2 px-5 py-2.5 text-xs font-black uppercase tracking-wider border-2 border-black transition-all shadow-[3px_3px_0px_0px_#000000]',
+              activeTab === 'issues' ? 'bg-[#FFE600] text-black' : 'bg-white text-zinc-600 hover:bg-zinc-100'
             )}
           >
             <Bug className="h-4 w-4" /> Issues
-            <span className={cn('px-2 py-0.5 rounded-full text-xs font-bold', activeTab === 'issues' ? 'bg-white/10' : 'bg-white/5 text-white/40')}>
+            <span className="px-2 py-0.5 border border-black bg-white text-black text-[10px] font-mono font-black">
               {bugs.length}
             </span>
           </button>
           <button
             onClick={() => { setActiveTab('prs'); setSearch(''); }}
             className={cn(
-              'flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-colors',
-              activeTab === 'prs' ? 'border-[#4285F4] text-white' : 'border-transparent text-white/40 hover:text-white/70'
+              'flex items-center gap-2 px-5 py-2.5 text-xs font-black uppercase tracking-wider border-2 border-black transition-all shadow-[3px_3px_0px_0px_#000000]',
+              activeTab === 'prs' ? 'bg-[#FFE600] text-black' : 'bg-white text-zinc-600 hover:bg-zinc-100'
             )}
           >
             <GitPullRequest className="h-4 w-4" /> Pull Requests
-            <span className={cn('px-2 py-0.5 rounded-full text-xs font-bold', activeTab === 'prs' ? 'bg-white/10' : 'bg-white/5 text-white/40')}>
+            <span className="px-2 py-0.5 border border-black bg-white text-black text-[10px] font-mono font-black">
               {prs.length}
             </span>
           </button>
@@ -484,41 +438,41 @@ export default function IssueTrackerPage() {
 
         {/* Issues Tab */}
         {activeTab === 'issues' && (
-          <div className="space-y-3">
-            {/* Issues toolbar */}
-            <div className="bg-[#0A0A0A] border border-white/5 rounded-xl overflow-hidden">
-              {/* Top bar: search + filter toggle */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
+          <div className="space-y-4">
+            <div className="border-2 border-black bg-white shadow-[6px_6px_0px_0px_#000000]">
+              
+              {/* Search + filter toggle */}
+              <div className="flex items-center gap-3 p-4 border-b-2 border-black bg-zinc-50">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-black" />
                   <input
                     type="text"
-                    placeholder="Search issues..."
+                    placeholder="Search issues by title, reporter, or ID..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    className="w-full bg-black border border-white/5 rounded-lg pl-9 pr-3 h-9 text-sm text-white focus:outline-none focus:border-[#4285F4]/50 placeholder-white/20 transition-colors"
+                    className="w-full bg-white border-2 border-black pl-10 pr-3 h-10 text-xs font-bold text-black focus:outline-none focus:bg-[#FFE600]/10 placeholder-zinc-500 shadow-[2px_2px_0px_0px_#000000]"
                   />
                 </div>
                 <button
                   onClick={() => setShowFilters(v => !v)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 h-9 rounded-lg border text-xs font-semibold transition-all',
-                    showFilters ? 'bg-[#4285F4]/15 border-[#4285F4]/30 text-[#4285F4]' : 'bg-white/[0.02] border-white/5 text-white/50 hover:text-white'
+                    'flex items-center gap-1.5 px-4 h-10 border-2 border-black text-xs font-black uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000]',
+                    showFilters ? 'bg-[#FFE600] text-black' : 'bg-white text-black hover:bg-zinc-100'
                   )}
                 >
                   <Filter className="h-3.5 w-3.5" /> Filters
                 </button>
               </div>
 
-              {/* Filter row */}
+              {/* Filter drawer */}
               {showFilters && (
-                <div className="px-4 py-3 border-b border-white/5 flex flex-wrap gap-3">
+                <div className="p-4 border-b-2 border-black bg-zinc-100 flex flex-wrap gap-4">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-white/30">Severity</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black">Severity</label>
                     <select
                       value={severityFilter}
                       onChange={e => setSeverityFilter(e.target.value)}
-                      className="bg-black border border-white/5 rounded-lg px-2 h-8 text-xs text-white/70 focus:outline-none focus:border-[#4285F4]/40"
+                      className="bg-white border-2 border-black px-3 h-8 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
                     >
                       <option value="all">All</option>
                       <option value="low">Low</option>
@@ -528,22 +482,22 @@ export default function IssueTrackerPage() {
                     </select>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-white/30">Category</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black">Category</label>
                     <select
                       value={categoryFilter}
                       onChange={e => setCategoryFilter(e.target.value)}
-                      className="bg-black border border-white/5 rounded-lg px-2 h-8 text-xs text-white/70 focus:outline-none focus:border-[#4285F4]/40"
+                      className="bg-white border-2 border-black px-3 h-8 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
                     >
                       <option value="all">All</option>
                       {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                     </select>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-white/30">Sort by</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black">Sort by</label>
                     <select
                       value={sortBy}
                       onChange={(e: any) => setSortBy(e.target.value)}
-                      className="bg-black border border-white/5 rounded-lg px-2 h-8 text-xs text-white/70 focus:outline-none focus:border-[#4285F4]/40"
+                      className="bg-white border-2 border-black px-3 h-8 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
                     >
                       <option value="newest">Newest first</option>
                       <option value="oldest">Oldest first</option>
@@ -554,26 +508,26 @@ export default function IssueTrackerPage() {
                 </div>
               )}
 
-              {/* Open/Closed tab inside */}
-              <div className="px-4 py-2 flex items-center gap-1">
+              {/* Status toggle tabs */}
+              <div className="px-4 py-3 border-b-2 border-black flex items-center gap-2 bg-zinc-50">
                 <button
                   onClick={() => setIssueState('open')}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
-                    issueState === 'open' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/70'
+                    'flex items-center gap-1.5 px-3 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all',
+                    issueState === 'open' ? 'bg-[#00FF66] text-black shadow-[2px_2px_0px_0px_#000000]' : 'bg-white text-zinc-600 hover:bg-zinc-100'
                   )}
                 >
-                  <Circle className="h-3.5 w-3.5 fill-green-400 text-green-400" />
+                  <Circle className="h-3.5 w-3.5 fill-black text-black" />
                   {openCount} Open
                 </button>
                 <button
                   onClick={() => setIssueState('closed')}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
-                    issueState === 'closed' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/70'
+                    'flex items-center gap-1.5 px-3 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all',
+                    issueState === 'closed' ? 'bg-purple-200 text-black shadow-[2px_2px_0px_0px_#000000]' : 'bg-white text-zinc-600 hover:bg-zinc-100'
                   )}
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5 text-purple-400" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-black" />
                   {closedCount} Closed
                 </button>
               </div>
@@ -581,26 +535,19 @@ export default function IssueTrackerPage() {
               {/* Issues list */}
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                  <div className="w-6 h-6 border-2 border-[#4285F4]/30 border-t-[#4285F4] rounded-full animate-spin mb-3" />
-                  <p className="text-xs text-white/30 font-bold uppercase tracking-widest">Loading issues...</p>
+                  <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin mb-3" />
+                  <p className="text-xs text-black font-black uppercase tracking-widest">Polling live issues...</p>
                 </div>
               ) : processedBugs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 px-4">
-                  <div className="w-12 h-12 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-3">
-                    <Bug className="h-5 w-5 text-white/20" />
-                  </div>
-                  <p className="text-white/50 font-semibold text-sm">No {issueState} issues found</p>
-                  <p className="text-white/30 text-xs mt-1">
-                    {search ? 'Try different search terms.' : issueState === 'open' ? 'All issues are resolved! 🎉' : 'No issues closed yet.'}
+                <div className="flex flex-col items-center justify-center py-16 px-4 space-y-3">
+                  <Bug className="h-10 w-10 text-zinc-400" />
+                  <p className="text-black font-black uppercase italic tracking-tight text-base">No {issueState} issues found</p>
+                  <p className="text-zinc-600 text-xs font-bold">
+                    {search ? 'Try adjusting your search criteria.' : issueState === 'open' ? 'All reported issues resolved!' : 'No archived issues.'}
                   </p>
-                  {issueState === 'open' && !search && (
-                    <button onClick={() => setReportOpen(true)} className="mt-4 text-[#4285F4] text-sm hover:underline flex items-center gap-1">
-                      <Plus className="h-3.5 w-3.5" /> Open new issue
-                    </button>
-                  )}
                 </div>
               ) : (
-                <div className="divide-y divide-white/[0.04]">
+                <div className="divide-y-2 divide-black">
                   {processedBugs.map((bug) => {
                     const hasUpvoted = user?.email ? bug.upvotedBy?.includes(user.email) : false;
                     const sevInfo = SEVERITY_CONFIG[bug.severity] || SEVERITY_CONFIG.medium;
@@ -610,56 +557,53 @@ export default function IssueTrackerPage() {
                       <Link
                         key={bug.id}
                         href={`/issue-tracker/${bug.id}`}
-                        className="flex items-start gap-3 px-4 py-4 hover:bg-white/[0.02] transition-colors group"
+                        className="flex items-start gap-3.5 p-4 hover:bg-zinc-50 transition-colors group"
                       >
-                        {/* Status icon */}
-                        <div className="mt-0.5 shrink-0">
+                        <div className="mt-1 shrink-0">
                           {bug.status === 'open'
-                            ? <Circle className="h-4.5 w-4.5 text-green-400 fill-green-400" />
-                            : <CheckCircle2 className="h-4.5 w-4.5 text-purple-400" />}
+                            ? <Circle className="h-4 w-4 text-black fill-[#00FF66]" />
+                            : <CheckCircle2 className="h-4 w-4 text-purple-700" />}
                         </div>
 
-                        {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <h3 className="text-sm font-semibold text-white group-hover:text-[#4285F4] transition-colors">
+                            <h3 className="text-sm font-black uppercase italic tracking-tight text-black group-hover:text-[#4285F4] transition-colors">
                               {bug.title}
                             </h3>
-                            <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-bold border', sevInfo.color)}>
+                            <span className={cn('px-2 py-0.5 text-[10px] font-black uppercase border', sevInfo.color)}>
                               {sevInfo.label}
                             </span>
-                            <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-bold border', catColor)}>
+                            <span className={cn('px-2 py-0.5 text-[10px] font-black uppercase border', catColor)}>
                               {CATEGORY_LABELS[bug.category] || bug.category}
                             </span>
                           </div>
-                          <p className="text-xs text-white/40 flex flex-wrap items-center gap-1.5">
-                            <span>#{bug.issueNumber}</span>
+                          <p className="text-xs text-zinc-600 font-bold flex flex-wrap items-center gap-1.5 font-mono">
+                            <span className="text-black font-black">#{bug.issueNumber}</span>
                             <span>·</span>
                             <span>
                               {bug.status === 'open'
-                                ? <>opened {formatRelative(bug.createdAt)} by <span className="text-white/60">{bug.userName}</span></>
-                                : <>closed {formatRelative(bug.resolvedAt || bug.createdAt)} · opened by <span className="text-white/60">{bug.userName}</span></>
+                                ? <>opened {formatRelative(bug.createdAt)} by <span className="text-black font-sans">{bug.userName}</span></>
+                                : <>closed {formatRelative(bug.resolvedAt || bug.createdAt)} · opened by <span className="text-black font-sans">{bug.userName}</span></>
                               }
                             </span>
                           </p>
                         </div>
 
-                        {/* Right meta */}
                         <div className="flex items-center gap-3 shrink-0">
                           {(bug.upvotedBy?.length || 0) > 0 && (
                             <button
                               onClick={e => handleUpvote(bug.id, e)}
                               className={cn(
-                                'flex items-center gap-1 text-xs transition-colors',
-                                hasUpvoted ? 'text-[#4285F4]' : 'text-white/30 hover:text-white/60'
+                                'flex items-center gap-1 px-2.5 py-1 border border-black text-xs font-black uppercase transition-colors shadow-[1px_1px_0px_0px_#000000]',
+                                hasUpvoted ? 'bg-[#FFE600] text-black' : 'bg-white text-zinc-600 hover:bg-zinc-100'
                               )}
                             >
-                              <ThumbsUp className={cn('h-3.5 w-3.5', hasUpvoted && 'fill-[#4285F4]')} />
+                              <ThumbsUp className="h-3 w-3" />
                               {bug.upvotedBy?.length}
                             </button>
                           )}
                           {(bug.comments?.length || 0) > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-white/30">
+                            <div className="flex items-center gap-1 text-xs text-zinc-700 font-bold">
                               <MessageSquare className="h-3.5 w-3.5" />
                               {bug.comments?.length}
                             </div>
@@ -677,35 +621,34 @@ export default function IssueTrackerPage() {
 
         {/* PRs Tab */}
         {activeTab === 'prs' && (
-          <div className="space-y-3">
-            {/* PR toolbar */}
-            <div className="bg-[#0A0A0A] border border-white/5 rounded-xl overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
+          <div className="space-y-4">
+            <div className="border-2 border-black bg-white shadow-[6px_6px_0px_0px_#000000]">
+              
+              <div className="flex items-center gap-3 p-4 border-b-2 border-black bg-zinc-50">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-black" />
                   <input
                     type="text"
                     placeholder="Search pull requests..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    className="w-full bg-black border border-white/5 rounded-lg pl-9 pr-3 h-9 text-sm text-white focus:outline-none focus:border-[#4285F4]/50 placeholder-white/20 transition-colors"
+                    className="w-full bg-white border-2 border-black pl-10 pr-3 h-10 text-xs font-bold text-black focus:outline-none focus:bg-[#FFE600]/10 placeholder-zinc-500 shadow-[2px_2px_0px_0px_#000000]"
                   />
                 </div>
               </div>
 
-              {/* Status tabs */}
-              <div className="px-4 py-2 flex items-center gap-1">
+              <div className="px-4 py-3 border-b-2 border-black flex items-center gap-2 bg-zinc-50">
                 {[
                   { value: 'all', label: `All (${prs.length})`, icon: <GitPullRequest className="h-3.5 w-3.5" /> },
-                  { value: 'pending', label: `In Review (${prs.filter(p => p.status === 'pending').length})`, icon: <Clock className="h-3.5 w-3.5 text-yellow-400" /> },
-                  { value: 'merged', label: `Merged (${mergedPrCount})`, icon: <GitMerge className="h-3.5 w-3.5 text-purple-400" /> },
+                  { value: 'pending', label: `In Review (${prs.filter(p => p.status === 'pending').length})`, icon: <Clock className="h-3.5 w-3.5 text-black" /> },
+                  { value: 'merged', label: `Merged (${mergedPrCount})`, icon: <GitBranch className="h-3.5 w-3.5 text-black" /> },
                 ].map(tab => (
                   <button
                     key={tab.value}
                     onClick={() => setPrStatusFilter(tab.value as any)}
                     className={cn(
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
-                      prStatusFilter === tab.value ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/70'
+                      'flex items-center gap-1.5 px-3 py-1.5 border-2 border-black text-xs font-black uppercase tracking-wider transition-all',
+                      prStatusFilter === tab.value ? 'bg-[#FFE600] text-black shadow-[2px_2px_0px_0px_#000000]' : 'bg-white text-zinc-600 hover:bg-zinc-100'
                     )}
                   >
                     {tab.icon} {tab.label}
@@ -714,47 +657,47 @@ export default function IssueTrackerPage() {
               </div>
 
               {processedPRs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16">
-                  <GitPullRequest className="h-8 w-8 text-white/10 mb-3" />
-                  <p className="text-white/40 font-semibold text-sm">No pull requests found</p>
+                <div className="flex flex-col items-center justify-center py-16 space-y-2">
+                  <GitPullRequest className="h-10 w-10 text-zinc-400" />
+                  <p className="text-black font-black uppercase italic tracking-tight text-base">No pull requests found</p>
                 </div>
               ) : (
-                <div className="divide-y divide-white/5">
+                <div className="divide-y-2 divide-black">
                   {processedPRs.map(pr => (
-                    <div key={pr.id} className="flex items-start gap-3 px-4 py-4 hover:bg-white/[0.02] transition-colors">
-                      <div className="mt-0.5 shrink-0">
-                        {pr.status === 'merged'
-                          ? <GitMerge className="h-4.5 w-4.5 text-purple-400" />
-                          : pr.status === 'rejected'
-                          ? <Circle className="h-4.5 w-4.5 text-red-400" />
-                          : <GitPullRequest className="h-4.5 w-4.5 text-green-400" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <h3 className="text-sm font-semibold text-white">{pr.title}</h3>
-                          <span className={cn(
-                            'px-2 py-0.5 rounded-full text-[10px] font-bold border',
-                            pr.status === 'merged' ? 'bg-purple-500/15 text-purple-300 border-purple-500/30' :
-                            pr.status === 'rejected' ? 'bg-red-500/15 text-red-300 border-red-500/30' :
-                            'bg-yellow-500/15 text-yellow-300 border-yellow-500/30'
-                          )}>
-                            {pr.status === 'merged' ? 'Merged' : pr.status === 'rejected' ? 'Changes Requested' : 'In Review'}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-indigo-500/15 text-indigo-300 border-indigo-500/30 flex items-center gap-1">
-                            <GitBranch className="h-2.5 w-2.5" />{pr.branchName}
-                          </span>
+                    <div key={pr.id} className="flex items-start justify-between gap-3 p-4 hover:bg-zinc-50 transition-colors">
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div className="mt-1 shrink-0">
+                          {pr.status === 'merged'
+                            ? <GitBranch className="h-4 w-4 text-purple-700" />
+                            : <GitPullRequest className="h-4 w-4 text-[#00FF66]" />}
                         </div>
-                        <p className="text-xs text-white/40">
-                          #{pr.id.substring(0, 6).toUpperCase()} · opened {formatRelative(pr.createdAt)} by <span className="text-white/60">{pr.name}</span>
-                          {pr.mergedAt && <> · merged {formatRelative(pr.mergedAt)}</>}
-                        </p>
-                        {pr.description && <p className="text-xs text-white/40 mt-1 line-clamp-1">{pr.description}</p>}
+                        <div className="space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-sm font-black uppercase italic tracking-tight text-black">{pr.title}</h3>
+                            <span className={cn(
+                              'px-2 py-0.5 text-[10px] font-black uppercase border border-black',
+                              pr.status === 'merged' ? 'bg-purple-200 text-black' :
+                              pr.status === 'rejected' ? 'bg-[#EA4335] text-white' :
+                              'bg-[#FFE600] text-black'
+                            )}>
+                              {pr.status === 'merged' ? 'Merged' : pr.status === 'rejected' ? 'Changes Requested' : 'In Review'}
+                            </span>
+                            <span className="px-2 py-0.5 text-[10px] font-mono font-black border border-black bg-zinc-100 text-black flex items-center gap-1">
+                              <GitBranch className="h-2.5 w-2.5" />{pr.branchName}
+                            </span>
+                          </div>
+                          <p className="text-xs text-zinc-600 font-bold font-mono">
+                            #{pr.id.substring(0, 6).toUpperCase()} · opened {formatRelative(pr.createdAt)} by <span className="text-black font-sans">{pr.name}</span>
+                            {pr.mergedAt && <> · merged {formatRelative(pr.mergedAt)}</>}
+                          </p>
+                          {pr.description && <p className="text-xs text-zinc-700 font-semibold line-clamp-1">{pr.description}</p>}
+                        </div>
                       </div>
                       <a
                         href={pr.prLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="shrink-0 flex items-center gap-1.5 px-3 h-8 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 text-xs text-white/50 hover:text-white transition-all"
+                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border-2 border-black bg-white hover:bg-[#FFE600] text-xs font-black uppercase tracking-wider text-black transition-all shadow-[2px_2px_0px_0px_#000000]"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
                         <span className="hidden sm:inline">View PR</span>
@@ -768,14 +711,5 @@ export default function IssueTrackerPage() {
         )}
       </div>
     </div>
-  );
-}
-
-// Need GitMerge icon
-function GitMerge({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 16 16" fill="currentColor">
-      <path d="M5.45 5.154A4.25 4.25 0 0 0 9.25 7.5h1.378a2.251 2.251 0 1 1 0 1.5H9.25A5.734 5.734 0 0 1 5 7.123v3.505a2.25 2.25 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.95-.218ZM4.25 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm8.5-4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM5 3.25a.75.75 0 1 0 0 .005V3.25Z" />
-    </svg>
   );
 }

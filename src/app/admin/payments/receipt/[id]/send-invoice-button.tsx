@@ -37,34 +37,33 @@ export function SendInvoiceButton({ donationId, recipientEmail }: SendInvoiceBut
     <button 
       onClick={handleSend}
       disabled={status === 'sending'}
-      className={`inline-flex items-center gap-2 px-4 h-10 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all shadow-sm no-print ${
+      className={`inline-flex items-center gap-2 px-4 h-10 border-2 border-black text-xs font-black uppercase tracking-wider transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer no-print ${
         status === 'success'
-          ? 'bg-[#34A853]/10 border-[#34A853]/35 text-[#34A853]'
+          ? 'bg-[#00FF66] text-black'
           : status === 'error'
-          ? 'bg-red-500/10 border-red-500/30 text-red-500'
-          : 'bg-white border-slate-200 hover:bg-slate-50 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300'
+          ? 'bg-[#FF0055] text-white'
+          : 'bg-[#FFE600] text-black hover:bg-[#FFE600]/90'
       }`}
       title={`Send tax invoice email to ${recipientEmail}`}
     >
       {status === 'sending' ? (
         <>
-          <Loader2 className="h-4 w-4 animate-spin text-[#34A853]" />
+          <Loader2 className="h-4 w-4 animate-spin text-black" />
           Sending...
         </>
       ) : status === 'success' ? (
         <>
-          <Check className="h-4 w-4 text-[#34A853]" />
+          <Check className="h-4 w-4 text-black stroke-[3]" />
           Invoice Sent!
         </>
       ) : status === 'error' ? (
         <>
-          <Mail className="h-4 w-4 text-red-500" />
-          {errorMsg || 'Error'}
+          <span>{errorMsg || 'Failed'}</span>
         </>
       ) : (
         <>
-          <Mail className="h-4 w-4 text-[#34A853]" />
-          Send Invoice Email
+          <Mail className="h-4 w-4 stroke-[2.5]" />
+          Email Receipt
         </>
       )}
     </button>

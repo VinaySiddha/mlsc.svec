@@ -36,33 +36,33 @@ export function DeleteConfirmationDialog({
 }: DeleteConfirmationDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-zinc-950/95 border border-red-500/20 text-white shadow-[0_0_50px_rgba(239,68,68,0.15)] backdrop-blur-xl rounded-3xl p-6 sm:p-8">
+      <DialogContent className="max-w-md bg-white border-4 border-black text-black shadow-[10px_10px_0px_0px_#000000] p-6 sm:p-8 font-sans">
         <DialogHeader className="flex flex-col items-center text-center space-y-3">
-          <div className="size-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 shadow-inner">
-            <AlertTriangle className="size-7 animate-pulse" />
+          <div className="size-14 bg-[#FF0055] border-2 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#000000]">
+            <AlertTriangle className="size-7 stroke-[2.5]" />
           </div>
-          <DialogTitle className="text-xl font-black uppercase tracking-tight text-white">
+          <DialogTitle className="text-xl font-display font-black uppercase tracking-tight text-black italic">
             {title}
           </DialogTitle>
-          <DialogDescription className="text-xs text-white/50 leading-relaxed max-w-sm">
+          <DialogDescription className="text-xs text-zinc-600 font-bold leading-relaxed max-w-sm">
             {description}
           </DialogDescription>
         </DialogHeader>
 
         {(itemName || itemDetails) && (
-          <div className="my-2 p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col items-center justify-center text-center">
-            {itemName && <span className="font-bold text-sm text-white">{itemName}</span>}
-            {itemDetails && <span className="text-xs text-white/40 font-mono mt-0.5">{itemDetails}</span>}
+          <div className="my-2 p-3.5 bg-zinc-100 border-2 border-black flex flex-col items-center justify-center text-center shadow-[2px_2px_0px_0px_#000000]">
+            {itemName && <span className="font-black text-sm text-black uppercase">{itemName}</span>}
+            {itemDetails && <span className="text-xs text-zinc-600 font-mono font-bold mt-0.5">{itemDetails}</span>}
           </div>
         )}
 
         <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2.5 pt-3 sm:justify-center">
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="w-full sm:w-auto text-xs text-white/60 hover:text-white hover:bg-white/10 rounded-xl"
+            className="w-full sm:w-auto text-xs text-black border-2 border-black bg-white hover:bg-zinc-100 font-black uppercase shadow-[2px_2px_0px_0px_#000000]"
           >
             Cancel
           </Button>
@@ -70,7 +70,7 @@ export function DeleteConfirmationDialog({
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className="w-full sm:w-auto bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow-[0_0_20px_rgba(239,68,68,0.4)] flex items-center justify-center gap-2"
+            className="w-full sm:w-auto bg-[#FF0055] hover:bg-[#FF0055]/90 text-white font-black text-xs uppercase border-2 border-black shadow-[3px_3px_0px_0px_#000000] flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
@@ -79,7 +79,7 @@ export function DeleteConfirmationDialog({
               </>
             ) : (
               <>
-                <Trash2 className="size-3.5" />
+                <Trash2 className="size-3.5 stroke-[2.5]" />
                 <span>Confirm Delete</span>
               </>
             )}

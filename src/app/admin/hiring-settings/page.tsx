@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { ChapterSettingsManager } from '@/components/chapter-settings-manager';
 import { FinalizeCycleDialog } from '@/components/finalize-cycle-dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Briefcase } from 'lucide-react';
 import { ROLES } from '@/lib/roles';
 
 export const dynamic = 'force-dynamic';
@@ -16,14 +17,19 @@ export default async function HiringSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
-          Hiring <span className="text-[#4285F4]">Settings</span>
-        </h1>
-        <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-          Manage chapter configs, toggle hiring & finalize cycles
-        </p>
+    <div className="space-y-6 font-sans text-black">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 bg-[#4285F4] border-2 border-black shadow-[3px_3px_0px_0px_#000000] text-white">
+          <Briefcase className="h-7 w-7 text-white stroke-[2.5]" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-black uppercase font-display">
+            Hiring <span className="text-[#4285F4]">Settings</span>
+          </h1>
+          <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest mt-0.5">
+            Manage chapter configs, toggle hiring & finalize cycles
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -31,12 +37,12 @@ export default async function HiringSettingsPage() {
           <ChapterSettingsManager />
         </div>
         <div>
-          <Card className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm">
-            <CardHeader className="p-6 border-b border-slate-100 dark:border-zinc-800">
-              <CardTitle className="text-sm font-bold text-slate-950 dark:text-white uppercase tracking-widest">
+          <Card className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#FF0055]">
+            <CardHeader className="p-6 border-b-2 border-black bg-[#FAFAFA]">
+              <CardTitle className="text-sm font-black text-black uppercase font-display tracking-tight">
                 Finalize Current Cycle
               </CardTitle>
-              <CardDescription className="text-xs text-slate-400 dark:text-zinc-500">
+              <CardDescription className="text-xs text-zinc-600 font-bold mt-1">
                 Archive all active applications and invite recommended candidates to join the team database.
               </CardDescription>
             </CardHeader>

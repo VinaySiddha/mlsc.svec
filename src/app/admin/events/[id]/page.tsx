@@ -595,43 +595,43 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-black text-white">
-            <header className="py-5 px-4 sm:px-6 md:px-8 border-b border-zinc-900 sticky top-0 bg-black/80 backdrop-blur-md z-30">
+        <div className="flex flex-col min-h-screen bg-white text-black font-sans">
+            <header className="py-5 px-4 sm:px-6 md:px-8 border-b-2 border-black sticky top-0 bg-white/95 backdrop-blur-md z-30">
                 <div className="container mx-auto flex flex-col gap-4 md:flex-row md:items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="p-2 bg-zinc-900 border border-zinc-800 rounded-xl">
-                            <MLSCLogo className="h-10 w-10 text-[#4285F4]" />
+                        <div className="p-2 bg-[#FFE600] border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                            <MLSCLogo className="h-9 w-9 text-black" />
                         </div>
                         <div className="flex flex-col">
                             <div className="flex items-center gap-2">
-                                <h1 className="text-xl md:text-2xl font-black tracking-tight text-white uppercase italic">
+                                <h1 className="text-xl md:text-2xl font-display font-black tracking-tight text-black uppercase italic">
                                     Registrations
                                 </h1>
-                                <Badge variant={event?.registrationOpen ? 'default' : 'secondary'} className={`text-[10px] py-0.5 px-2.5 font-bold uppercase tracking-widest ${
+                                <Badge variant={event?.registrationOpen ? 'default' : 'secondary'} className={`text-[10px] py-0.5 px-2.5 font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000] ${
                                     event?.registrationOpen 
-                                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                                        : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                                        ? 'bg-[#00FF66] text-black' 
+                                        : 'bg-zinc-200 text-black'
                                 }`}>
                                     {event?.registrationOpen ? 'Open' : 'Closed'}
                                 </Badge>
                             </div>
-                            <p className="text-xs text-[#4285F4] font-semibold truncate max-w-[250px] md:max-w-md mt-0.5">{event?.title}</p>
+                            <p className="text-xs text-[#4285F4] font-black truncate max-w-[250px] md:max-w-md mt-0.5">{event?.title}</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                        <Button asChild variant="outline" className="border-zinc-800 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white rounded-xl h-10 text-xs font-bold uppercase tracking-wider">
+                        <Button asChild variant="outline" className="border-2 border-black bg-white hover:bg-zinc-100 text-black font-black uppercase text-xs h-10 px-4 shadow-[2px_2px_0px_0px_#000000]">
                             <Link href="/admin/events">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                <ArrowLeft className="mr-2 h-4 w-4 stroke-[3]" />
                                 Back
                             </Link>
                         </Button>
                         
                         <Button 
                             onClick={() => setIsScannerOpen(true)} 
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl h-10 px-4 shadow-lg shadow-emerald-950/20 hover:scale-[1.02] active:scale-95 transition-all duration-200"
+                            className="bg-[#00FF66] hover:bg-[#00FF66]/90 text-black font-black text-xs uppercase tracking-wider border-2 border-black h-10 px-4 shadow-[3px_3px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] transition-all"
                         >
-                            <ScanLine className="mr-2 h-4 w-4" />
+                            <ScanLine className="mr-2 h-4 w-4 stroke-[2.5]" />
                             Scan Tickets
                         </Button>
 
@@ -641,98 +641,98 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                 <Button 
                                     variant="outline" 
                                     disabled={isSending || actionType !== null}
-                                    className="border-zinc-800 bg-zinc-950 text-zinc-300 hover:bg-zinc-900 hover:text-white rounded-xl h-10 text-xs font-bold uppercase tracking-wider disabled:opacity-50 disabled:pointer-events-none"
+                                    className="border-2 border-black bg-white hover:bg-zinc-100 text-black font-black uppercase text-xs h-10 px-4 shadow-[2px_2px_0px_0px_#000000] disabled:opacity-50"
                                 >
                                     {isSending || actionType !== null ? (
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                     ) : (
-                                        <Sliders className="h-4 w-4 mr-2" />
+                                        <Sliders className="h-4 w-4 mr-2 stroke-[2.5]" />
                                     )}
                                     Tools
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-zinc-950 border-zinc-900 text-zinc-300 w-56 rounded-xl p-1.5 shadow-2xl">
-                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-zinc-500 p-2">Quick Actions</DropdownMenuLabel>
+                            <DropdownMenuContent align="end" className="bg-white border-2 border-black text-black w-56 p-1.5 shadow-[6px_6px_0px_0px_#000000] font-sans">
+                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-zinc-600 p-2">[ QUICK ACTIONS ]</DropdownMenuLabel>
                                 <DropdownMenuItem 
                                     onClick={() => setIsBulkCheckInOpen(true)}
-                                    className="rounded-lg py-2 focus:bg-zinc-900 focus:text-white cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FFE600] focus:text-black cursor-pointer text-xs font-bold gap-2.5"
                                 >
-                                    <CheckSquare className="h-4 w-4 text-emerald-400" />
+                                    <CheckSquare className="h-4 w-4 text-emerald-600 stroke-[2.5]" />
                                     Bulk Check-In rolls
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
                                     onClick={() => setIsAnalyticsOpen(true)}
-                                    className="rounded-lg py-2 focus:bg-zinc-900 focus:text-white cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FFE600] focus:text-black cursor-pointer text-xs font-bold gap-2.5"
                                 >
-                                    <BarChart3 className="h-4 w-4 text-[#FBBC04]" />
+                                    <BarChart3 className="h-4 w-4 text-amber-600 stroke-[2.5]" />
                                     Branch / Year Stats
                                 </DropdownMenuItem>
                                 
-                                <DropdownMenuSeparator className="bg-zinc-900" />
-                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-zinc-500 p-2">Export & Clipboard</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-zinc-200" />
+                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-zinc-600 p-2">[ EXPORT & DATA ]</DropdownMenuLabel>
                                 <DropdownMenuItem 
                                     onClick={handleExportCsv} 
                                     disabled={actionType === 'export'}
-                                    className="rounded-lg py-2 focus:bg-zinc-900 focus:text-white cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FFE600] focus:text-black cursor-pointer text-xs font-bold gap-2.5"
                                 >
                                     {actionType === 'export' ? (
-                                        <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
+                                        <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
                                     ) : (
-                                        <FileSpreadsheet className="h-4 w-4 text-emerald-400" />
+                                        <FileSpreadsheet className="h-4 w-4 text-emerald-600 stroke-[2.5]" />
                                     )}
                                     Export to CSV (.csv)
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
                                     onClick={() => handleCopyEmails(false)}
-                                    className="rounded-lg py-2 focus:bg-zinc-900 focus:text-white cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FFE600] focus:text-black cursor-pointer text-xs font-bold gap-2.5"
                                 >
-                                    <Copy className="h-4 w-4 text-blue-400" />
+                                    <Copy className="h-4 w-4 text-blue-600 stroke-[2.5]" />
                                     Copy All Emails
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
                                     onClick={() => handleCopyEmails(true)}
                                     disabled={filteredRegistrations.length === 0}
-                                    className="rounded-lg py-2 focus:bg-zinc-900 focus:text-white cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FFE600] focus:text-black cursor-pointer text-xs font-bold gap-2.5"
                                 >
-                                    <ClipboardCheck className="h-4 w-4 text-indigo-400" />
+                                    <ClipboardCheck className="h-4 w-4 text-indigo-600 stroke-[2.5]" />
                                     Copy Filtered Emails
                                 </DropdownMenuItem>
 
-                                <DropdownMenuSeparator className="bg-zinc-900" />
-                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-zinc-500 p-2">Email Campaigns</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-zinc-200" />
+                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-zinc-600 p-2">[ CAMPAIGNS ]</DropdownMenuLabel>
                                 <DropdownMenuItem 
                                     onClick={handleSendReminders} 
                                     disabled={isSending}
-                                    className="rounded-lg py-2 focus:bg-zinc-900 focus:text-white cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FFE600] focus:text-black cursor-pointer text-xs font-bold gap-2.5"
                                 >
                                     {isSending && actionType === 'reminders' ? (
                                         <Loader2 className="h-4 w-4 animate-spin text-[#4285F4]" />
                                     ) : (
-                                        <Mail className="h-4 w-4 text-[#4285F4]" />
+                                        <Mail className="h-4 w-4 text-[#4285F4] stroke-[2.5]" />
                                     )}
                                     Send Email Reminders
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
                                     onClick={handleSendFeedback} 
                                     disabled={isSending || !event?.feedbackLink}
-                                    className="rounded-lg py-2 focus:bg-zinc-900 focus:text-white cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FFE600] focus:text-black cursor-pointer text-xs font-bold gap-2.5"
                                 >
                                     {isSending && actionType === 'feedback' ? (
                                         <Loader2 className="h-4 w-4 animate-spin text-[#EA4335]" />
                                     ) : (
-                                        <MessageSquareQuote className="h-4 w-4 text-[#EA4335]" />
+                                        <MessageSquareQuote className="h-4 w-4 text-[#EA4335] stroke-[2.5]" />
                                     )}
                                     Send Feedback Forms
                                 </DropdownMenuItem>
 
-                                <DropdownMenuSeparator className="bg-zinc-900" />
-                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-red-500/80 p-2">Danger Zone</DropdownMenuLabel>
+                                <DropdownMenuSeparator className="bg-zinc-200" />
+                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-[#FF0055] p-2">[ DANGER ZONE ]</DropdownMenuLabel>
                                 <DropdownMenuItem 
                                     onClick={() => setIsResetConfirmOpen(true)}
                                     disabled={actionType === 'reset'}
-                                    className="rounded-lg py-2 focus:bg-red-950/20 focus:text-red-400 text-red-500 cursor-pointer text-xs font-semibold gap-2.5"
+                                    className="py-2 focus:bg-[#FF0055] focus:text-white text-[#FF0055] cursor-pointer text-xs font-black gap-2.5"
                                 >
-                                    <RotateCcw className="h-4 w-4 text-red-500" />
+                                    <RotateCcw className="h-4 w-4 text-[#FF0055] stroke-[2.5]" />
                                     Reset All Attendance
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -746,10 +746,10 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                     
                     {/* Event Brief banner */}
                     {event && (
-                        <div className="bg-zinc-950/40 border border-zinc-900/60 rounded-2xl p-4 flex flex-wrap gap-x-8 gap-y-3 text-xs text-zinc-400 items-center">
-                            <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-[#4285F4]" /> {formattedEventDate}</span>
-                            <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-[#34A853]" /> {event.time}</span>
-                            <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-[#EA4335]" /> {event.venue}</span>
+                        <div className="bg-[#FAFAFA] border-2 border-black p-4 flex flex-wrap gap-x-8 gap-y-3 text-xs text-black font-bold items-center shadow-[3px_3px_0px_0px_#000000]">
+                            <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4 text-[#4285F4] stroke-[2.5]" /> {formattedEventDate}</span>
+                            <span className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-[#34A853] stroke-[2.5]" /> {event.time}</span>
+                            <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#EA4335] stroke-[2.5]" /> {event.venue}</span>
                         </div>
                     )}
 
@@ -761,47 +761,44 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                         className="grid grid-cols-1 sm:grid-cols-3 gap-5"
                     >
                         <motion.div variants={statsItemVariants}>
-                            <Card className="border-zinc-900 bg-zinc-950/20 backdrop-blur-xs relative overflow-hidden group hover:border-[#4285F4]/30 hover:shadow-[0_0_20px_rgba(66,133,244,0.05)] transition-all duration-300">
-                                <div className="absolute top-0 right-0 h-32 w-32 bg-blue-500/2 rounded-full blur-2xl group-hover:bg-blue-500/5 transition-colors" />
+                            <Card className="border-2 border-black bg-white shadow-[4px_4px_0px_0px_#4285F4] rounded-none">
                                 <CardContent className="p-6 flex items-center justify-between">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Total Registered</p>
-                                        <h3 className="text-3xl font-black text-white">{registrations.length}</h3>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Total Registered</p>
+                                        <h3 className="text-3xl font-display font-black text-black">{registrations.length}</h3>
                                     </div>
-                                    <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                        <Users className="h-5 w-5" />
+                                    <div className="p-3 bg-[#4285F4] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                        <Users className="h-5 w-5 stroke-[2.5]" />
                                     </div>
                                 </CardContent>
                             </Card>
                         </motion.div>
                         <motion.div variants={statsItemVariants}>
-                            <Card className="border-zinc-900 bg-zinc-950/20 backdrop-blur-xs relative overflow-hidden group hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.05)] transition-all duration-300">
-                                <div className="absolute top-0 right-0 h-32 w-32 bg-emerald-500/2 rounded-full blur-2xl group-hover:bg-emerald-500/5 transition-colors" />
+                            <Card className="border-2 border-black bg-white shadow-[4px_4px_0px_0px_#00FF66] rounded-none">
                                 <CardContent className="p-6 flex items-center justify-between">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Attendance (Present)</p>
-                                        <h3 className="text-3xl font-black text-emerald-400">{checkedInCount}</h3>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Attendance (Present)</p>
+                                        <h3 className="text-3xl font-display font-black text-black">{checkedInCount}</h3>
                                     </div>
-                                    <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                                        <UserCheck className="h-5 w-5" />
+                                    <div className="p-3 bg-[#00FF66] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                        <UserCheck className="h-5 w-5 stroke-[2.5]" />
                                     </div>
                                 </CardContent>
                             </Card>
                         </motion.div>
                         <motion.div variants={statsItemVariants}>
-                            <Card className="border-zinc-900 bg-zinc-950/20 backdrop-blur-xs relative overflow-hidden group hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.05)] transition-all duration-300">
-                                <div className="absolute top-0 right-0 h-32 w-32 bg-purple-500/2 rounded-full blur-2xl group-hover:bg-purple-500/5 transition-colors" />
+                            <Card className="border-2 border-black bg-white shadow-[4px_4px_0px_0px_#FFE600] rounded-none">
                                 <CardContent className="p-6 flex items-center justify-between">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Attendance Rate</p>
-                                        <h3 className="text-3xl font-black text-[#FBBC04]">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Attendance Rate</p>
+                                        <h3 className="text-3xl font-display font-black text-black">
                                             {registrations.length > 0 
                                                 ? `${Math.round((checkedInCount / registrations.length) * 100)}%` 
                                                 : '0%'}
                                         </h3>
                                     </div>
-                                    <div className="p-3 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20">
-                                        <Ticket className="h-5 w-5" />
+                                    <div className="p-3 bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                                        <Ticket className="h-5 w-5 stroke-[2.5]" />
                                     </div>
                                 </CardContent>
                             </Card>
@@ -809,26 +806,26 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                     </motion.div>
 
                     {/* Main Registrations Section */}
-                    <Card className="bg-zinc-950/40 border border-zinc-900 rounded-2xl shadow-xl overflow-hidden">
-                        <CardHeader className="p-6 border-b border-zinc-900 bg-zinc-950/30">
+                    <Card className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000000] rounded-none">
+                        <CardHeader className="p-6 border-b-2 border-black bg-[#FAFAFA]">
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                 <div>
                                     <div className="flex items-center gap-2">
-                                        <CardTitle className="text-base font-bold uppercase tracking-widest text-white">Participants List</CardTitle>
-                                        <Badge className="bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] font-semibold">{filteredRegistrations.length} Found</Badge>
+                                        <CardTitle className="text-base font-black uppercase tracking-wider text-black font-display">Participants Roster</CardTitle>
+                                        <Badge className="bg-[#FFE600] border-2 border-black text-black text-[10px] font-black shadow-[2px_2px_0px_0px_#000000]">{filteredRegistrations.length} FOUND</Badge>
                                     </div>
-                                    <CardDescription className="text-xs text-zinc-500 mt-1">
-                                        Search, filter and toggle attendance check-ins.
+                                    <CardDescription className="text-xs text-zinc-600 font-bold mt-1">
+                                        Search, filter and toggle live attendance check-ins.
                                     </CardDescription>
                                 </div>
                                 {hasActiveFilters && (
                                     <Button 
-                                        variant="ghost" 
+                                        variant="outline" 
                                         size="sm" 
                                         onClick={clearFilters}
-                                        className="text-zinc-500 hover:text-white text-xs font-semibold w-fit self-start lg:self-center"
+                                        className="border-2 border-black bg-white hover:bg-zinc-100 text-black text-xs font-black uppercase w-fit self-start lg:self-center shadow-[2px_2px_0px_0px_#000000]"
                                     >
-                                        <X className="mr-1.5 h-3.5 w-3.5" />
+                                        <X className="mr-1.5 h-3.5 w-3.5 stroke-[3]" />
                                         Reset Filters
                                     </Button>
                                 )}
@@ -838,32 +835,32 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
                                 {/* Search Bar */}
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 stroke-[2.5]" />
                                     <Input
                                         placeholder="Search name, roll no, email..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-9 bg-zinc-950 border-zinc-900 text-sm h-10 rounded-xl focus-visible:ring-[#4285F4]/60 placeholder:text-zinc-600"
+                                        className="pl-9 bg-white border-2 border-black text-xs font-bold h-10 rounded-none focus-visible:ring-0 placeholder:text-zinc-400 shadow-[2px_2px_0px_0px_#000000]"
                                     />
                                     {searchQuery && (
                                         <button 
                                             onClick={() => setSearchQuery('')}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-black font-bold"
                                         >
-                                            <X className="h-3.5 w-3.5" />
+                                            <X className="h-3.5 w-3.5 stroke-[3]" />
                                         </button>
                                     )}
                                 </div>
 
                                 {/* Status Filter */}
                                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                    <SelectTrigger className="bg-zinc-950 border-zinc-900 rounded-xl h-10 text-sm text-zinc-400 focus:ring-[#4285F4]/60">
+                                    <SelectTrigger className="bg-white border-2 border-black rounded-none h-10 text-xs font-bold text-black shadow-[2px_2px_0px_0px_#000000]">
                                         <div className="flex items-center gap-2">
-                                            <SlidersHorizontal className="h-3.5 w-3.5 text-zinc-500" />
+                                            <SlidersHorizontal className="h-3.5 w-3.5 text-black stroke-[2.5]" />
                                             <SelectValue placeholder="All Attendance" />
                                         </div>
                                     </SelectTrigger>
-                                    <SelectContent className="bg-zinc-950 border-zinc-900 text-zinc-300 rounded-xl">
+                                    <SelectContent className="bg-white border-2 border-black text-black rounded-none shadow-[4px_4px_0px_0px_#000000]">
                                         <SelectItem value="all">All Attendance</SelectItem>
                                         <SelectItem value="present">Checked In (Present)</SelectItem>
                                         <SelectItem value="absent">Absent</SelectItem>
@@ -872,10 +869,10 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
 
                                 {/* Branch Filter */}
                                 <Select value={branchFilter} onValueChange={setBranchFilter}>
-                                    <SelectTrigger className="bg-zinc-950 border-zinc-900 rounded-xl h-10 text-sm text-zinc-400 focus:ring-[#4285F4]/60">
+                                    <SelectTrigger className="bg-white border-2 border-black rounded-none h-10 text-xs font-bold text-black shadow-[2px_2px_0px_0px_#000000]">
                                         <SelectValue placeholder="All Branches" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-zinc-950 border-zinc-900 text-zinc-300 rounded-xl">
+                                    <SelectContent className="bg-white border-2 border-black text-black rounded-none shadow-[4px_4px_0px_0px_#000000]">
                                         <SelectItem value="all">All Branches</SelectItem>
                                         {branches.map(b => (
                                             <SelectItem key={b} value={b}>{b}</SelectItem>
@@ -885,10 +882,10 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
 
                                 {/* Year Filter */}
                                 <Select value={yearFilter} onValueChange={setYearFilter}>
-                                    <SelectTrigger className="bg-zinc-950 border-zinc-900 rounded-xl h-10 text-sm text-zinc-400 focus:ring-[#4285F4]/60">
+                                    <SelectTrigger className="bg-white border-2 border-black rounded-none h-10 text-xs font-bold text-black shadow-[2px_2px_0px_0px_#000000]">
                                         <SelectValue placeholder="All Years" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-zinc-950 border-zinc-900 text-zinc-300 rounded-xl">
+                                    <SelectContent className="bg-white border-2 border-black text-black rounded-none shadow-[4px_4px_0px_0px_#000000]">
                                         <SelectItem value="all">All Years</SelectItem>
                                         {years.map(y => (
                                             <SelectItem key={y} value={y}>{y} Year</SelectItem>
@@ -902,55 +899,55 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             {/* Desktop Table View - Hidden on mobile */}
                             <div className="hidden md:block">
                                 <Table>
-                                    <TableHeader className="bg-zinc-950/20 border-b border-zinc-900">
-                                        <TableRow className="hover:bg-transparent border-zinc-900">
-                                            <TableHead className="w-12 text-zinc-500 font-bold uppercase tracking-wider text-[10px] pl-6"></TableHead>
-                                            <TableHead className="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">Participant Info</TableHead>
-                                            <TableHead className="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">Roll Number</TableHead>
-                                            <TableHead className="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">Branch / Year</TableHead>
-                                            <TableHead className="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">Registration Date</TableHead>
-                                            <TableHead className="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">Status</TableHead>
-                                            <TableHead className="text-zinc-500 font-bold uppercase tracking-wider text-[10px] text-right pr-6">Action</TableHead>
+                                    <TableHeader className="bg-zinc-100 border-b-2 border-black">
+                                        <TableRow className="hover:bg-transparent border-b-2 border-black">
+                                            <TableHead className="w-12 text-black font-black uppercase tracking-wider text-[10px] pl-6"></TableHead>
+                                            <TableHead className="text-black font-black uppercase tracking-wider text-[10px]">Participant Info</TableHead>
+                                            <TableHead className="text-black font-black uppercase tracking-wider text-[10px]">Roll Number</TableHead>
+                                            <TableHead className="text-black font-black uppercase tracking-wider text-[10px]">Branch / Year</TableHead>
+                                            <TableHead className="text-black font-black uppercase tracking-wider text-[10px]">Registration Date</TableHead>
+                                            <TableHead className="text-black font-black uppercase tracking-wider text-[10px]">Status</TableHead>
+                                            <TableHead className="text-black font-black uppercase tracking-wider text-[10px] text-right pr-6">Action</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {filteredRegistrations.length > 0 ? (
                                             filteredRegistrations.map(reg => (
-                                                <TableRow key={reg.id} className="border-zinc-900 hover:bg-zinc-900/10 group transition-colors">
+                                                <TableRow key={reg.id} className="border-b border-zinc-200 hover:bg-zinc-50 group transition-colors">
                                                     {/* Avatar */}
                                                     <TableCell className="pl-6 py-4">
-                                                        <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-xs font-bold ${getAvatarColor(reg.name)}`}>
+                                                        <div className={`h-8 w-8 border-2 border-black flex items-center justify-center text-xs font-black shadow-[1px_1px_0px_0px_#000000] ${getAvatarColor(reg.name)}`}>
                                                             {getInitials(reg.name)}
                                                         </div>
                                                     </TableCell>
                                                     {/* Info */}
                                                     <TableCell className="py-4">
                                                         <div className="flex flex-col">
-                                                            <span className="font-bold text-sm text-zinc-200">{reg.name}</span>
+                                                            <span className="font-bold text-sm text-black">{reg.name}</span>
                                                             <span className="text-xs text-zinc-500 font-medium mt-0.5">{reg.email}</span>
                                                         </div>
                                                     </TableCell>
                                                     {/* Roll No */}
-                                                    <TableCell className="py-4 font-mono text-xs text-zinc-400">
+                                                    <TableCell className="py-4 font-mono text-xs font-bold text-black">
                                                         {reg.rollNo}
                                                     </TableCell>
                                                     {/* Branch / Year */}
-                                                    <TableCell className="py-4 text-xs font-semibold text-zinc-300">
-                                                        {reg.branch} <span className="text-zinc-500 mx-1">•</span> {reg.yearOfStudy} Year
+                                                    <TableCell className="py-4 text-xs font-bold text-zinc-800">
+                                                        {reg.branch} <span className="text-zinc-400 mx-1">•</span> {reg.yearOfStudy} Year
                                                     </TableCell>
                                                     {/* Date */}
-                                                    <TableCell className="py-4 text-xs text-zinc-500 font-medium">
+                                                    <TableCell className="py-4 text-xs text-zinc-600 font-semibold">
                                                         {format(new Date(reg.registeredAt), "MMM d, yyyy")}
                                                     </TableCell>
                                                     {/* Status Badge */}
                                                     <TableCell className="py-4">
                                                         {reg.checkedIn ? (
-                                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 py-0.5 px-2.5 font-bold uppercase tracking-widest text-[9px]">
-                                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5 inline-block" />
+                                                            <Badge variant="outline" className="bg-[#00FF66] text-black border-2 border-black py-0.5 px-2.5 font-black uppercase tracking-widest text-[9px] shadow-[1px_1px_0px_0px_#000000]">
+                                                                <span className="h-1.5 w-1.5 rounded-full bg-black mr-1.5 inline-block" />
                                                                 Present
                                                             </Badge>
                                                         ) : (
-                                                            <Badge variant="outline" className="bg-zinc-900 text-zinc-500 border-zinc-800 py-0.5 px-2.5 font-bold uppercase tracking-widest text-[9px]">
+                                                            <Badge variant="outline" className="bg-zinc-100 text-zinc-600 border-2 border-black py-0.5 px-2.5 font-bold uppercase tracking-widest text-[9px]">
                                                                 Absent
                                                             </Badge>
                                                         )}
@@ -960,16 +957,16 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                                         <div className="flex items-center justify-end gap-2">
                                                             <Button 
                                                                 onClick={() => setDeletingReg({ id: reg.id, name: reg.name, userId: (reg as any).userId })} 
-                                                                variant="ghost" 
+                                                                variant="outline" 
                                                                 size="icon" 
-                                                                className="h-8 w-8 rounded-lg text-zinc-500 hover:text-red-500 hover:bg-zinc-900 border border-transparent hover:border-zinc-800"
+                                                                className="h-8 w-8 border-2 border-black bg-white hover:bg-[#FF0055] hover:text-white text-black shadow-[2px_2px_0px_0px_#000000]"
                                                                 title={`Remove ${reg.name}`}
                                                             >
-                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                                <Trash2 className="h-3.5 w-3.5 stroke-[2.5]" />
                                                             </Button>
-                                                            <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-zinc-500 hover:text-[#4285F4] hover:bg-zinc-900 border border-transparent hover:border-zinc-800" title={`Call ${reg.name}`}>
+                                                            <Button asChild variant="outline" size="icon" className="h-8 w-8 border-2 border-black bg-white hover:bg-[#4285F4] hover:text-white text-black shadow-[2px_2px_0px_0px_#000000]" title={`Call ${reg.name}`}>
                                                                 <a href={`tel:${reg.phone}`}>
-                                                                    <Phone className="h-3.5 w-3.5" />
+                                                                    <Phone className="h-3.5 w-3.5 stroke-[2.5]" />
                                                                 </a>
                                                             </Button>
                                                             <Button
@@ -977,10 +974,10 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                                                 variant="outline"
                                                                 size="sm"
                                                                 disabled={togglingId === reg.id}
-                                                                className={`h-8 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 border-zinc-800 bg-zinc-950 ${
+                                                                className={`h-8 px-3 text-[10px] font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] ${
                                                                     reg.checkedIn
-                                                                        ? 'hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 text-zinc-400'
-                                                                        : 'hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/20 text-emerald-400'
+                                                                        ? 'bg-[#FF0055] text-white hover:bg-[#FF0055]/90'
+                                                                        : 'bg-[#00FF66] text-black hover:bg-[#00FF66]/90'
                                                                 }`}
                                                             >
                                                                 {togglingId === reg.id ? (
@@ -997,7 +994,7 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                             ))
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={7} className="text-center h-32 text-zinc-500 font-semibold uppercase tracking-wider text-xs">
+                                                <TableCell colSpan={7} className="text-center h-32 text-zinc-500 font-bold uppercase tracking-wider text-xs">
                                                     {hasActiveFilters ? 'No registrations match the filters.' : 'No registrations found.'}
                                                 </TableCell>
                                             </TableRow>
@@ -1007,41 +1004,41 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             </div>
 
                             {/* Mobile Card Grid View - Visible on mobile/tablet */}
-                            <div className="block md:hidden p-4 space-y-4 max-h-[60vh] overflow-y-auto bg-black">
+                            <div className="block md:hidden p-4 space-y-4 max-h-[60vh] overflow-y-auto bg-[#FAFAFA]">
                                 {filteredRegistrations.length > 0 ? (
                                     filteredRegistrations.map(reg => (
-                                        <Card key={reg.id} className="border-zinc-900 bg-zinc-950/60 p-4 rounded-xl space-y-3.5 shadow-md">
+                                        <Card key={reg.id} className="border-2 border-black bg-white p-4 space-y-3.5 shadow-[3px_3px_0px_0px_#000000] rounded-none">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex gap-2.5 items-center">
-                                                    <div className={`h-8 w-8 rounded-full border flex items-center justify-center text-xs font-bold shrink-0 ${getAvatarColor(reg.name)}`}>
+                                                    <div className={`h-8 w-8 border-2 border-black flex items-center justify-center text-xs font-black shrink-0 ${getAvatarColor(reg.name)}`}>
                                                         {getInitials(reg.name)}
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
-                                                        <span className="font-extrabold text-sm text-zinc-200 truncate">{reg.name}</span>
-                                                        <span className="text-[10px] text-zinc-500 truncate">{reg.email}</span>
+                                                        <span className="font-black text-sm text-black truncate">{reg.name}</span>
+                                                        <span className="text-[10px] text-zinc-500 truncate font-semibold">{reg.email}</span>
                                                     </div>
                                                 </div>
                                                 <div>
                                                     {reg.checkedIn ? (
-                                                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 py-0.5 px-2 font-bold uppercase tracking-widest text-[8px] whitespace-nowrap">
+                                                        <Badge variant="outline" className="bg-[#00FF66] text-black border-2 border-black py-0.5 px-2 font-black uppercase tracking-widest text-[8px] whitespace-nowrap shadow-[1px_1px_0px_0px_#000000]">
                                                             Present
                                                         </Badge>
                                                     ) : (
-                                                        <Badge variant="outline" className="bg-zinc-900 text-zinc-500 border-zinc-800 py-0.5 px-2 font-bold uppercase tracking-widest text-[8px] whitespace-nowrap">
+                                                        <Badge variant="outline" className="bg-zinc-100 text-zinc-600 border-2 border-black py-0.5 px-2 font-bold uppercase tracking-widest text-[8px] whitespace-nowrap">
                                                             Absent
                                                         </Badge>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-2 text-[10px] text-zinc-400 bg-zinc-950/30 p-2.5 rounded-lg border border-zinc-900/60 font-medium">
+                                            <div className="grid grid-cols-2 gap-2 text-[10px] text-black bg-[#FAFAFA] p-2.5 border-2 border-black font-bold">
                                                 <div>
-                                                    <span className="text-zinc-600 block text-[9px] uppercase font-bold tracking-wider mb-0.5">Roll Number</span>
-                                                    <span className="font-mono text-zinc-300">{reg.rollNo}</span>
+                                                    <span className="text-zinc-500 block text-[9px] uppercase font-black tracking-wider mb-0.5">Roll Number</span>
+                                                    <span className="font-mono text-black">{reg.rollNo}</span>
                                                 </div>
                                                 <div>
-                                                    <span className="text-zinc-600 block text-[9px] uppercase font-bold tracking-wider mb-0.5">Branch / Year</span>
-                                                    <span className="text-zinc-300">{reg.branch} ({reg.yearOfStudy} Yr)</span>
+                                                    <span className="text-zinc-500 block text-[9px] uppercase font-black tracking-wider mb-0.5">Branch / Year</span>
+                                                    <span className="text-black">{reg.branch} ({reg.yearOfStudy} Yr)</span>
                                                 </div>
                                             </div>
 
@@ -1051,14 +1048,14 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                                     onClick={() => setDeletingReg({ id: reg.id, name: reg.name, userId: (reg as any).userId })}
                                                     variant="outline" 
                                                     size="sm" 
-                                                    className="h-8 border-zinc-900 bg-zinc-950 hover:bg-red-950/20 hover:text-red-500 rounded-lg text-zinc-400 text-xs w-10 p-0" 
+                                                    className="h-8 border-2 border-black bg-white hover:bg-[#FF0055] hover:text-white text-black text-xs w-10 p-0 shadow-[2px_2px_0px_0px_#000000]" 
                                                     title={`Remove ${reg.name}`}
                                                 >
-                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                    <Trash2 className="h-3.5 w-3.5 stroke-[2.5]" />
                                                 </Button>
-                                                <Button asChild variant="outline" size="sm" className="h-8 border-zinc-800 bg-zinc-950 hover:bg-zinc-900 rounded-lg text-zinc-400 text-xs w-10 p-0" title={`Call ${reg.name}`}>
+                                                <Button asChild variant="outline" size="sm" className="h-8 border-2 border-black bg-white hover:bg-[#4285F4] hover:text-white text-black text-xs w-10 p-0 shadow-[2px_2px_0px_0px_#000000]" title={`Call ${reg.name}`}>
                                                     <a href={`tel:${reg.phone}`}>
-                                                        <Phone className="h-3.5 w-3.5" />
+                                                        <Phone className="h-3.5 w-3.5 stroke-[2.5]" />
                                                     </a>
                                                 </Button>
                                                 <Button
@@ -1066,10 +1063,10 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                                     variant="outline"
                                                     size="sm"
                                                     disabled={togglingId === reg.id}
-                                                    className={`h-8 flex-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 border-zinc-800 bg-zinc-950 ${
+                                                    className={`h-8 flex-1 text-[10px] font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_0px_#000000] ${
                                                         reg.checkedIn
-                                                            ? 'hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 text-zinc-400'
-                                                            : 'hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/20 text-emerald-400'
+                                                            ? 'bg-[#FF0055] text-white hover:bg-[#FF0055]/90'
+                                                            : 'bg-[#00FF66] text-black hover:bg-[#00FF66]/90'
                                                     }`}
                                                 >
                                                     {togglingId === reg.id ? (
@@ -1084,7 +1081,7 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                         </Card>
                                     ))
                                 ) : (
-                                    <p className="text-center py-12 text-zinc-500 font-semibold uppercase tracking-wider text-xs">
+                                    <p className="text-center py-12 text-zinc-500 font-bold uppercase tracking-wider text-xs">
                                         No registrations match filters.
                                     </p>
                                 )}
@@ -1098,9 +1095,9 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
             <div className="fixed bottom-6 right-6 z-40 md:hidden">
                 <Button 
                     onClick={() => setIsScannerOpen(true)} 
-                    className="h-14 w-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg flex items-center justify-center p-0 active:scale-95 transition-transform border border-emerald-500/30"
+                    className="h-14 w-14 rounded-full bg-[#00FF66] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-center p-0 active:scale-95 transition-transform border-2 border-black"
                 >
-                    <ScanLine className="h-6 w-6 animate-pulse" />
+                    <ScanLine className="h-6 w-6 stroke-[2.5]" />
                 </Button>
             </div>
 
@@ -1114,13 +1111,13 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
 
             {/* 1. Event Analytics Dialog */}
             <Dialog open={isAnalyticsOpen} onOpenChange={setIsAnalyticsOpen}>
-                <DialogContent className="sm:max-w-xl bg-zinc-950 text-zinc-100 border-zinc-900 p-6 overflow-hidden max-h-[90vh] flex flex-col rounded-2xl">
-                    <DialogHeader className="border-b border-zinc-900 pb-4">
-                        <DialogTitle className="text-zinc-100 flex items-center gap-2 text-lg">
-                            <BarChart3 className="h-5 w-5 text-[#FBBC04]" />
+                <DialogContent className="sm:max-w-xl bg-white text-black border-4 border-black p-6 overflow-hidden max-h-[90vh] flex flex-col shadow-[10px_10px_0px_0px_#000000] font-sans">
+                    <DialogHeader className="border-b-2 border-black pb-4">
+                        <DialogTitle className="text-black flex items-center gap-2 text-lg font-black uppercase tracking-tight font-display">
+                            <BarChart3 className="h-5 w-5 text-amber-500 stroke-[2.5]" />
                             Registration Demographics
                         </DialogTitle>
-                        <DialogDescription className="text-zinc-400 text-xs mt-0.5">
+                        <DialogDescription className="text-zinc-600 font-bold text-xs mt-0.5">
                             Real-time breakdown of registered students by branch and academic year.
                         </DialogDescription>
                     </DialogHeader>
@@ -1128,8 +1125,8 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                     <div className="flex-1 overflow-y-auto py-4 space-y-6 pr-1">
                         {/* Branch Statistics */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                                <Users className="h-4 w-4 text-[#4285F4]" />
+                            <h4 className="text-xs font-black uppercase tracking-wider text-black flex items-center gap-1.5 font-display">
+                                <Users className="h-4 w-4 text-[#4285F4] stroke-[2.5]" />
                                 Branch Breakdown
                             </h4>
                             <div className="space-y-2.5">
@@ -1138,13 +1135,13 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                 ) : (
                                     analyticsData.branches.map(b => (
                                         <div key={b.name} className="space-y-1">
-                                            <div className="flex justify-between text-xs font-semibold">
-                                                <span className="text-zinc-300">{b.name}</span>
-                                                <span className="text-zinc-400">{b.count} student(s) <span className="text-zinc-600">({b.percent}%)</span></span>
+                                            <div className="flex justify-between text-xs font-bold">
+                                                <span className="text-black">{b.name}</span>
+                                                <span className="text-zinc-700">{b.count} student(s) <span className="text-zinc-500">({b.percent}%)</span></span>
                                             </div>
-                                            <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/40">
+                                            <div className="h-3 w-full bg-zinc-100 border-2 border-black">
                                                 <div 
-                                                    className="h-full bg-[#4285F4] rounded-full transition-all duration-500" 
+                                                    className="h-full bg-[#4285F4] transition-all duration-500" 
                                                     style={{ width: `${b.percent}%` }}
                                                 />
                                             </div>
@@ -1154,12 +1151,12 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             </div>
                         </div>
 
-                        <hr className="border-zinc-900" />
+                        <hr className="border-black border-t-2" />
 
                         {/* Year of Study Statistics */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                                <Calendar className="h-4 w-4 text-[#34A853]" />
+                            <h4 className="text-xs font-black uppercase tracking-wider text-black flex items-center gap-1.5 font-display">
+                                <Calendar className="h-4 w-4 text-[#34A853] stroke-[2.5]" />
                                 Academic Year Breakdown
                             </h4>
                             <div className="space-y-2.5">
@@ -1168,13 +1165,13 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                 ) : (
                                     analyticsData.years.map(y => (
                                         <div key={y.name} className="space-y-1">
-                                            <div className="flex justify-between text-xs font-semibold">
-                                                <span className="text-zinc-300">{y.name} Year</span>
-                                                <span className="text-zinc-400">{y.count} student(s) <span className="text-zinc-600">({y.percent}%)</span></span>
+                                            <div className="flex justify-between text-xs font-bold">
+                                                <span className="text-black">{y.name} Year</span>
+                                                <span className="text-zinc-700">{y.count} student(s) <span className="text-zinc-500">({y.percent}%)</span></span>
                                             </div>
-                                            <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/40">
+                                            <div className="h-3 w-full bg-zinc-100 border-2 border-black">
                                                 <div 
-                                                    className="h-full bg-[#34A853] rounded-full transition-all duration-500" 
+                                                    className="h-full bg-[#00FF66] transition-all duration-500" 
                                                     style={{ width: `${y.percent}%` }}
                                                 />
                                             </div>
@@ -1185,10 +1182,10 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                         </div>
                     </div>
 
-                    <DialogFooter className="border-t border-zinc-900 pt-4 flex justify-end">
+                    <DialogFooter className="border-t-2 border-black pt-4 flex justify-end">
                         <Button 
                             onClick={() => setIsAnalyticsOpen(false)}
-                            className="bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-100 rounded-xl text-xs font-bold uppercase tracking-wider h-10 px-6"
+                            className="bg-black hover:bg-zinc-800 text-white border-2 border-black text-xs font-black uppercase tracking-wider h-10 px-6 shadow-[2px_2px_0px_0px_#FFE600]"
                         >
                             Close
                         </Button>
@@ -1198,13 +1195,13 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
 
             {/* 2. Bulk Check-In Dialog */}
             <Dialog open={isBulkCheckInOpen} onOpenChange={setIsBulkCheckInOpen}>
-                <DialogContent className="sm:max-w-md bg-zinc-950 text-zinc-100 border-zinc-900 p-6 rounded-2xl">
+                <DialogContent className="sm:max-w-md bg-white text-black border-4 border-black p-6 shadow-[10px_10px_0px_0px_#000000] font-sans">
                     <DialogHeader>
-                        <DialogTitle className="text-zinc-100 flex items-center gap-2 text-lg">
-                            <CheckSquare className="h-5 w-5 text-emerald-500" />
+                        <DialogTitle className="text-black flex items-center gap-2 text-lg font-black uppercase tracking-tight font-display">
+                            <CheckSquare className="h-5 w-5 text-emerald-600 stroke-[2.5]" />
                             Bulk Check-In
                         </DialogTitle>
-                        <DialogDescription className="text-zinc-400 text-xs mt-0.5">
+                        <DialogDescription className="text-zinc-600 text-xs font-bold mt-0.5">
                             Enter multiple student roll numbers separated by commas or newlines to mark them present at once.
                         </DialogDescription>
                     </DialogHeader>
@@ -1215,18 +1212,18 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                             value={bulkRollNumbers}
                             onChange={(e) => setBulkRollNumbers(e.target.value)}
                             disabled={actionType === 'bulkCheckIn'}
-                            className="min-h-36 bg-zinc-950 border-zinc-900 text-zinc-100 placeholder:text-zinc-700 focus-visible:ring-emerald-500 rounded-xl text-sm"
+                            className="min-h-36 bg-white border-2 border-black text-black font-mono font-bold placeholder:text-zinc-400 text-xs shadow-[3px_3px_0px_0px_#000000]"
                         />
 
                         {actionType === 'bulkCheckIn' && (
                             <div className="space-y-2">
-                                <div className="flex justify-between text-xs text-zinc-400 font-semibold">
+                                <div className="flex justify-between text-xs text-zinc-600 font-bold">
                                     <span>Processing roll numbers...</span>
                                     <span>{bulkProgress.current} / {bulkProgress.total}</span>
                                 </div>
-                                <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/40">
+                                <div className="h-3 w-full bg-zinc-100 border-2 border-black">
                                     <div 
-                                        className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                                        className="h-full bg-[#00FF66] transition-all duration-300"
                                         style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
                                     />
                                 </div>
@@ -1240,16 +1237,16 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
                                 setIsBulkCheckInOpen(false);
                                 setBulkRollNumbers('');
                             }}
-                            variant="ghost"
+                            variant="outline"
                             disabled={actionType === 'bulkCheckIn'}
-                            className="text-zinc-400 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider"
+                            className="border-2 border-black bg-white hover:bg-zinc-100 text-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000]"
                         >
                             Cancel
                         </Button>
                         <Button 
                             onClick={handleBulkCheckIn}
                             disabled={actionType === 'bulkCheckIn' || !bulkRollNumbers.trim()}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider px-6 h-10"
+                            className="bg-[#00FF66] hover:bg-[#00FF66]/90 text-black border-2 border-black text-xs font-black uppercase tracking-wider px-6 h-10 shadow-[3px_3px_0px_0px_#000000]"
                         >
                             {actionType === 'bulkCheckIn' ? (
                                 <>
@@ -1266,23 +1263,23 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
 
             {/* 3. Confirm Reset Attendance Alert */}
             <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
-                <AlertDialogContent className="bg-zinc-950 text-zinc-100 border-zinc-900 rounded-2xl">
+                <AlertDialogContent className="bg-white text-black border-4 border-black shadow-[10px_10px_0px_0px_#000000] font-sans">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-zinc-100 flex items-center gap-2 text-lg">
-                            <RotateCcw className="h-5 w-5 text-red-500 animate-spin-once" />
+                        <AlertDialogTitle className="text-black flex items-center gap-2 text-lg font-black uppercase font-display">
+                            <RotateCcw className="h-5 w-5 text-[#FF0055] stroke-[2.5]" />
                             Reset All Attendance?
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-zinc-400 text-xs leading-relaxed">
+                        <AlertDialogDescription className="text-zinc-600 text-xs font-bold leading-relaxed">
                             This action will reset the check-in status of **all participants** back to **Absent**. Registered user tickets will remain valid. This action is irreversible.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="border-zinc-850 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider">
+                    <AlertDialogFooter className="gap-2">
+                        <AlertDialogCancel className="border-2 border-black bg-white hover:bg-zinc-100 text-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000]">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction 
                             onClick={handleResetAllAttendance}
-                            className="bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider px-6"
+                            className="bg-[#FF0055] hover:bg-[#FF0055]/90 text-white border-2 border-black text-xs font-black uppercase tracking-wider px-6 shadow-[3px_3px_0px_0px_#000000]"
                         >
                             Reset Attendance
                         </AlertDialogAction>
@@ -1292,23 +1289,23 @@ export default function EventRegistrationsPage({ params }: { params: Promise<{ i
 
             {/* 4. Confirm Delete Participant Alert */}
             <AlertDialog open={deletingReg !== null} onOpenChange={(open) => !open && setDeletingReg(null)}>
-                <AlertDialogContent className="bg-zinc-950 text-zinc-100 border-zinc-900 rounded-2xl">
+                <AlertDialogContent className="bg-white text-black border-4 border-black shadow-[10px_10px_0px_0px_#000000] font-sans">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-zinc-100 flex items-center gap-2 text-lg">
-                            <Trash2 className="h-5 w-5 text-red-500" />
+                        <AlertDialogTitle className="text-black flex items-center gap-2 text-lg font-black uppercase font-display">
+                            <Trash2 className="h-5 w-5 text-[#FF0055] stroke-[2.5]" />
                             Remove Participant?
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-zinc-400 text-xs leading-relaxed">
+                        <AlertDialogDescription className="text-zinc-600 text-xs font-bold leading-relaxed">
                             Are you sure you want to remove **{deletingReg?.name}** from the event? This will cancel their registration ticket and remove it from their profile. This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="border-zinc-850 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider">
+                    <AlertDialogFooter className="gap-2">
+                        <AlertDialogCancel className="border-2 border-black bg-white hover:bg-zinc-100 text-black text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000]">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction 
                             onClick={handleDeleteParticipant}
-                            className="bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider px-6"
+                            className="bg-[#FF0055] hover:bg-[#FF0055]/90 text-white border-2 border-black text-xs font-black uppercase tracking-wider px-6 shadow-[3px_3px_0px_0px_#000000]"
                         >
                             Remove Participant
                         </AlertDialogAction>

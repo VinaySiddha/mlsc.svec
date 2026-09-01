@@ -7,7 +7,7 @@ export function InputGroup({ className, ...props }: InputGroupProps) {
   return (
     <div
       className={cn(
-        "relative flex flex-col w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all overflow-hidden",
+        "relative flex flex-col w-full rounded-none border-2 border-black bg-white focus-within:shadow-[3px_3px_0px_0px_#000000] transition-all overflow-hidden",
         className
       )}
       {...props}
@@ -23,7 +23,7 @@ export const InputGroupTextarea = React.forwardRef<HTMLTextAreaElement, InputGro
       <textarea
         ref={ref}
         className={cn(
-          "w-full bg-transparent px-4 py-3 text-sm outline-none placeholder:text-slate-400 dark:placeholder:text-zinc-500 min-h-24 resize-none",
+          "w-full bg-white text-black px-4 py-3 text-sm outline-none placeholder:text-zinc-400 min-h-24 resize-none",
           className
         )}
         {...props}
@@ -41,7 +41,7 @@ export function InputGroupAddon({ className, align = "block-end", ...props }: In
   return (
     <div
       className={cn(
-        "flex px-4 py-2 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/20 text-xs",
+        "flex px-4 py-2 border-t-2 border-black bg-zinc-50 text-xs text-black font-medium",
         align === "block-end" ? "justify-end" : "justify-start",
         className
       )}
@@ -55,7 +55,7 @@ export interface InputGroupTextProps extends React.HTMLAttributes<HTMLSpanElemen
 export function InputGroupText({ className, ...props }: InputGroupTextProps) {
   return (
     <span
-      className={cn("text-slate-400 dark:text-zinc-500 select-none", className)}
+      className={cn("text-zinc-500 select-none text-xs font-bold uppercase tracking-wider", className)}
       {...props}
     />
   )

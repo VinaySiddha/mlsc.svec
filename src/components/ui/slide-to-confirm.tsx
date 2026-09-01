@@ -99,7 +99,7 @@ const SlideToConfirmButton = React.forwardRef<
       <div
         ref={trackRef}
         className={cn(
-          "relative inline-flex items-center h-14 w-full rounded-full border border-white/10 bg-white/5 p-1 overflow-hidden select-none",
+          "relative inline-flex items-center h-14 w-full rounded-none border-2 border-black bg-white p-1 overflow-hidden select-none shadow-[3px_3px_0px_0px_#000000]",
           disabled && "opacity-50 pointer-events-none",
           className,
         )}
@@ -112,9 +112,9 @@ const SlideToConfirmButton = React.forwardRef<
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative z-10 flex items-center justify-center gap-2 w-full h-full px-5 bg-[#34A853] rounded-full text-white font-semibold text-sm"
+              className="relative z-10 flex items-center justify-center gap-2 w-full h-full px-5 bg-[#00FF66] border-2 border-black text-black font-black uppercase tracking-wider text-xs"
             >
-              <ShieldCheck className="size-5" />
+              <ShieldCheck className="size-5 stroke-[2.5]" />
               <span>{confirmedLabel}</span>
             </motion.div>
           ) : (
@@ -122,13 +122,13 @@ const SlideToConfirmButton = React.forwardRef<
               {/* Dynamic Fill Bar */}
               <motion.div
                 style={{ width: fillWidth }}
-                className="absolute left-1 top-1 bottom-1 z-0 rounded-full bg-[#4285F4]/20 pointer-events-none"
+                className="absolute left-1 top-1 bottom-1 z-0 bg-[#FFE600] pointer-events-none"
               />
 
               {/* Track Label */}
               <motion.span
                 style={{ opacity: textOpacity }}
-                className="absolute inset-0 z-0 flex items-center justify-center font-medium text-xs sm:text-sm text-white/40 tracking-wide pointer-events-none pl-6"
+                className="absolute inset-0 z-0 flex items-center justify-center font-black uppercase text-xs text-black tracking-wider pointer-events-none pl-6"
               >
                 {label}
               </motion.span>
@@ -141,12 +141,12 @@ const SlideToConfirmButton = React.forwardRef<
                 dragElastic={0.05}
                 dragMomentum={false}
                 onDragEnd={handleDragEnd}
-                whileHover={disabled ? {} : { scale: 1.05 }}
+                whileHover={disabled ? {} : { scale: 1.02 }}
                 whileTap={disabled ? {} : { scale: 0.98 }}
                 type="button"
-                className="relative z-10 flex items-center justify-center size-12 rounded-full bg-[#4285F4] text-white shadow-md cursor-grab active:cursor-grabbing"
+                className="relative z-10 flex items-center justify-center size-11 bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000] cursor-grab active:cursor-grabbing"
               >
-                <ArrowRight className="size-5" />
+                <ArrowRight className="size-5 stroke-[3]" />
               </motion.button>
             </React.Fragment>
           )}

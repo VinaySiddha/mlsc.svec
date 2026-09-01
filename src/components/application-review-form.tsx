@@ -117,17 +117,17 @@ const StarRating = ({ value, onChange, disabled = false }: { value: number; onCh
         <Star
           key={star}
           className={cn(
-            "h-7 w-7 transition-colors sm:h-6 sm:w-6",
-            disabled ? "text-muted-foreground/30" : "cursor-pointer",
-            displayValue >= star ? "text-primary fill-primary" : "text-muted-foreground/50",
-            !disabled && displayValue >= star && "hover:text-primary/80"
+            "h-6 w-6 transition-colors",
+            disabled ? "text-zinc-300" : "cursor-pointer",
+            displayValue >= star ? "text-[#FFE600] fill-[#FFE600] stroke-black stroke-[1.5]" : "text-zinc-300 fill-zinc-100",
+            !disabled && displayValue >= star && "hover:opacity-90"
           )}
           onClick={() => !disabled && onChange(star)}
           onMouseEnter={() => !disabled && setHoverValue(star)}
           onMouseLeave={() => !disabled && setHoverValue(0)}
         />
       ))}
-      {!disabled && <span className="ml-2 text-sm font-medium text-foreground w-8 text-center">{value.toFixed(1)}</span>}
+      {!disabled && <span className="ml-2 text-xs font-black text-black w-8 text-center">{value.toFixed(1)}</span>}
     </div>
   );
 };
@@ -141,62 +141,48 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
   const form = useForm<FormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
-      status: application.status ?? 'Received',
-      isRecommended: application.isRecommended ?? false,
+      status: application.status || "Received",
+      isRecommended: application.isRecommended || false,
       suitability: {
-        technical: application.suitability?.technical ?? 'undecided',
-        nonTechnical: application.suitability?.nonTechnical ?? 'undecided',
+        technical: application.suitability?.technical || 'undecided',
+        nonTechnical: application.suitability?.nonTechnical || 'undecided',
       },
       ratings: {
-        communication: application.ratings?.communication ?? 0,
-        technical: application.ratings?.technical ?? 0,
-        problemSolving: application.ratings?.problemSolving ?? 0,
-        teamFit: application.ratings?.teamFit ?? 0,
-        confidence: application.ratings?.confidence ?? 0,
-        growthMindset: application.ratings?.growthMindset ?? 0,
-        leadership: application.ratings?.leadership ?? 0,
-        overall: application.ratings?.overall ?? 0,
+        communication: application.ratings?.communication || 0,
+        technical: application.ratings?.technical || 0,
+        problemSolving: application.ratings?.problemSolving || 0,
+        teamFit: application.ratings?.teamFit || 0,
+        confidence: application.ratings?.confidence || 0,
+        growthMindset: application.ratings?.growthMindset || 0,
+        leadership: application.ratings?.leadership || 0,
+        overall: application.ratings?.overall || 0,
       },
-      remarks: application.remarks ?? "",
+      remarks: application.remarks || "",
     },
   });
 
-  const ratings = form.watch('ratings');
+  const watchedRatings = form.watch("ratings");
 
   useEffect(() => {
-      const { communication, technical, problemSolving, teamFit, confidence, growthMindset, leadership } = ratings;
-      const individualRatings = [communication, technical, problemSolving, teamFit, confidence, growthMindset, leadership].filter(r => r > 0);
-      
-      if (individualRatings.length > 0) {
-          const sum = individualRatings.reduce((acc, curr) => acc + curr, 0);
-          const avg = sum / individualRatings.length;
-          form.setValue('ratings.overall', parseFloat(avg.toFixed(2)), { shouldValidate: true });
-      } else {
-          form.setValue('ratings.overall', 0, { shouldValidate: true });
-      }
-
-  }, [
-    ratings.communication, 
-    ratings.technical, 
-    ratings.problemSolving, 
-    ratings.teamFit, 
-    ratings.confidence, 
-    ratings.growthMindset, 
-    ratings.leadership, 
-    form
-  ]);
+    const { communication, technical, problemSolving, teamFit, confidence, growthMindset, leadership } = watchedRatings;
+    const count = 7;
+    const sum = (communication || 0) + (technical || 0) + (problemSolving || 0) + (teamFit || 0) + (confidence || 0) + (growthMindset || 0) + (leadership || 0);
+    const overall = sum / count;
+    form.setValue("ratings.overall", parseFloat(overall.toFixed(2)));
+  }, [watchedRatings, form]);
 
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    
     try {
-      const payload = {
-        id: application.firestoreId || application.id,
-        ...values,
-      };
-
-      const result = await saveApplicationReview(payload);
+      const { updateApplicationStatus } = await import("@/app/actions");
+      const targetId = application.firestoreId || application.id;
+      const result = await updateApplicationStatus(targetId, data.status, {
+        isRecommended: data.isRecommended,
+        suitability: data.suitability,
+        ratings: data.ratings,
+        remarks: data.remarks,
+      });
 
       if (result.error) {
         throw new Error(result.error);
@@ -230,15 +216,20 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
   };
   
    return (
-    <div className="space-y-8">
-      <Card className="glass-card">
-          <CardHeader>
-              <CardTitle>Application Review</CardTitle>
-              <CardDescription>
-                Evaluate the candidate and update their status. Use star ratings for a quantitative assessment and remarks for qualitative feedback.
+    <div className="space-y-8 font-sans">
+      <Card className="border-2 border-black bg-white text-black shadow-[6px_6px_0px_0px_#000000]">
+          <CardHeader className="border-b-2 border-black pb-4">
+              <span className="text-[10px] bg-[#FFE600] text-black px-2.5 py-1 font-black tracking-widest uppercase border-2 border-black shadow-[2px_2px_0px_0px_#000000] w-fit">
+                [ EVALUATION PANEL ]
+              </span>
+              <CardTitle className="text-xl font-display font-black uppercase italic tracking-tight mt-2 text-black">
+                Application Review
+              </CardTitle>
+              <CardDescription className="text-xs text-zinc-600 font-bold">
+                Evaluate the candidate and update their stage. Star ratings compute real-time averages.
               </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
               <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   
@@ -248,27 +239,22 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                        render={({ field }) => (
                            <FormItem className="space-y-6">
                                <div className="space-y-3">
-                                 <FormLabel>Processing Status</FormLabel>
+                                 <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Processing Status</FormLabel>
                                  <FormControl>
                                    <div className="grid grid-cols-2 gap-2">
                                      {processingStatuses.map(status => {
                                        const isSelected = field.value === status;
                                        
-                                       let activeClass = "bg-[#4285F4]/10 border-[#4285F4]/30 text-[#4285F4]";
-                                       if (status === 'On Hold') {
-                                         activeClass = "bg-yellow-500/10 border-yellow-500/30 text-yellow-400";
-                                       }
-
                                        return (
                                          <button
                                            key={status}
                                            type="button"
                                            onClick={() => field.onChange(status)}
                                            className={cn(
-                                             "px-3 py-2.5 rounded-xl border text-center font-bold text-[10px] uppercase tracking-wider transition-all duration-255",
+                                             "px-3 py-2.5 border-2 border-black text-center font-black text-[10px] uppercase tracking-wider transition-all duration-150 cursor-pointer",
                                              isSelected 
-                                               ? activeClass 
-                                               : "bg-white/[0.01] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                               ? "bg-[#FFE600] text-black shadow-[3px_3px_0px_0px_#000000] translate-x-[1px] translate-y-[1px]" 
+                                               : "bg-white text-black shadow-[2px_2px_0px_0px_#000000] hover:bg-zinc-100"
                                            )}
                                          >
                                            {status}
@@ -280,21 +266,16 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                                </div>
 
                                {userRole === 'admin' && (
-                                 <div className="space-y-3 pt-4 border-t border-white/5">
-                                   <FormLabel className="text-[#34A853]">Final Decision</FormLabel>
+                                 <div className="space-y-3 pt-4 border-t-2 border-black">
+                                   <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Final Decision</FormLabel>
                                    <FormControl>
                                      <div className="grid grid-cols-2 gap-2">
                                        {finalDecisionStatuses.map(status => {
                                          const isSelected = field.value === status;
                                          
-                                         let activeClass = "bg-[#4285F4]/10 border-[#4285F4]/30 text-[#4285F4]";
-                                         if (status === 'Hired' || status === 'Recommended') {
-                                           activeClass = "bg-[#34A853]/10 border-[#34A853]/35 text-[#34A853]";
-                                         } else if (status === 'Rejected') {
-                                           activeClass = "bg-red-500/10 border-red-500/30 text-red-400";
-                                         } else if (status === 'Waitlisted') {
-                                           activeClass = "bg-yellow-500/10 border-yellow-500/30 text-yellow-400";
-                                         }
+                                         let selectedStyle = "bg-[#FFE600] text-black";
+                                         if (status === 'Hired') selectedStyle = "bg-[#00FF66] text-black";
+                                         if (status === 'Rejected') selectedStyle = "bg-[#FF0055] text-white";
 
                                          return (
                                            <button
@@ -302,10 +283,10 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                                              type="button"
                                              onClick={() => field.onChange(status)}
                                              className={cn(
-                                               "px-3 py-3 rounded-xl border text-center font-bold text-xs uppercase tracking-wider transition-all duration-255 shadow-sm",
+                                               "px-3 py-3 border-2 border-black text-center font-black text-xs uppercase tracking-wider transition-all duration-150 cursor-pointer",
                                                isSelected 
-                                                 ? activeClass 
-                                                 : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                                                 ? `${selectedStyle} shadow-[3px_3px_0px_0px_#000000] translate-x-[1px] translate-y-[1px]` 
+                                                 : "bg-white text-black shadow-[2px_2px_0px_0px_#000000] hover:bg-zinc-100"
                                              )}
                                            >
                                              {status}
@@ -316,7 +297,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                                    </FormControl>
                                  </div>
                                )}
-                               <FormMessage />
+                               <FormMessage className="text-red-600 text-xs font-bold" />
                            </FormItem>
                        )}
                    />
@@ -328,23 +309,25 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       name="suitability.technical"
                       render={({ field }) => (
                         <FormItem className="space-y-2">
-                          <FormLabel className="text-sm font-semibold">Suitable for technical role?</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Suitable for technical role?</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-2">
                               {['yes', 'no', 'undecided'].map(val => {
                                 const isSelected = field.value === val;
                                 const activeClass =
-                                  val === 'yes' ? 'bg-[#34A853]/10 border-[#34A853]/40 text-[#34A853]' :
-                                  val === 'no' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
-                                  'bg-yellow-500/10 border-yellow-500/30 text-yellow-400';
+                                  val === 'yes' ? 'bg-[#00FF66] text-black' :
+                                  val === 'no' ? 'bg-[#FF0055] text-white' :
+                                  'bg-[#FFE600] text-black';
                                 return (
                                   <button
                                     key={val}
                                     type="button"
                                     onClick={() => field.onChange(val)}
                                     className={cn(
-                                      "px-4 py-2 rounded-xl border font-bold text-[10px] uppercase tracking-wider transition-all duration-200 capitalize",
-                                      isSelected ? activeClass : "bg-white/[0.01] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                      "px-4 py-2 border-2 border-black font-black text-[10px] uppercase tracking-wider transition-all duration-150 cursor-pointer",
+                                      isSelected 
+                                        ? `${activeClass} shadow-[3px_3px_0px_0px_#000000] translate-x-[1px] translate-y-[1px]` 
+                                        : "bg-white text-black shadow-[2px_2px_0px_0px_#000000] hover:bg-zinc-100"
                                     )}
                                   >
                                     {val}
@@ -353,7 +336,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                               })}
                             </div>
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-600 text-xs font-bold" />
                         </FormItem>
                       )}
                     />
@@ -364,23 +347,25 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       name="suitability.nonTechnical"
                       render={({ field }) => (
                         <FormItem className="space-y-2">
-                          <FormLabel className="text-sm font-semibold">Suitable for non-technical role?</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Suitable for non-technical role?</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-2">
                               {['yes', 'no', 'undecided'].map(val => {
                                 const isSelected = field.value === val;
                                 const activeClass =
-                                  val === 'yes' ? 'bg-[#34A853]/10 border-[#34A853]/40 text-[#34A853]' :
-                                  val === 'no' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
-                                  'bg-yellow-500/10 border-yellow-500/30 text-yellow-400';
+                                  val === 'yes' ? 'bg-[#00FF66] text-black' :
+                                  val === 'no' ? 'bg-[#FF0055] text-white' :
+                                  'bg-[#FFE600] text-black';
                                 return (
                                   <button
                                     key={val}
                                     type="button"
                                     onClick={() => field.onChange(val)}
                                     className={cn(
-                                      "px-4 py-2 rounded-xl border font-bold text-[10px] uppercase tracking-wider transition-all duration-200 capitalize",
-                                      isSelected ? activeClass : "bg-white/[0.01] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                      "px-4 py-2 border-2 border-black font-black text-[10px] uppercase tracking-wider transition-all duration-150 cursor-pointer",
+                                      isSelected 
+                                        ? `${activeClass} shadow-[3px_3px_0px_0px_#000000] translate-x-[1px] translate-y-[1px]` 
+                                        : "bg-white text-black shadow-[2px_2px_0px_0px_#000000] hover:bg-zinc-100"
                                     )}
                                   >
                                     {val}
@@ -389,22 +374,22 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                               })}
                             </div>
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-600 text-xs font-bold" />
                         </FormItem>
                       )}
                     />
                   </div>
 
-                  <div className="space-y-6">
-                    <FormLabel>Ratings</FormLabel>
+                  <div className="space-y-6 pt-2">
+                    <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Score Ratings (1 - 5)</FormLabel>
                     {ratingCategories.map((category) => (
                       <Controller
                           key={category}
                           name={`ratings.${category}`}
                           control={form.control}
                           render={({ field }) => (
-                            <FormItem className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                              <FormLabel className="font-normal text-sm mb-2 sm:mb-0">{categoryLabels[category]}</FormLabel>
+                            <FormItem className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 border-b border-zinc-100">
+                              <FormLabel className="text-xs font-bold text-black mb-2 sm:mb-0">{categoryLabels[category]}</FormLabel>
                               <FormControl>
                                 <StarRating value={field.value} onChange={(v) => field.onChange(parseFloat(v.toFixed(1)))} />
                               </FormControl>
@@ -416,16 +401,17 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                         name="ratings.overall"
                         control={form.control}
                         render={({ field }) => (
-                          <FormItem className="pt-2 border-t">
+                          <FormItem className="pt-3 border-t-2 border-black bg-zinc-50 p-3">
                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                <FormLabel className="font-normal text-sm flex items-center mb-2 sm:mb-0">{categoryLabels['overall']} 
-                                  <span className="ml-2 text-lg font-bold text-primary">{field.value.toFixed(2)}</span>
+                                <FormLabel className="text-xs font-black uppercase tracking-wider text-black flex items-center mb-2 sm:mb-0">
+                                  {categoryLabels['overall']} 
+                                  <span className="ml-2 px-2 py-0.5 bg-[#4285F4] text-white text-sm font-black border border-black shadow-[2px_2px_0px_0px_#000000]">{field.value.toFixed(2)}</span>
                                 </FormLabel>
                                 <FormControl>
                                   <StarRating value={field.value} onChange={() => {}} disabled />
                                 </FormControl>
                              </div>
-                            <FormMessage />
+                            <FormMessage className="text-red-600 text-xs font-bold" />
                           </FormItem>
                         )}
                       />
@@ -436,22 +422,22 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       name="remarks"
                       render={({ field }) => (
                       <FormItem>
-                          <FormLabel>Remarks</FormLabel>
+                          <FormLabel className="text-xs font-black uppercase tracking-wider text-black">Remarks</FormLabel>
                           <FormControl>
-                          <InputGroup className="bg-white/5 border-white/10">
+                          <InputGroup className="bg-white border-2 border-black">
                               <InputGroupTextarea
                                   placeholder="Add your comments about the applicant..."
-                                  className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                                  className="min-h-24 text-xs text-black focus-visible:ring-0 placeholder:text-zinc-400"
                                   {...field}
                               />
-                              <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
-                                  <InputGroupText className="text-white/40 tabular-nums">
+                              <InputGroupAddon align="block-end" className="border-t-2 border-black bg-zinc-50">
+                                  <InputGroupText className="text-zinc-600 tabular-nums font-bold">
                                       {(field.value || "").length} characters
                                   </InputGroupText>
                               </InputGroupAddon>
                           </InputGroup>
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-600 text-xs font-bold" />
                       </FormItem>
                       )}
                   />

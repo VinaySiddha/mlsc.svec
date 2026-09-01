@@ -6,113 +6,123 @@ import { trackApplicationAction } from '@/app/actions/track-actions';
 import {
   Search, CheckCircle2, Clock, XCircle, Star, ArrowRight,
   Loader2, FileText, Zap, RefreshCw, Mail, User, Layers, Calendar,
+  Check, AlertTriangle, HelpCircle, ArrowUpRight
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { MLSCLogo } from '@/components/icons';
 
-// ─── Status Configuration ──────────────────────────────────────────────
+// ─── Status Configuration (Chapter 4 Neo-Brutalist) ────────────────────────
 const STATUS_CONFIG: Record<string, {
   label: string;
   color: string;
   bg: string;
-  border: string;
-  glow: string;
+  accentBorder: string;
+  badgeBg: string;
+  shadowColor: string;
   icon: React.ReactNode;
   description: string;
   step: number;
 }> = {
   'Received': {
     label: 'Received',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/25',
-    glow: 'shadow-[0_0_20px_rgba(66,133,244,0.15)]',
+    color: 'text-black',
+    bg: 'bg-[#4285F4]/10',
+    accentBorder: 'border-[#4285F4]',
+    badgeBg: 'bg-[#4285F4] text-white',
+    shadowColor: 'shadow-[6px_6px_0px_0px_#4285F4]',
     icon: <FileText className="h-5 w-5" />,
-    description: 'Your application has been received and is in our queue for review.',
+    description: 'Your application has been received into the MLSC SVEC registry and is in our queue for review.',
     step: 1,
   },
   'Under Processing': {
     label: 'Under Review',
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/25',
-    glow: 'shadow-[0_0_20px_rgba(139,92,246,0.15)]',
+    color: 'text-black',
+    bg: 'bg-[#FFE600]/15',
+    accentBorder: 'border-black',
+    badgeBg: 'bg-[#FFE600] text-black',
+    shadowColor: 'shadow-[6px_6px_0px_0px_#000000]',
     icon: <Layers className="h-5 w-5" />,
-    description: 'Our domain leads are actively reviewing your application.',
+    description: 'Our domain leads and core team members are actively reviewing your responses and portfolio.',
     step: 2,
   },
   'Interviewing': {
     label: 'Interview Scheduled',
-    color: 'text-yellow-400',
-    bg: 'bg-yellow-500/10',
-    border: 'border-yellow-500/25',
-    glow: 'shadow-[0_0_20px_rgba(234,179,8,0.15)]',
+    color: 'text-black',
+    bg: 'bg-[#FFE600]/25',
+    accentBorder: 'border-black',
+    badgeBg: 'bg-[#FFE600] text-black',
+    shadowColor: 'shadow-[6px_6px_0px_0px_#FFE600]',
     icon: <Zap className="h-5 w-5" />,
-    description: 'Congratulations! You have been shortlisted for an interview round.',
+    description: 'Congratulations! You have been shortlisted for the domain interview & discussion round.',
     step: 3,
   },
   'Recommended': {
     label: 'Recommended',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/25',
-    glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+    color: 'text-black',
+    bg: 'bg-[#00FF66]/15',
+    accentBorder: 'border-black',
+    badgeBg: 'bg-[#00FF66] text-black',
+    shadowColor: 'shadow-[6px_6px_0px_0px_#00FF66]',
     icon: <Star className="h-5 w-5" />,
-    description: 'Excellent performance! Your application has been recommended for selection.',
+    description: 'Outstanding evaluation! Your application has been recommended for final chapter induction.',
     step: 4,
   },
   'Hired': {
     label: 'Selected 🎉',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/25',
-    glow: 'shadow-[0_0_30px_rgba(16,185,129,0.2)]',
+    color: 'text-black',
+    bg: 'bg-[#00FF66]/20',
+    accentBorder: 'border-black',
+    badgeBg: 'bg-[#00FF66] text-black',
+    shadowColor: 'shadow-[8px_8px_0px_0px_#000000]',
     icon: <CheckCircle2 className="h-5 w-5" />,
-    description: 'Welcome to MLSC! You have been officially selected. Check your email for onboarding details.',
+    description: 'Welcome to MLSC SVEC! You are officially inducted into Chapter 4. Check your email for onboarding orientation.',
     step: 5,
   },
   'Waitlisted': {
     label: 'Waitlisted',
-    color: 'text-orange-400',
-    bg: 'bg-orange-500/10',
-    border: 'border-orange-500/25',
-    glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]',
+    color: 'text-black',
+    bg: 'bg-orange-100',
+    accentBorder: 'border-black',
+    badgeBg: 'bg-orange-400 text-white',
+    shadowColor: 'shadow-[6px_6px_0px_0px_#000000]',
     icon: <Clock className="h-5 w-5" />,
-    description: 'You are on our waitlist. We will notify you if a spot opens.',
+    description: 'You are on our waitlist. We will notify you immediately if an opening arises in your domain.',
     step: 2,
   },
   'On Hold': {
     label: 'On Hold',
-    color: 'text-orange-400',
-    bg: 'bg-orange-500/10',
-    border: 'border-orange-500/25',
-    glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]',
+    color: 'text-black',
+    bg: 'bg-amber-100',
+    accentBorder: 'border-black',
+    badgeBg: 'bg-amber-400 text-black',
+    shadowColor: 'shadow-[6px_6px_0px_0px_#000000]',
     icon: <Clock className="h-5 w-5" />,
-    description: 'Your application is temporarily on hold. We will update you soon.',
+    description: 'Your application is temporarily on hold pending additional batch slot evaluations.',
     step: 2,
   },
   'Rejected': {
     label: 'Not Selected',
-    color: 'text-red-400',
-    bg: 'bg-red-500/10',
-    border: 'border-red-500/25',
-    glow: 'shadow-[0_0_20px_rgba(239,68,68,0.1)]',
+    color: 'text-black',
+    bg: 'bg-[#EA4335]/10',
+    accentBorder: 'border-[#EA4335]',
+    badgeBg: 'bg-[#EA4335] text-white',
+    shadowColor: 'shadow-[6px_6px_0px_0px_#EA4335]',
     icon: <XCircle className="h-5 w-5" />,
-    description: 'Thank you for applying. Unfortunately, we will not be moving forward at this time.',
+    description: 'Thank you for your interest and effort. While we cannot offer you a slot this cycle, we strongly encourage you to participate in our open workshops and re-apply next cycle.',
     step: 0,
   },
 };
 
 const PIPELINE_STEPS = [
-  { key: 'Received', label: 'Received' },
-  { key: 'Under Processing', label: 'Reviewing' },
-  { key: 'Interviewing', label: 'Interview' },
-  { key: 'Recommended', label: 'Recommended' },
-  { key: 'Hired', label: 'Selected' },
+  { key: 'Received', label: 'Received', num: '01' },
+  { key: 'Under Processing', label: 'Reviewing', num: '02' },
+  { key: 'Interviewing', label: 'Interview', num: '03' },
+  { key: 'Recommended', label: 'Recommended', num: '04' },
+  { key: 'Hired', label: 'Inducted', num: '05' },
 ];
 
-// ─── Component ──────────────────────────────────────────────────────────
 export default function TrackPage() {
   const [referenceId, setReferenceId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -127,7 +137,7 @@ export default function TrackPage() {
     setResult(null);
     setError(null);
 
-    const res = await trackApplicationAction(referenceId);
+    const res = await trackApplicationAction(referenceId.trim());
 
     if (res.error) {
       setError(res.error);
@@ -149,306 +159,318 @@ export default function TrackPage() {
   const isRejected = result?.status === 'Rejected';
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white overflow-x-hidden selection:bg-[#4285F4]/30">
-
-      {/* Ambient background */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-[#4285F4]/[0.03] blur-[120px]" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[400px] bg-[#34A853]/[0.02] blur-[100px]" />
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-[#FFE600] selection:text-black">
+      {/* Top Banner Bar */}
+      <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center">
+        ⚡ Chapter 4 Induction Pipeline — Live Application Tracker
       </div>
 
-      {/* Nav */}
-      <div className="border-b border-white/[0.04] backdrop-blur-xl sticky top-0 z-50 bg-[#050505]/70">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="MLSC" width={28} height={28} className="rounded-lg" />
-            <span className="text-xs font-black uppercase tracking-widest text-white/40">MLSC SVEC</span>
-          </Link>
-          <Link href="/apply" className="flex items-center gap-1.5 text-xs font-bold text-white/40 hover:text-white transition-colors">
-            Apply Now <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-16 space-y-12">
-
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 md:py-16 space-y-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-          className="text-center space-y-4"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#4285F4]/20 bg-[#4285F4]/5 text-[#4285F4] text-[11px] font-bold uppercase tracking-widest mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4] animate-pulse" />
-            Application Tracker
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none">
-            Track Your
-            <br />
-            <span className="text-[#4285F4]">Application</span>
-          </h1>
-          <p className="text-white/40 text-base font-medium max-w-md mx-auto">
-            Enter your Reference ID received in your confirmation email to check your MLSC 4.0 application status.
-          </p>
-        </motion.div>
-
-        {/* Search Box */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+          transition={{ duration: 0.5 }}
+          className="text-center space-y-4"
+        >
+          <div className="inline-flex items-center gap-2 border-2 border-black bg-white px-4 py-1.5 shadow-[3px_3px_0px_0px_#000000] text-xs font-black uppercase tracking-widest text-black">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#00FF66] border border-black animate-ping" />
+            [ APPLICATION REGISTRY // REAL-TIME STATUS ]
+          </div>
+          
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.95] text-black">
+            Track Your <br />
+            <span className="text-[#4285F4]">Application.</span>
+          </h1>
+
+          <p className="text-zinc-700 text-sm sm:text-base font-bold max-w-lg mx-auto leading-relaxed">
+            Enter your unique Application Reference ID (e.g. <span className="font-mono bg-zinc-100 px-2 py-0.5 border border-black">MLSC-XXXXXX-XXXX</span>) sent to your registered email.
+          </p>
+        </motion.div>
+
+        {/* Search Input Box */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
           <form onSubmit={handleTrack} className="relative">
-            <div className="relative flex items-center">
-              <Search className="absolute left-4 h-5 w-5 text-white/25 pointer-events-none" />
-              <input
-                ref={inputRef}
-                value={referenceId}
-                onChange={e => setReferenceId(e.target.value.toUpperCase())}
-                placeholder="e.g. MLSC-339214-AH27"
-                className="w-full h-14 pl-12 pr-36 bg-white/[0.03] border border-white/[0.08] rounded-2xl text-white placeholder:text-white/20 font-mono text-sm font-bold tracking-widest focus:outline-none focus:border-[#4285F4]/50 focus:bg-white/[0.05] transition-all"
-                autoFocus
-              />
+            <div className="flex flex-col sm:flex-row items-stretch gap-3 bg-white p-2 border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
+              <div className="relative flex-1 flex items-center">
+                <Search className="absolute left-4 h-5 w-5 text-black pointer-events-none" />
+                <input
+                  ref={inputRef}
+                  value={referenceId}
+                  onChange={(e) => setReferenceId(e.target.value.toUpperCase())}
+                  placeholder="e.g. MLSC-339214-AH27"
+                  className="w-full h-12 sm:h-14 pl-12 pr-4 bg-zinc-50 border-2 border-black text-black placeholder:text-zinc-400 font-mono text-sm sm:text-base font-black tracking-widest focus:outline-none focus:bg-white transition-all"
+                  autoFocus
+                />
+              </div>
               <button
                 type="submit"
                 disabled={loading || !referenceId.trim()}
                 className={cn(
-                  "absolute right-2 h-10 px-5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200",
-                  "bg-[#4285F4] text-white hover:bg-[#5294ff] active:scale-95",
-                  "disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100"
+                  "h-12 sm:h-14 px-8 border-2 border-black font-black uppercase tracking-wider text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2",
+                  "bg-[#FFE600] text-black shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000000] active:scale-95",
+                  "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0"
                 )}
               >
-                {loading
-                  ? <Loader2 className="h-4 w-4 animate-spin" />
-                  : 'Track →'
-                }
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Tracking...
+                  </>
+                ) : (
+                  <>
+                    Track Status <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
             </div>
           </form>
         </motion.div>
 
-        {/* Results */}
+        {/* Results Section */}
         <AnimatePresence mode="wait">
-
-          {/* Error */}
+          {/* Error Message */}
           {error && (
             <motion.div
               key="error"
-              initial={{ opacity: 0, y: 16, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-              className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6 flex items-start gap-4"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="border-2 border-black bg-[#EA4335]/10 p-6 shadow-[6px_6px_0px_0px_#EA4335] flex items-start gap-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
-                <XCircle className="h-5 w-5 text-red-400" />
+              <div className="w-10 h-10 border-2 border-black bg-[#EA4335] text-white flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_#000000]">
+                <XCircle className="h-6 w-6" />
               </div>
-              <div>
-                <p className="font-bold text-white text-sm">Application Not Found</p>
-                <p className="text-white/50 text-sm mt-1">{error}</p>
-                <button
-                  onClick={handleReset}
-                  className="mt-3 text-xs font-bold text-[#4285F4] hover:text-white flex items-center gap-1.5 transition-colors"
-                >
-                  <RefreshCw className="h-3.5 w-3.5" /> Try Again
-                </button>
+              <div className="space-y-2 flex-1">
+                <p className="font-black text-black text-base uppercase tracking-tight">Application Record Not Found</p>
+                <p className="text-zinc-800 text-sm font-semibold">{error}</p>
+                <div className="pt-2">
+                  <button
+                    onClick={handleReset}
+                    className="inline-flex items-center gap-2 border-2 border-black bg-white px-4 py-1.5 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-100 transition-all"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" /> Try Another ID
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
 
-          {/* Result Card */}
+          {/* Success Status Card */}
           {result && cfg && (
             <motion.div
               key="result"
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-              className="space-y-4"
+              className="space-y-6"
             >
-              {/* Main status card */}
+              {/* Main Status Container */}
               <div className={cn(
-                "rounded-2xl border p-6 space-y-6 transition-all",
-                cfg.border,
-                cfg.bg,
-                cfg.glow,
+                "border-2 border-black p-6 sm:p-8 space-y-6 transition-all bg-white",
+                cfg.shadowColor
               )}>
-
-                {/* Top row: name + status badge */}
-                <div className="flex items-start justify-between gap-4 flex-wrap">
+                {/* Header Row: Applicant Details & Status Stamp */}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b-2 border-black pb-6">
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-1">Applicant</p>
-                    <h2 className="text-xl font-black text-white">{result.name}</h2>
-                    <p className="text-xs text-white/40 font-medium mt-0.5 font-mono">{result.id}</p>
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-2 py-0.5">
+                      Applicant Dossier
+                    </span>
+                    <h2 className="text-2xl sm:text-3xl font-black text-black uppercase italic tracking-tight mt-1">
+                      {result.name}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-zinc-600 font-mono font-bold mt-1">
+                      Ref ID: <span className="bg-zinc-100 px-2 py-0.5 border border-black text-black">{result.id}</span>
+                    </p>
                   </div>
+
                   <div className={cn(
-                    "inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border font-bold text-sm",
-                    cfg.bg, cfg.border, cfg.color
+                    "inline-flex items-center gap-2 border-2 border-black px-4 py-2 text-xs sm:text-sm font-black uppercase tracking-widest shadow-[3px_3px_0px_0px_#000000] self-start",
+                    cfg.badgeBg
                   )}>
                     {cfg.icon}
                     {cfg.label}
                   </div>
                 </div>
 
-                {/* Status description */}
-                <div className={cn("rounded-xl p-4 border", cfg.bg, cfg.border)}>
-                  <p className={cn("text-sm font-semibold leading-relaxed", cfg.color)}>
+                {/* Status Callout Box */}
+                <div className={cn("border-2 border-black p-5 shadow-[4px_4px_0px_0px_#000000]", cfg.bg)}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-black text-xs uppercase tracking-wider text-black">Official Status Update:</span>
+                  </div>
+                  <p className="text-sm sm:text-base font-bold text-black leading-relaxed">
                     {cfg.description}
                   </p>
                 </div>
 
-                {/* Progress pipeline (not shown for rejected) */}
+                {/* Multi-Step Pipeline Indicator (Unless Rejected) */}
                 {!isRejected && (
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/25">Application Pipeline</p>
-                    <div className="flex items-center gap-0">
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase tracking-widest text-black">
+                        Recruitment Pipeline Progress
+                      </span>
+                      <span className="text-xs font-black text-zinc-600 font-mono">
+                        Step {currentStep} of 5
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
                       {PIPELINE_STEPS.map((step, i) => {
-                        const done = currentStep > i + 1;
-                        const active = currentStep === i + 1;
+                        const isDone = currentStep > i + 1;
+                        const isActive = currentStep === i + 1;
+
                         return (
-                          <React.Fragment key={step.key}>
-                            <div className="flex flex-col items-center gap-1.5 flex-1">
-                              <motion.div
-                                initial={{ scale: 0.6, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: i * 0.08, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                                className={cn(
-                                  "w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all",
-                                  done
-                                    ? "bg-[#34A853] border-[#34A853]"
-                                    : active
-                                      ? cn("border-current animate-pulse", cfg.color, cfg.bg)
-                                      : "border-white/10 bg-white/[0.02]"
-                                )}
-                              >
-                                {done
-                                  ? <CheckCircle2 className="h-3.5 w-3.5 text-white" />
-                                  : active
-                                    ? <span className={cn("w-2 h-2 rounded-full bg-current", cfg.color)} />
-                                    : <span className="w-2 h-2 rounded-full bg-white/10" />
-                                }
-                              </motion.div>
-                              <span className={cn(
-                                "text-[9px] font-bold uppercase tracking-wide text-center",
-                                active ? cfg.color : done ? "text-emerald-400" : "text-white/20"
-                              )}>
-                                {step.label}
-                              </span>
-                            </div>
-                            {i < PIPELINE_STEPS.length - 1 && (
-                              <div className={cn(
-                                "h-px flex-1 mb-4 transition-all",
-                                done ? "bg-[#34A853]/60" : "bg-white/[0.06]"
-                              )} />
+                          <div
+                            key={step.key}
+                            className={cn(
+                              "border-2 border-black p-3 flex flex-col justify-between transition-all",
+                              isDone
+                                ? "bg-[#00FF66]/20 border-black shadow-[2px_2px_0px_0px_#000000]"
+                                : isActive
+                                  ? "bg-[#FFE600] border-black shadow-[4px_4px_0px_0px_#000000] ring-2 ring-black"
+                                  : "bg-zinc-50 opacity-60"
                             )}
-                          </React.Fragment>
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[10px] font-black font-mono">{step.num}</span>
+                              {isDone ? (
+                                <CheckCircle2 className="h-4 w-4 text-black" />
+                              ) : isActive ? (
+                                <span className="w-2.5 h-2.5 rounded-full bg-black animate-ping" />
+                              ) : (
+                                <span className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
+                              )}
+                            </div>
+                            <p className="text-xs font-black uppercase tracking-tight text-black">
+                              {step.label}
+                            </p>
+                          </div>
                         );
                       })}
                     </div>
                   </div>
                 )}
 
-                {/* Details grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { icon: <Mail className="h-3.5 w-3.5" />, label: 'Email', value: result.email },
-                    {
-                      icon: <Layers className="h-3.5 w-3.5" />, label: 'Domain',
-                      value: result.technicalDomain || result.nonTechnicalDomain || '—'
-                    },
-                    ...(result.submittedAt ? [{
-                      icon: <Calendar className="h-3.5 w-3.5" />, label: 'Applied On',
-                      value: new Date(result.submittedAt).toLocaleDateString('en-IN', {
-                        day: 'numeric', month: 'short', year: 'numeric'
-                      })
-                    }] : []),
-                    {
-                      icon: <User className="h-3.5 w-3.5" />, label: 'Chapter',
-                      value: 'MLSC 4.0'
-                    },
-                  ].map(({ icon, label, value }) => (
-                    <div key={label} className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-3.5">
-                      <div className="flex items-center gap-1.5 text-white/30 mb-1">
-                        {icon}
-                        <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
-                      </div>
-                      <p className="text-sm font-bold text-white truncate">{value}</p>
+                {/* Applicant Metadata Table */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                  <div className="border-2 border-black p-3 bg-zinc-50 shadow-[2px_2px_0px_0px_#000000]">
+                    <div className="flex items-center gap-1.5 text-zinc-600 mb-1">
+                      <Mail className="h-3.5 w-3.5 text-black" />
+                      <span className="text-[10px] font-black uppercase tracking-wider">Email</span>
                     </div>
-                  ))}
+                    <p className="text-xs font-bold text-black truncate">{result.email || '—'}</p>
+                  </div>
+
+                  <div className="border-2 border-black p-3 bg-zinc-50 shadow-[2px_2px_0px_0px_#000000]">
+                    <div className="flex items-center gap-1.5 text-zinc-600 mb-1">
+                      <Layers className="h-3.5 w-3.5 text-black" />
+                      <span className="text-[10px] font-black uppercase tracking-wider">Applied Domain</span>
+                    </div>
+                    <p className="text-xs font-bold text-black truncate">
+                      {result.technicalDomain || result.nonTechnicalDomain || 'Core Domain'}
+                    </p>
+                  </div>
+
+                  <div className="border-2 border-black p-3 bg-zinc-50 shadow-[2px_2px_0px_0px_#000000]">
+                    <div className="flex items-center gap-1.5 text-zinc-600 mb-1">
+                      <Calendar className="h-3.5 w-3.5 text-black" />
+                      <span className="text-[10px] font-black uppercase tracking-wider">Submitted On</span>
+                    </div>
+                    <p className="text-xs font-bold text-black truncate">
+                      {result.submittedAt
+                        ? new Date(result.submittedAt).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                        : 'Active Cycle'}
+                    </p>
+                  </div>
+
+                  <div className="border-2 border-black p-3 bg-zinc-50 shadow-[2px_2px_0px_0px_#000000]">
+                    <div className="flex items-center gap-1.5 text-zinc-600 mb-1">
+                      <User className="h-3.5 w-3.5 text-black" />
+                      <span className="text-[10px] font-black uppercase tracking-wider">Chapter</span>
+                    </div>
+                    <p className="text-xs font-black text-black">MLSC 4.0</p>
+                  </div>
                 </div>
 
-                {/* Footer actions */}
-                <div className="flex items-center justify-between pt-2 border-t border-white/[0.05]">
+                {/* Action Toolbar */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t-2 border-black">
                   <button
                     onClick={handleReset}
-                    className="flex items-center gap-1.5 text-xs font-bold text-white/30 hover:text-white transition-colors"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border-2 border-black bg-white px-5 py-2.5 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-100 active:scale-95 transition-all"
                   >
-                    <RefreshCw className="h-3.5 w-3.5" /> Track another
+                    <RefreshCw className="h-3.5 w-3.5" /> Track Another ID
                   </button>
+
                   <a
                     href="mailto:mlsc@svec.edu.in"
-                    className="text-xs font-bold text-[#4285F4] hover:text-white transition-colors"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-xs font-black uppercase tracking-wider text-black hover:underline"
                   >
-                    Need help? Contact us →
+                    Need assistance? Contact support <ArrowUpRight className="h-3.5 w-3.5" />
                   </a>
                 </div>
               </div>
 
-              {/* Help note */}
-              <p className="text-center text-[11px] text-white/20 font-medium">
-                Status updates are sent to your registered email. Check your spam folder if you haven't received any notifications.
-              </p>
+              {/* Informational Help Note */}
+              <div className="border-2 border-black bg-zinc-50 p-4 text-center shadow-[3px_3px_0px_0px_#000000]">
+                <p className="text-xs text-zinc-700 font-bold">
+                  🔔 All interview schedules and induction invitations are transmitted directly to your registered email. Check your spam / updates tab regularly.
+                </p>
+              </div>
             </motion.div>
           )}
-
         </AnimatePresence>
 
-        {/* Empty state tips */}
+        {/* Empty State Guidelines & Tips */}
         {!result && !error && !loading && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4"
           >
             {[
               {
-                icon: <FileText className="h-5 w-5 text-[#4285F4]" />,
-                title: 'Find Your ID',
-                body: 'Check the confirmation email you received right after submitting your application.',
+                icon: <FileText className="h-6 w-6 text-black" />,
+                bg: 'bg-[#4285F4]/15',
+                title: 'Check Your Inbox',
+                body: 'Your reference token was issued instantly in your application submission receipt email.',
               },
               {
-                icon: <Clock className="h-5 w-5 text-yellow-400" />,
-                title: 'Review Takes Time',
-                body: 'Panel reviews typically take 3–5 business days. Status will update automatically.',
+                icon: <Clock className="h-6 w-6 text-black" />,
+                bg: 'bg-[#FFE600]/25',
+                title: 'Review Windows',
+                body: 'Evaluation panels convene weekly. Status updates reflect directly in real-time.',
               },
               {
-                icon: <Mail className="h-5 w-5 text-[#34A853]" />,
-                title: 'Email Notifications',
-                body: 'You will receive an email for every major status change. Check spam if needed.',
+                icon: <Zap className="h-6 w-6 text-black" />,
+                bg: 'bg-[#00FF66]/20',
+                title: 'Next Step Notice',
+                body: 'Shortlisted candidates receive direct interview links and calendar invitations.',
               },
-            ].map(({ icon, title, body }) => (
-              <div key={title} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 space-y-3">
-                <div className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+            ].map(({ icon, bg, title, body }) => (
+              <div
+                key={title}
+                className="border-2 border-black bg-white p-6 space-y-3 shadow-[4px_4px_0px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000000] transition-all"
+              >
+                <div className={cn("w-12 h-12 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000000]", bg)}>
                   {icon}
                 </div>
-                <h3 className="text-sm font-bold text-white">{title}</h3>
-                <p className="text-xs text-white/40 font-medium leading-relaxed">{body}</p>
+                <h3 className="text-base font-black uppercase tracking-tight text-black">{title}</h3>
+                <p className="text-xs text-zinc-700 font-medium leading-relaxed">{body}</p>
               </div>
             ))}
           </motion.div>
         )}
-
       </div>
-
-      {/* Footer */}
-      <div className="border-t border-white/[0.04] mt-16 py-6 text-center">
-        <p className="text-[11px] text-white/20 font-medium">
-          © 2026 Microsoft Learn Student Chapter — SVEC &nbsp;·&nbsp; #MLSC4.0
-        </p>
-      </div>
-
     </div>
   );
 }

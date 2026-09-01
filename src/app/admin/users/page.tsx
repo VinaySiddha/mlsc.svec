@@ -25,42 +25,45 @@ export default async function AdminUsersPage() {
   const { users, error } = await getAllUsers();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-black pb-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
-            User <span className="text-[#4285F4]">Management</span>
+          <div className="inline-block px-3 py-1 bg-[#4285F4] text-white text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000] mb-2">
+            [ SYSTEM RBAC // ACCESS CONTROL ]
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-black uppercase italic">
+            USER <span className="text-[#4285F4]">MANAGEMENT</span>
           </h1>
-          <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Manage user roles and access control</p>
+          <p className="text-zinc-600 text-xs font-bold uppercase tracking-wider mt-1">Manage user roles, permissions and team privileges</p>
         </div>
         <div className="flex items-center gap-4">
-          <Badge variant="outline" className="gap-1.5 px-3 py-1 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 rounded-full font-bold text-xs">
-            <UsersIcon className="h-3.5 w-3.5 text-[#4285F4]" />
-            <span>{users.length} users</span>
+          <Badge variant="outline" className="gap-2 px-3.5 py-1.5 bg-[#FFE600] border-2 border-black text-black font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000000]">
+            <UsersIcon className="h-4 w-4 text-black stroke-[2.5]" />
+            <span>{users.length} TOTAL USERS</span>
           </Badge>
         </div>
       </div>
 
       {error && (
-        <Card className="border-destructive bg-destructive/10">
+        <Card className="border-2 border-black bg-[#FF0055]/10 shadow-[4px_4px_0px_0px_#FF0055]">
           <CardContent className="pt-6">
-            <p className="text-destructive font-semibold text-sm">{error}</p>
+            <p className="text-[#FF0055] font-black text-xs uppercase">{error}</p>
           </CardContent>
         </Card>
       )}
 
-      <Card className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm">
-        <CardHeader className="p-6 border-b border-slate-100 dark:border-zinc-800">
-          <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-950 dark:text-white uppercase tracking-widest">
-            <Shield className="h-4.5 w-4.5 text-[#4285F4]" />
-            Registered Users & RBAC
+      <Card className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_#000000] rounded-none">
+        <CardHeader className="p-6 border-b-2 border-black bg-[#FAFAFA]">
+          <CardTitle className="flex items-center gap-2 text-sm font-black text-black uppercase tracking-wider font-display">
+            <Shield className="h-4.5 w-4.5 text-[#4285F4] stroke-[2.5]" />
+            Registered Users & RBAC Roster
           </CardTitle>
-          <CardDescription className="text-xs text-slate-400 dark:text-zinc-500">
+          <CardDescription className="text-xs text-zinc-600 font-bold">
             Assign user roles and manage system permissions. Changes take effect immediately.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
-          <UsersTable users={users} />
+          <UsersTable users={users} currentUserId="" />
         </CardContent>
       </Card>
     </div>

@@ -21,13 +21,6 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { Button } from './ui/button';
-import { Progress } from './ui/progress';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { 
   doc, 
   getDoc, 
@@ -45,6 +38,7 @@ import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface QuizQuestion {
   question: string;
@@ -153,7 +147,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
   const [explanationVisible, setExplanationVisible] = useState(false);
 
   // Submission States
-  const [nickname, setNickname] = useState('');
   const [submittingScore, setSubmittingScore] = useState(false);
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
 
@@ -163,12 +156,10 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
   const pauseTimeRef = useRef<number>(0);
   const totalPausedTimeRef = useRef<number>(0);
 
-  // Set mounted state
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Fetch Quiz Data and User Attempt Details
   useEffect(() => {
     if (isMounted) {
       loadQuizAndUserStatus();
@@ -179,7 +170,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
     setLoading(true);
     setQuizNotFound(false);
     try {
-      // 1. Fetch quiz doc
       const quizRef = doc(db, 'daily_quizzes', quizId);
       const quizSnap = await getDoc(quizRef);
 
@@ -192,7 +182,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
       const qData = quizSnap.data() as QuizData;
       setQuiz(qData);
 
-      // 2. Fetch User Coin Balance
       if (user) {
         const userRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userRef);
@@ -201,15 +190,11 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
         }
       }
 
-      // 3. Check for previous attempts (Once per day lock)
       let hasAttempted = false;
-
-      // Check localStorage first
       if (localStorage.getItem(`mlsc_quiz_done_${quizId}`)) {
         hasAttempted = true;
       }
 
-      // Check Firestore if logged in
       if (user) {
         const checkQ = query(
           collection(db, 'quiz_leaderboard'),
@@ -221,7 +206,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
           hasAttempted = true;
           const attemptData = checkSnap.docs[0].data();
           
-          // Compute their rank
           const allQ = query(
             collection(db, 'quiz_leaderboard'),
             where('quizId', '==', quizId)
@@ -281,10 +265,8 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
 
   const handleStartQuiz = () => {
     if (!quiz) return;
-    
     playSound('start');
     
-    // Reset play states
     setCurrentQuestionIdx(0);
     setQuizScore(0);
     setSelectedAnswer(null);
@@ -293,7 +275,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
     totalPausedTimeRef.current = 0;
     setScoreSubmitted(false);
     
-    // Start Timer
     quizStartTimeRef.current = Date.now();
     timerRef.current = setInterval(() => {
       const elapsed = (Date.now() - quizStartTimeRef.current - totalPausedTimeRef.current) / 1000;
@@ -304,11 +285,10 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
   };
 
   const handleSelectOption = (option: string) => {
-    if (selectedAnswer) return; // already answered
+    if (selectedAnswer) return;
     setSelectedAnswer(option);
     setExplanationVisible(true);
     
-    // Pause stopwatch to read explanation
     pauseTimeRef.current = Date.now();
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -321,7 +301,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
   };
 
   const handleNextQuestion = () => {
-    // Add pause duration to total paused time
     const pauseDuration = Date.now() - pauseTimeRef.current;
     totalPausedTimeRef.current += pauseDuration;
     
@@ -330,16 +309,13 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
       setExplanationVisible(false);
       setCurrentQuestionIdx(prev => prev + 1);
       
-      // Resume stopwatch
       timerRef.current = setInterval(() => {
         const elapsed = (Date.now() - quizStartTimeRef.current - totalPausedTimeRef.current) / 1000;
         setQuizTimeTaken(elapsed);
       }, 100);
     } else {
-      // Quiz complete
       setQuizActive(false);
       setQuizCompleted(true);
-      
       playSound('complete');
       
       if (timerRef.current) clearInterval(timerRef.current);
@@ -349,10 +325,8 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
       const speedBonus = quizScore === 5 ? Math.max(0, Math.round((40 - finalTime) * 2)) : 0;
       const totalEarned = baseCoins + speedBonus;
 
-      // Lock quiz locally
       localStorage.setItem(`mlsc_quiz_done_${quizId}`, 'true');
 
-      // Auto-submit score to database if logged in
       if (user) {
         handleSubmitScore(totalEarned);
       }
@@ -368,7 +342,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
       const speedBonus = quizScore === 5 ? Math.max(0, Math.round((40 - finalTime) * 2)) : 0;
       const finalCoins = coinsToAward !== undefined ? coinsToAward : baseCoins + speedBonus;
 
-      // 1. Fetch current leaderboard before adding the new record to compute rank shift
       const q = query(
         collection(db, 'quiz_leaderboard'),
         where('quizId', '==', quizId)
@@ -377,7 +350,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
       const allAttempts = snap.docs.map(docSnap => docSnap.data() as LeaderboardRecord);
       const totalBefore = allAttempts.length;
 
-      // Compute rank before adding current record
       let finalRank = 1;
       for (const attempt of allAttempts) {
         if (attempt.score > quizScore) {
@@ -404,10 +376,8 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
         createdAt: new Date().toLocaleDateString(),
       };
 
-      // 2. Submit to Firestore quiz_leaderboard
       await addDoc(collection(db, 'quiz_leaderboard'), record);
 
-      // 3. Award coins
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, {
         coins: increment(finalCoins),
@@ -437,49 +407,51 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
   }, []);
 
   return (
-    <div className="w-full bg-black min-h-screen py-24 md:py-32 text-white relative overflow-hidden flex items-center justify-center">
-      {/* Background ambient glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-yellow-500/10 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/3 w-[250px] h-[250px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+    <div className="w-full bg-white min-h-screen py-16 md:py-24 text-black font-sans selection:bg-[#FFE600] selection:text-black">
+      
+      {/* Top Banner */}
+      <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center mb-8">
+        ⚡ Chapter 4 Daily Quiz Arena & Speed Trials
+      </div>
 
-      <div className="max-w-4xl w-full mx-auto px-6 relative z-10 space-y-8">
+      <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 space-y-8">
         
         {/* Navigation Header */}
-        <div className="flex items-center justify-between">
-          <Link href="/services/" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+        <div className="flex items-center justify-between border-b-2 border-black pb-4">
+          <Link href="/services" className="inline-flex items-center gap-2 text-black hover:text-[#4285F4] transition-colors text-xs font-black uppercase tracking-wider border-2 border-black bg-zinc-100 hover:bg-white px-3 py-1.5 shadow-[2px_2px_0px_0px_#000000]">
             <ArrowLeft className="h-4 w-4" /> Exit Challenge
           </Link>
           
           {isMounted && (
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 font-black text-xs uppercase tracking-widest">
-              <Coins className="h-4 w-4 text-yellow-400 shrink-0" /> {userCoins} Coins
+            <div className="flex items-center gap-2 px-3 py-1.5 border-2 border-black bg-[#FFE600] text-black font-black text-xs uppercase tracking-widest shadow-[2px_2px_0px_0px_#000000]">
+              <Coins className="h-4 w-4 text-black shrink-0" /> {userCoins} Coins
             </div>
           )}
         </div>
 
         {/* 1. Loading State */}
         {loading && (
-          <div className="p-8 rounded-3xl border border-white/5 bg-[#050505]/60 backdrop-blur-xl shadow-2xl py-24 text-center">
-            <RefreshCw className="h-8 w-8 animate-spin mx-auto text-yellow-400 mb-4" />
-            <p className="text-xs font-bold uppercase tracking-widest text-white/40">Securing Daily Arena Access...</p>
+          <div className="border-2 border-black bg-white p-12 shadow-[6px_6px_0px_0px_#000000] text-center space-y-4">
+            <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin mx-auto" />
+            <p className="text-xs font-black uppercase tracking-widest text-black">Securing Daily Arena Access...</p>
           </div>
         )}
 
         {/* 1.5 Login Required Gate */}
         {!loading && !user && (
-          <div className="p-8 rounded-3xl border border-white/5 bg-[#050505]/60 backdrop-blur-xl shadow-2xl py-16 text-center space-y-6 max-w-md mx-auto">
-            <div className="inline-flex p-4 bg-yellow-500/10 rounded-full border border-yellow-500/20 text-yellow-400 mb-2">
-              <Lock className="h-10 w-10 animate-pulse" />
+          <div className="border-2 border-black bg-white p-8 shadow-[8px_8px_0px_0px_#000000] text-center space-y-6 max-w-md mx-auto">
+            <div className="inline-flex p-4 bg-[#FFE600] border-2 border-black shadow-[3px_3px_0px_0px_#000000] text-black mb-2">
+              <Lock className="h-8 w-8" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-black uppercase tracking-wide">Login Required</h3>
-              <p className="text-xs text-white/50 leading-relaxed">
+              <h3 className="text-xl font-black uppercase italic tracking-tight text-black">Authentication Required</h3>
+              <p className="text-xs text-zinc-600 font-bold leading-relaxed">
                 You must be logged in to attempt this daily challenge, rank on the leaderboard, and earn MLSC coins.
               </p>
             </div>
             <Button 
               onClick={() => router.push('/auth/login')}
-              className="w-full bg-[#4285F4] hover:bg-[#4285F4]/90 text-white font-black text-xs uppercase tracking-wider rounded-xl h-11"
+              className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black border-2 border-black font-black text-xs uppercase tracking-wider h-11 shadow-[3px_3px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px]"
             >
               Sign In / Register
             </Button>
@@ -488,17 +460,17 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
 
         {/* 2. 404 Quiz Not Found State */}
         {!loading && quizNotFound && (
-          <div className="p-8 rounded-3xl border border-white/5 bg-[#050505]/60 backdrop-blur-xl shadow-2xl py-16 text-center space-y-6">
-            <div className="inline-flex p-4 bg-red-500/10 rounded-full border border-red-500/20 text-red-500 mb-2">
-              <ShieldAlert className="h-10 w-10" />
+          <div className="border-2 border-black bg-white p-8 shadow-[8px_8px_0px_0px_#000000] text-center space-y-6">
+            <div className="inline-flex p-4 bg-[#EA4335] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-2">
+              <ShieldAlert className="h-8 w-8" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-black uppercase tracking-wide">Challenge Not Found</h3>
-              <p className="text-xs text-white/40 max-w-sm mx-auto leading-normal">
-                This daily quiz link is invalid or may have been deleted by an administrator. Please check the current active challenge.
+              <h3 className="text-xl font-black uppercase italic tracking-tight text-black">Challenge Not Found</h3>
+              <p className="text-xs text-zinc-600 font-bold max-w-sm mx-auto">
+                This daily quiz link is invalid or may have expired. Please return to dashboard.
               </p>
             </div>
-            <Button asChild className="bg-white hover:bg-white/90 text-black font-black text-xs uppercase tracking-wider rounded-xl h-11 px-8">
+            <Button asChild className="bg-[#FFE600] hover:bg-[#FFE600]/90 text-black border-2 border-black font-black text-xs uppercase tracking-wider h-11 px-8 shadow-[3px_3px_0px_0px_#000000]">
               <Link href="/">
                 <Home className="h-4 w-4 mr-2" /> Return to Dashboard
               </Link>
@@ -506,51 +478,49 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
           </div>
         )}
 
-        {/* 3. Already Attempted / Completed State */}
+        {/* 3. Already Attempted State */}
         {!loading && quiz && user && alreadyCompleted && !quizActive && !quizCompleted && (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-            {/* Left box: completion banner */}
-            <div className="md:col-span-6 p-8 rounded-3xl border border-white/5 bg-[#050505]/60 backdrop-blur-xl space-y-6">
-              <div className="inline-flex p-3 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-emerald-400">
+            <div className="md:col-span-6 border-2 border-black bg-white p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-6">
+              <div className="inline-flex p-3 bg-[#00FF66] border-2 border-black shadow-[2px_2px_0px_0px_#000000] text-black">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-black uppercase tracking-wider text-white">Daily Quiz Completed</h3>
-                <p className="text-xs text-white/35 font-bold uppercase">Topic: {quiz.topic} ({quiz.date})</p>
+              <div className="space-y-1">
+                <h3 className="text-xl font-black uppercase italic tracking-tight text-black">Daily Challenge Completed</h3>
+                <p className="text-xs text-zinc-600 font-bold uppercase font-mono">Topic: {quiz.topic} ({quiz.date})</p>
               </div>
 
-              <p className="text-xs text-white/60 leading-relaxed font-medium">
-                To keep leaderboards competitive, users are restricted to **one submission per daily test**. Here are your registered score details:
+              <p className="text-xs text-zinc-700 leading-relaxed font-bold">
+                To maintain fair rankings, each student is allowed **one submission per daily challenge**. Here is your verified scorecard:
               </p>
 
               {previousAttempt && (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-3 gap-2 bg-white/[0.02] border border-white/5 p-4 rounded-xl text-center">
+                  <div className="grid grid-cols-3 gap-2 border-2 border-black p-4 bg-zinc-50 text-center">
                     <div>
-                      <p className="text-[9px] font-bold text-white/40 uppercase">Score</p>
-                      <p className="text-sm font-black text-white mt-1">{previousAttempt.score} / 5</p>
+                      <p className="text-[10px] font-black text-zinc-500 uppercase">Score</p>
+                      <p className="text-base font-black text-black mt-1">{previousAttempt.score} / 5</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-white/40 uppercase">Time</p>
-                      <p className="text-sm font-black text-white mt-1 font-mono">{previousAttempt.timeTaken}s</p>
+                      <p className="text-[10px] font-black text-zinc-500 uppercase">Time</p>
+                      <p className="text-base font-black text-black mt-1 font-mono">{previousAttempt.timeTaken}s</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-yellow-400 uppercase">Coins</p>
-                      <p className="text-sm font-black text-yellow-400 mt-1">+{previousAttempt.coinsEarned}</p>
+                      <p className="text-[10px] font-black text-black uppercase">Coins</p>
+                      <p className="text-base font-black text-black mt-1">+{previousAttempt.coinsEarned}</p>
                     </div>
                   </div>
                   
                   {previousAttempt.rank && (
-                    <div className="p-3.5 rounded-xl bg-yellow-500/5 border border-yellow-500/20 text-center flex items-center justify-between px-5">
-                      <span className="text-[10px] font-black uppercase text-yellow-400 tracking-wider">Your Leaderboard Placement</span>
-                      <span className="text-sm font-black text-yellow-400">#{previousAttempt.rank} of {previousAttempt.totalPlayers}</span>
+                    <div className="p-3.5 border-2 border-black bg-[#FFE600] text-black flex items-center justify-between px-5 font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000000]">
+                      <span>Leaderboard Rank</span>
+                      <span>#{previousAttempt.rank} of {previousAttempt.totalPlayers}</span>
                     </div>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Right box: Leaderboard */}
             <div className="md:col-span-6">
               <QuizLeaderboardSection leaderboard={leaderboard} loading={leaderboardLoading} />
             </div>
@@ -559,41 +529,40 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
 
         {/* 4. Active Quiz Play State */}
         {!loading && quiz && user && quizActive && (
-          <div className="p-8 rounded-3xl border border-white/5 bg-[#050505]/60 backdrop-blur-xl space-y-6 max-w-2xl mx-auto">
-            {/* Header progress */}
-            <div className="flex justify-between items-center border-b border-white/[0.06] pb-4">
+          <div className="border-2 border-black bg-white p-6 sm:p-8 shadow-[8px_8px_0px_0px_#000000] space-y-6 max-w-2xl mx-auto">
+            <div className="flex justify-between items-center border-b-2 border-black pb-4">
               <div className="space-y-1">
-                <span className="text-[9px] font-black uppercase tracking-wider text-yellow-400">Daily Challenge</span>
-                <p className="text-sm font-black uppercase text-white">Question {currentQuestionIdx + 1} of {quiz.questions.length}</p>
+                <span className="text-[10px] font-black uppercase tracking-wider bg-[#FFE600] border border-black px-2 py-0.5">
+                  Daily Challenge
+                </span>
+                <p className="text-sm font-black uppercase text-black">Question {currentQuestionIdx + 1} of {quiz.questions.length}</p>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.02] border border-white/10 text-white font-mono text-sm font-bold">
-                <Timer className="h-4 w-4 text-yellow-400 animate-pulse" />
+              <div className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-black bg-zinc-100 text-black font-mono text-xs font-black shadow-[2px_2px_0px_0px_#000000]">
+                <Timer className="h-4 w-4 text-black" />
                 {quizTimeTaken.toFixed(1)}s
               </div>
             </div>
 
-            {/* Question Text */}
-            <div className="p-6 rounded-2xl bg-white/[0.01] border border-white/5">
-              <h3 className="text-base font-bold text-white leading-relaxed">
+            <div className="p-6 border-2 border-black bg-zinc-50 shadow-[3px_3px_0px_0px_#000000]">
+              <h3 className="text-base font-black text-black leading-relaxed">
                 {quiz.questions[currentQuestionIdx].question}
               </h3>
             </div>
 
-            {/* Options */}
             <div className="grid grid-cols-1 gap-3">
               {quiz.questions[currentQuestionIdx].options.map((option, idx) => {
                 const isSelected = selectedAnswer === option;
                 const isCorrect = option === quiz.questions[currentQuestionIdx].answer;
                 const showFeedback = selectedAnswer !== null;
 
-                let btnStyle = "bg-white/[0.01] border-white/5 text-white/80 hover:bg-white/[0.03] hover:border-white/10";
+                let btnStyle = "bg-white border-2 border-black text-black hover:bg-zinc-100 shadow-[3px_3px_0px_0px_#000000]";
                 if (showFeedback) {
                   if (isCorrect) {
-                    btnStyle = "bg-emerald-500/10 border-emerald-500 text-emerald-400 font-bold";
+                    btnStyle = "bg-[#00FF66] border-2 border-black text-black font-black shadow-[3px_3px_0px_0px_#000000]";
                   } else if (isSelected) {
-                    btnStyle = "bg-red-500/10 border-red-500 text-red-400 font-bold";
+                    btnStyle = "bg-[#EA4335] border-2 border-black text-white font-black shadow-[3px_3px_0px_0px_#000000]";
                   } else {
-                    btnStyle = "bg-white/[0.01] border-white/[0.02] text-white/20 cursor-default";
+                    btnStyle = "bg-zinc-100 border-2 border-zinc-300 text-zinc-400 cursor-default";
                   }
                 }
 
@@ -602,162 +571,151 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
                     key={idx}
                     disabled={showFeedback}
                     onClick={() => handleSelectOption(option)}
-                    className={`w-full p-4 rounded-xl border text-left text-xs transition-all flex items-center justify-between ${btnStyle}`}
+                    className={cn(
+                      'w-full p-4 text-left text-xs font-bold transition-all flex items-center justify-between active:translate-x-[2px] active:translate-y-[2px]',
+                      btnStyle
+                    )}
                   >
                     <span>{option}</span>
-                    {showFeedback && isCorrect && <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 shrink-0" />}
-                    {showFeedback && isSelected && !isCorrect && <AlertCircle className="h-4.5 w-4.5 text-red-400 shrink-0" />}
+                    {showFeedback && isCorrect && <CheckCircle2 className="h-5 w-5 text-black shrink-0" />}
+                    {showFeedback && isSelected && !isCorrect && <AlertCircle className="h-5 w-5 text-white shrink-0" />}
                   </button>
                 );
               })}
             </div>
 
-            {/* Explanation */}
             {explanationVisible && (
-              <div className="p-4 rounded-2xl border border-blue-500/10 bg-blue-500/[0.02] space-y-2 animate-in slide-in-from-bottom-2 duration-200">
-                <h4 className="text-[10px] font-black uppercase text-blue-400 tracking-wider flex items-center gap-1.5">
+              <div className="p-4 border-2 border-black bg-[#4285F4]/10 space-y-2 shadow-[3px_3px_0px_0px_#000000]">
+                <h4 className="text-xs font-black uppercase text-black tracking-wider flex items-center gap-1.5">
                   <HelpCircle className="h-4 w-4" /> Explanation Details
                 </h4>
-                <p className="text-[10px] text-white/60 leading-normal font-medium whitespace-pre-line">
+                <p className="text-xs text-zinc-800 leading-normal font-bold whitespace-pre-line">
                   {quiz.questions[currentQuestionIdx].explanation}
                 </p>
               </div>
             )}
 
-            {/* Action buttons */}
             {selectedAnswer && (
               <Button
                 onClick={handleNextQuestion}
-                className="w-full h-11 rounded-xl bg-white hover:bg-white/90 text-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5"
+                className="w-full h-12 bg-[#FFE600] hover:bg-[#FFE600]/90 text-black border-2 border-black font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[4px_4px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px]"
               >
                 {currentQuestionIdx < quiz.questions.length - 1 ? (
-                  <>
-                    Next Question <ArrowRight className="h-4 w-4" />
-                  </>
+                  <>Next Question <ArrowRight className="h-4 w-4" /></>
                 ) : (
-                  <>
-                    Finish Challenge <Trophy className="h-4 w-4" />
-                  </>
+                  <>Finish Challenge <Trophy className="h-4 w-4" /></>
                 )}
               </Button>
             )}
           </div>
         )}
 
-        {/* 5. Start Launcher Panel (Before Start) */}
+        {/* 5. Start Launcher Panel */}
         {!loading && quiz && user && !alreadyCompleted && !quizActive && !quizCompleted && (
-          <div className="max-w-2xl mx-auto p-8 rounded-3xl border border-white/5 bg-[#050505]/60 backdrop-blur-xl relative overflow-hidden shadow-2xl space-y-6">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl pointer-events-none" />
-            
+          <div className="max-w-2xl mx-auto border-2 border-black bg-white p-6 sm:p-8 shadow-[8px_8px_0px_0px_#000000] space-y-6">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 rounded-2xl">
+              <div className="p-3 bg-[#FFE600] border-2 border-black text-black shadow-[2px_2px_0px_0px_#000000]">
                 <Trophy className="h-6 w-6" />
               </div>
               <div>
-                <span className="text-[9px] font-black uppercase tracking-widest text-yellow-400 px-2 py-0.5 rounded bg-yellow-500/10 border border-yellow-500/20">Daily Challenge Active</span>
-                <h3 className="text-lg font-bold uppercase tracking-wider mt-2">Daily Quiz Arena</h3>
+                <span className="text-[10px] font-black uppercase tracking-widest text-black px-2 py-0.5 bg-[#00FF66] border border-black">
+                  Daily Challenge Active
+                </span>
+                <h3 className="text-xl font-black uppercase italic tracking-tight text-black mt-1">Daily Quiz Arena</h3>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white/[0.01] border border-white/5 space-y-2">
-              <p className="text-xs font-bold text-white/40 uppercase">Challenge Topic</p>
-              <h4 className="text-xl font-black text-white uppercase tracking-wide">{quiz.topic}</h4>
-              <p className="text-[10px] text-white/35 font-semibold">Scheduled Date: {quiz.date}</p>
+            <div className="p-5 border-2 border-black bg-zinc-50 space-y-2 shadow-[3px_3px_0px_0px_#000000]">
+              <p className="text-[10px] font-black text-zinc-500 uppercase">Challenge Topic</p>
+              <h4 className="text-2xl font-black text-black uppercase italic tracking-tight">{quiz.topic}</h4>
+              <p className="text-xs text-zinc-600 font-bold font-mono">Date: {quiz.date}</p>
             </div>
 
-            {/* Rules Info */}
             <div className="space-y-3 pt-2">
-              <h5 className="text-xs font-black uppercase text-white/60 tracking-wider">Challenge Rules & Rewards</h5>
-              <ul className="space-y-2 text-[10px] text-white/50 leading-relaxed font-semibold">
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-yellow-400" /> Participate only once per daily link.</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-yellow-400" /> Answer 5 challenging multiple-choice questions.</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-yellow-400" /> Correct answers earn +10 MLSC coins each.</li>
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-yellow-400" /> Earn speed bonuses for perfect runs finished under 40 seconds.</li>
+              <h5 className="text-xs font-black uppercase tracking-wider text-black">Arena Rules & Payouts</h5>
+              <ul className="space-y-2 text-xs text-zinc-700 font-bold">
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-black" /> Attempt only once per daily challenge link.</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-black" /> Solve 5 multiple-choice questions.</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-black" /> Correct answers award +10 MLSC coins each.</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-black" /> Speed multiplier rewarded for perfect completions under 40s.</li>
               </ul>
             </div>
 
             <Button
               onClick={handleStartQuiz}
-              className="w-full h-12 rounded-xl bg-yellow-500 hover:bg-yellow-500/90 text-black font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#FFE600] hover:bg-[#FFE600]/90 text-black border-2 border-black font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-[4px_4px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px]"
             >
-              Enter Quiz Arena <Play className="h-3.5 w-3.5 fill-black" />
+              Enter Quiz Arena <Play className="h-4 w-4 fill-black" />
             </Button>
           </div>
         )}
 
-        {/* 6. Quiz Completed / Results State */}
+        {/* 6. Results State */}
         {!loading && quiz && user && quizCompleted && (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-            {/* Scorecard panel */}
-            <div className="md:col-span-6 p-8 rounded-3xl border border-white/5 bg-[#050505]/70 backdrop-blur-xl text-center space-y-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl pointer-events-none" />
-              
-              <div className="inline-flex p-4 bg-yellow-500/10 rounded-full border border-yellow-500/20 text-yellow-400 mb-2">
-                <Trophy className="h-10 w-10 animate-bounce" />
+            <div className="md:col-span-6 border-2 border-black bg-white p-6 sm:p-8 shadow-[8px_8px_0px_0px_#000000] text-center space-y-6">
+              <div className="inline-flex p-4 bg-[#FFE600] border-2 border-black text-black shadow-[3px_3px_0px_0px_#000000] mb-2">
+                <Trophy className="h-10 w-10" />
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-xl font-black uppercase tracking-wide">Challenge Finished!</h3>
-                <p className="text-xs text-white/40 font-semibold uppercase">Topic: {quiz.topic}</p>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black uppercase italic tracking-tight text-black">Challenge Finished!</h3>
+                <p className="text-xs text-zinc-600 font-bold uppercase font-mono">Topic: {quiz.topic}</p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 bg-white/[0.01] border border-white/5 p-4 rounded-2xl">
+              <div className="grid grid-cols-3 gap-2 border-2 border-black p-4 bg-zinc-50">
                 <div>
-                  <p className="text-[9px] font-bold text-white/40 uppercase">Score</p>
-                  <p className="text-lg font-black text-white mt-1">{quizScore} / 5</p>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase">Score</p>
+                  <p className="text-lg font-black text-black mt-1">{quizScore} / 5</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold text-white/40 uppercase">Time</p>
-                  <p className="text-lg font-black text-white mt-1 font-mono">{quizTimeTaken.toFixed(1)}s</p>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase">Time</p>
+                  <p className="text-lg font-black text-black mt-1 font-mono">{quizTimeTaken.toFixed(1)}s</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold text-yellow-400 uppercase">Coins</p>
-                  <p className="text-lg font-black text-yellow-400 mt-1">
-                    +{getCoinsEarnedAmount()}
-                  </p>
+                  <p className="text-[10px] font-black text-black uppercase">Coins</p>
+                  <p className="text-lg font-black text-black mt-1">+{getCoinsEarnedAmount()}</p>
                 </div>
               </div>
 
-              {/* Score submission feedback & Rank Shift */}
-              <div className="border-t border-white/[0.08] pt-6 space-y-4">
+              <div className="border-t-2 border-black pt-6 space-y-4">
                 {scoreSubmitted && computedRank > 0 ? (
                   <div className="space-y-4 text-left">
-                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
-                      <CheckCircle2 className="h-4.5 w-4.5" /> Score registered on leaderboard!
+                    <div className="p-3 bg-[#00FF66] border-2 border-black text-black text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[2px_2px_0px_0px_#000000]">
+                      <CheckCircle2 className="h-4 w-4" /> Score Saved on Leaderboard
                     </div>
                     
-                    {/* Rank Shift Indicator */}
-                    <div className="p-5 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 space-y-3 text-center relative overflow-hidden">
+                    <div className="p-5 border-2 border-black bg-[#FFE600] space-y-3 text-center shadow-[4px_4px_0px_0px_#000000]">
                       <div className="flex items-center justify-center gap-2">
-                        <Sparkles className="h-4 w-4 text-yellow-400" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Position Update</span>
-                        <Sparkles className="h-4 w-4 text-yellow-400" />
+                        <Sparkles className="h-4 w-4 text-black" />
+                        <span className="text-xs font-black uppercase tracking-widest text-black">Position Update</span>
+                        <Sparkles className="h-4 w-4 text-black" />
                       </div>
                       
                       <div className="flex items-center justify-center gap-6 py-2">
                         <div className="flex flex-col items-center">
-                          <span className="text-[9px] text-white/40 font-bold uppercase">Start</span>
-                          <span className="text-base font-black text-white/50 line-through mt-0.5">
+                          <span className="text-[10px] text-zinc-700 font-bold uppercase">Initial</span>
+                          <span className="text-base font-black text-zinc-500 line-through mt-0.5">
                             #{totalPlayersBefore + 1}
                           </span>
                         </div>
                         
                         <div className="flex flex-col items-center justify-center">
-                          <span className="text-emerald-400 font-extrabold text-[8px] uppercase tracking-widest animate-pulse">ASCENDED</span>
-                          <div className="flex items-center justify-center h-7 w-7 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mt-0.5">
-                            <ArrowRight className="h-3.5 w-3.5 rotate-[-45deg]" />
+                          <span className="text-black font-black text-[9px] uppercase tracking-widest">ASCENDED</span>
+                          <div className="flex items-center justify-center h-8 w-8 bg-white text-black border-2 border-black shadow-[1px_1px_0px_0px_#000000] mt-0.5">
+                            <ArrowRight className="h-4 w-4 rotate-[-45deg]" />
                           </div>
                         </div>
                         
                         <div className="flex flex-col items-center">
-                          <span className="text-[9px] text-yellow-400 font-black uppercase">Current</span>
-                          <span className="text-2xl font-black text-yellow-400 drop-shadow-[0_0_8px_rgba(234,179,8,0.2)] mt-0.5">
+                          <span className="text-[10px] text-black font-black uppercase">Rank</span>
+                          <span className="text-3xl font-black text-black mt-0.5 font-mono">
                             #{computedRank}
                           </span>
                         </div>
                       </div>
 
-                      <p className="text-[10px] text-white/75 font-medium leading-relaxed">
+                      <p className="text-xs text-black font-bold leading-relaxed">
                         {totalPlayersBefore === 0 ? (
                           "🎉 First player to finish today! You are leading the pack at #1!"
                         ) : (
@@ -767,14 +725,13 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="py-2 text-[10px] text-white/40 uppercase tracking-wider animate-pulse">
+                  <div className="py-2 text-xs text-black font-black uppercase tracking-wider animate-pulse">
                     Registering score details...
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Leaderboard Panel */}
             <div className="md:col-span-6">
               <QuizLeaderboardSection leaderboard={leaderboard} loading={leaderboardLoading} />
             </div>
@@ -786,7 +743,6 @@ export function DailyQuizBoard({ quizId }: { quizId: string }) {
   );
 }
 
-// Subcomponent: Leaderboard list
 function QuizLeaderboardSection({ 
   leaderboard, 
   loading 
@@ -795,52 +751,52 @@ function QuizLeaderboardSection({
   loading: boolean;
 }) {
   return (
-    <div className="p-6 rounded-3xl border border-white/5 bg-[#050505]/60 backdrop-blur-xl shadow-xl space-y-4">
-      <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-        <h4 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-2">
-          <Trophy className="h-4.5 w-4.5 text-yellow-400 shrink-0" /> Challenge Leaderboard
+    <div className="border-2 border-black bg-white p-6 shadow-[6px_6px_0px_0px_#000000] space-y-4">
+      <div className="flex items-center justify-between border-b-2 border-black pb-3">
+        <h4 className="text-xs font-black uppercase tracking-widest text-black flex items-center gap-2">
+          <Trophy className="h-4 w-4 text-black shrink-0" /> Arena Leaderboard
         </h4>
-        <span className="px-2 py-0.5 rounded-md bg-white/5 text-[9px] font-bold text-white/40 uppercase">Top Speed runs</span>
+        <span className="px-2 py-0.5 border border-black bg-[#FFE600] text-[9px] font-black text-black uppercase">
+          Top Speedruns
+        </span>
       </div>
 
       <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
         {loading ? (
-          <div className="py-12 text-center text-white/20">
-            <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-yellow-400" />
-            <p className="text-[10px] font-bold uppercase tracking-wider">Syncing Arena Rankings...</p>
+          <div className="py-12 text-center text-zinc-400">
+            <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-black" />
+            <p className="text-[10px] font-black uppercase tracking-wider text-black">Syncing Arena Rankings...</p>
           </div>
         ) : leaderboard.length === 0 ? (
-          <div className="py-12 text-center text-white/20">
-            <Trophy className="h-6 w-6 mx-auto mb-2 text-white/30" />
-            <p className="text-[10px] font-bold uppercase tracking-wider">No submissions yet</p>
+          <div className="py-12 text-center text-zinc-400">
+            <Trophy className="h-8 w-8 mx-auto mb-2 text-zinc-400" />
+            <p className="text-xs font-black uppercase tracking-wider text-black">No submissions yet today</p>
           </div>
         ) : (
           leaderboard.map((record, index) => (
             <div
               key={index}
-              className="p-3 rounded-xl border border-white/5 bg-white/[0.01] flex items-center justify-between gap-3 text-xs"
+              className="p-3 border-2 border-black bg-white flex items-center justify-between gap-3 text-xs shadow-[2px_2px_0px_0px_#000000]"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <span className={`w-5 h-5 rounded-md text-[9px] font-black flex items-center justify-center shrink-0 ${
-                  index === 0
-                    ? "bg-yellow-500 text-black"
-                    : index === 1
-                      ? "bg-zinc-400 text-black"
-                      : index === 2
-                        ? "bg-amber-700 text-white"
-                        : "bg-white/5 text-white/40"
-                }`}>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className={cn(
+                  'w-6 h-6 border-2 border-black text-[10px] font-black flex items-center justify-center shrink-0 shadow-[1px_1px_0px_0px_#000000]',
+                  index === 0 ? 'bg-[#FFE600] text-black' :
+                  index === 1 ? 'bg-zinc-200 text-black' :
+                  index === 2 ? 'bg-orange-200 text-black' :
+                  'bg-zinc-50 text-zinc-600'
+                )}>
                   {index + 1}
                 </span>
-                <p className="font-bold text-white truncate max-w-[130px] uppercase tracking-wide text-[10px]">{record.displayName}</p>
+                <p className="font-black text-black truncate max-w-[130px] uppercase tracking-wide text-xs">{record.displayName}</p>
               </div>
 
-              <div className="flex items-center gap-4 shrink-0 font-mono text-[10px]">
+              <div className="flex items-center gap-3 shrink-0 font-mono text-xs">
                 <div className="text-right">
-                  <p className="font-black text-white">{record.score} / 5</p>
-                  <p className="text-[9px] text-white/40 mt-0.5">{record.timeTaken}s</p>
+                  <p className="font-black text-black">{record.score} / 5</p>
+                  <p className="text-[10px] text-zinc-500">{record.timeTaken}s</p>
                 </div>
-                <span className="text-yellow-400 font-bold flex items-center gap-0.5 shrink-0 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20 text-[9px] uppercase tracking-widest font-sans">
+                <span className="font-black border border-black bg-[#FFE600] px-2 py-0.5 text-[10px] uppercase tracking-wider font-sans shadow-[1px_1px_0px_0px_#000000]">
                   +{record.coinsEarned}
                 </span>
               </div>

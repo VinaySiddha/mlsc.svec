@@ -2,7 +2,6 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 
 export default function ServiceDetailPage() {
   const router = useRouter();
@@ -12,11 +11,13 @@ export default function ServiceDetailPage() {
   }, [router]);
 
   return (
-    <div className="w-full min-h-screen bg-black flex flex-col items-center justify-center text-white">
-      <Loader2 className="h-8 w-8 animate-spin text-[#4285F4] mb-3" />
-      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 animate-pulse">
-        Redirecting to Services Hub...
-      </p>
+    <div className="w-full min-h-screen bg-white flex flex-col items-center justify-center text-black font-sans">
+      <div className="border-2 border-black bg-white p-8 shadow-[6px_6px_0px_0px_#000000] text-center space-y-3">
+        <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin mx-auto" />
+        <p className="text-xs font-black uppercase tracking-widest text-black">
+          Redirecting to Services Hub...
+        </p>
+      </div>
     </div>
   );
 }

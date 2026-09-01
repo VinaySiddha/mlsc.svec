@@ -2,11 +2,10 @@ import { getTeamMemberById } from "@/app/actions";
 import { DigitalIdCard } from "@/components/digital-id-card";
 import { MLSCLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-// Make this page dynamic to prevent build-time Firestore access errors
 export const dynamic = 'force-dynamic';
 
 export default async function MemberIdCardPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,40 +17,44 @@ export default async function MemberIdCardPage({ params }: { params: Promise<{ i
     }
 
     return (
-         <div className="flex flex-col min-h-screen bg-black text-white font-sans items-center justify-center p-6">
-            <div className="glow-sphere top-[20%] left-[20%] w-[30%] h-[30%] bg-[#4285F4]/10" />
+        <div className="flex flex-col min-h-screen bg-white text-black font-sans items-center justify-center p-4 sm:p-6 selection:bg-[#FFE600] selection:text-black">
             
-            <header className="absolute top-0 left-0 w-full h-20 glass-nav">
-              <div className="container mx-auto h-full flex items-center justify-between px-6 md:px-12">
-                  <Link href="/" className="flex items-center gap-3">
-                      <MLSCLogo className="h-9 w-9 text-white" />
-                      <span className="text-2xl font-black tracking-tighter text-white uppercase italic">MLSC SVEC.</span>
-                  </Link>
-                  <Button asChild variant="outline" className="rounded-full border-white/10 hover:bg-white/5 font-black uppercase tracking-widest text-[0.6rem] px-8">
-                      <Link href="/team">
-                          <ArrowLeft className="mr-2 h-4 w-4" />
-                          View Team
-                      </Link>
-                  </Button>
-              </div>
-          </header>
+            {/* Top Navigation */}
+            <div className="w-full max-w-2xl flex items-center justify-between mb-8 border-2 border-black bg-white p-4 shadow-[4px_4px_0px_0px_#000000]">
+                <Link href="/" className="flex items-center gap-2">
+                    <MLSCLogo className="h-7 w-7 text-black" />
+                    <span className="text-base font-black tracking-tighter text-black uppercase italic">MLSC SVEC</span>
+                </Link>
+                <Button asChild className="bg-zinc-100 hover:bg-zinc-200 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000] font-black uppercase tracking-wider text-[11px] h-9 px-4">
+                    <Link href="/team">
+                        <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> View Team
+                    </Link>
+                </Button>
+            </div>
 
-            <main className="relative z-10 w-full max-w-2xl text-center">
-                 <div className="mb-12">
-                    <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase italic mb-4">Identity <br/> <span className="text-[#4285F4]">Verification.</span></h1>
-                    <p className="text-white/40 font-bold uppercase tracking-[0.4em] text-xs">Official Core Team Credential</p>
-                </div>
-
-                <div className="bento-card !p-0 overflow-hidden border-white/10 shadow-2xl shadow-[#4285F4]/10 bg-[#0A0A0A]">
-                    <div className="p-10 md:p-16">
-                         <DigitalIdCard member={member} />
+            <main className="relative z-10 w-full max-w-2xl text-center space-y-8">
+                <div className="space-y-2">
+                    <div className="inline-flex items-center gap-2 border-2 border-black bg-[#FFE600] px-3 py-1 shadow-[2px_2px_0px_0px_#000000] text-[10px] font-black uppercase tracking-widest text-black">
+                        <ShieldCheck className="h-3.5 w-3.5" /> [ IDENTITY VERIFICATION // CORE TEAM ]
                     </div>
+                    <h1 className="text-3xl sm:text-5xl font-black tracking-tight uppercase italic text-black">
+                        Identity <span className="text-[#4285F4]">Credential.</span>
+                    </h1>
+                    <p className="text-zinc-600 font-bold uppercase tracking-widest text-xs">
+                        Official Microsoft Learn Student Club Verification Pass
+                    </p>
                 </div>
 
-                <div className="mt-12">
-                     <p className="text-white/30 text-sm font-medium">This is a digitally generated ID for verification purposes.</p>
+                <div className="border-2 border-black bg-zinc-50 p-6 sm:p-10 shadow-[8px_8px_0px_0px_#000000]">
+                    <DigitalIdCard member={member} />
+                </div>
+
+                <div>
+                    <p className="text-zinc-500 text-xs font-bold">
+                        Digitally signed credential issued by Sri Vasavi Engineering College Chapter 4.0.
+                    </p>
                 </div>
             </main>
         </div>
-    )
+    );
 }

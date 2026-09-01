@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { PostTypeBadge } from './post-type-badge';
 import { ThumbsUp, MessageSquare, Share2, MoreVertical, Trash2, Loader2, Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +21,6 @@ import {
   deleteCommunityPost,
 } from '@/app/community-actions';
 import type { CommunityPost, Comment } from '@/types/community';
-import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupText } from '@/components/ui/input-group';
 import Link from 'next/link';
 
 interface PostCardProps {
@@ -101,7 +98,6 @@ export function PostCard({ post, onDelete }: PostCardProps) {
     try {
       const result = await toggleLike(post.id, user.uid);
       if ('error' in result) {
-        // Rollback on error
         setLiked(prevLiked);
         setLikeCount(prevCount);
         toast({ variant: 'destructive', title: 'Error', description: result.error });
@@ -109,7 +105,7 @@ export function PostCard({ post, onDelete }: PostCardProps) {
         setLiked(result.liked);
         setLikeCount(result.likeCount);
       }
-    } catch (err) {
+    } catch {
       setLiked(prevLiked);
       setLikeCount(prevCount);
     } finally {
@@ -147,7 +143,7 @@ export function PostCard({ post, onDelete }: PostCardProps) {
       } else {
         toast({ variant: 'destructive', title: 'Error', description: result.error });
       }
-    } catch (err) {
+    } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to post comment.' });
     } finally {
       setSubmittingComment(false);
@@ -166,7 +162,7 @@ export function PostCard({ post, onDelete }: PostCardProps) {
       } else {
         toast({ variant: 'destructive', title: 'Error', description: result.error });
       }
-    } catch (err) {
+    } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete comment.' });
     } finally {
       setDeletingCommentId(null);
@@ -187,7 +183,7 @@ export function PostCard({ post, onDelete }: PostCardProps) {
       } else {
         toast({ variant: 'destructive', title: 'Error', description: result.error });
       }
-    } catch (err) {
+    } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete post.' });
     } finally {
       setDeletingPost(false);
@@ -212,26 +208,26 @@ export function PostCard({ post, onDelete }: PostCardProps) {
   const isAuthor = user?.uid === post.authorId;
 
   return (
-    <Card className="glass-card overflow-hidden border-white/5 hover:border-white/10 transition-all duration-300 shadow-xl bg-zinc-950/40 backdrop-blur-md rounded-2xl">
+    <div className="bg-white text-black border-2 border-black shadow-[6px_6px_0px_0px_#000000] hover:shadow-[8px_8px_0px_0px_#000000] transition-all duration-200">
       {/* Header */}
-      <CardHeader className="p-4 md:p-6 pb-2">
+      <div className="p-4 md:p-6 pb-3 border-b-2 border-black/10">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border border-white/10 ring-2 ring-primary/20">
+            <Avatar className="h-10 w-10 border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
               <AvatarImage src={post.authorPhotoURL} alt={post.authorName} />
-              <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                {post.authorName?.[0]?.toUpperCase()}
+              <AvatarFallback className="bg-[#FFE600] text-black font-black text-sm">
+                {post.authorName?.[0]?.toUpperCase() || 'M'}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-white text-sm md:text-base hover:text-primary transition-colors cursor-pointer">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-black text-black text-sm md:text-base hover:text-[#4285F4] transition-colors">
                   {post.authorName}
                 </span>
                 <PostTypeBadge type={post.type} />
               </div>
-              <p className="text-xs text-white/40 mt-0.5">
-                {isAuthor ? 'You • ' : 'MLSC Member • '}
+              <p className="text-[11px] font-mono text-zinc-500 mt-0.5">
+                {isAuthor ? 'YOU • ' : 'MEMBER • '}
                 {new Date(post.createdAt).toLocaleDateString(undefined, {
                   month: 'short',
                   day: 'numeric',
@@ -245,20 +241,20 @@ export function PostCard({ post, onDelete }: PostCardProps) {
             {isAuthor && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white rounded-full">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                  <button className="h-8 w-8 flex items-center justify-center border-2 border-black bg-white hover:bg-zinc-100 shadow-[1px_1px_0px_0px_#000000] transition-all cursor-pointer">
+                    <MoreVertical className="h-4 w-4 stroke-[2.5]" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-zinc-900 border-white/10 rounded-xl">
+                <DropdownMenuContent align="end" className="bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000000] p-1">
                   <DropdownMenuItem
                     onClick={handlePostDelete}
                     disabled={deletingPost}
-                    className="text-red-500 focus:bg-red-500/10 focus:text-red-500 cursor-pointer flex items-center gap-2 font-medium"
+                    className="text-[#FF0055] font-black text-xs uppercase cursor-pointer flex items-center gap-2 px-3 py-2 hover:bg-red-50 focus:bg-red-50"
                   >
                     {deletingPost ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     )}
                     Delete Post
                   </DropdownMenuItem>
@@ -267,17 +263,17 @@ export function PostCard({ post, onDelete }: PostCardProps) {
             )}
           </div>
         </div>
-      </CardHeader>
+      </div>
 
       {/* Content */}
-      <CardContent className="px-4 md:px-6 py-2 space-y-3">
-        <Link href={`/community/${post.id}`} className="block">
-          <h3 className="text-lg md:text-xl font-bold text-white leading-snug hover:text-primary transition-colors">
+      <div className="p-4 md:p-6 space-y-3">
+        <Link href={`/community/${post.id}`} className="block group">
+          <h3 className="text-lg md:text-xl font-display font-black text-black leading-snug group-hover:text-[#4285F4] transition-colors">
             {post.title}
           </h3>
         </Link>
 
-        <div className="text-sm md:text-base text-white/80 leading-relaxed break-words whitespace-pre-wrap">
+        <div className="text-xs md:text-sm text-zinc-800 leading-relaxed break-words whitespace-pre-wrap font-sans">
           {expanded ? (
             <RichTextDisplay content={post.content} />
           ) : (
@@ -287,151 +283,146 @@ export function PostCard({ post, onDelete }: PostCardProps) {
           {showSeeMore && !expanded && (
             <button
               onClick={() => setExpanded(true)}
-              className="text-primary hover:underline font-semibold ml-1 focus:outline-none text-xs md:text-sm"
+              className="text-[#4285F4] hover:underline font-black ml-1 text-xs cursor-pointer inline-block"
             >
-              ...see more
+              [READ MORE +]
             </button>
           )}
           {expanded && showSeeMore && (
             <button
               onClick={() => setExpanded(false)}
-              className="text-primary hover:underline font-semibold ml-1 block mt-2 focus:outline-none text-xs md:text-sm"
+              className="text-[#4285F4] hover:underline font-black ml-1 block mt-2 text-xs cursor-pointer"
             >
-              show less
+              [COLLAPSE -]
             </button>
           )}
         </div>
 
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap gap-1.5 pt-2">
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1 rounded-full cursor-pointer transition-all duration-200"
+                className="text-[10px] font-black uppercase text-black bg-[#FFE600] border-2 border-black px-2 py-0.5 shadow-[1px_1px_0px_0px_#000000]"
               >
                 #{tag}
               </span>
             ))}
           </div>
         )}
-      </CardContent>
-
-      {/* Action Stats */}
-      <div className="px-4 md:px-6 py-2 flex items-center justify-between text-xs text-white/40 border-b border-white/5">
-        <div className="flex items-center gap-1">
-          <span className="flex items-center justify-center h-4 w-4 rounded-full bg-primary/20 text-primary text-[9px] font-bold">
-            👍
-          </span>
-          <span>{likeCount} likes</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setCommentsOpen(!commentsOpen)}
-            className="hover:text-primary hover:underline transition-colors"
-          >
-            {commentCount} comments
-          </button>
-        </div>
       </div>
 
-      {/* Actions Footer */}
-      <CardFooter className="p-2 flex items-center justify-between gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
+      {/* Stats Summary */}
+      <div className="px-4 md:px-6 py-2 flex items-center justify-between text-xs font-mono font-bold text-zinc-600 border-t-2 border-b-2 border-black bg-[#F9F9FB]">
+        <div className="flex items-center gap-1.5">
+          <span className="flex items-center justify-center h-4 w-4 border border-black bg-[#4285F4] text-white text-[9px] font-black">
+            ✓
+          </span>
+          <span>{likeCount} {likeCount === 1 ? 'INTERACTION' : 'INTERACTIONS'}</span>
+        </div>
+        <button
+          onClick={() => setCommentsOpen(!commentsOpen)}
+          className="hover:text-black hover:underline cursor-pointer"
+        >
+          {commentCount} {commentCount === 1 ? 'REPLY' : 'REPLIES'}
+        </button>
+      </div>
+
+      {/* Action Buttons Bar */}
+      <div className="p-2 md:p-3 flex items-center gap-2 bg-white">
+        <button
+          type="button"
           onClick={handleLike}
           disabled={liking}
-          className={`flex-1 gap-2 rounded-xl h-10 text-xs md:text-sm transition-all duration-200 ${
+          className={`flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-black uppercase tracking-wider border-2 border-black transition-all cursor-pointer ${
             liked
-              ? 'text-primary bg-primary/10 hover:bg-primary/20 font-bold'
-              : 'text-white/60 hover:text-white hover:bg-white/5'
-          }`}
+              ? 'bg-[#4285F4] text-white shadow-[2px_2px_0px_0px_#000000]'
+              : 'bg-white text-black hover:bg-zinc-100 shadow-[2px_2px_0px_0px_#000000]'
+          } hover:translate-x-[1px] hover:translate-y-[1px]`}
         >
-          <ThumbsUp className={`h-4 w-4 ${liked ? 'fill-primary text-primary' : ''}`} />
-          Like
-        </Button>
+          <ThumbsUp className={`h-3.5 w-3.5 stroke-[2.5] ${liked ? 'fill-white' : ''}`} />
+          <span>{liked ? 'LIKED' : 'LIKE'}</span>
+        </button>
 
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
+          type="button"
           onClick={() => setCommentsOpen(!commentsOpen)}
-          className={`flex-1 gap-2 rounded-xl h-10 text-xs md:text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all duration-200 ${
-            commentsOpen ? 'text-primary bg-primary/5' : ''
-          }`}
+          className={`flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-black uppercase tracking-wider border-2 border-black transition-all cursor-pointer ${
+            commentsOpen
+              ? 'bg-[#FFE600] text-black shadow-[2px_2px_0px_0px_#000000]'
+              : 'bg-white text-black hover:bg-zinc-100 shadow-[2px_2px_0px_0px_#000000]'
+          } hover:translate-x-[1px] hover:translate-y-[1px]`}
         >
-          <MessageSquare className="h-4 w-4" />
-          Comment
-        </Button>
+          <MessageSquare className="h-3.5 w-3.5 stroke-[2.5]" />
+          <span>REPLY</span>
+        </button>
 
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
+          type="button"
           onClick={handleShare}
-          className="flex-1 gap-2 rounded-xl h-10 text-xs md:text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all duration-200"
+          className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-black uppercase tracking-wider bg-white text-black hover:bg-zinc-100 border-2 border-black shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer"
         >
-          <Share2 className="h-4 w-4" />
-          Share
-        </Button>
-      </CardFooter>
+          <Share2 className="h-3.5 w-3.5 stroke-[2.5]" />
+          <span>SHARE</span>
+        </button>
+      </div>
 
       {/* Inline Comments Section */}
       {commentsOpen && (
-        <div className="bg-black/40 border-t border-white/5 p-4 md:p-6 space-y-4 transition-all duration-300">
+        <div className="bg-[#F9F9FB] border-t-2 border-black p-4 md:p-6 space-y-4">
           {/* Write comment input */}
           {user ? (
             <div className="flex gap-3">
-              <Avatar className="h-8 w-8 mt-1 border border-white/10 ring-1 ring-primary/20">
+              <Avatar className="h-8 w-8 border-2 border-black shadow-[1px_1px_0px_0px_#000000]">
                 <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-                <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                <AvatarFallback className="bg-[#FFE600] text-black font-black text-xs">
                   {user.displayName?.[0]?.toUpperCase() || 'A'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-2">
-                <InputGroup className="bg-zinc-900/40 border-white/5 focus-within:border-primary/30 transition-all rounded-xl">
-                  <InputGroupTextarea
-                    placeholder="Add a comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    className="min-h-[60px] text-sm text-white focus-visible:ring-0 placeholder:text-white/30 px-3 py-2 bg-transparent"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleCommentSubmit();
-                      }
-                    }}
-                  />
-                  <InputGroupAddon className="border-white/5 bg-transparent px-3 py-1 flex items-center justify-between">
-                    <InputGroupText className="text-white/30 text-[10px] tabular-nums">
-                      {newComment.length} chars
-                    </InputGroupText>
-                    <span className="text-[10px] text-white/20 italic">Press Enter to post</span>
-                  </InputGroupAddon>
-                </InputGroup>
-                <div className="flex justify-end">
-                  <Button
-                    size="sm"
+                <textarea
+                  placeholder="Type your response or comment here..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="w-full min-h-[60px] p-3 text-xs md:text-sm text-black bg-white border-2 border-black focus:outline-none focus:ring-2 focus:ring-[#FFE600] placeholder:text-zinc-400 font-sans"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleCommentSubmit();
+                    }
+                  }}
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-zinc-500 font-bold">
+                    {newComment.length} chars (Press Enter to post)
+                  </span>
+                  <button
+                    type="button"
                     onClick={handleCommentSubmit}
                     disabled={submittingComment || !newComment.trim()}
-                    className="rounded-full h-8 text-xs font-bold bg-primary text-black hover:bg-primary/80 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-black uppercase tracking-wider bg-[#00FF66] text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px] disabled:opacity-50 transition-all cursor-pointer"
                   >
                     {submittingComment ? (
                       <Loader2 className="h-3 w-3 animate-spin mr-1" />
                     ) : (
-                      <Send className="h-3 w-3 mr-1" />
+                      <Send className="h-3 w-3 stroke-[2.5]" />
                     )}
-                    Post
-                  </Button>
+                    POST REPLY
+                  </button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-2 border border-dashed border-white/10 rounded-xl bg-white/5">
-              <p className="text-xs text-white/50">
+            <div className="text-center py-3 border-2 border-dashed border-black bg-white p-4">
+              <p className="text-xs font-black text-black uppercase">
+                AUTHENTICATION REQUIRED
+              </p>
+              <p className="text-xs text-zinc-600 mt-1">
                 Please{' '}
-                <Link href="/auth/login" className="text-primary hover:underline font-bold">
+                <Link href="/auth/login" className="text-[#4285F4] underline font-black">
                   sign in
                 </Link>{' '}
-                to leave a comment.
+                to participate in community discussions.
               </p>
             </div>
           )}
@@ -439,26 +430,26 @@ export function PostCard({ post, onDelete }: PostCardProps) {
           {/* Comments list */}
           {loadingComments ? (
             <div className="flex justify-center py-4">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <Loader2 className="h-5 w-5 animate-spin text-black" />
             </div>
           ) : comments.length === 0 ? (
-            <p className="text-xs text-white/40 text-center py-2">
-              Be the first to comment on this transmission!
+            <p className="text-xs font-mono text-zinc-500 text-center py-3 border-2 border-dashed border-zinc-300">
+              NO REPLIES YET. BE THE FIRST TO CONTRIBUTE!
             </p>
           ) : (
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
               {comments.map((comment) => (
                 <div key={comment.id} className="flex gap-3 text-xs md:text-sm">
-                  <Avatar className="h-8 w-8 border border-white/5">
+                  <Avatar className="h-8 w-8 border-2 border-black shadow-[1px_1px_0px_0px_#000000]">
                     <AvatarImage src={comment.authorPhotoURL} alt={comment.authorName} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
-                      {comment.authorName?.[0]?.toUpperCase()}
+                    <AvatarFallback className="bg-[#4285F4] text-white font-black text-xs">
+                      {comment.authorName?.[0]?.toUpperCase() || 'M'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 bg-zinc-900/60 rounded-2xl px-4 py-3 border border-white/5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-white">{comment.authorName}</span>
-                      <div className="flex items-center gap-2 text-[10px] text-white/40">
+                  <div className="flex-1 bg-white p-3 border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
+                    <div className="flex items-center justify-between gap-2 border-b border-black/10 pb-1">
+                      <span className="font-black text-black text-xs">{comment.authorName}</span>
+                      <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
                         <span>
                           {new Date(comment.createdAt).toLocaleDateString(undefined, {
                             month: 'short',
@@ -469,19 +460,19 @@ export function PostCard({ post, onDelete }: PostCardProps) {
                           <button
                             onClick={() => handleCommentDelete(comment.id)}
                             disabled={deletingCommentId === comment.id}
-                            className="text-red-400 hover:text-red-500 transition-colors"
-                            title="Delete comment"
+                            className="text-[#FF0055] hover:underline font-black cursor-pointer"
+                            title="Delete reply"
                           >
                             {deletingCommentId === comment.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
                             ) : (
-                              <Trash2 className="h-3 w-3" />
+                              '[DEL]'
                             )}
                           </button>
                         )}
                       </div>
                     </div>
-                    <p className="text-white/80 mt-1 whitespace-pre-wrap break-words">
+                    <p className="text-zinc-800 mt-2 text-xs leading-relaxed whitespace-pre-wrap break-words font-sans">
                       {comment.content}
                     </p>
                   </div>
@@ -491,6 +482,7 @@ export function PostCard({ post, onDelete }: PostCardProps) {
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 }
+

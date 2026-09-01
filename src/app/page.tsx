@@ -71,7 +71,7 @@ export default async function Home() {
         {/* =====================================================
             COMMUNITY STATEMENT
         ===================================================== */}
-
+d 
         {/* =====================================================
             04 // THE ECOSYSTEM / LAUNCHPAD
         ===================================================== */}
@@ -380,7 +380,7 @@ export default async function Home() {
                     href="/apply"
                     className="w-full sm:w-auto px-10 py-4 bg-black text-[#FFE600] font-black text-sm uppercase tracking-wider border-2 border-black shadow-[5px_5px_0px_0px_#FFFFFF] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                   >
-                    ⚡ JOIN MLSC SVEC CHAPTER 3.0 [↗]
+                    ⚡ JOIN MLSC SVEC CHAPTER 4.0 [↗]
                   </a>
 
                   <a

@@ -7,9 +7,9 @@ export function PrintButton() {
   return (
     <button 
       onClick={() => window.print()}
-      className="inline-flex items-center gap-2 px-4 h-10 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-zinc-800 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 transition-all shadow-sm no-print"
+      className="inline-flex items-center gap-2 px-4 h-10 bg-white border-2 border-black hover:bg-zinc-100 text-xs font-black uppercase tracking-wider text-black transition-all shadow-[2px_2px_0px_0px_#000000] cursor-pointer no-print"
     >
-      <Printer className="h-4 w-4 text-[#34A853]" /> Print Receipt
+      <Printer className="h-4 w-4 text-[#34A853] stroke-[2.5]" /> Print Receipt
     </button>
   );
 }

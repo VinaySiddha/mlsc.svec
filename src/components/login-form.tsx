@@ -4,15 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldCheck, ArrowLeft, Lock } from 'lucide-react';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { adminGoogleLoginAction } from '@/app/actions/admin-auth-actions';
+import Link from 'next/link';
 
 export function LoginForm({
   className,
@@ -65,26 +61,26 @@ export function LoginForm({
 
   return (
     <div className={cn('flex flex-col gap-6 font-sans', className)} {...props}>
-      <div className="bg-[#0E0E10] border-2 border-white/20 shadow-[10px_10px_0px_0px_#FF0055] overflow-hidden">
+      <div className="bg-white border-2 border-black shadow-[10px_10px_0px_0px_#000000] overflow-hidden">
         <div className="grid md:grid-cols-2">
+          
           {/* ── Left: login panel ── */}
-          <div className="p-8 md:p-10 flex flex-col justify-center gap-6 bg-[#0E0E10] border-b-2 md:border-b-0 md:border-r-2 border-white/20">
+          <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center gap-6 bg-white border-b-2 md:border-b-0 md:border-r-2 border-black">
             {/* Header */}
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="inline-flex h-14 w-14 items-center justify-center bg-[#FF0055] border-2 border-black shadow-[3px_3px_0px_0px_#FFFFFF] mb-2">
-                <svg viewBox="0 0 24 24" className="h-7 w-7 text-white stroke-[2.5]" fill="none" stroke="currentColor">
-                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-                  <path d="M9 12l2 2 4-4" />
-                </svg>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex h-12 w-12 items-center justify-center bg-[#EA4335] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000000]">
+                  <Lock className="h-6 w-6" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2 py-1 bg-black text-white">
+                  Admin Terminal
+                </span>
               </div>
-              <div className="inline-block px-3 py-1 bg-[#FF0055] text-white text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF]">
-                [ RESTRICTED ACCESS ]
-              </div>
-              <h1 className="text-3xl font-display font-black uppercase italic tracking-tighter text-white">
-                ADMIN <span className="text-[#FFE600]">CONTROL.</span>
+              <h1 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight text-black pt-2">
+                ADMIN <span className="bg-[#FFE600] border border-black px-1.5">PORTAL</span>
               </h1>
-              <p className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">
-                Authorized Personnel Only
+              <p className="text-xs text-zinc-600 font-bold">
+                Restricted access for core club administrators and lead organizers.
               </p>
             </div>
 
@@ -94,7 +90,7 @@ export function LoginForm({
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isSubmitting}
-                className="w-full h-12 bg-[#FFE600] hover:translate-x-[1px] hover:translate-y-[1px] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#FFFFFF] flex items-center justify-center gap-3 transition-all disabled:opacity-50"
+                className="w-full h-12 bg-[#FFE600] hover:bg-[#FFE600]/90 text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] flex items-center justify-center gap-3 transition-all disabled:opacity-50"
               >
                 {isOAuthLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-black" />
@@ -110,63 +106,70 @@ export function LoginForm({
               </button>
 
               {/* Divider */}
-              <div className="relative my-4">
+              <div className="relative my-2">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t-2 border-white/10" />
+                  <div className="w-full border-t-2 border-zinc-200" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-[#0E0E10] px-3 text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-400">
+                  <span className="bg-white px-3 text-[10px] font-black uppercase tracking-widest text-zinc-500">
                     AUTHORIZATION PROTOCOL
                   </span>
                 </div>
               </div>
 
               {/* Steps */}
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {[
-                  { step: '01', text: 'Sign in using your institutional or authorized Google account' },
-                  { step: '02', text: 'Firebase Security Rules authenticate against authorized admin UID' },
-                  { step: '03', text: 'Session elevation granted for portal management and CRUD operations' },
+                  { step: '01', text: 'Sign in with your authorized Google administrator email' },
+                  { step: '02', text: 'Firebase Security verifies against the admin UID whitelist' },
+                  { step: '03', text: 'Session elevation granted for operations & database control' },
                 ].map(({ step, text }) => (
-                  <div key={step} className="flex items-center gap-3 bg-black border-2 border-white/10 p-2.5">
+                  <div key={step} className="flex items-center gap-3 bg-zinc-50 border-2 border-black p-2.5 shadow-[2px_2px_0px_0px_#000000]">
                     <span className="text-[10px] font-black text-black bg-[#FFE600] px-2 py-0.5 border border-black min-w-[28px] text-center shrink-0">
                       {step}
                     </span>
-                    <span className="text-xs text-zinc-300 font-medium">{text}</span>
+                    <span className="text-xs text-zinc-700 font-bold">{text}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-center text-[11px] text-zinc-500">
-              Session is encrypted & monitored for audit logging.
+            <p className="text-center text-[10px] text-zinc-500 font-bold">
+              Access is protected by Firebase IAM & monitored by telemetry audit logs.
             </p>
           </div>
 
           {/* ── Right: image panel ── */}
-          <div className="relative hidden md:flex flex-col justify-between p-10 bg-black">
-            <div className="absolute inset-0 z-0">
-              <img
-                src="/blueday.png"
-                alt="MLSC SVEC"
-                className="h-full w-full object-cover opacity-25 grayscale"
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-transparent" />
-            </div>
-            
-            <div className="relative z-10">
-              <div className="inline-block px-3 py-1 bg-[#FF0055] text-white text-[10px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_#FFFFFF] mb-4">
+          <div className="relative hidden md:flex flex-col justify-between p-10 bg-zinc-100 border-l border-zinc-200">
+            <div className="space-y-4">
+              <div className="inline-block px-3 py-1 bg-[#EA4335] text-white text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
                 [ 🔒 CONTROL OPERATIONS ]
               </div>
+              <h3 className="text-3xl font-black uppercase italic tracking-tight text-black leading-none">
+                Administrative<br />
+                <span className="text-[#4285F4]">Management</span><br />
+                Engine
+              </h3>
+              <p className="text-xs text-zinc-600 font-bold leading-relaxed">
+                Centralized console for managing event tickets, student recruitment, member rosters, quizzes, and financial ledger records.
+              </p>
             </div>
 
-            <div className="relative z-10">
-              <p className="text-white font-display font-black text-3xl uppercase italic tracking-tight leading-[0.9]">
-                ADMINISTRATIVE<br />
-                <span className="text-[#FFE600]">SYSTEM INTERFACE</span>
-              </p>
-              <p className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-400 mt-2">
-                MLSC SVEC CHAPTER MANAGEMENT ENGINE
+            <div className="border-2 border-black bg-white p-4 shadow-[4px_4px_0px_0px_#000000] space-y-2">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-[#00A844]" />
+                <span className="text-xs font-black uppercase tracking-wider text-black">Security Standards</span>
+              </div>
+              <ul className="text-[11px] text-zinc-600 font-bold space-y-1">
+                <li>✓ Role-based access control (RBAC)</li>
+                <li>✓ Cryptographic session verification</li>
+                <li>✓ Audit trail for payment approvals</li>
+              </ul>
+            </div>
+
+            <div className="pt-4">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-500">
+                MLSC SVEC Chapter Management Console
               </p>
             </div>
           </div>
@@ -174,9 +177,9 @@ export function LoginForm({
       </div>
 
       <p className="text-center">
-        <a href="/" className="inline-block px-4 py-2 bg-zinc-900 border-2 border-white/20 hover:border-white text-zinc-400 hover:text-white transition-all font-black uppercase tracking-wider text-xs">
-          [ ← RETURN TO PUBLIC SITE ]
-        </a>
+        <Link href="/" className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border-2 border-black hover:bg-zinc-50 text-black transition-all font-black uppercase tracking-wider text-xs shadow-[3px_3px_0px_0px_#000000]">
+          <ArrowLeft className="h-3.5 w-3.5" /> Return to Public Site
+        </Link>
       </p>
     </div>
   );

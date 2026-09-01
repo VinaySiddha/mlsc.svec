@@ -6,26 +6,23 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer active:translate-x-[1px] active:translate-y-[1px]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        glass: "bg-card/60 backdrop-blur-sm border border-border/50 text-foreground hover:border-primary/50 hover:shadow-primary/5 hover:shadow-lg transition-all duration-300",
-        gradient: "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-opacity",
+        default: "bg-[#FFE600] text-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:shadow-[1px_1px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px]",
+        destructive: "bg-[#FF0055] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:shadow-[1px_1px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px]",
+        outline: "bg-white text-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-100 hover:shadow-[1px_1px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px]",
+        secondary: "bg-zinc-100 text-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:bg-zinc-200 hover:shadow-[1px_1px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px]",
+        ghost: "bg-transparent text-black hover:bg-zinc-100",
+        glass: "bg-white text-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:bg-[#FFE600] hover:shadow-[1px_1px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px]",
+        gradient: "bg-[#4285F4] text-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] hover:shadow-[1px_1px_0px_0px_#000000] hover:translate-x-[1px] hover:translate-y-[1px]",
       },
       size: {
-        default: "h-11 px-5 py-3",
-        sm: "h-10 rounded-md px-4",
-        lg: "h-12 rounded-md px-8",
-        icon: "h-11 w-11",
+        default: "h-11 px-5 py-2.5",
+        sm: "h-9 px-3 text-xs",
+        lg: "h-12 px-7 text-sm",
+        icon: "h-10 w-10 p-0",
       },
     },
     defaultVariants: {
@@ -44,45 +41,15 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, interactive = true, children, ...props }, ref) => {
-    if (!interactive) {
-      const Comp = asChild ? Slot : "button"
-      return (
-        <Comp
-          className={cn(buttonVariants({ variant, size, className }))}
-          ref={ref}
-          {...props}
-        >
-          {children}
-        </Comp>
-      )
-    }
-
-    if (asChild) {
-      const child = React.Children.only(children) as React.ReactElement;
-      return React.cloneElement(child, {
-        className: cn(buttonVariants({ variant, size, className }), "relative overflow-hidden group", child.props.className),
-        children: (
-          <>
-            <span className="absolute left-1/2 -translate-x-1/2 top-full -translate-y-1/2 w-8 h-8 bg-white rounded-full scale-0 transition-transform duration-700 ease-in-out group-hover:scale-[18] pointer-events-none" />
-            <span className="relative z-10 transition-colors duration-500 group-hover:text-black flex items-center justify-center gap-2">
-              {child.props.children}
-            </span>
-          </>
-        )
-      });
-    }
-
+    const Comp = asChild ? Slot : "button"
     return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }), "relative overflow-hidden group")}
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
       >
-        <span className="absolute left-1/2 -translate-x-1/2 top-full -translate-y-1/2 w-8 h-8 bg-white rounded-full scale-0 transition-transform duration-700 ease-in-out group-hover:scale-[18] pointer-events-none" />
-        <span className="relative z-10 transition-colors duration-500 group-hover:text-black flex items-center justify-center gap-2 w-full h-full">
-          {children}
-        </span>
-      </button>
+        {children}
+      </Comp>
     )
   }
 )

@@ -17,17 +17,14 @@ import { MLSCLogo } from '@/components/icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
-import { Field, FieldGroup, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field";
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, Loader2, Upload, Users, Coins } from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, Users, Coins, ExternalLink, Copy, CheckCircle2, User, Calendar, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -111,7 +108,6 @@ export default function UserProfilePage() {
     setIsSubmitting(true);
 
     try {
-      // 1. If username changed, update it first
       if (values.username !== profile.username) {
         const userResult = await changeUsername(user.uid, values.username);
         if (!userResult.success) {
@@ -121,7 +117,6 @@ export default function UserProfilePage() {
         }
       }
 
-      // 2. Update the rest of the profile
       const result = await updateUserProfile(user.uid, values);
       if (result.success) {
         setProfile(prev => prev ? { ...prev, ...values } : prev);
@@ -175,8 +170,11 @@ export default function UserProfilePage() {
 
   if (authLoading || loadingProfile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <Loader2 className="h-12 w-12 animate-spin text-[#4285F4]" />
+      <div className="flex min-h-screen items-center justify-center bg-white text-black">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin" />
+          <p className="text-xs text-black font-black uppercase tracking-widest">Loading Member Profile...</p>
+        </div>
       </div>
     );
   }
@@ -184,234 +182,291 @@ export default function UserProfilePage() {
   if (!user || !profile) return null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white font-sans">
-      <header className="glass-nav h-20">
-        <div className="container mx-auto flex h-full items-center justify-between px-6 md:px-12">
-          <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="icon" className="text-white hover:bg-white/10 rounded-full">
-              <Link href="/"><ArrowLeft className="h-6 w-6" /></Link>
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-[#FFE600] selection:text-black">
+      
+      {/* Top Banner */}
+      <div className="border-b-2 border-black bg-[#FFE600] text-black px-4 py-2 font-black text-xs uppercase tracking-widest text-center">
+        ⚡ Chapter 4 Member Profile & Account Dossier
+      </div>
+
+      {/* Nav Header */}
+      <div className="border-b-2 border-black bg-white sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button asChild variant="outline" className="border-2 border-black bg-white hover:bg-zinc-100 text-black shadow-[2px_2px_0px_0px_#000000] h-9 w-9 p-0">
+              <Link href="/"><ArrowLeft className="h-4 w-4" /></Link>
             </Button>
-            <div className="flex items-center gap-3">
-              <MLSCLogo className="h-9 w-9 text-white" />
-              <h1 className="text-2xl font-black tracking-tighter uppercase italic">My Profile.</h1>
+            <div className="flex items-center gap-2">
+              <span className="font-black text-sm uppercase italic tracking-tight">MLSC Member Profile</span>
             </div>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase tracking-wider bg-[#FFE600] border border-black px-2.5 py-1">
+              Role: {ROLE_LABELS[profile.role] || profile.role}
+            </span>
+          </div>
         </div>
-      </header>
+      </div>
 
-      <main className="flex-1 p-8 md:p-12 lg:p-20 container mx-auto max-w-5xl space-y-12">
-        {/* Profile Card */}
-        <div className="bento-card !p-10 border-white/10">
-          <div className="flex flex-col md:flex-row items-center gap-10">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12 space-y-8">
+        
+        {/* Profile Identity Card */}
+        <div className="border-2 border-black bg-white p-6 sm:p-8 shadow-[8px_8px_0px_0px_#000000]">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+            
+            {/* Avatar Container */}
             <div className="relative group shrink-0">
-              <Avatar className="h-32 w-32 rounded-[2.5rem] ring-4 ring-white/5 border-2 border-white/10">
-                <AvatarImage src={profile.photoURL} alt={profile.displayName} className="object-cover" />
-                <AvatarFallback className="text-4xl font-black bg-[#4285F4]">{profile.displayName?.[0]?.toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-sm">
-                {isUploadingImage ? (
-                  <Loader2 className="h-8 w-8 animate-spin text-white" />
+              <div className="h-32 w-32 border-4 border-black overflow-hidden shadow-[4px_4px_0px_0px_#000000] bg-[#FFE600]">
+                {profile.photoURL ? (
+                  <img src={profile.photoURL} alt={profile.displayName} className="h-full w-full object-cover" />
                 ) : (
-                  <Upload className="h-8 w-8 text-white" />
+                  <div className="h-full w-full flex items-center justify-center font-black text-4xl text-black">
+                    {profile.displayName?.[0]?.toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/75 text-white opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-4 border-black">
+                {isUploadingImage ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <>
+                    <Upload className="h-6 w-6 mb-1" />
+                    <span className="text-[9px] font-black uppercase">Change Photo</span>
+                  </>
                 )}
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
               </label>
             </div>
-            <div className="text-center md:text-left flex-1">
-              <CardTitle className="text-4xl font-black tracking-tighter uppercase mb-1">{profile.displayName}</CardTitle>
-              <CardDescription className="text-white/40 text-sm font-medium mb-3">@{profile.username || 'username'}</CardDescription>
-              <CardDescription className="text-white/50 text-base font-medium mb-4">{profile.email}</CardDescription>
-              
-              {/* Public Profile Sharing Actions */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-5">
-                <Button asChild variant="outline" size="sm" className="rounded-xl border-white/15 text-[10px] font-black uppercase tracking-wider h-8 px-4">
+
+            {/* User Meta Info */}
+            <div className="text-center md:text-left flex-1 space-y-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tight text-black">
+                  {profile.displayName}
+                </h1>
+                <p className="text-zinc-600 text-xs font-bold font-mono mt-0.5">@{profile.username || 'username'} · {profile.email}</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                <Button asChild className="bg-white hover:bg-zinc-100 text-black border-2 border-black text-xs font-black uppercase tracking-wider h-9 px-4 shadow-[2px_2px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px]">
                   <Link href={`/profile/${profile.username}`} target="_blank">
-                    View Public Profile
+                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> View Public Profile
                   </Link>
                 </Button>
                 <Button 
                   onClick={() => {
                     const profileUrl = `${window.location.origin}/profile/${profile.username}`;
                     navigator.clipboard.writeText(profileUrl);
-                    toast({
-                      title: "Link Copied",
-                      description: "Public profile link copied to clipboard.",
-                    });
+                    toast({ title: "Link Copied", description: "Public profile link copied to clipboard." });
                   }}
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-xl border-white/15 text-[10px] font-black uppercase tracking-wider h-8 px-4"
+                  className="bg-white hover:bg-zinc-100 text-black border-2 border-black text-xs font-black uppercase tracking-wider h-9 px-4 shadow-[2px_2px_0px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px]"
                 >
-                  Copy Link
+                  <Copy className="h-3.5 w-3.5 mr-1.5" /> Copy Link
                 </Button>
               </div>
 
-              {/* Followers / Following Counts */}
-              <div className="flex flex-wrap items-center gap-6 mb-5 justify-center md:justify-start">
-                <button onClick={() => openFollowModal('followers')} className="hover:text-[#4285F4] transition-colors flex items-center gap-1">
-                  <span className="font-black text-white text-lg">{profile.followersCount || 0}</span> 
-                  <span className="text-white/40 font-bold uppercase tracking-wider text-[10px]">Followers</span>
+              {/* Stats Bar */}
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+                <button onClick={() => openFollowModal('followers')} className="border-2 border-black px-3 py-1 bg-zinc-50 hover:bg-[#FFE600] transition-colors flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#000000]">
+                  <span className="font-black text-black text-sm">{profile.followersCount || 0}</span> 
+                  <span className="text-zinc-600 font-black uppercase tracking-wider text-[10px]">Followers</span>
                 </button>
-                <button onClick={() => openFollowModal('following')} className="hover:text-[#4285F4] transition-colors flex items-center gap-1">
-                  <span className="font-black text-white text-lg">{profile.followingCount || 0}</span> 
-                  <span className="text-white/40 font-bold uppercase tracking-wider text-[10px]">Following</span>
+                <button onClick={() => openFollowModal('following')} className="border-2 border-black px-3 py-1 bg-zinc-50 hover:bg-[#FFE600] transition-colors flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#000000]">
+                  <span className="font-black text-black text-sm">{profile.followingCount || 0}</span> 
+                  <span className="text-zinc-600 font-black uppercase tracking-wider text-[10px]">Following</span>
                 </button>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 font-black text-xs uppercase tracking-widest">
-                  <Coins className="h-3.5 w-3.5 text-yellow-400 shrink-0" /> {profile.coins || 0} Coins
+                <div className="flex items-center gap-1.5 px-3 py-1 border-2 border-black bg-[#FFE600] text-black font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000000]">
+                  <Coins className="h-3.5 w-3.5 text-black shrink-0" /> {profile.coins || 0} MLSC Coins
                 </div>
               </div>
-
-              <Badge className="bg-[#4285F4] text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border-none">
-                {ROLE_LABELS[profile.role] || profile.role}
-              </Badge>
             </div>
+
           </div>
         </div>
 
+        {/* Two-Column Grid: Form + Events/Community */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bento-card border-white/5 space-y-8 h-fit">
-            <h3 className="text-2xl font-black tracking-tighter uppercase italic">Edit Details.</h3>
+          
+          {/* Edit Profile Details */}
+          <div className="border-2 border-black bg-white p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-6">
+            <h2 className="text-xl font-black uppercase italic tracking-tight text-black border-b-2 border-black pb-3 flex items-center gap-2">
+              <User className="h-5 w-5 text-[#4285F4]" /> Edit Profile Data
+            </h2>
+
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FieldGroup>
-                  <FormField control={form.control} name="displayName" render={({ field, fieldState }) => (
-                    <Field data-invalid={!!fieldState.error}>
-                      <FieldLabel htmlFor="profile-displayName">Display Name</FieldLabel>
-                      <Input
-                        {...field}
-                        id="profile-displayName"
-                        placeholder="John Doe"
-                        aria-invalid={!!fieldState.error}
-                        autoComplete="off"
-                      />
-                      {fieldState.error && (
-                        <FieldError errors={[{ message: fieldState.error.message || '' }]} />
-                      )}
-                    </Field>
-                  )} />
-
-                  <FormField control={form.control} name="username" render={({ field, fieldState }) => (
-                    <Field data-invalid={!!fieldState.error}>
-                      <FieldLabel htmlFor="profile-username">Username</FieldLabel>
-                      <Input
-                        {...field}
-                        id="profile-username"
-                        placeholder="username"
-                        aria-invalid={!!fieldState.error}
-                        autoComplete="off"
-                      />
-                      {fieldState.error && (
-                        <FieldError errors={[{ message: fieldState.error.message || '' }]} />
-                      )}
-                    </Field>
-                  )} />
-
-                  <FormField control={form.control} name="bio" render={({ field, fieldState }) => (
-                    <Field data-invalid={!!fieldState.error}>
-                      <FieldLabel htmlFor="profile-bio">Bio</FieldLabel>
-                      <InputGroup>
-                        <InputGroupTextarea
-                          {...field}
-                          id="profile-bio"
-                          placeholder="Tell us about yourself..."
-                          rows={4}
-                          className="min-h-24 resize-none"
-                          aria-invalid={!!fieldState.error}
-                        />
-                        <InputGroupAddon align="block-end">
-                          <InputGroupText className="tabular-nums">
-                            {(field.value || "").length}/300 characters
-                          </InputGroupText>
-                        </InputGroupAddon>
-                      </InputGroup>
-                      {fieldState.error && (
-                        <FieldError errors={[{ message: fieldState.error.message || '' }]} />
-                      )}
-                    </Field>
-                  )} />
-                </FieldGroup>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 
-                <Separator className="bg-white/5" />
-
-                <div className="flex items-center justify-between py-2">
-                  <div>
-                    <p className="text-sm font-bold uppercase tracking-tight">Email Notifications</p>
-                    <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Updates and announcements</p>
+                <FormField control={form.control} name="displayName" render={({ field, fieldState }) => (
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black block">Display Name</label>
+                    <input
+                      {...field}
+                      placeholder="e.g. John Doe"
+                      className="w-full bg-white border-2 border-black px-3 h-10 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
+                    />
+                    {fieldState.error && <p className="text-xs text-[#EA4335] font-bold">{fieldState.error.message}</p>}
                   </div>
-                  <Switch checked={emailNotifications} onCheckedChange={handleNotificationToggle} className="data-[state=checked]:bg-[#34A853]" />
+                )} />
+
+                <FormField control={form.control} name="username" render={({ field, fieldState }) => (
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black block">Username</label>
+                    <input
+                      {...field}
+                      placeholder="e.g. j_doe"
+                      className="w-full bg-white border-2 border-black px-3 h-10 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
+                    />
+                    {fieldState.error && <p className="text-xs text-[#EA4335] font-bold">{fieldState.error.message}</p>}
+                  </div>
+                )} />
+
+                <FormField control={form.control} name="bio" render={({ field, fieldState }) => (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-black block">Bio & Interests</label>
+                      <span className="text-[10px] font-mono text-zinc-500 font-bold">{(field.value || "").length}/300</span>
+                    </div>
+                    <textarea
+                      {...field}
+                      rows={3}
+                      placeholder="Write a brief introduction about yourself..."
+                      className="w-full bg-white border-2 border-black p-3 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000] resize-none"
+                    />
+                    {fieldState.error && <p className="text-xs text-[#EA4335] font-bold">{fieldState.error.message}</p>}
+                  </div>
+                )} />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <FormField control={form.control} name="branch" render={({ field }) => (
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-black block">Department / Branch</label>
+                      <input
+                        {...field}
+                        placeholder="e.g. CSE / AIML"
+                        className="w-full bg-white border-2 border-black px-3 h-10 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
+                      />
+                    </div>
+                  )} />
+
+                  <FormField control={form.control} name="yearOfStudy" render={({ field }) => (
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-black block">Year of Study</label>
+                      <input
+                        {...field}
+                        placeholder="e.g. 3rd Year"
+                        className="w-full bg-white border-2 border-black px-3 h-10 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
+                      />
+                    </div>
+                  )} />
                 </div>
 
-                <Button type="submit" disabled={isSubmitting} className="btn-primary w-full h-12 !mt-8 rounded-xl font-bold bg-white text-black hover:bg-white/90">
-                  {isSubmitting && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
-                  Save Changes
+                <FormField control={form.control} name="linkedin" render={({ field, fieldState }) => (
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-black block">LinkedIn Profile URL</label>
+                    <input
+                      {...field}
+                      placeholder="https://linkedin.com/in/username"
+                      className="w-full bg-white border-2 border-black px-3 h-10 text-xs font-bold text-black focus:outline-none shadow-[2px_2px_0px_0px_#000000]"
+                    />
+                    {fieldState.error && <p className="text-xs text-[#EA4335] font-bold">{fieldState.error.message}</p>}
+                  </div>
+                )} />
+
+                <div className="border-t-2 border-black pt-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-black uppercase text-black">Email Announcements</p>
+                    <p className="text-[10px] text-zinc-600 font-bold">Receive club alerts and contest updates</p>
+                  </div>
+                  <Switch checked={emailNotifications} onCheckedChange={handleNotificationToggle} />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className="w-full bg-[#FFE600] hover:bg-[#FFE600]/90 text-black border-2 border-black font-black text-xs uppercase tracking-wider h-11 shadow-[4px_4px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px]"
+                >
+                  {isSubmitting ? 'Saving Changes...' : 'Save Profile Changes'}
                 </Button>
               </form>
             </Form>
           </div>
 
-          <div className="space-y-8">
-            <div className="bento-card border-white/5">
-              <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-8">Registered Events.</h3>
+          {/* Registered Events & Actions */}
+          <div className="space-y-6">
+            
+            <div className="border-2 border-black bg-white p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-4">
+              <h2 className="text-xl font-black uppercase italic tracking-tight text-black border-b-2 border-black pb-3 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-[#00A844]" /> Registered Events ({events.length})
+              </h2>
+
               {events.length === 0 ? (
-                <div className="p-12 text-center border border-dashed border-white/10 rounded-2xl">
-                  <p className="text-white/30 font-bold uppercase tracking-widest text-xs">No active registrations.</p>
+                <div className="p-8 text-center border-2 border-dashed border-black bg-zinc-50">
+                  <p className="text-zinc-500 font-black uppercase tracking-wider text-xs">No active event passes found.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {events.map((evt: any) => (
-                    <div key={evt.id} className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-[#4285F4]/30 transition-all">
+                    <div key={evt.id} className="p-4 border-2 border-black bg-zinc-50 flex items-center justify-between shadow-[2px_2px_0px_0px_#000000]">
                       <div>
-                        <p className="font-bold tracking-tight">{evt.eventTitle}</p>
-                        <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.2em] mt-1">{evt.eventDate}</p>
+                        <p className="font-black text-sm uppercase text-black">{evt.eventTitle}</p>
+                        <p className="text-[10px] text-zinc-600 font-bold font-mono mt-0.5">{evt.eventDate}</p>
                       </div>
-                      <Badge variant="outline" className="border-white/10 text-[10px] font-black uppercase tracking-widest">Active</Badge>
+                      <span className="px-2 py-0.5 border border-black bg-[#00FF66] text-black text-[10px] font-black uppercase">
+                        Confirmed
+                      </span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="bento-card border-white/5 bg-[#34A853]/5 border-[#34A853]/10">
-              <h3 className="text-2xl font-black tracking-tighter uppercase italic mb-4 text-[#34A853]">Community.</h3>
-              <p className="text-white/60 font-medium mb-8">Participate in discussions and share your knowledge.</p>
-              <Button asChild variant="outline" className="w-full rounded-full border-[#34A853]/20 hover:bg-[#34A853]/10 text-[#34A853] font-black uppercase tracking-widest text-xs h-12">
-                <Link href="/community">Join Discussion</Link>
+            {/* Community Portal Card */}
+            <div className="border-2 border-black bg-[#FFE600] p-6 sm:p-8 shadow-[6px_6px_0px_0px_#000000] space-y-3 text-black">
+              <h3 className="text-xl font-black uppercase italic tracking-tight">Community Discussions</h3>
+              <p className="text-xs font-bold leading-relaxed">
+                Connect with peers, collaborate on open source repositories, and share project updates in real time.
+              </p>
+              <Button asChild className="w-full bg-white hover:bg-zinc-100 text-black border-2 border-black font-black uppercase tracking-wider text-xs h-11 shadow-[3px_3px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px]">
+                <Link href="/community">Join Community Channel</Link>
               </Button>
             </div>
+
           </div>
+
         </div>
+
       </main>
 
-      {/* Followers/Following List Dialog */}
+      {/* Followers/Following Dialog */}
       <Dialog open={showFollowDialog} onOpenChange={setShowFollowDialog}>
-        <DialogContent className="bg-[#0e0e0e] border border-white/10 text-white rounded-3xl p-8 max-w-md">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-2">
-              <Users className="h-6 w-6 text-[#4285F4]" />
+        <DialogContent className="bg-white border-2 border-black text-black p-6 sm:p-8 max-w-md shadow-[8px_8px_0px_0px_#000000]">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-xl font-black uppercase italic tracking-tight text-black flex items-center gap-2">
+              <Users className="h-5 w-5 text-[#4285F4]" />
               {followDialogType === 'followers' ? 'Followers' : 'Following'}
             </DialogTitle>
           </DialogHeader>
 
           {loadingFollowList ? (
             <div className="flex justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-[#4285F4]" />
+              <div className="w-8 h-8 border-4 border-black border-t-[#FFE600] rounded-full animate-spin" />
             </div>
           ) : followList.length === 0 ? (
-            <div className="p-8 text-center border border-dashed border-white/10 rounded-2xl">
-              <p className="text-white/40 text-sm font-semibold uppercase tracking-wider">No users found.</p>
+            <div className="p-8 text-center border-2 border-dashed border-black bg-zinc-50">
+              <p className="text-zinc-500 text-xs font-black uppercase">No members in this list yet.</p>
             </div>
           ) : (
-            <div className="space-y-4 max-h-[300px] overflow-y-auto [scrollbar-width:none]">
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 divide-y divide-black">
               {followList.map((userObj) => (
-                <div key={userObj.uid} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
-                  <Link href={`/profile/${userObj.username}`} className="flex items-center gap-4 group" onClick={() => setShowFollowDialog(false)}>
-                    <Avatar className="h-10 w-10 border border-white/10">
-                      <AvatarImage src={userObj.photoURL} alt={userObj.displayName} />
-                      <AvatarFallback className="font-bold bg-[#4285F4]">{userObj.displayName?.[0]}</AvatarFallback>
-                    </Avatar>
+                <div key={userObj.uid} className="pt-3 first:pt-0 flex items-center justify-between">
+                  <Link href={`/profile/${userObj.username}`} className="flex items-center gap-3 group" onClick={() => setShowFollowDialog(false)}>
+                    <div className="h-9 w-9 border-2 border-black bg-[#FFE600] flex items-center justify-center font-black text-xs text-black">
+                      {userObj.displayName?.[0]?.toUpperCase()}
+                    </div>
                     <div>
-                      <p className="font-bold text-sm leading-none group-hover:underline">{userObj.displayName}</p>
-                      <p className="text-[10px] text-white/40 mt-1">@{userObj.username}</p>
+                      <p className="font-black text-xs text-black group-hover:text-[#4285F4]">{userObj.displayName}</p>
+                      <p className="text-[10px] text-zinc-500 font-mono">@{userObj.username}</p>
                     </div>
                   </Link>
                 </div>

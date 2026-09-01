@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { QuizManager } from '@/components/admin/quiz-manager';
 import { ROLES } from '@/lib/roles';
+import { Trophy } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,17 +15,22 @@ export default async function AdminQuizPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">
-          Daily Quiz <span className="text-[#EA4335]">Manager</span>
-        </h1>
-        <p className="text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-          Create unique daily challenges, edit AI-generated questions, and monitor student submissions
-        </p>
+    <div className="space-y-6 font-sans text-black">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 bg-[#FF0055] border-2 border-black shadow-[3px_3px_0px_0px_#000000] text-white">
+          <Trophy className="h-7 w-7 text-white stroke-[2.5]" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-black uppercase font-display">
+            Daily Quiz <span className="text-[#FF0055]">Manager</span>
+          </h1>
+          <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest mt-0.5">
+            Create unique daily challenges, edit AI-generated questions, and monitor student submissions
+          </p>
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-[#050505]/60 backdrop-blur-xl border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 md:p-8 shadow-sm">
+      <div className="bg-white border-2 border-black p-6 md:p-8 shadow-[6px_6px_0px_0px_#000000]">
         <QuizManager />
       </div>
     </div>
