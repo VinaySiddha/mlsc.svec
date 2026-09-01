@@ -7,7 +7,6 @@ export class AuthService {
       { name: 'GOOGLE_API_KEY', value: process.env.GOOGLE_API_KEY },
       { name: 'GMAIL_USER', value: process.env.GMAIL_USER },
       { name: 'GMAIL_APP_PASSWORD', value: process.env.GMAIL_APP_PASSWORD },
-      { name: 'JSEARCH_API_KEY', value: process.env.JSEARCH_API_KEY },
     ];
 
     for (const secret of secretsToCheck) {

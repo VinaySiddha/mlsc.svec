@@ -558,6 +558,7 @@ export function AdminFilters({
     search ? 'search' : null,
   ].filter(Boolean).length;
 
+  const isSuperAdmin = userRole === 'super_admin';
   const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
   const showPdfButtonsForAdmin = userRole === 'admin' || userRole === 'super_admin';
   const showPdfButtonsForPanel = userRole === 'panel' || userRole === 'common_panel';
@@ -576,7 +577,7 @@ export function AdminFilters({
   return (
     <div className="space-y-4">
       {/* ── TOP METRICS & STATS COUNTER STRIP ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      <div className={cn("grid grid-cols-2 sm:grid-cols-3 gap-2.5", isSuperAdmin ? "lg:grid-cols-6" : "lg:grid-cols-5")}>
         {/* Total Applications */}
         <button
           type="button"
@@ -624,25 +625,27 @@ export function AdminFilters({
           </div>
         </button>
 
-        {/* AI Recommended */}
-        <button
-          type="button"
-          onClick={() => handleSelectionFilter('ai')}
-          className={cn(
-            "flex flex-col p-3 rounded-2xl border transition-all text-left group cursor-pointer backdrop-blur-md",
-            currentFilters.selectionFilter === 'ai'
-              ? "bg-purple-600/25 border-purple-400/50 shadow-lg shadow-purple-600/15 ring-1 ring-purple-400/30"
-              : "bg-black/30 border-white/10 hover:bg-white/[0.06] hover:border-purple-500/30"
-          )}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-purple-400/80 group-hover:text-purple-300">AI Rec</span>
-            <Bot className="size-3.5 text-purple-400" />
-          </div>
-          <div className="text-2xl font-black text-purple-300 mt-1">
-            {safeCounts.aiRecommended}
-          </div>
-        </button>
+        {/* AI Recommended - Only visible to Super Admin */}
+        {isSuperAdmin && (
+          <button
+            type="button"
+            onClick={() => handleSelectionFilter('ai')}
+            className={cn(
+              "flex flex-col p-3 rounded-2xl border transition-all text-left group cursor-pointer backdrop-blur-md",
+              currentFilters.selectionFilter === 'ai'
+                ? "bg-purple-600/25 border-purple-400/50 shadow-lg shadow-purple-600/15 ring-1 ring-purple-400/30"
+                : "bg-black/30 border-white/10 hover:bg-white/[0.06] hover:border-purple-500/30"
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-wider text-purple-400/80 group-hover:text-purple-300">AI Rec</span>
+              <Bot className="size-3.5 text-purple-400" />
+            </div>
+            <div className="text-2xl font-black text-purple-300 mt-1">
+              {safeCounts.aiRecommended}
+            </div>
+          </button>
+        )}
 
         {/* Manual Selected */}
         <button
@@ -937,22 +940,24 @@ export function AdminFilters({
               </span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleSelectionFilter('ai')}
-              className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 active:scale-95",
-                currentFilters.selectionFilter === 'ai'
-                  ? "bg-purple-600/30 border-purple-400 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.3)]"
-                  : "bg-purple-500/5 border-purple-500/20 text-purple-300/80 hover:text-purple-200 hover:bg-purple-500/15"
-              )}
-            >
-              <Bot className="size-3 text-purple-400" />
-              <span>🤖 AI Selected</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold ml-0.5">
-                {safeCounts.aiRecommended}
-              </span>
-            </button>
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => handleSelectionFilter('ai')}
+                className={cn(
+                  "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 active:scale-95",
+                  currentFilters.selectionFilter === 'ai'
+                    ? "bg-purple-600/30 border-purple-400 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.3)]"
+                    : "bg-purple-500/5 border-purple-500/20 text-purple-300/80 hover:text-purple-200 hover:bg-purple-500/15"
+                )}
+              >
+                <Bot className="size-3 text-purple-400" />
+                <span>🤖 AI Selected</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold ml-0.5">
+                  {safeCounts.aiRecommended}
+                </span>
+              </button>
+            )}
 
             <button
               type="button"

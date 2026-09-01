@@ -192,6 +192,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
       ? application.ratings
       : (application.status !== 'Received' ? application.ratings : null)
   );
+  const isSuperAdmin = userRole === 'super_admin';
   const humanScore = manualRatings?.overall ?? 0;
   const hasHumanScore = humanScore > 0;
   const isManualSelected = isRecommended;
@@ -375,19 +376,21 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
             <span>Dossier & Rubric</span>
           </button>
 
-          <button
-            onClick={() => setActiveTab("ai_copilot")}
-            className={cn(
-              "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all relative",
-              activeTab === "ai_copilot"
-                ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-                : "text-white/60 hover:text-white"
-            )}
-          >
-            <Brain className="size-3.5 text-purple-300" />
-            <span>AI Copilot</span>
-            <span className="flex h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
-          </button>
+          {isSuperAdmin && (
+            <button
+              onClick={() => setActiveTab("ai_copilot")}
+              className={cn(
+                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all relative",
+                activeTab === "ai_copilot"
+                  ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                  : "text-white/60 hover:text-white"
+              )}
+            >
+              <Brain className="size-3.5 text-purple-300" />
+              <span>AI Copilot</span>
+              <span className="flex h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
+            </button>
+          )}
 
           <button
             onClick={() => setActiveTab("interview")}
@@ -474,7 +477,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
 
                   {/* Dual Selection Badges */}
                   <div className="flex flex-wrap items-center gap-2">
-                    {isAiSelected && (
+                    {isSuperAdmin && isAiSelected && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-500/15 border border-purple-500/30 text-purple-300">
                         <Bot className="size-3 text-purple-400" />
                         🤖 AI Selected
@@ -553,88 +556,92 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-black uppercase tracking-widest text-white/60">
-                      Evaluation Breakdown (AI Screening vs Manual Interview)
+                      {isSuperAdmin 
+                        ? "Evaluation Breakdown (AI Screening vs Manual Interview)" 
+                        : "Manual Interview Evaluation & Rubric"}
                     </h3>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className={cn("grid gap-6", isSuperAdmin ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
                     
-                    {/* Card 1: 🤖 AI Resume & Screening Rubric */}
-                    <div className="bg-white/[0.02] border border-purple-500/20 rounded-2xl p-6 space-y-4 relative overflow-hidden">
-                      <div className="flex items-center justify-between pb-3 border-b border-white/5">
-                        <div className="flex items-center gap-2">
-                          <Bot className="size-4 text-purple-400" />
-                          <span className="text-xs font-black uppercase tracking-wider text-purple-400">
-                            AI Screening Rating
-                          </span>
+                    {/* Card 1: 🤖 AI Resume & Screening Rubric - Only visible to Super Admin */}
+                    {isSuperAdmin && (
+                      <div className="bg-white/[0.02] border border-purple-500/20 rounded-2xl p-6 space-y-4 relative overflow-hidden">
+                        <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                          <div className="flex items-center gap-2">
+                            <Bot className="size-4 text-purple-400" />
+                            <span className="text-xs font-black uppercase tracking-wider text-purple-400">
+                              AI Screening Rating
+                            </span>
+                          </div>
+                          {isAiSelected ? (
+                            <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                              🤖 AI Selected
+                            </span>
+                          ) : (
+                            <span className="text-[9px] text-white/40">Not Recommended</span>
+                          )}
                         </div>
-                        {isAiSelected ? (
-                          <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400">
-                            🤖 AI Selected
-                          </span>
-                        ) : (
-                          <span className="text-[9px] text-white/40">Not Recommended</span>
-                        )}
-                      </div>
 
-                      {/* AI Big Score */}
-                      <div className="flex items-center justify-between bg-black/20 rounded-xl p-4">
-                        <div>
-                          <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Overall Score</span>
-                          <div className="text-3xl font-black text-purple-400">
-                            {aiScore > 0 ? aiScore.toFixed(2) : 'N/A'}
-                            <span className="text-xs text-white/40 font-normal ml-1">/ 5.0</span>
+                        {/* AI Big Score */}
+                        <div className="flex items-center justify-between bg-black/20 rounded-xl p-4">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Overall Score</span>
+                            <div className="text-3xl font-black text-purple-400">
+                              {aiScore > 0 ? aiScore.toFixed(2) : 'N/A'}
+                              <span className="text-xs text-white/40 font-normal ml-1">/ 5.0</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star 
+                                key={star} 
+                                className={cn(
+                                  "size-4", 
+                                  Math.round(aiScore) >= star ? "text-purple-400 fill-purple-400" : "text-white/10"
+                                )} 
+                              />
+                            ))}
                           </div>
                         </div>
-                        <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star 
-                              key={star} 
-                              className={cn(
-                                "size-4", 
-                                Math.round(aiScore) >= star ? "text-purple-400 fill-purple-400" : "text-white/10"
-                              )} 
-                            />
+
+                        {/* AI Dimension Progress Bars */}
+                        <div className="space-y-2.5 pt-1">
+                          {[
+                            { label: "Communication", val: aiRatings?.communication ?? 0 },
+                            { label: "Technical Skills", val: aiRatings?.technical ?? 0 },
+                            { label: "Problem Solving", val: aiRatings?.problemSolving ?? 0 },
+                            { label: "Team Fit", val: aiRatings?.teamFit ?? 0 },
+                            { label: "Confidence & Attitude", val: (aiRatings as any)?.confidence ?? 0 },
+                            { label: "Growth Mindset", val: (aiRatings as any)?.growthMindset ?? 0 },
+                            { label: "Leadership & Initiative", val: (aiRatings as any)?.leadership ?? 0 },
+                          ].map((item) => (
+                            <div key={item.label} className="space-y-1">
+                              <div className="flex justify-between text-[11px]">
+                                <span className="text-white/60">{item.label}</span>
+                                <span className="font-semibold text-purple-300">{item.val.toFixed(1)}</span>
+                              </div>
+                              <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                                <div 
+                                  className="bg-purple-500 h-full rounded-full transition-all" 
+                                  style={{ width: `${(item.val / 5) * 100}%` }}
+                                />
+                              </div>
+                            </div>
                           ))}
                         </div>
-                      </div>
 
-                      {/* AI Dimension Progress Bars */}
-                      <div className="space-y-2.5 pt-1">
-                        {[
-                          { label: "Communication", val: aiRatings?.communication ?? 0 },
-                          { label: "Technical Skills", val: aiRatings?.technical ?? 0 },
-                          { label: "Problem Solving", val: aiRatings?.problemSolving ?? 0 },
-                          { label: "Team Fit", val: aiRatings?.teamFit ?? 0 },
-                          { label: "Confidence & Attitude", val: (aiRatings as any)?.confidence ?? 0 },
-                          { label: "Growth Mindset", val: (aiRatings as any)?.growthMindset ?? 0 },
-                          { label: "Leadership & Initiative", val: (aiRatings as any)?.leadership ?? 0 },
-                        ].map((item) => (
-                          <div key={item.label} className="space-y-1">
-                            <div className="flex justify-between text-[11px]">
-                              <span className="text-white/60">{item.label}</span>
-                              <span className="font-semibold text-purple-300">{item.val.toFixed(1)}</span>
-                            </div>
-                            <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                              <div 
-                                className="bg-purple-500 h-full rounded-full transition-all" 
-                                style={{ width: `${(item.val / 5) * 100}%` }}
-                              />
-                            </div>
+                        {/* AI Summary Quote */}
+                        {application.resumeSummary && (
+                          <div className="pt-3 border-t border-white/5 space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400/80">AI Resume Summary</span>
+                            <p className="text-[11px] text-white/60 italic leading-relaxed line-clamp-4">
+                              "{application.resumeSummary}"
+                            </p>
                           </div>
-                        ))}
+                        )}
                       </div>
-
-                      {/* AI Summary Quote */}
-                      {application.resumeSummary && (
-                        <div className="pt-3 border-t border-white/5 space-y-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400/80">AI Resume Summary</span>
-                          <p className="text-[11px] text-white/60 italic leading-relaxed line-clamp-4">
-                            "{application.resumeSummary}"
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                    )}
 
                     {/* Card 2: 👤 Live Panel Interview Evaluation */}
                     <div className="bg-white/[0.02] border border-[#34A853]/20 rounded-2xl p-6 space-y-4 relative overflow-hidden">
@@ -778,7 +785,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
           )}
 
           {/* ══════════ TAB 2: AI COPILOT INTELLIGENCE HUB ══════════ */}
-          {activeTab === "ai_copilot" && (
+          {activeTab === "ai_copilot" && isSuperAdmin && (
             <div className="space-y-6">
               
               {/* Top AI Briefing Card */}

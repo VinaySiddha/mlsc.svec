@@ -100,8 +100,6 @@ export default function ServicesPage() {
   // Form Inputs
   const [topicInput, setTopicInput] = useState("");
   const [timeframe, setTimeframe] = useState("24 hours");
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [hfToken, setHfToken] = useState("");
 
   // Saved Roadmaps List
   const [savedJobs, setSavedJobs] = useState<SavedJobInfo[]>([]);
@@ -265,7 +263,6 @@ export default function ServicesPage() {
         body: JSON.stringify({
           topic: topicInput,
           timeframe,
-          hf_token: hfToken.trim() || undefined,
         }),
       });
 
@@ -470,7 +467,7 @@ export default function ServicesPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold uppercase tracking-wider">AI Interview Roadmap Generator</h3>
-                    <p className="text-xs text-white/40">Enter your target stack and timeline to let multiple Hugging Face agents structure your preparation.</p>
+                    <p className="text-xs text-white/40">Enter your target stack and timeline to let our AI multi-agent crew structure your preparation.</p>
                   </div>
                 </div>
 
@@ -542,35 +539,6 @@ export default function ServicesPage() {
                     </div>
                   </div>
 
-                  <div className="border-t border-white/[0.06] pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowAdvanced(!showAdvanced)}
-                      disabled={loading}
-                      className="text-xs font-bold uppercase tracking-wider text-white/40 hover:text-white/60 flex items-center gap-1.5 transition-colors disabled:opacity-50"
-                    >
-                      Advanced LLM Config {showAdvanced ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                    </button>
-                    {showAdvanced && (
-                      <div className="space-y-2 mt-4 p-4 rounded-2xl border border-white/5 bg-white/[0.01] animate-in fade-in slide-in-from-top-2 duration-200">
-                        <label className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1">
-                          Hugging Face User Access Token <span className="text-[10px] text-white/30 font-medium lowercase italic">(optional)</span>
-                        </label>
-                        <input
-                          type="password"
-                          value={hfToken}
-                          onChange={(e) => setHfToken(e.target.value)}
-                          placeholder="hf_..."
-                          disabled={loading}
-                          className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/[0.02] text-xs text-white focus:outline-none focus:border-[#4285F4] transition-colors disabled:opacity-50"
-                        />
-                        <p className="text-[10px] text-white/35 leading-relaxed">
-                          Provide your Hugging Face token to run Agent queries on your own API limits. If omitted, we utilize our pre-configured open-source API fallbacks.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
                   <Button
                     type="submit"
                     disabled={loading || !topicInput.trim()}
@@ -592,7 +560,7 @@ export default function ServicesPage() {
                   <div className="p-6 mt-4 rounded-2xl border border-white/10 bg-black/80 flex flex-col gap-6 relative overflow-hidden animate-in fade-in duration-300">
                     <div className="space-y-2 text-center">
                       <h4 className="text-sm font-black uppercase tracking-wider text-[#4285F4] animate-pulse">Running CrewAI Agents</h4>
-                      <p className="text-[10px] text-white/40 uppercase tracking-widest">Synthesizing multiple Hugging Face models</p>
+                      <p className="text-[10px] text-white/40 uppercase tracking-widest">Synthesizing personalized AI learning roadmap</p>
                     </div>
 
                     <div className="space-y-1">

@@ -11,7 +11,6 @@ try:
     sys.stdout.reconfigure(encoding='utf-8')
     sys.stderr.reconfigure(encoding='utf-8')
 except AttributeError:
-    # Fallback for environments where stdout cannot be reconfigured
     pass
 
 # Set up logging
@@ -21,50 +20,17 @@ logger = logging.getLogger(__name__)
 # Load env variables from parent directory
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
 
-def get_llm(model_name: str, hf_token: Optional[str] = None, gemini_api_key: Optional[str] = None, force_gemini: bool = False) -> LLM:
-    """
-    Get configured LLM. If force_gemini is True, use Gemini.
-    Otherwise, if HF token is available, configure HF Serverless.
-    If that fails or is missing, fall back to Gemini.
-    """
+def get_llm(gemini_api_key: Optional[str] = None) -> LLM:
+    """Get configured Gemini LLM for CrewAI agents."""
     g_key = gemini_api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    
-    if force_gemini:
-        if g_key:
-            logger.info("Forced fallback. Using Gemini API.")
-            return LLM(model="gemini/gemini-2.5-flash", api_key=g_key, temperature=0.7, use_native=False)
-        raise ValueError("Gemini API key is required but missing from environment.")
-
-    token = hf_token or os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
-    
-    if model_name.startswith("huggingface/") and token:
-        logger.info(f"Configuring Hugging Face LLM: {model_name}")
-        return LLM(
-            model=model_name,
-            api_key=token,
-            temperature=0.7,
-            max_tokens=4096
-        )
-    
-    # Fallback to Gemini if no token
     if g_key:
-        logger.info(f"Hugging Face token not provided. Falling back to Gemini for: {model_name}")
-        return LLM(model="gemini/gemini-2.5-flash", api_key=g_key, temperature=0.7, use_native=False)
-    
-    # Absolute fallback (public HF models without key, likely to rate limit)
-    logger.warning("No keys found. Attempting unauthenticated Hugging Face call.")
-    return LLM(model=model_name, temperature=0.7)
+        logger.info("Configuring Gemini LLM for Roadmap Crew.")
+        return LLM(model="gemini/gemini-2.0-flash", api_key=g_key, temperature=0.7, use_native=False)
+    raise ValueError("Gemini API key is required but missing from environment (GEMINI_API_KEY or GOOGLE_API_KEY).")
 
-def run_crew_with_llms(topic: str, timeframe: str, hf_token: Optional[str] = None, force_gemini: bool = False) -> str:
-    """Runs the crew with the specified configuration (Hugging Face or Gemini)."""
-    # Optimized Hugging Face models (7B and 8B parameters are highly available and fast on HF Serverless)
-    planner_model = "huggingface/meta-llama/Meta-Llama-3-8B-Instruct"
-    detailer_model = "huggingface/Qwen/Qwen2.5-Coder-7B-Instruct"  # Changed from 32B to 7B to avoid timeouts
-    synthesizer_model = "huggingface/meta-llama/Meta-Llama-3-8B-Instruct"  # Changed from Qwen 72B to Llama 8B
-
-    planner_llm = get_llm(planner_model, hf_token, force_gemini=force_gemini)
-    detailer_llm = get_llm(detailer_model, hf_token, force_gemini=force_gemini)
-    synthesizer_llm = get_llm(synthesizer_model, hf_token, force_gemini=force_gemini)
+def run_crew(topic: str, timeframe: str) -> str:
+    """Runs the crew with Gemini LLMs."""
+    llm = get_llm()
 
     # 1. Agents Definition
     syllabus_planner = Agent(
@@ -77,7 +43,7 @@ def run_crew_with_llms(topic: str, timeframe: str, hf_token: Optional[str] = Non
         ),
         verbose=True,
         allow_delegation=False,
-        llm=planner_llm
+        llm=llm
     )
 
     topic_detailer = Agent(
@@ -90,7 +56,7 @@ def run_crew_with_llms(topic: str, timeframe: str, hf_token: Optional[str] = Non
         ),
         verbose=True,
         allow_delegation=False,
-        llm=detailer_llm
+        llm=llm
     )
 
     roadmap_synthesizer = Agent(
@@ -103,13 +69,13 @@ def run_crew_with_llms(topic: str, timeframe: str, hf_token: Optional[str] = Non
         ),
         verbose=True,
         allow_delegation=False,
-        llm=synthesizer_llm
+        llm=llm
     )
 
     # 2. Tasks Definition
     create_syllabus_task = Task(
         description=(
-            "Based on the target topic: '{topic}' and preparation window: '{timeframe}', create a structured "
+            f"Based on the target topic: '{topic}' and preparation window: '{timeframe}', create a structured "
             "milestone-based syllabus. Break down the timeframe into 3-5 distinct milestones (e.g., hours or days). "
             "For each milestone, list 2-4 critical sub-topics that the candidate MUST prepare. Explain why each "
             "milestone is structured this way."
@@ -134,41 +100,41 @@ def run_crew_with_llms(topic: str, timeframe: str, hf_token: Optional[str] = Non
         description=(
             "Synthesize the syllabus and the detailed technical content into a single, cohesive JSON object. "
             "The JSON MUST strictly follow this schema:\n\n"
-            "{{\n"
-            "  \"title\": \"Name of the Roadmap (e.g., 24-Hour JavaScript Interview Preparation)\",\n"
+            "{\n"
+            f"  \"title\": \"Name of the Roadmap (e.g., {timeframe} {topic} Interview Preparation)\",\n"
             "  \"description\": \"Brief strategy overview of how to tackle this timeframe\",\n"
-            "  \"timeframe\": \"{timeframe}\",\n"
+            f"  \"timeframe\": \"{timeframe}\",\n"
             "  \"milestones\": [\n"
-            "    {{\n"
+            "    {\n"
             "      \"id\": \"m1\",\n"
-            "      \"title\": \"Milestone Title (e.g., Hour 0-4: JavaScript Core Foundations)\",\n"
+            "      \"title\": \"Milestone Title (e.g., Milestone 1: Core Foundations)\",\n"
             "      \"description\": \"Brief overview of what to achieve in this milestone\",\n"
             "      \"topics\": [\n"
-            "        {{\n"
+            "        {\n"
             "          \"id\": \"t1_1\",\n"
-            "          \"title\": \"Topic Title (e.g., Closures and Lexical Scope)\",\n"
-            "          \"description\": \"Detailed explanation, core concepts, and interview prep context. This should be a robust paragraph or two containing everything they need to know to speak intelligently about it.\",\n"
-            "          \"codeSnippet\": \"Provide a clean, copy-pasteable code snippet showing this in action, or empty string if it is purely conceptual\",\n"
+            "          \"title\": \"Topic Title\",\n"
+            "          \"description\": \"Detailed explanation, core concepts, and interview prep context.\",\n"
+            "          \"codeSnippet\": \"Clean code snippet showing this in action, or empty string if conceptual\",\n"
             "          \"commonQuestions\": [\n"
-            "            {{\n"
-            "              \"question\": \"What is a closure?\",\n"
-            "              \"answer\": \"A closure is the combination of a function bundled together with references to its surrounding state...\"\n"
-            "            }}\n"
+            "            {\n"
+            "              \"question\": \"Question text\",\n"
+            "              \"answer\": \"Answer text\"\n"
+            "            }\n"
             "          ],\n"
             "          \"resources\": [\n"
-            "            {{\n"
-            "              \"name\": \"MDN Web Docs - Closures\",\n"
-            "              \"url\": \"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures\"\n"
-            "            }}\n"
+            "            {\n"
+            "              \"name\": \"Documentation Resource Name\",\n"
+            "              \"url\": \"https://example.com\"\n"
+            "            }\n"
             "          ],\n"
             "          \"status\": \"pending\"\n"
-            "        }}\n"
+            "        }\n"
             "      ]\n"
-            "    }}\n"
+            "    }\n"
             "  ]\n"
-            "}}\n\n"
+            "}\n\n"
             "Ensure that every topic mentioned in the syllabus is fully detailed in the JSON. "
-            "Make sure the JSON is perfectly valid. Do not wrap the JSON in ```json markdown formatting. Output ONLY the raw JSON string starting with '{{' and ending with '}}'."
+            "Make sure the JSON is perfectly valid. Do not wrap the JSON in ```json markdown formatting. Output ONLY the raw JSON string starting with '{' and ending with '}'."
         ),
         expected_output="A single raw JSON string matching the specified schema.",
         agent=roadmap_synthesizer
@@ -190,24 +156,11 @@ def run_crew_with_llms(topic: str, timeframe: str, hf_token: Optional[str] = Non
     result = crew.kickoff(inputs=inputs)
     return str(result)
 
-def generate_roadmap_crew(topic: str, timeframe: str, hf_token: Optional[str] = None) -> str:
-    """
-    Executes a CrewAI crew. Tries Hugging Face models first, and automatically
-    falls back to Gemini if Hugging Face rate limits or errors out.
-    """
+def generate_roadmap_crew(topic: str, timeframe: str) -> str:
+    """Executes a CrewAI crew using Google Gemini LLM."""
     try:
-        # Check if HF Token is configured
-        has_token = hf_token or os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
-        if not has_token:
-            logger.info("No Hugging Face token found. Directing execution to Gemini fallback...")
-            return run_crew_with_llms(topic, timeframe, force_gemini=True)
-            
-        logger.info("Triggering roadmap crew using Hugging Face Serverless models...")
-        return run_crew_with_llms(topic, timeframe, hf_token=hf_token, force_gemini=False)
+        logger.info(f"Triggering roadmap crew for topic '{topic}' using Gemini...")
+        return run_crew(topic, timeframe)
     except Exception as e:
-        logger.warning(f"Crew execution failed on Hugging Face models: {e}. Executing immediate fallback to Gemini API...")
-        try:
-            return run_crew_with_llms(topic, timeframe, force_gemini=True)
-        except Exception as fallback_error:
-            logger.exception("Both Hugging Face and Gemini models failed to run.")
-            raise RuntimeError(f"Roadmap generator crew failed completely: {fallback_error}")
+        logger.exception(f"Roadmap generator crew execution failed: {e}")
+        raise RuntimeError(f"Roadmap generator crew failed: {e}")

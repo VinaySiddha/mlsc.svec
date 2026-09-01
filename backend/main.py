@@ -44,7 +44,6 @@ os.makedirs(JOBS_DIR, exist_ok=True)
 class RoadmapRequest(BaseModel):
     topic: str
     timeframe: str
-    hf_token: Optional[str] = None
 
 class JobStatus(BaseModel):
     id: str
@@ -207,14 +206,14 @@ FALLBACK_QUIZZES = {
     ]
 }
 
-def run_crew_job(job_id: str, topic: str, timeframe: str, hf_token: Optional[str]):
+def run_crew_job(job_id: str, topic: str, timeframe: str):
     """Background worker function that runs the CrewAI task."""
     try:
         logger.info(f"Starting Crew job {job_id} for topic: {topic}, timeframe: {timeframe}")
         jobs_db[job_id]["status"] = "running"
         
         # Execute crew
-        raw_result = generate_roadmap_crew(topic, timeframe, hf_token)
+        raw_result = generate_roadmap_crew(topic, timeframe)
         
         # Parse result as JSON
         # Sometimes LLMs wrap it in ```json ... ``` or add leading/trailing text.
@@ -295,8 +294,7 @@ async def generate_roadmap(request: RoadmapRequest, background_tasks: Background
         run_crew_job, 
         job_id, 
         request.topic, 
-        request.timeframe, 
-        request.hf_token
+        request.timeframe
     )
     
     return {"job_id": job_id, "status": "pending"}
@@ -324,10 +322,9 @@ async def get_roadmap_status(job_id: str):
 
 @app.get("/api/generate-quiz")
 async def generate_quiz(topic: str = "javascript"):
-    """Generates a 5-question multiple choice quiz on the topic using Hugging Face models or Gemini."""
+    """Generates a 5-question multiple choice quiz on the topic using Gemini."""
     topic_lower = topic.lower().strip()
     
-    hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
     g_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     
     prompt = f"""
@@ -346,22 +343,14 @@ async def generate_quiz(topic: str = "javascript"):
     ]
     """
     
-    # List of attempts to try (model_name, api_key, is_gemini)
-    attempts = []
-    if hf_token:
-        attempts.append(("huggingface/Qwen/Qwen2.5-72B-Instruct", hf_token, False))
-        attempts.append(("huggingface/meta-llama/Meta-Llama-3-8B-Instruct", hf_token, False))
     if g_key:
-        attempts.append(("gemini/gemini-2.5-flash", g_key, True))
-        
-    for model, key, is_gemini in attempts:
         try:
-            logger.info(f"Generating dynamic quiz for topic: {topic} using model: {model}")
+            logger.info(f"Generating dynamic quiz for topic: {topic} using Gemini")
             
             response = litellm.completion(
-                model=model,
+                model="gemini/gemini-2.0-flash",
                 messages=[{"role": "user", "content": prompt}],
-                api_key=key,
+                api_key=g_key,
                 temperature=0.8
             )
             
@@ -388,15 +377,14 @@ async def generate_quiz(topic: str = "javascript"):
                 if q["answer"] not in q["options"]:
                     raise ValueError("Correct answer does not match any of the provided options.")
                     
-            logger.info(f"Successfully generated dynamic quiz with model {model}!")
+            logger.info(f"Successfully generated dynamic quiz with Gemini!")
             return {"topic": topic, "questions": questions}
             
         except Exception as e:
-            logger.warning(f"Failed to generate quiz using model {model}: {e}")
-            continue
+            logger.warning(f"Failed to generate quiz using Gemini: {e}")
             
-    # All LLM attempts failed. Return static fallback.
-    logger.warning("All quiz generation LLM attempts failed. Executing static fallback...")
+    # LLM failed or not configured. Return static fallback.
+    logger.warning("Quiz generation LLM offline. Executing static fallback...")
     for key in FALLBACK_QUIZZES:
         if key in topic_lower:
             return {"topic": topic, "questions": FALLBACK_QUIZZES[key]}

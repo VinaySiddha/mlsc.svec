@@ -15,9 +15,11 @@ import { IosLoader } from "@/components/ui/ios-loader";
 
 interface RecommendedDashboardProps {
   initialApplications: any[];
+  userRole?: string | null;
 }
 
-export function RecommendedDashboard({ initialApplications }: RecommendedDashboardProps) {
+export function RecommendedDashboard({ initialApplications, userRole }: RecommendedDashboardProps) {
+  const isSuperAdmin = userRole === 'super_admin';
   const [applications, setApplications] = useState(initialApplications);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
@@ -80,7 +82,9 @@ export function RecommendedDashboard({ initialApplications }: RecommendedDashboa
             <TableRow className="border-white/10 hover:bg-transparent">
               <TableHead className="font-bold text-white/60">Candidate</TableHead>
               <TableHead className="font-bold text-white/60">Domain</TableHead>
-              <TableHead className="font-bold text-white/60">AI Screening</TableHead>
+              {isSuperAdmin && (
+                <TableHead className="font-bold text-purple-400">AI Screening</TableHead>
+              )}
               <TableHead className="font-bold text-white/60">Manual Interview</TableHead>
               <TableHead className="font-bold text-white/60 text-right">Action</TableHead>
             </TableRow>
@@ -106,7 +110,7 @@ export function RecommendedDashboard({ initialApplications }: RecommendedDashboa
                             <Award className="size-3.5 text-yellow-500" />
                           </span>
                         )}
-                        {isAiSelected && (
+                        {isSuperAdmin && isAiSelected && (
                           <span title="AI Selected">
                             <Sparkles className="size-3 text-purple-400" />
                           </span>
@@ -121,19 +125,21 @@ export function RecommendedDashboard({ initialApplications }: RecommendedDashboa
                       {app.technicalDomain}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#4285F4]">
-                        <Bot className="size-3" />
-                        {aiScore > 0 ? `${aiScore.toFixed(1)} / 5` : 'N/A'}
-                      </span>
-                      {isAiSelected && (
-                        <span className="text-[9px] font-black uppercase tracking-wider text-purple-400">
-                          AI Selected
+                  {isSuperAdmin && (
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-[#4285F4]">
+                          <Bot className="size-3" />
+                          {aiScore > 0 ? `${aiScore.toFixed(1)} / 5` : 'N/A'}
                         </span>
-                      )}
-                    </div>
-                  </TableCell>
+                        {isAiSelected && (
+                          <span className="text-[9px] font-black uppercase tracking-wider text-purple-400">
+                            AI Selected
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <div className="flex flex-col gap-1">
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-[#34A853]">

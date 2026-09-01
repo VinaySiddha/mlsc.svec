@@ -5,7 +5,7 @@ const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:8001";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { topic, timeframe, hf_token } = body;
+    const { topic, timeframe } = body;
 
     if (!topic || !timeframe) {
       return NextResponse.json(
@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         topic,
         timeframe,
-        hf_token: hf_token || null,
       }),
     });
 

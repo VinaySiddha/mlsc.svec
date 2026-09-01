@@ -37,8 +37,6 @@ secretParameters:
     key: GMAIL_USER
   - secret: GMAIL_APP_PASSWORD
     key: GMAIL_APP_PASSWORD
-  - secret: JSEARCH_API_KEY
-    key: JSEARCH_API_KEY
   - secret: GEMINI_API_KEY
     key: GEMINI_API_KEY
   - secret: GOOGLE_APPLICATION_CREDENTIALS

@@ -45,7 +45,7 @@ export default async function RecommendedApplicationsPage() {
 
       <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm p-6">
         <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="animate-spin text-primary size-8" /></div>}>
-          <RecommendedDashboard initialApplications={pendingRecommended} />
+          <RecommendedDashboard initialApplications={pendingRecommended} userRole={userRole} />
         </Suspense>
       </div>
     </div>

@@ -118,6 +118,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
     return <ApplicationsTableSkeleton />;
   }
 
+  const isSuperAdmin = userRole === 'super_admin';
   const canEditAttendance = userRole === 'admin' || userRole === 'super_admin' || userRole === 'panel';
   const canRecommend = userRole === 'admin' || userRole === 'super_admin' || userRole === 'panel' || userRole === 'common_panel';
   const canDelete = userRole === 'admin' || userRole === 'super_admin';
@@ -131,7 +132,9 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
             <TableHead className="hidden md:table-cell min-w-[110px] text-xs font-black uppercase tracking-wider text-white/70">Submitted</TableHead>
             <TableHead className="min-w-[110px] text-xs font-black uppercase tracking-wider text-white/70">Status</TableHead>
             <TableHead className="hidden sm:table-cell min-w-[150px] text-xs font-black uppercase tracking-wider text-white/70">Domain(s)</TableHead>
-            <TableHead className="min-w-[130px] text-xs font-black uppercase tracking-wider text-purple-400">AI Screening</TableHead>
+            {isSuperAdmin && (
+              <TableHead className="min-w-[130px] text-xs font-black uppercase tracking-wider text-purple-400">AI Screening</TableHead>
+            )}
             <TableHead className="min-w-[150px] text-xs font-black uppercase tracking-wider text-emerald-400">Manual Interview</TableHead>
             <TableHead className="min-w-[130px] text-center text-xs font-black uppercase tracking-wider text-emerald-300">
               ✓ Attendance
@@ -178,7 +181,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                           <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 shrink-0 drop-shadow-[0_0_6px_rgba(250,204,21,0.6)]" />
                         </span>
                       )}
-                      {isAiSelected && !isManualSelected && (
+                      {isSuperAdmin && isAiSelected && !isManualSelected && (
                         <span title="AI Recommended">
                           <Bot className="h-3.5 w-3.5 text-purple-400 shrink-0" />
                         </span>
@@ -223,28 +226,30 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                     </div>
                   </TableCell>
 
-                  {/* AI Screening (Rating + AI Selected status) */}
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-purple-500/10 border border-purple-500/20 text-purple-300">
-                          <Bot className="size-3 text-purple-400" />
-                          {aiScore > 0 ? `${aiScore.toFixed(1)} / 5` : 'N/A'}
-                        </span>
-                      </div>
-                      <div>
-                        {isAiSelected ? (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                            🤖 AI Selected
+                  {/* AI Screening (Rating + AI Selected status) - Only visible to Super Admin */}
+                  {isSuperAdmin && (
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold bg-purple-500/10 border border-purple-500/20 text-purple-300">
+                            <Bot className="size-3 text-purple-400" />
+                            {aiScore > 0 ? `${aiScore.toFixed(1)} / 5` : 'N/A'}
                           </span>
-                        ) : (
-                          <span className="text-[10px] text-white/30 font-medium">
-                            Not Rec
-                          </span>
-                        )}
+                        </div>
+                        <div>
+                          {isAiSelected ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                              🤖 AI Selected
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-white/30 font-medium">
+                              Not Rec
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
+                    </TableCell>
+                  )}
 
                   {/* Manual Interview (Clean display: 'Received' when not reviewed, or score when interviewed) */}
                   <TableCell>
@@ -347,7 +352,7 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
             })
           ) : (
             <TableRow>
-              <TableCell colSpan={8} className="text-center h-28 text-white/40 text-sm">
+              <TableCell colSpan={isSuperAdmin ? 8 : 7} className="text-center h-28 text-white/40 text-sm">
                 No applications match your criteria.
               </TableCell>
             </TableRow>
