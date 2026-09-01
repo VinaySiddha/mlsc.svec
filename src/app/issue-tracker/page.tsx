@@ -432,8 +432,8 @@ export default function IssueTrackerPage() {
                   <Plus className="h-4 w-4" /> New issue
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md bg-[#0A0A0A]/98 backdrop-blur-xl border border-white/5 rounded-2xl p-6 text-white shadow-2xl">
-                <DialogHeader className="mb-4">
+              <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto bg-[#080808]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 sm:p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.95)]">
+                <DialogHeader className="mb-3">
                   <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
                     <Bug className="h-5 w-5 text-red-400" /> Open a new issue
                   </DialogTitle>

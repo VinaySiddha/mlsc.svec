@@ -15,20 +15,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, FolderGit2, Users, Briefcase, Sparkles, Plus } from 'lucide-react';
-
-interface ChapterConfig {
-  isHiringOpen: boolean;
-  isTeamVisible: boolean;
-}
-
-interface GlobalSettings {
-  activeChapter: string;
-  chapters: Record<string, ChapterConfig>;
-}
+import { Loader2, FolderGit2, Users, Briefcase, Sparkles, Plus, Hash, AlertCircle } from 'lucide-react';
+import { ChapterConfig, GlobalSettings } from '@/types';
 
 export function ChapterSettingsManager() {
   const [settings, setSettings] = useState<GlobalSettings | null>(null);
+  const [chapterCounts, setChapterCounts] = useState<Record<string, number>>({});
+  const [limitsInput, setLimitsInput] = useState<Record<string, string>>({});
+  const [savingLimit, setSavingLimit] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [newChapterName, setNewChapterName] = useState('');
@@ -52,11 +46,21 @@ export function ChapterSettingsManager() {
         data.chapters = {};
       }
       if (!data.chapters['3.0']) {
-        data.chapters['3.0'] = { isHiringOpen: false, isTeamVisible: true };
+        data.chapters['3.0'] = { isHiringOpen: false, isTeamVisible: true, registrationLimit: 0 };
       }
       if (!data.chapters['4.0']) {
-        data.chapters['4.0'] = { isHiringOpen: true, isTeamVisible: true };
+        data.chapters['4.0'] = { isHiringOpen: true, isTeamVisible: true, registrationLimit: 0 };
       }
+
+      if (result.chapterCounts) {
+        setChapterCounts(result.chapterCounts);
+      }
+
+      const initialLimits: Record<string, string> = {};
+      Object.keys(data.chapters).forEach(chap => {
+        initialLimits[chap] = String(data.chapters[chap]?.registrationLimit ?? 0);
+      });
+      setLimitsInput(initialLimits);
       setSettings(data);
     }
     setIsLoading(false);
@@ -140,7 +144,7 @@ export function ChapterSettingsManager() {
     const updatedChapters = {
       ...chaptersMap,
       [chapter]: {
-        ...(chaptersMap[chapter] || { isHiringOpen: false, isTeamVisible: true }),
+        ...(chaptersMap[chapter] || { isHiringOpen: false, isTeamVisible: true, registrationLimit: 0 }),
         [key]: checked,
       },
     };
@@ -164,6 +168,58 @@ export function ChapterSettingsManager() {
         title: 'Update failed',
         description: err.message || 'Failed to update chapter settings.',
       });
+    }
+  };
+
+  const handleSaveLimit = async (chapter: string) => {
+    if (!settings) return;
+    const rawVal = limitsInput[chapter] ?? '0';
+    const parsed = parseInt(rawVal, 10);
+    if (isNaN(parsed) || parsed < 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid limit',
+        description: 'Please enter a valid positive number or 0 for unlimited registrations.',
+      });
+      return;
+    }
+
+    setSavingLimit(prev => ({ ...prev, [chapter]: true }));
+    try {
+      const result = await updateChapterSettingsAction(chapter, { registrationLimit: parsed });
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      setSettings(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          chapters: {
+            ...prev.chapters,
+            [chapter]: {
+              ...(prev.chapters[chapter] || { isHiringOpen: false, isTeamVisible: true, registrationLimit: 0 }),
+              registrationLimit: parsed,
+            },
+          },
+        };
+      });
+
+      toast({
+        title: 'Limit Saved',
+        description: parsed > 0 
+          ? `Chapter ${chapter} limit set to ${parsed} registrations.`
+          : `Chapter ${chapter} limit removed (Unlimited).`,
+      });
+      router.refresh();
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Update failed',
+        description: err.message || 'Failed to update registration limit.',
+      });
+    } finally {
+      setSavingLimit(prev => ({ ...prev, [chapter]: false }));
     }
   };
 
@@ -262,8 +318,12 @@ export function ChapterSettingsManager() {
       {/* Per-Chapter Settings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {chaptersList.map(chap => {
-          const config = (settings?.chapters && settings.chapters[chap]) || { isHiringOpen: false, isTeamVisible: true };
+          const config = (settings?.chapters && settings.chapters[chap]) || { isHiringOpen: false, isTeamVisible: true, registrationLimit: 0 };
           const isActive = settings?.activeChapter === chap;
+          const count = chapterCounts[chap] || 0;
+          const limit = config.registrationLimit || 0;
+          const isLimitReached = limit > 0 && count >= limit;
+          const isSavingThis = !!savingLimit[chap];
 
           return (
             <Card key={chap} className={`bg-white dark:bg-zinc-900 border ${isActive ? 'border-[#4285F4]/40 shadow-[0_0_15px_rgba(66,133,244,0.05)]' : 'border-slate-200 dark:border-zinc-800'} rounded-2xl transition-all`}>
@@ -278,7 +338,7 @@ export function ChapterSettingsManager() {
                     )}
                   </div>
                   <CardDescription className="text-xs text-slate-400 dark:text-zinc-500 mt-1">
-                    Manage form gates and team display settings.
+                    Manage form gates, limits, and team display settings.
                   </CardDescription>
                 </div>
                 <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 text-slate-400 dark:text-zinc-500 shrink-0">
@@ -303,6 +363,59 @@ export function ChapterSettingsManager() {
                     onCheckedChange={(checked) => handleToggle(chap, 'isHiringOpen', checked)}
                     disabled={isPending}
                   />
+                </div>
+
+                {/* Registration Limit Section */}
+                <div className="pt-4 border-t border-slate-100 dark:border-zinc-800/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold text-slate-800 dark:text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <Hash className="h-3.5 w-3.5 text-[#FBBC05]" />
+                      Registration Limit
+                    </Label>
+                    {/* Live candidate stats badge */}
+                    {limit > 0 ? (
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        isLimitReached 
+                          ? 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50' 
+                          : 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50'
+                      }`}>
+                        {isLimitReached && <AlertCircle className="h-3 w-3" />}
+                        {count} / {limit} filled
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400">
+                        {count} registered · Unlimited
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400 dark:text-zinc-500">
+                    Max applicants allowed before form auto-closes. Enter 0 for unlimited.
+                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min="0"
+                      value={limitsInput[chap] !== undefined ? limitsInput[chap] : (config.registrationLimit || 0)}
+                      onChange={(e) => setLimitsInput(prev => ({ ...prev, [chap]: e.target.value }))}
+                      placeholder="0 (Unlimited)"
+                      disabled={isSavingThis}
+                      className="rounded-xl bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-sm focus:ring-[#4285F4]"
+                    />
+                    <Button
+                      onClick={() => handleSaveLimit(chap)}
+                      disabled={isSavingThis}
+                      variant="outline"
+                      className="rounded-xl border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-xs font-bold shrink-0 px-4"
+                    >
+                      {isSavingThis ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Set Limit'}
+                    </Button>
+                  </div>
+                  {isLimitReached && (
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 dark:text-red-400 bg-red-50/50 dark:bg-red-950/20 p-2 rounded-xl border border-red-200/50 dark:border-red-900/30">
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>Registration limit reached! New submissions are blocked.</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Team Visibility toggle */}

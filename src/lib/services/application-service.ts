@@ -17,11 +17,29 @@ function generateReferenceId() {
 
 export class ApplicationService {
   static async submitApplication(applicationData: any, file: File | null) {
+    const activeChapter = await ApplicationDb.getActiveChapter();
+    const chapterSettings = await ApplicationDb.getChapterSettings(activeChapter);
+
+    if (!chapterSettings.isHiringOpen) {
+      throw new Error(`Applications are currently closed for Chapter ${activeChapter}.`);
+    }
+
+    const deadline = await ApplicationDb.getDeadline();
+    if (deadline && new Date() > new Date(deadline)) {
+      throw new Error('The application deadline for this recruitment cycle has passed.');
+    }
+
+    const registrationLimit = chapterSettings.registrationLimit || 0;
+    if (registrationLimit > 0) {
+      const currentCount = await ApplicationDb.getActiveApplicationsCount(activeChapter);
+      if (currentCount >= registrationLimit) {
+        throw new Error(`Application registration limit of ${registrationLimit} has been reached for Chapter ${activeChapter}. Registrations are now closed.`);
+      }
+    }
+
     const referenceId = generateReferenceId();
     const rollNo_lowercase = applicationData.rollNo.toLowerCase();
     const name_lowercase = applicationData.name.toLowerCase();
-
-    const activeChapter = await ApplicationDb.getActiveChapter();
 
     const emailExists = await ApplicationDb.checkEmailExists(applicationData.email, activeChapter);
     if (emailExists) {
@@ -702,7 +720,31 @@ export class ApplicationService {
   static async getHiringStatus() {
     const activeChapter = await ApplicationDb.getActiveChapter();
     const settings = await ApplicationDb.getChapterSettings(activeChapter);
-    return settings.isHiringOpen;
+    const deadline = await ApplicationDb.getDeadline();
+
+    const registrationLimit = settings.registrationLimit || 0;
+    let currentCount = 0;
+    let isLimitReached = false;
+
+    if (registrationLimit > 0) {
+      currentCount = await ApplicationDb.getActiveApplicationsCount(activeChapter);
+      if (currentCount >= registrationLimit) {
+        isLimitReached = true;
+      }
+    }
+
+    const isDeadlinePassed = deadline ? new Date() > new Date(deadline) : false;
+    const isHiringOpen = !!settings.isHiringOpen && !isLimitReached && !isDeadlinePassed;
+
+    return {
+      isHiringOpen,
+      isHiringOpenRaw: !!settings.isHiringOpen,
+      isLimitReached,
+      isDeadlinePassed,
+      registrationLimit,
+      currentCount,
+      activeChapter,
+    };
   }
 
   static async toggleHiringStatus(isOpen: boolean) {

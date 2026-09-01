@@ -11,7 +11,7 @@ export function HeroScroll() {
         titleComponent={
           <div className="mb-4">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/40 mb-4">
-              Chapter 3.0 · Now Open
+              Chapter 4.0 · Now Open
             </p>
             <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-white leading-tight">
               Everything you need to{" "}

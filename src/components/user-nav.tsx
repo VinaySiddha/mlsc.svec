@@ -114,8 +114,8 @@ export function UserNav() {
     </DropdownMenu>
 
     <Dialog open={ticketOpen} onOpenChange={setTicketOpen}>
-      <DialogContent className="max-w-md bg-[#080808]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.95)]">
-        <DialogHeader className="mb-4">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto bg-[#080808]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 sm:p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.95)]">
+        <DialogHeader className="mb-3">
           <DialogTitle className="text-lg font-black tracking-tight text-white uppercase italic flex items-center gap-2">
             <Bug className="h-5 w-5 text-red-500" />
             Raise Ticket / <span className="text-[#4285F4]">Report Bug</span>
@@ -124,7 +124,7 @@ export function UserNav() {
             Submit your ticket below. Our technical support leads will investigate this issue immediately.
           </DialogDescription>
         </DialogHeader>
-        <div className="bg-transparent border-none p-0">
+        <div className="bg-transparent border-none p-0 w-full">
           <BugReportForm isDialog={true} onSuccess={() => setTicketOpen(false)} />
         </div>
       </DialogContent>

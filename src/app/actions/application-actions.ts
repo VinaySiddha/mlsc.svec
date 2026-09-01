@@ -375,11 +375,20 @@ export async function getDeadline() {
 
 export async function getHiringStatus() {
   try {
-    const isHiringOpen = await ApplicationService.getHiringStatus();
-    return { isHiringOpen };
+    const status = await ApplicationService.getHiringStatus();
+    return { ...status };
   } catch (error: any) {
     console.error('Error getting hiring status:', error);
-    return { error: 'Failed to retrieve hiring status.' };
+    return { 
+      error: 'Failed to retrieve hiring status.', 
+      isHiringOpen: false,
+      isHiringOpenRaw: false,
+      isLimitReached: false,
+      isDeadlinePassed: false,
+      registrationLimit: 0,
+      currentCount: 0,
+      activeChapter: '4.0'
+    };
   }
 }
 

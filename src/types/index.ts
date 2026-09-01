@@ -64,3 +64,15 @@ export interface TeamCategory {
     subDomain: string;
     order: number;
 }
+
+export interface ChapterConfig {
+    isHiringOpen: boolean;
+    isTeamVisible: boolean;
+    registrationLimit?: number;
+}
+
+export interface GlobalSettings {
+    activeChapter: string;
+    chapters: Record<string, ChapterConfig>;
+    deadline?: string;
+}

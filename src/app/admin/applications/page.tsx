@@ -1,4 +1,4 @@
-import { getApplications, getHiringStatus } from "@/app/actions";
+import { getApplications } from "@/app/actions";
 import { Suspense } from "react";
 import { ApplicationsTable } from "@/components/applications-table";
 import { AdminFilters } from "@/components/admin-filters";

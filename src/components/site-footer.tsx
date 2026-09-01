@@ -6,6 +6,7 @@ const footerColumns = [
         label: 'Navigate',
         links: [
             { href: '/', label: 'Home' },
+            { href: '/docs', label: 'Documentation (SSoT)' },
             { href: '/about', label: 'About' },
             { href: '/team', label: 'Team' },
             { href: '/events', label: 'Events' },

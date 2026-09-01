@@ -10,7 +10,10 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "docs:dev": "npm --prefix docs-site run dev",
+    "docs:build": "npm --prefix docs-site run build",
+    "docs:start": "npm --prefix docs-site run start"
   },
   "dependencies": {
     "@formisch/react": "^0.5.0",
@@ -57,6 +60,7 @@
     "firebase-admin": "^12.1.0",
     "framer-motion": "^11.3.19",
     "genkit": "1.11.0",
+    "gray-matter": "^4.0.3",
     "html-to-image": "^1.11.11",
     "jose": "^5.6.3",
     "jspdf": "^2.5.1",
@@ -71,7 +75,10 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.54.2",
+    "react-markdown": "^10.1.0",
     "recharts": "^2.15.1",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",

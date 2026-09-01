@@ -65,6 +65,7 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
   const [imageUrl, setImageUrl] = React.useState("")
   const [uploadProgress, setUploadProgress] = React.useState(0)
   const [isUploading, setIsUploading] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const form = useForm({
     schema: FormSchema,
@@ -145,6 +146,7 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
   };
 
   const handleSubmit: SubmitHandler<typeof FormSchema> = async (output) => {
+    setIsSubmitting(true);
     try {
       const result = await submitBugReportAction(
         output.title,
@@ -180,19 +182,23 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
       toast.danger("An unexpected error occurred", {
         description: err.message || "Please try again later.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   const formBody = (
-    <Form of={form} id="form-formisch-demo" onSubmit={handleSubmit}>
-      <FieldGroup className="space-y-4">
+    <Form of={form} id="form-bug-report" onSubmit={handleSubmit} className="w-full">
+      <FieldGroup className="gap-3.5 space-y-0">
         {/* Email */}
         {user ? (
-          <div className="space-y-1.5">
-            <label className="text-xs font-black uppercase tracking-wider text-white/40">Email Address</label>
-            <div className="text-xs text-white/60 bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 select-none flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Logged in as: <strong className="text-white font-bold">{user.email}</strong>
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-white/50">Email Address</label>
+            <div className="text-xs text-white/80 bg-[#0A0A0A] border border-white/10 rounded-xl px-3.5 py-2 select-none flex items-center justify-between gap-2">
+              <span className="truncate font-medium">{user.email}</span>
+              <span className="inline-flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Verified
+              </span>
             </div>
             <FormischField of={form} path={["email"]}>
               {(field) => (
@@ -203,12 +209,14 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
         ) : (
           <FormischField of={form} path={["email"]}>
             {(field) => (
-              <Field data-invalid={field.errors !== null}>
-                <FieldLabel htmlFor="form-bug-email">Email Address</FieldLabel>
+              <Field data-invalid={field.errors !== null} className="gap-1">
+                <FieldLabel htmlFor="form-bug-email" className="text-[11px] font-bold uppercase tracking-wider text-white/60">
+                  Email Address
+                </FieldLabel>
                 <InputGroup>
                   <InputGroupAddon align="block-start">
                     <InputGroupText>
-                      <Mail className="h-3.5 w-3.5 text-white/30" />
+                      <Mail className="h-3.5 w-3.5 text-white/40" />
                     </InputGroupText>
                   </InputGroupAddon>
                   <Input
@@ -216,12 +224,13 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
                     id="form-bug-email"
                     type="email"
                     value={field.input ?? ""}
-                    placeholder="alex@example.com"
+                    placeholder="name@example.com"
                     autoComplete="email"
+                    className="h-10 text-xs"
                     aria-invalid={field.errors !== null}
                   />
                 </InputGroup>
-                <FieldDescription>We will send update emails to this address.</FieldDescription>
+                <FieldDescription className="text-[10px] text-white/40 mt-0.5">We'll send status updates to this email address.</FieldDescription>
                 {field.errors && (
                   <FieldError errors={field.errors.map((message) => ({ message }))} />
                 )}
@@ -233,14 +242,17 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
         {/* Bug Title */}
         <FormischField of={form} path={["title"]}>
           {(field) => (
-            <Field data-invalid={field.errors !== null}>
-              <FieldLabel htmlFor="form-bug-title">Bug Title</FieldLabel>
+            <Field data-invalid={field.errors !== null} className="gap-1">
+              <FieldLabel htmlFor="form-bug-title" className="text-[11px] font-bold uppercase tracking-wider text-white/60">
+                Bug Title
+              </FieldLabel>
               <Input
                 {...field.props}
                 id="form-bug-title"
                 value={field.input ?? ""}
-                placeholder="Login button not working on mobile"
+                placeholder="e.g. Navigation menu closes unexpectedly"
                 autoComplete="off"
+                className="h-10 text-xs"
                 aria-invalid={field.errors !== null}
               />
               {field.errors && (
@@ -250,22 +262,25 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
           )}
         </FormischField>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Severity & Category */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Severity */}
           <FormischField of={form} path={["severity"]}>
             {(field) => (
-              <Field data-invalid={field.errors !== null}>
-                <FieldLabel htmlFor="form-bug-severity">Severity Level</FieldLabel>
+              <Field data-invalid={field.errors !== null} className="gap-1">
+                <FieldLabel htmlFor="form-bug-severity" className="text-[11px] font-bold uppercase tracking-wider text-white/60">
+                  Severity Level
+                </FieldLabel>
                 <select
                   {...field.props}
                   id="form-bug-severity"
                   value={field.input ?? "medium"}
-                  className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2 text-xs text-white focus:bg-black focus-visible:outline-none focus-visible:border-[#4285F4]/60 focus-visible:ring-1 focus-visible:ring-[#4285F4]/60 transition-all duration-200"
+                  className="flex h-10 w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-3 py-2 text-xs text-white focus:bg-black focus-visible:outline-none focus-visible:border-[#4285F4]/60 focus-visible:ring-1 focus-visible:ring-[#4285F4]/60 transition-all duration-200"
                 >
-                  <option value="low" className="bg-black text-white">Low (Visual glitch / styling)</option>
-                  <option value="medium" className="bg-black text-white">Medium (Functional bug / minor error)</option>
-                  <option value="high" className="bg-black text-white">High (Broken page / feature failing)</option>
-                  <option value="critical" className="bg-black text-white">Critical (Security breach / crash)</option>
+                  <option value="low" className="bg-black text-white">Low (Visual / Minor styling)</option>
+                  <option value="medium" className="bg-black text-white">Medium (Functional glitch)</option>
+                  <option value="high" className="bg-black text-white">High (Broken feature)</option>
+                  <option value="critical" className="bg-black text-white">Critical (Crash / Security)</option>
                 </select>
                 {field.errors && (
                   <FieldError errors={field.errors.map((message) => ({ message }))} />
@@ -277,20 +292,22 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
           {/* Category */}
           <FormischField of={form} path={["category"]}>
             {(field) => (
-              <Field data-invalid={field.errors !== null}>
-                <FieldLabel htmlFor="form-bug-category">Category</FieldLabel>
+              <Field data-invalid={field.errors !== null} className="gap-1">
+                <FieldLabel htmlFor="form-bug-category" className="text-[11px] font-bold uppercase tracking-wider text-white/60">
+                  Category
+                </FieldLabel>
                 <select
                   {...field.props}
                   id="form-bug-category"
                   value={field.input ?? "other"}
-                  className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-4 py-2 text-xs text-white focus:bg-black focus-visible:outline-none focus-visible:border-[#4285F4]/60 focus-visible:ring-1 focus-visible:ring-[#4285F4]/60 transition-all duration-200"
+                  className="flex h-10 w-full rounded-xl border border-white/10 bg-[#0A0A0A] px-3 py-2 text-xs text-white focus:bg-black focus-visible:outline-none focus-visible:border-[#4285F4]/60 focus-visible:ring-1 focus-visible:ring-[#4285F4]/60 transition-all duration-200"
                 >
-                  <option value="frontend" className="bg-black text-white">Frontend UI (Next.js/Tailwind)</option>
-                  <option value="backend" className="bg-black text-white">Backend & Cloud (Workers/APIs)</option>
-                  <option value="ui-ux" className="bg-black text-white">UI/UX Design / Animations</option>
-                  <option value="database" className="bg-black text-white">Database & Firestore Storage</option>
+                  <option value="frontend" className="bg-black text-white">Frontend UI (Web/App)</option>
+                  <option value="backend" className="bg-black text-white">Backend & APIs</option>
+                  <option value="ui-ux" className="bg-black text-white">UI/UX & Animations</option>
+                  <option value="database" className="bg-black text-white">Database & Sync</option>
                   <option value="auth" className="bg-black text-white">Authentication & Roles</option>
-                  <option value="other" className="bg-black text-white">Other Issues</option>
+                  <option value="other" className="bg-black text-white">General / Other</option>
                 </select>
                 {field.errors && (
                   <FieldError errors={field.errors.map((message) => ({ message }))} />
@@ -303,23 +320,25 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
         {/* Description */}
         <FormischField of={form} path={["description"]}>
           {(field) => (
-            <Field data-invalid={field.errors !== null}>
-              <FieldLabel htmlFor="form-bug-desc">Description</FieldLabel>
+            <Field data-invalid={field.errors !== null} className="gap-1">
+              <div className="flex items-center justify-between">
+                <FieldLabel htmlFor="form-bug-desc" className="text-[11px] font-bold uppercase tracking-wider text-white/60">
+                  Description
+                </FieldLabel>
+                <span className="text-[10px] tabular-nums text-white/40">
+                  {(field.input ?? "").length}/300
+                </span>
+              </div>
               <InputGroup>
                 <InputGroupTextarea
                   {...field.props}
                   id="form-bug-desc"
                   value={field.input ?? ""}
-                  placeholder="Include steps to reproduce, expected behavior, and what actually happened."
-                  rows={4}
-                  className="min-h-20 resize-none text-xs"
+                  placeholder="Steps to reproduce, expected behavior, and what occurred..."
+                  rows={3}
+                  className="min-h-[72px] max-h-[140px] resize-y text-xs py-2"
                   aria-invalid={field.errors !== null}
                 />
-                <InputGroupAddon align="block-end">
-                  <InputGroupText className="tabular-nums text-[10px]">
-                    {(field.input ?? "").length}/300 characters
-                  </InputGroupText>
-                </InputGroupAddon>
               </InputGroup>
               {field.errors && (
                 <FieldError errors={field.errors.map((message) => ({ message }))} />
@@ -329,54 +348,54 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
         </FormischField>
 
         {/* Image/Screenshot Upload */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-white/70 block">Screenshot / Image (Optional)</label>
+        <div className="space-y-1">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-white/60 block">Screenshot (Optional)</label>
           
           {imageUrl ? (
-            <div className="relative rounded-xl overflow-hidden border border-white/5 bg-[#0D0D0D] p-2 flex items-center justify-between group">
-              <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-black border border-white/5 flex items-center justify-center shrink-0">
+            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0D0D0D] p-2 flex items-center justify-between group">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-black border border-white/10 flex items-center justify-center shrink-0">
                   <img src={imageUrl} alt="Uploaded bug screenshot" className="object-cover w-full h-full" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-white/75 font-semibold truncate">Screenshot uploaded</p>
-                  <p className="text-[10px] text-green-400 font-bold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Uploaded successfully
+                  <p className="text-xs text-white/90 font-medium truncate">Screenshot attached</p>
+                  <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Uploaded ready
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleImageDelete}
-                className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/50 hover:text-red-400 border border-white/5 hover:border-red-500/20 transition-all mr-2"
+                className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 text-white/50 hover:text-red-400 border border-white/5 hover:border-red-500/30 transition-all shrink-0"
                 title="Remove image"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>
           ) : isUploading ? (
-            <div className="rounded-xl border border-white/5 bg-[#0D0D0D] p-4 flex flex-col items-center justify-center gap-2 text-center">
-              <Loader2 className="h-5 w-5 text-[#4285F4] animate-spin" />
-              <p className="text-xs text-white/70 font-semibold">Uploading screenshot... {uploadProgress}%</p>
-              <div className="w-full max-w-[200px] h-1 bg-white/5 rounded-full overflow-hidden">
+            <div className="rounded-xl border border-white/10 bg-[#0D0D0D] p-3 flex flex-col items-center justify-center gap-1.5 text-center">
+              <Loader2 className="h-4 w-4 text-[#4285F4] animate-spin" />
+              <p className="text-xs text-white/80 font-medium">Uploading image... {uploadProgress}%</p>
+              <div className="w-full max-w-[180px] h-1 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full bg-[#4285F4] transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
               </div>
             </div>
           ) : (
-            <div className="relative rounded-xl border border-dashed border-white/10 hover:border-white/20 bg-[#0D0D0D] hover:bg-[#111]/50 p-4 transition-all duration-300">
+            <div className="relative rounded-xl border border-dashed border-white/15 hover:border-white/30 bg-[#0D0D0D]/80 hover:bg-[#111] p-3 transition-all duration-200">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className="flex flex-col items-center justify-center gap-2 text-center">
-                <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-white/40">
-                  <Upload className="h-4 w-4" />
+              <div className="flex items-center justify-center gap-2.5 text-center py-1">
+                <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/50 shrink-0">
+                  <Upload className="h-3.5 w-3.5" />
                 </div>
-                <div>
-                  <p className="text-xs text-white/75 font-semibold">Click to upload screenshot</p>
-                  <p className="text-[10px] text-white/30 mt-0.5">PNG, JPG or WEBP (Max 5MB)</p>
+                <div className="text-left">
+                  <p className="text-xs text-white/80 font-medium">Click or drop screenshot</p>
+                  <p className="text-[10px] text-white/40">PNG, JPG, WEBP (Max 5MB)</p>
                 </div>
               </div>
             </div>
@@ -388,14 +407,31 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
 
   if (isDialog) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {formBody}
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-white/5">
-          <Button type="button" variant="outline" onClick={() => reset(form)} className="rounded-xl h-9 text-xs">
+        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/10">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => reset(form)}
+            disabled={isSubmitting || isUploading}
+            className="rounded-xl h-9 text-xs px-4 border-white/10 text-white/70 hover:text-white hover:bg-white/5"
+          >
             Reset
           </Button>
-          <Button type="submit" form="form-formisch-demo" className="rounded-xl h-9 bg-[#4285F4] hover:bg-[#4285F4]/95 text-white font-bold text-xs uppercase tracking-wider">
-            Submit Ticket
+          <Button
+            type="submit"
+            form="form-bug-report"
+            disabled={isSubmitting || isUploading}
+            className="rounded-xl h-9 bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold text-xs uppercase tracking-wider px-5 shadow-lg shadow-[#4285F4]/20 flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Submitting...
+              </>
+            ) : (
+              "Submit Ticket"
+            )}
           </Button>
         </div>
       </div>
@@ -403,22 +439,39 @@ export function BugReportForm({ isDialog = false, onSuccess }: { isDialog?: bool
   }
 
   return (
-    <Card className="w-full bg-[#0A0A0A] border border-white/5 backdrop-blur-xl rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.95)] text-white p-2">
-      <CardHeader>
+    <Card className="w-full max-w-xl mx-auto bg-[#0A0A0A] border border-white/10 backdrop-blur-xl rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.95)] text-white p-2 sm:p-4">
+      <CardHeader className="pb-3">
         <CardTitle className="text-xl font-black uppercase tracking-tight italic text-white/95">Report Bug</CardTitle>
         <CardDescription className="text-xs text-zinc-400 font-medium">
           Help us improve our community platforms by reporting issues.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-3">
         {formBody}
       </CardContent>
-      <CardFooter className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
-        <Button type="button" variant="outline" onClick={() => reset(form)} className="rounded-xl h-9 text-xs">
+      <CardFooter className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/10">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => reset(form)}
+          disabled={isSubmitting || isUploading}
+          className="rounded-xl h-9 text-xs px-4 border-white/10 text-white/70 hover:text-white hover:bg-white/5"
+        >
           Reset
         </Button>
-        <Button type="submit" form="form-formisch-demo" className="rounded-xl h-9 bg-white hover:bg-white/90 text-black font-bold text-xs uppercase tracking-wider">
-          Submit
+        <Button
+          type="submit"
+          form="form-bug-report"
+          disabled={isSubmitting || isUploading}
+          className="rounded-xl h-9 bg-white hover:bg-white/90 text-black font-bold text-xs uppercase tracking-wider px-5 flex items-center gap-2"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Submitting...
+            </>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </CardFooter>
     </Card>

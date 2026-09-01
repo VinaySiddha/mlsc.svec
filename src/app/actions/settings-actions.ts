@@ -19,8 +19,8 @@ const getCachedGlobalSettings = unstable_cache(
     return {
       activeChapter: '3.0',
       chapters: {
-        '3.0': { isHiringOpen: false, isTeamVisible: true },
-        '4.0': { isHiringOpen: true, isTeamVisible: true },
+        '3.0': { isHiringOpen: false, isTeamVisible: true, registrationLimit: 0 },
+        '4.0': { isHiringOpen: true, isTeamVisible: true, registrationLimit: 0 },
       },
     };
   },
@@ -31,7 +31,8 @@ const getCachedGlobalSettings = unstable_cache(
 export async function getGlobalSettings() {
   try {
     const settings = await getCachedGlobalSettings();
-    return { settings };
+    const chapterCounts = await ApplicationDb.getChapterApplicationsCounts();
+    return { settings, chapterCounts };
   } catch (error: any) {
     console.error('Error getting global settings:', error);
     return { error: 'Failed to retrieve settings.' };
@@ -40,15 +41,20 @@ export async function getGlobalSettings() {
 
 export async function updateChapterSettingsAction(
   chapter: string,
-  values: { isHiringOpen?: boolean; isTeamVisible?: boolean }
+  values: { isHiringOpen?: boolean; isTeamVisible?: boolean; registrationLimit?: number }
 ) {
   try {
     await ApplicationDb.updateChapterSettings(chapter, values);
     
     // Log activity
+    const details: string[] = [];
+    if (values.isHiringOpen !== undefined) details.push(`Hiring Gate is ${values.isHiringOpen ? "OPEN" : "CLOSED"}`);
+    if (values.isTeamVisible !== undefined) details.push(`Team visibility is ${values.isTeamVisible ? "VISIBLE" : "HIDDEN"}`);
+    if (values.registrationLimit !== undefined) details.push(`Registration Limit is ${values.registrationLimit > 0 ? values.registrationLimit : "Unlimited"}`);
+
     await logActivityAction(
       `Chapter Settings Updated`,
-      `Admin updated chapter ${chapter} configurations: Hiring Gate is ${values.isHiringOpen ? "OPEN" : "CLOSED"}, Team visibility is ${values.isTeamVisible ? "VISIBLE" : "HIDDEN"}`,
+      `Admin updated chapter ${chapter} configurations: ${details.join(', ')}`,
       undefined,
       "Admin"
     );

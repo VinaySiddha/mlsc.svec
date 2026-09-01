@@ -45,6 +45,7 @@ const navLinks = [
     { href: '/events', label: 'Events' },
     { href: '/domains', label: 'Domains' },
     { href: '/track', label: 'Track' },
+    { href: '/docs', label: 'Docs' },
     { href: '/contributors', label: 'Contributors' },
     { href: '/study', label: 'Study' },
     { href: '/blog', label: 'Blog' },
@@ -55,7 +56,7 @@ const navLinks = [
 
 export function SiteHeader() {
     const pathname = usePathname();
-    const isMoreActive = ['/contributors', '/study', '/blog', '/contact', '/schedule'].some(
+    const isMoreActive = ['/contributors', '/study', '/blog', '/contact', '/schedule', '/docs'].some(
         (href) => pathname.startsWith(href)
     );
     const [domainsOpen, setDomainsOpen] = useState(false);
@@ -208,14 +209,23 @@ export function SiteHeader() {
                                     sideOffset={34}
                                 >
                                     <DropdownMenuItem asChild>
-                                        <Link
-                                            href="/contributors"
-                                            className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
-                                        >
-                                            <Handshake className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" />
-                                            Contributors
-                                        </Link>
-                                    </DropdownMenuItem>
+                                         <Link
+                                             href="/docs"
+                                             className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                         >
+                                             <BookOpen className="h-4 w-4 text-[#4285F4] group-hover:text-blue-400 group-focus:text-blue-400 transition-colors" />
+                                             Documentation (SSoT)
+                                         </Link>
+                                     </DropdownMenuItem>
+                                     <DropdownMenuItem asChild>
+                                         <Link
+                                             href="/contributors"
+                                             className="group cursor-pointer rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70 hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.06] focus:text-white transition-colors flex items-center gap-2.5"
+                                         >
+                                             <Handshake className="h-4 w-4 text-white/40 group-hover:text-white/80 group-focus:text-white/80 transition-colors" />
+                                             Contributors
+                                         </Link>
+                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
                                         <Link
                                             href="/study"

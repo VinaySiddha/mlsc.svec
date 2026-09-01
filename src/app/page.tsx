@@ -3,7 +3,7 @@ import { getNotifications } from "@/app/actions";
 import { getHomePageData } from "@/app/home-actions";
 
 import { DynamicHero } from "@/components/home/dynamic-hero";
-import { HeroScroll } from "@/components/home/hero-scroll";
+import { DynamicAmbassadors } from "@/components/home/dynamic-ambassadors";
 import { DynamicGallery } from "@/components/home/dynamic-gallery";
 import { Testimonials } from "@/components/home/testimonials";
 import { MLSCDomainsCarousel } from "@/components/home/mlsc-domains-carousel";
@@ -44,10 +44,10 @@ export default async function Home() {
         <DynamicHero images={homeData.heroImages} />
 
         {/* =====================================================
-            CINEMATIC INTRO
+            AMBASSADORS / LEADERS
         ===================================================== */}
 
-        <HeroScroll />
+        <DynamicAmbassadors ambassadors={homeData.ambassadors} />
 
         {/* =====================================================
             DOMAINS
@@ -197,7 +197,7 @@ export default async function Home() {
                     <br />
                     escape the{" "}
                     <span className="text-[#4285F4]">
-                      notebook.
+                      notebook. 
                     </span>
                   </h2>
 

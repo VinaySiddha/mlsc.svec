@@ -395,31 +395,68 @@ export class ApplicationDb {
   static async getChapterSettings(chapter: string) {
     const settingsSnap = await getDoc(doc(db, 'settings', 'global'));
     if (settingsSnap.exists() && settingsSnap.data().chapters?.[chapter]) {
-      return settingsSnap.data().chapters[chapter];
+      const data = settingsSnap.data().chapters[chapter];
+      return {
+        isHiringOpen: data.isHiringOpen ?? false,
+        isTeamVisible: data.isTeamVisible ?? true,
+        registrationLimit: data.registrationLimit ?? 0,
+      };
     }
     return {
       isHiringOpen: false,
       isTeamVisible: true,
+      registrationLimit: 0,
     };
   }
 
-  static async updateChapterSettings(chapter: string, values: { isHiringOpen?: boolean; isTeamVisible?: boolean }) {
+  static async updateChapterSettings(
+    chapter: string, 
+    values: { isHiringOpen?: boolean; isTeamVisible?: boolean; registrationLimit?: number }
+  ) {
     const settingsRef = doc(db, 'settings', 'global');
     const settingsSnap = await getDoc(settingsRef);
     const chapters = settingsSnap.exists() ? settingsSnap.data().chapters || {} : {};
     
     // Seed default configurations for legacy chapters if they do not exist
     if (!chapters['3.0']) {
-      chapters['3.0'] = { isHiringOpen: false, isTeamVisible: true };
+      chapters['3.0'] = { isHiringOpen: false, isTeamVisible: true, registrationLimit: 0 };
     }
     if (!chapters['4.0']) {
-      chapters['4.0'] = { isHiringOpen: true, isTeamVisible: true };
+      chapters['4.0'] = { isHiringOpen: true, isTeamVisible: true, registrationLimit: 0 };
     }
 
     chapters[chapter] = {
-      ...(chapters[chapter] || { isHiringOpen: false, isTeamVisible: true }),
+      ...(chapters[chapter] || { isHiringOpen: false, isTeamVisible: true, registrationLimit: 0 }),
       ...values,
     };
     await setDoc(settingsRef, { chapters }, { merge: true });
+  }
+
+  static async getActiveApplicationsCount(chapter: string = '3.0'): Promise<number> {
+    const appsRef = collection(db, 'applications');
+    const q = query(appsRef, where('isArchived', '==', false));
+    const snapshot = await getDocs(q);
+    let count = 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const docChapter = data.chapter || '3.0';
+      if (docChapter === chapter) {
+        count++;
+      }
+    });
+    return count;
+  }
+
+  static async getChapterApplicationsCounts(): Promise<Record<string, number>> {
+    const appsRef = collection(db, 'applications');
+    const q = query(appsRef, where('isArchived', '==', false));
+    const snapshot = await getDocs(q);
+    const counts: Record<string, number> = {};
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const docChapter = data.chapter || '3.0';
+      counts[docChapter] = (counts[docChapter] || 0) + 1;
+    });
+    return counts;
   }
 }
