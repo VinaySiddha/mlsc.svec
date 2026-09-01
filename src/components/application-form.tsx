@@ -251,7 +251,7 @@ export function ApplicationForm() {
           <div className="text-center space-y-4">
             <p className="text-sm font-medium">📢 Stay Updated! Join our WhatsApp group for important announcements.</p>
             <Button asChild className="bg-green-600 hover:bg-green-700">
-              <Link href="https://chat.whatsapp.com/BToVAcH9Kie5pt4vSjPHHw" target="_blank">
+              <Link href="https://chat.whatsapp.com/JJcWZybeudLEo7UfNq7OuA" target="_blank">
                 Join WhatsApp Group
               </Link>
             </Button>
