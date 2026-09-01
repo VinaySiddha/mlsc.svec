@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from "react";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { bulkProcessList } from "@/app/actions/application-actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
-import { ExternalLink, Star } from "lucide-react";
+import { Award, Bot, ExternalLink, Sparkles, Star, UserCheck } from "lucide-react";
 
 import { IosLoader } from "@/components/ui/ios-loader";
 
@@ -81,39 +80,83 @@ export function RecommendedDashboard({ initialApplications }: RecommendedDashboa
             <TableRow className="border-white/10 hover:bg-transparent">
               <TableHead className="font-bold text-white/60">Candidate</TableHead>
               <TableHead className="font-bold text-white/60">Domain</TableHead>
-              <TableHead className="font-bold text-white/60">Score</TableHead>
-              <TableHead className="font-bold text-white/60">Action</TableHead>
+              <TableHead className="font-bold text-white/60">AI Screening</TableHead>
+              <TableHead className="font-bold text-white/60">Manual Interview</TableHead>
+              <TableHead className="font-bold text-white/60 text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {applications.map((app) => (
-              <TableRow key={app.id} className="border-white/10 hover:bg-white/5 transition-colors">
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-white text-sm">{app.name}</span>
-                    <span className="text-xs text-white/40 font-mono">{app.rollNo}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="border-[#4285F4]/30 text-[#4285F4] bg-[#4285F4]/10">
-                    {app.technicalDomain}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1 text-yellow-500 font-bold text-sm">
-                    <Star className="size-3.5 fill-yellow-500" />
-                    {app.ratings?.overall?.toFixed(1) || "N/A"}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Button asChild variant="ghost" size="sm" className="h-8 text-xs text-white/60 hover:text-white">
-                    <Link href={`/admin/application/${app.id}`}>
-                      Review <ExternalLink className="ml-1 size-3" />
-                    </Link>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {applications.map((app) => {
+              const aiScore = app.aiRatings?.overall ?? (app.manualRatings ? (app.aiRatings?.overall ?? 0) : (app.ratings?.overall ?? 0));
+              const isAiSelected = app.isAiRecommended !== undefined 
+                ? app.isAiRecommended 
+                : (app.aiRatings ? (app.aiRatings.overall >= 3.5) : (aiScore >= 3.5 && !app.manualRatings));
+
+              const humanScore = app.manualRatings?.overall ?? ((app.ratings && app.aiRatings && app.ratings.overall !== app.aiRatings.overall) ? app.ratings.overall : (app.interviewAttended && app.status !== 'Received' ? (app.ratings?.overall ?? 0) : 0));
+              const hasHumanScore = humanScore > 0;
+              const isManualSelected = app.isManualSelected ?? app.isRecommended ?? false;
+
+              return (
+                <TableRow key={app.id} className="border-white/10 hover:bg-white/5 transition-colors">
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5 font-bold text-white text-sm">
+                        {isManualSelected && (
+                          <span title="Manual Selected">
+                            <Award className="size-3.5 text-yellow-500" />
+                          </span>
+                        )}
+                        {isAiSelected && (
+                          <span title="AI Selected">
+                            <Sparkles className="size-3 text-purple-400" />
+                          </span>
+                        )}
+                        <span>{app.name}</span>
+                      </div>
+                      <span className="text-xs text-white/40 font-mono">{app.rollNo}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="border-[#4285F4]/30 text-[#4285F4] bg-[#4285F4]/10">
+                      {app.technicalDomain}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#4285F4]">
+                        <Bot className="size-3" />
+                        {aiScore > 0 ? `${aiScore.toFixed(1)} / 5` : 'N/A'}
+                      </span>
+                      {isAiSelected && (
+                        <span className="text-[9px] font-black uppercase tracking-wider text-purple-400">
+                          AI Selected
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#34A853]">
+                        <UserCheck className="size-3" />
+                        {hasHumanScore ? `${humanScore.toFixed(1)} / 5` : 'Pending'}
+                      </span>
+                      {isManualSelected && (
+                        <span className="text-[9px] font-black uppercase tracking-wider text-yellow-500">
+                          ★ Selected
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button asChild variant="ghost" size="sm" className="h-8 text-xs text-white/60 hover:text-white">
+                      <Link href={`/admin/application/${app.id}`}>
+                        Review <ExternalLink className="ml-1 size-3" />
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>

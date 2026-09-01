@@ -2,6 +2,7 @@
 
 import papaparse from 'papaparse';
 import { ApplicationService } from '@/lib/services/application-service';
+import { ApplicationDb } from '@/lib/db/application-db';
 import { cookies } from 'next/headers';
 import {
   applicationSchema,
@@ -80,6 +81,8 @@ export async function getApplications(params: {
   panelDomain?: string;
   search?: string;
   searchBy?: string;
+  searchMode?: string;
+  selectionFilter?: string;
   status?: string;
   year?: string;
   branch?: string;
@@ -95,7 +98,8 @@ export async function getApplications(params: {
 }) {
   try {
     const cookieStore = await cookies();
-    const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
+    const cookieChapter = cookieStore.get('admin_chapter')?.value;
+    const adminChapter = params.chapter || cookieChapter || await ApplicationDb.getActiveChapter();
     const result = await ApplicationService.getApplications({ ...params, chapter: adminChapter });
     return result;
   } catch (error: any) {
@@ -419,3 +423,33 @@ export async function finalizeHiringCycle() {
     return { error: error.message || 'Failed to finalize hiring cycle.' };
   }
 }
+
+export async function generateCandidateInsightsAction(input: {
+  name: string;
+  domain: string;
+  cgpa?: string;
+  resumeSummary?: string;
+  joinReason?: string;
+  aboutClub?: string;
+  anythingElse?: string;
+}) {
+  try {
+    const { generateCandidateInsights } = await import('@/ai/flows/generate-candidate-insights');
+    const insights = await generateCandidateInsights(input);
+    return { success: true, insights };
+  } catch (error: any) {
+    console.error('Error generating AI candidate insights:', error);
+    return { error: error.message || 'Failed to generate AI insights.' };
+  }
+}
+
+export async function cleanChapterApplicantsAction(chapter: string = '4.0') {
+  try {
+    const cleanedCount = await ApplicationService.cleanChapterApplicants(chapter);
+    return { success: true, cleanedCount };
+  } catch (error: any) {
+    console.error(`Error cleaning Chapter ${chapter} applicants:`, error);
+    return { error: error.message || 'Failed to clean chapter applicants.' };
+  }
+}
+

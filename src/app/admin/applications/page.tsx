@@ -95,7 +95,9 @@ async function ApplicationsDashboard({
 }) {
   // ... (keep logic same)
   const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
-  const searchBy = typeof searchParams.searchBy === 'string' ? searchParams.searchBy : 'rollNo';
+  const searchBy = typeof searchParams.searchBy === 'string' ? searchParams.searchBy : 'all';
+  const searchMode = typeof searchParams.searchMode === 'string' ? searchParams.searchMode : 'semi';
+  const selectionFilter = typeof searchParams.selectionFilter === 'string' ? searchParams.selectionFilter : undefined;
   const status = typeof searchParams.status === 'string' ? searchParams.status : undefined;
   const year = typeof searchParams.year === 'string' ? searchParams.year : undefined;
   const branch = typeof searchParams.branch === 'string' ? searchParams.branch : undefined;
@@ -106,10 +108,12 @@ async function ApplicationsDashboard({
   const lastVisibleId = typeof searchParams.lastVisibleId === 'string' ? searchParams.lastVisibleId : undefined;
   const attendedOnly = typeof searchParams.attendedOnly === 'string' ? searchParams.attendedOnly === 'true' : undefined;
 
-  const { applications, hasNextPage, currentPage } = await getApplications({
+  const { applications, hasNextPage, currentPage, filterCounts, totalApplications } = await getApplications({
     panelDomain,
     search,
     searchBy,
+    searchMode,
+    selectionFilter,
     status,
     year,
     branch,
@@ -144,12 +148,26 @@ async function ApplicationsDashboard({
     : `View and manage all submitted applications.`;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 md:p-6 max-w-[1600px] mx-auto">
       <AdminFilters
         userRole={userRole}
         panelDomain={panelDomain}
         filterData={filterData}
-        currentFilters={{ status, year, branch, domain, search, searchBy, sortByPerformance, sortByRecommended, attendedOnly: searchParams.attendedOnly as string }}
+        filterCounts={filterCounts}
+        totalApplications={totalApplications}
+        currentFilters={{ 
+          status, 
+          year, 
+          branch, 
+          domain, 
+          search, 
+          searchBy, 
+          searchMode,
+          selectionFilter,
+          sortByPerformance, 
+          sortByRecommended, 
+          attendedOnly: searchParams.attendedOnly as string 
+        }}
       />
       <Suspense fallback={<ApplicationsTableSkeleton />}>
         <div className="overflow-hidden border border-slate-100 dark:border-zinc-800/80 rounded-xl">

@@ -161,9 +161,31 @@ export class ApplicationService {
 
       await ApplicationDb.updateApplicationDoc(docRef.id, { 
         resumeSummary: result.summary,
-        isRecommended: result.isRecommended,
-        suitability: result.suitability,
-        ratings: result.ratings
+        isAiRecommended: result.isRecommended,
+        isRecommended: false,
+        isManualSelected: false,
+        aiSuitability: result.suitability,
+        aiRatings: result.ratings,
+        ratings: {
+          communication: 0,
+          technical: 0,
+          problemSolving: 0,
+          teamFit: 0,
+          confidence: 0,
+          growthMindset: 0,
+          leadership: 0,
+          overall: 0,
+        },
+        manualRatings: {
+          communication: 0,
+          technical: 0,
+          problemSolving: 0,
+          teamFit: 0,
+          confidence: 0,
+          growthMindset: 0,
+          leadership: 0,
+          overall: 0,
+        }
       });
     } catch (aiError) {
       console.error(`AI evaluation failed for ${referenceId}:`, aiError);
@@ -237,17 +259,116 @@ export class ApplicationService {
     // Since sorting constraints are dynamic, we build the final query
     // To match getApplications parameters:
     const applicationsDocs = await ApplicationDb.getApplicationsDocs(baseQuery);
-    let applications = applicationsDocs.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() } as Application));
 
     const targetChapter = params.chapter || '3.0';
-    applications = applications.filter(app => {
-      const appChapter = app.chapter || '3.0';
-      return appChapter === targetChapter;
-    });
+    const allChapterApps = applicationsDocs.docs
+      .map(doc => ({ firestoreId: doc.id, ...doc.data() } as Application))
+      .filter(app => {
+        const appChapter = app.chapter || '3.0';
+        return appChapter === targetChapter;
+      });
+
+    // Compute comprehensive field-level counts for filters and top dashboard
+    const filterCounts = {
+      total: allChapterApps.length,
+      attended: allChapterApps.filter(a => !!a.interviewAttended).length,
+      manualSelected: allChapterApps.filter(a => !!a.isManualSelected).length,
+      aiRecommended: allChapterApps.filter(a => !!(a.isAiRecommended || a.isRecommended)).length,
+      statuses: {} as Record<string, number>,
+      years: {} as Record<string, number>,
+      branches: {} as Record<string, number>,
+      domains: {} as Record<string, number>,
+    };
+
+    for (const app of allChapterApps) {
+      const s = app.status || 'Received';
+      filterCounts.statuses[s] = (filterCounts.statuses[s] || 0) + 1;
+
+      if (app.yearOfStudy) {
+        filterCounts.years[app.yearOfStudy] = (filterCounts.years[app.yearOfStudy] || 0) + 1;
+      }
+      if (app.branch) {
+        filterCounts.branches[app.branch] = (filterCounts.branches[app.branch] || 0) + 1;
+      }
+      if (app.technicalDomain) {
+        filterCounts.domains[app.technicalDomain] = (filterCounts.domains[app.technicalDomain] || 0) + 1;
+      }
+      if (app.nonTechnicalDomain) {
+        filterCounts.domains[app.nonTechnicalDomain] = (filterCounts.domains[app.nonTechnicalDomain] || 0) + 1;
+      }
+    }
+
+    let applications = [...allChapterApps];
+
+    // Flexible Search Filtering (Semi Search & Full Search)
+    if (params.search && typeof params.search === 'string' && params.search.trim() !== '') {
+      const searchTerm = params.search.trim().toLowerCase();
+      const searchBy = params.searchBy || 'rollNo';
+      const searchMode = params.searchMode || (searchBy === 'all' ? 'full' : 'semi');
+
+      applications = applications.filter(app => {
+        if (searchMode === 'full' || searchBy === 'all') {
+          // Full Search: Match across all candidate profile fields & text
+          const combinedFields = [
+            app.name,
+            app.rollNo,
+            app.email,
+            app.phone,
+            app.id,
+            app.firestoreId,
+            app.technicalDomain,
+            app.nonTechnicalDomain,
+            app.branch,
+            app.section,
+            app.yearOfStudy,
+            app.remarks,
+            app.joinReason,
+            app.aboutClub,
+            app.anythingElse,
+            app.resumeSummary,
+            app.suitability?.technical,
+            app.suitability?.nonTechnical
+          ].filter(Boolean).join(' ').toLowerCase();
+
+          return combinedFields.includes(searchTerm);
+        } else if (searchBy === 'name') {
+          return (app.name || '').toLowerCase().includes(searchTerm);
+        } else if (searchBy === 'email') {
+          return (app.email || '').toLowerCase().includes(searchTerm);
+        } else if (searchBy === 'phone') {
+          return (app.phone || '').toLowerCase().includes(searchTerm);
+        } else if (searchBy === 'rollNo') {
+          return (app.rollNo || '').toLowerCase().includes(searchTerm);
+        } else {
+          // Semi Search: Substring match on Roll Number, Name, or Branch
+          const rollMatch = (app.rollNo || '').toLowerCase().includes(searchTerm);
+          const nameMatch = (app.name || '').toLowerCase().includes(searchTerm);
+          const branchMatch = (app.branch || '').toLowerCase().includes(searchTerm);
+          return rollMatch || nameMatch || branchMatch;
+        }
+      });
+    }
+
+    // Selection status filtering (AI Selected vs Manual Selected)
+    if (params.selectionFilter === 'ai') {
+      applications = applications.filter(app => !!(app.isAiRecommended || app.isRecommended));
+    } else if (params.selectionFilter === 'manual') {
+      applications = applications.filter(app => !!app.isManualSelected);
+    }
 
     // Client-side sorting for simplicity and performance with firestore indexes:
-    if (sortByRecommended === 'true' || sortByPerformance === 'true') {
-      applications.sort((a, b) => (b.ratings?.overall || 0) - (a.ratings?.overall || 0));
+    if (sortByRecommended === 'true') {
+      applications.sort((a, b) => {
+        const aRec = (a.isManualSelected || a.isRecommended || a.isAiRecommended) ? 1 : 0;
+        const bRec = (b.isManualSelected || b.isRecommended || b.isAiRecommended) ? 1 : 0;
+        return bRec - aRec;
+      });
+    } else if (sortByPerformance === 'true') {
+      applications.sort((a, b) => {
+        const aScore = Math.max(a.manualRatings?.overall || 0, a.ratings?.overall || 0, a.aiRatings?.overall || 0);
+        const bScore = Math.max(b.manualRatings?.overall || 0, b.ratings?.overall || 0, b.aiRatings?.overall || 0);
+        return bScore - aScore;
+      });
     } else {
       applications.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
     }
@@ -258,6 +379,7 @@ export class ApplicationService {
         totalApplications: applications.length,
         totalPages: 1,
         currentPage: 1,
+        filterCounts,
       };
     }
 
@@ -269,8 +391,10 @@ export class ApplicationService {
 
     return {
       applications: paginatedApps,
+      totalApplications: applications.length,
       hasNextPage,
       currentPage: pageIndex,
+      filterCounts,
     };
   }
 
@@ -283,7 +407,10 @@ export class ApplicationService {
   }
 
   static async toggleRecommendation(id: string, isRecommended: boolean) {
-    await ApplicationDb.updateApplicationDoc(id, { isRecommended });
+    await ApplicationDb.updateApplicationDoc(id, { 
+      isRecommended,
+      isManualSelected: isRecommended
+    });
     return { success: true };
   }
 
@@ -319,8 +446,10 @@ export class ApplicationService {
     await ApplicationDb.updateApplicationDoc(data.id, {
       status: data.status,
       isRecommended: data.isRecommended,
+      isManualSelected: data.isManualSelected !== undefined ? data.isManualSelected : data.isRecommended,
       suitability: data.suitability,
       ratings: data.ratings,
+      manualRatings: data.ratings,
       remarks: data.remarks || '',
     });
 
@@ -782,5 +911,9 @@ export class ApplicationService {
 
     // Close hiring status
     await this.toggleHiringStatus(false);
+  }
+
+  static async cleanChapterApplicants(chapter: string = '4.0') {
+    return await ApplicationDb.cleanChapterApplicants(chapter);
   }
 }

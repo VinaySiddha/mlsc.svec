@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   Bell, 
-  ChevronRight
+  ChevronRight,
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -110,6 +111,59 @@ export function AdminLayoutShell({
     new: "Create New",
     edit: "Modify"
   };
+
+  const isApplicationDetail = pathname.startsWith('/admin/application/');
+
+  if (isApplicationDetail) {
+    return (
+      <div className="min-h-screen bg-black text-white selection:bg-[#4285F4]/30 flex flex-col">
+        <style dangerouslySetInnerHTML={{ __html: `
+          body {
+            background-color: #000000 !important;
+          }
+          .admin-layout-content header {
+            display: none !important;
+          }
+          .dark .apple-card, .dark .glass-card, .dark .bento-card {
+            background: rgba(10, 10, 10, 0.7) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+            color: #ffffff !important;
+          }
+        `}} />
+        <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b border-white/10 bg-black/85 backdrop-blur-xl px-4 sm:px-8">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/applications"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-all text-xs font-bold uppercase tracking-wider group"
+            >
+              <ArrowLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Back to Applications</span>
+            </Link>
+            <div className="h-4 w-px bg-white/10 hidden sm:block" />
+            <span className="text-xs font-black text-white/40 uppercase tracking-widest hidden sm:inline">
+              Applicant Details & AI Copilot
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4]">
+              Chapter {adminChapter}
+            </span>
+            <span className="text-[10px] font-mono text-white/40 bg-white/5 px-2.5 py-1 rounded-full border border-white/5 hidden sm:inline-block">
+              {username} ({userRole})
+            </span>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>

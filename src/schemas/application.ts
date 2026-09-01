@@ -31,6 +31,7 @@ export const reviewSchema = z.object({
   status: z.string(),
   assignedTo: z.string().optional(),
   isRecommended: z.boolean(),
+  isManualSelected: z.boolean().optional(),
   suitability: z.object({
     technical: z.string().optional(),
     nonTechnical: z.string().optional(),
@@ -45,5 +46,15 @@ export const reviewSchema = z.object({
     leadership: z.number().min(0).max(5),
     overall: z.number().min(0).max(5),
   }),
+  manualRatings: z.object({
+    communication: z.number().min(0).max(5),
+    technical: z.number().min(0).max(5),
+    problemSolving: z.number().min(0).max(5),
+    teamFit: z.number().min(0).max(5),
+    confidence: z.number().min(0).max(5),
+    growthMindset: z.number().min(0).max(5),
+    leadership: z.number().min(0).max(5),
+    overall: z.number().min(0).max(5),
+  }).optional(),
   remarks: z.string().optional(),
 });

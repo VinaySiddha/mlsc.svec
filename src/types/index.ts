@@ -1,3 +1,14 @@
+export interface RatingDetails {
+    communication: number;
+    technical: number;
+    problemSolving: number;
+    teamFit: number;
+    confidence?: number;
+    growthMindset?: number;
+    leadership?: number;
+    overall: number;
+}
+
 export interface Application {
     firestoreId: string;
     id: string; // referenceId
@@ -16,16 +27,18 @@ export interface Application {
     linkedin?: string;
     image?: string;
     resumeSummary?: string | null;
-    isRecommended?: boolean;
+    isRecommended?: boolean; // Manual interview / Admin recommendation
+    isAiRecommended?: boolean; // AI screening recommendation
+    isManualSelected?: boolean; // Manual interview selection indicator
     interviewAttended?: boolean;
-    ratings?: {
-        communication: number;
-        technical: number;
-        problemSolving: number;
-        teamFit: number;
-        overall: number;
-    };
+    ratings?: RatingDetails;
+    aiRatings?: RatingDetails;
+    manualRatings?: RatingDetails;
     suitability?: {
+        technical?: string;
+        nonTechnical?: string;
+    };
+    aiSuitability?: {
         technical?: string;
         nonTechnical?: string;
     };

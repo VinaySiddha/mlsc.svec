@@ -54,12 +54,6 @@ export function buildFilteredQuery(params: {
     constraints.push(where('isRecommended', '==', true));
   }
 
-  if (search) {
-    const searchTermLower = search.toLowerCase();
-    const searchField = searchBy === 'name' ? 'name_lowercase' : 'rollNo_lowercase';
-    constraints.push(where(searchField, '==', searchTermLower));
-  }
-
   if (constraints.length > 0) {
     q = query(q, ...constraints);
   }
@@ -458,5 +452,35 @@ export class ApplicationDb {
       counts[docChapter] = (counts[docChapter] || 0) + 1;
     });
     return counts;
+  }
+
+  static async cleanChapterApplicants(chapter: string = '4.0'): Promise<number> {
+    const appsRef = collection(db, 'applications');
+    const snapshot = await getDocs(appsRef);
+    let cleanedCount = 0;
+    const batch = writeBatch(db);
+    
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const docChapter = String(data.chapter || '3.0');
+      const targetChapter = String(chapter);
+      if (docChapter === targetChapter || (targetChapter.startsWith('4') && docChapter.startsWith('4'))) {
+        batch.update(docSnap.ref, {
+          status: 'Received',
+          interviewAttended: false,
+          isManualSelected: false,
+          isRecommended: false,
+          manualRatings: null,
+          ratings: null,
+          remarks: '',
+        });
+        cleanedCount++;
+      }
+    });
+
+    if (cleanedCount > 0) {
+      await batch.commit();
+    }
+    return cleanedCount;
   }
 }

@@ -67,15 +67,16 @@ export default async function AdminPage() {
   const userRole = headersList.get('X-User-Role') || 'panel';
   const panelDomain = headersList.get('X-Panel-Domain') || undefined;
 
-  const cookieStore = await cookies();
-  const adminChapter = cookieStore.get('admin_chapter')?.value || '3.0';
-
   // Fetch data
-  const [appsResult, teamResult, settingsResult] = await Promise.all([
-    getApplications({ fetchAll: true }),
+  const [teamResult, settingsResult] = await Promise.all([
     getTeamMembers(),
     getGlobalSettings()
   ]);
+
+  const cookieStore = await cookies();
+  const adminChapter = cookieStore.get('admin_chapter')?.value || settingsResult.settings?.activeChapter || '3.0';
+
+  const appsResult = await getApplications({ fetchAll: true, chapter: adminChapter });
 
   // Fetch donations (only for super_admin and admin)
   let donations: any[] = [];
