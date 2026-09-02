@@ -229,7 +229,7 @@ export default function AboutPage() {
                                     <div className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white">
                                         ✉️
                                     </div>
-                                    <span className="normal-case">svecmlsc@outlook.com</span>
+                                    <span className="normal-case">microsoftlearnstudentclub@gmail.com</span>
                                 </div>
                             </div>
                         </ScrollReveal>

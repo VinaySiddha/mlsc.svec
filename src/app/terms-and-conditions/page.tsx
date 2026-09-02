@@ -165,7 +165,7 @@ export default function TermsAndConditionsPage() {
                   </h2>
                 </div>
                 <p>
-                  For questions regarding these Terms and Conditions, please contact us at <a href="mailto:svecmlsc@outlook.com" className="text-[#4285F4] hover:underline font-semibold">svecmlsc@outlook.com</a> or via our <Link href="/contact" className="text-[#4285F4] hover:underline font-semibold">Contact Us</Link> page.
+                  For questions regarding these Terms and Conditions, please contact us at <a href="mailto:microsoftlearnstudentclub@gmail.com" className="text-[#4285F4] hover:underline font-semibold">microsoftlearnstudentclub@gmail.com</a> or via our <Link href="/contact" className="text-[#4285F4] hover:underline font-semibold">Contact Us</Link> page.
                 </p>
               </section>
             </ScrollReveal>

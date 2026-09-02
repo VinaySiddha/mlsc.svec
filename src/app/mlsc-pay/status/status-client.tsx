@@ -450,7 +450,7 @@ export function StatusClient({ orderId }: StatusClientProps) {
             {/* Clean Footer / Support Section */}
             <div className="text-center text-[11px] text-slate-400 font-medium space-y-1">
               <p>Secure payment powered by MLSC Pay Platform.</p>
-              <p>For any queries or transaction disputes, please email <a href="mailto:vinaysiddha19@gmail.com" className="text-blue-500 hover:underline">vinaysiddha19@gmail.com</a></p>
+              <p>For any queries or transaction disputes, please email <a href="mailto:microsoftlearnstudentclub@gmail.com" className="text-blue-500 hover:underline">microsoftlearnstudentclub@gmail.com</a></p>
             </div>
 
           </div>

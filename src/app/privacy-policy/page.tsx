@@ -222,7 +222,7 @@ export default function PrivacyPolicyPage() {
                   <li><strong>The Right to Restrict Processing:</strong> You may request limitations on how your personal data is utilized.</li>
                 </ul>
                 <p className="mt-4">
-                  To exercise any of these rights, please reach out directly through our <Link href="/contact" className="text-[#4285F4] hover:underline font-semibold">Contact Page</Link> or email us at <span className="text-white font-semibold">svecmlsc@outlook.com</span>.
+                  To exercise any of these rights, please reach out directly through our <Link href="/contact" className="text-[#4285F4] hover:underline font-semibold">Contact Page</Link> or email us at <span className="text-white font-semibold">microsoftlearnstudentclub@gmail.com</span>.
                 </p>
               </section>
             </ScrollReveal>
@@ -244,7 +244,7 @@ export default function PrivacyPolicyPage() {
                 <div className="p-5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-white/80 space-y-2">
                   <p><strong>Organization:</strong> Microsoft Learn Student Club (MLSC) SVEC</p>
                   <p><strong>Campus:</strong> Sri Vasavi Engineering College, Pedatadepalli, Tadepalligudem, Andhra Pradesh 534101, India</p>
-                  <p><strong>Email:</strong> <a href="mailto:svecmlsc@outlook.com" className="text-[#4285F4] hover:underline">svecmlsc@outlook.com</a></p>
+                  <p><strong>Email:</strong> <a href="mailto:microsoftlearnstudentclub@gmail.com" className="text-[#4285F4] hover:underline">microsoftlearnstudentclub@gmail.com</a></p>
                   <p><strong>Official Website:</strong> <a href="https://mlscsvec.com" className="text-[#4285F4] hover:underline">https://mlscsvec.com</a></p>
                 </div>
               </section>

@@ -434,7 +434,7 @@ export async function rejectMLSCPaymentAction(orderId: string, reason: string) {
             <tr style="border-bottom: 1px solid #eeeeee;"><td style="padding: 8px; font-weight: bold;">Amount:</td><td style="padding: 8px; font-weight: bold;">₹${paymentData.amount}.00</td></tr>
           </table>
           
-          <p style="font-size: 13px; color: #555555;">Please re-check your bank transaction reference number and re-submit your payment request, or contact our support team at <a href="mailto:vinaysiddha19@gmail.com">vinaysiddha19@gmail.com</a> if you believe this is an error.</p>
+          <p style="font-size: 13px; color: #555555;">Please re-check your bank transaction reference number and re-submit your payment request, or contact our support team at <a href="mailto:microsoftlearnstudentclub@gmail.com">microsoftlearnstudentclub@gmail.com</a> if you believe this is an error.</p>
           <p style="margin-top: 30px; font-weight: bold;">Microsoft Learn Student Club SVEC</p>
         </div>
       `;

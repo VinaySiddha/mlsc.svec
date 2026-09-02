@@ -24,6 +24,11 @@ export const internalApplicationSchema = applicationSchema.omit({
   aboutClub: true,
   anythingElse: true,
   resume: true,
+}).extend({
+  joinReason: z.string().optional(),
+  aboutClub: z.string().optional(),
+  anythingElse: z.string().optional(),
+  terms: z.boolean().optional(),
 });
 
 export const reviewSchema = z.object({

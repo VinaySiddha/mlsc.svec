@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "How can tech organizations or mentors partner with MLSC SVEC?",
-    a: "We welcome industry speakers, tech companies, and developer mentors. Please send an email to svecmlsc@outlook.com or use the contact form with details about your proposed collaboration or session.",
+    a: "We welcome industry speakers, tech companies, and developer mentors. Please send an email to microsoftlearnstudentclub@gmail.com or use the contact form with details about your proposed collaboration or session.",
   },
   {
     q: "What is the typical response time for queries?",
@@ -75,8 +75,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Email Us</p>
-                      <a href="mailto:svecmlsc@outlook.com" className="text-base font-bold text-white hover:text-[#4285F4] transition-colors">
-                        svecmlsc@outlook.com
+                      <a href="mailto:microsoftlearnstudentclub@gmail.com" className="text-base font-bold text-white hover:text-[#4285F4] transition-colors">
+                        microsoftlearnstudentclub@gmail.com
                       </a>
                       <p className="text-xs text-white/40 mt-1">Official communication channel for all inquiries.</p>
                     </div>

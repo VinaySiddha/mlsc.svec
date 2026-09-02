@@ -198,7 +198,7 @@ export function buildEmailHtml({
                             line-height:18px;color:#80868b;">
                             © 2026 Microsoft Learn Student Chapter — SVEC<br><br>
                             This is an automated email. Please do not reply directly to this message.
-                            For support, contact the club representatives.
+                            For support, contact us at microsoftlearnstudentclub@gmail.com.
                           </td>
                         </tr>
                         <tr>

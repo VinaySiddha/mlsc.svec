@@ -387,7 +387,7 @@ export default function TrackPage() {
                     <RefreshCw className="h-3.5 w-3.5" /> Track another
                   </button>
                   <a
-                    href="mailto:mlsc@svec.edu.in"
+                    href="mailto:microsoftlearnstudentclub@gmail.com"
                     className="text-xs font-bold text-[#4285F4] hover:text-white transition-colors"
                   >
                     Need help? Contact us →

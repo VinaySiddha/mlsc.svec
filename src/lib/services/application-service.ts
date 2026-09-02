@@ -233,10 +233,10 @@ export class ApplicationService {
         teamFit: 0,
         overall: 0,
       },
-      remarks: 'Manually registered by admin.',
-      joinReason: '',
-      aboutClub: '',
-      anythingElse: '',
+      remarks: applicationData.remarks || 'Manually registered by admin.',
+      joinReason: applicationData.joinReason || '',
+      aboutClub: applicationData.aboutClub || '',
+      anythingElse: applicationData.anythingElse || '',
     };
 
     await ApplicationDb.addApplication(newApplication);
