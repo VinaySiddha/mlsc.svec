@@ -193,6 +193,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
       : (application.status !== 'Received' ? application.ratings : null)
   );
   const isSuperAdmin = userRole === 'super_admin';
+  const canAccessAiCopilot = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'support' || userRole === 'support_panel';
   const humanScore = manualRatings?.overall ?? 0;
   const hasHumanScore = humanScore > 0;
   const isManualSelected = isRecommended;
@@ -376,7 +377,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
             <span>Dossier & Rubric</span>
           </button>
 
-          {isSuperAdmin && (
+          {canAccessAiCopilot && (
             <button
               onClick={() => setActiveTab("ai_copilot")}
               className={cn(
@@ -785,7 +786,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
           )}
 
           {/* ══════════ TAB 2: AI COPILOT INTELLIGENCE HUB ══════════ */}
-          {activeTab === "ai_copilot" && isSuperAdmin && (
+          {activeTab === "ai_copilot" && canAccessAiCopilot && (
             <div className="space-y-6">
               
               {/* Top AI Briefing Card */}
