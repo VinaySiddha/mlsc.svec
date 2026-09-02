@@ -14,6 +14,7 @@ import {
   ClipboardCheck, 
   FileDown, 
   FileText, 
+  FileSpreadsheet,
   Users, 
   CheckCircle2, 
   Star, 
@@ -23,7 +24,7 @@ import {
   Zap,
   Layers
 } from 'lucide-react';
-import { bulkUpdateStatus, exportHiredToCsv, getApplications } from '@/app/actions';
+import { bulkUpdateStatus, exportHiredToCsv, exportRegisteredExcelToCsv, getApplications } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { jsPDF } from 'jspdf';
@@ -82,6 +83,7 @@ export function AdminFilters({
   const [isExporting, setIsExporting] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingRegisteredPdf, setIsDownloadingRegisteredPdf] = useState(false);
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
   const [bulkUpdateTargetStatus, setBulkUpdateTargetStatus] = useState('');
   const { toast } = useToast();
 
@@ -245,6 +247,73 @@ export function AdminFilters({
   
   const getDomainForPdf = () => {
     return panelDomain || currentFilters.domain;
+  };
+
+  const handleDownloadRegisteredExcel = async () => {
+    setIsExportingExcel(true);
+    try {
+      const params: any = { 
+        panelDomain: panelDomain,
+        domain: currentFilters.domain,
+        status: currentFilters.status,
+        year: currentFilters.year,
+        branch: currentFilters.branch,
+        selectionFilter: currentFilters.selectionFilter,
+        search: search,
+        searchBy: searchBy,
+        searchMode: searchMode,
+        fetchAll: true, 
+      };
+
+      if ((userRole === 'admin' || userRole === 'super_admin') && currentFilters.domain === 'all') {
+        delete params.domain;
+      }
+      Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
+      const result = await exportRegisteredExcelToCsv(params);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      if (!result.csvData) {
+        toast({
+          variant: "destructive",
+          title: "No Candidates Found",
+          description: "There are no registered candidates matching the current filters to export.",
+        });
+        return;
+      }
+
+      const blob = new Blob([result.csvData], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const fileType = 'Registered_Students';
+      const domain = getDomainForPdf();
+      const fileName = domain
+        ? `${fileType}_${domain}_${new Date().toISOString().split("T")[0]}.csv`
+        : `${fileType}_all_${new Date().toISOString().split("T")[0]}.csv`;
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "Excel Sheet Downloaded",
+        description: `Successfully exported ${result.count || ''} registered candidates (Roll Number, Name, Year, Branch, Section).`,
+      });
+    } catch (error) {
+      console.error("Excel export error:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      toast({
+        variant: "destructive",
+        title: "Excel Export Failed",
+        description: errorMessage,
+      });
+    } finally {
+      setIsExportingExcel(false);
+    }
   };
 
   const getLogoBase64 = async (): Promise<string | null> => {
@@ -1066,6 +1135,17 @@ export function AdminFilters({
                 >
                   {isDownloadingRegisteredPdf ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : <Users className="mr-1.5 size-3.5" />}
                   Registered PDF
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleDownloadRegisteredExcel} 
+                  disabled={isExportingExcel}
+                  className="h-8 rounded-xl text-xs font-bold border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 hover:text-emerald-200 transition-all shadow-sm flex items-center gap-1"
+                >
+                  {isExportingExcel ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : <FileSpreadsheet className="mr-1.5 size-3.5 text-emerald-400" />}
+                  Registered Excel
                 </Button>
               </>
             )}
