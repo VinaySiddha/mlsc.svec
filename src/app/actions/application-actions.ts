@@ -319,6 +319,32 @@ export async function exportHiredToCsv() {
   }
 }
 
+export async function exportRegisteredExcelToCsv(filters: any) {
+  try {
+    const { applications, error } = await getApplications({ ...filters, fetchAll: true }) as any;
+    if (error) throw new Error(error);
+
+    if (!applications || applications.length === 0) {
+      return { csvData: null, count: 0 };
+    }
+
+    const dataToExport = applications.map((app: any) => ({
+      'Roll Number': (app.rollNo || '').toString().trim().toUpperCase() || '-',
+      'Name': (app.name || '').toString().trim() || '-',
+      'Year': (app.yearOfStudy || '').toString().trim() || '-',
+      'Branch': (app.branch || '').toString().trim().toUpperCase() || '-',
+      'Section': (app.section || '').toString().trim().toUpperCase() || '-',
+    }));
+
+    const csv = '\uFEFF' + papaparse.unparse(dataToExport);
+    return { success: true, csvData: csv, count: dataToExport.length };
+  } catch (error: any) {
+    console.error('Error exporting registered excel sheet:', error);
+    return { error: 'Failed to export registered excel sheet.' };
+  }
+}
+
+
 export async function getAnalyticsData(panelDomain?: string) {
   try {
     const cookieStore = await cookies();
