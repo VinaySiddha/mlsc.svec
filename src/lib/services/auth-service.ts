@@ -29,14 +29,14 @@ export class AuthService {
     ];
 
     if (username === SUPER_ADMIN_USERNAME && password === SUPER_ADMIN_PASSWORD) {
-      return { role: 'admin', username };
+      return { role: 'admin', username, email: 'vinaysiddha.mlsc@gmail.com' };
     }
 
     const panel = panelCredentials.find(
       (p) => p.username === username && p.password === password
     );
     if (panel) {
-      return { role: 'panel', domain: panel.domain, username };
+      return { role: 'panel', domain: panel.domain, username: panel.username, email: `${panel.username}@mlsc.svec` };
     }
 
     return null;
@@ -51,5 +51,50 @@ export class AuthService {
       .setExpirationTime('1d')
       .sign(secret);
     return token;
+  }
+
+  static async verifyToken(token: string) {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) return null;
+    const secret = new TextEncoder().encode(JWT_SECRET);
+    try {
+      const { jwtVerify } = await import('jose');
+      const { payload } = await jwtVerify(token, secret);
+      return payload as { role?: string; domain?: string; username?: string; email?: string; name?: string };
+    } catch {
+      return null;
+    }
+  }
+
+  static async getSessionUser() {
+    try {
+      const { cookies, headers } = await import('next/headers');
+      
+      try {
+        const headersList = await headers();
+        const headerUsername = headersList.get('X-User-Username');
+        const headerEmail = headersList.get('X-User-Email');
+        const headerRole = headersList.get('X-User-Role');
+        const headerDomain = headersList.get('X-Panel-Domain');
+
+        if (headerUsername || headerEmail || headerRole) {
+          return {
+            username: headerUsername || undefined,
+            email: headerEmail || undefined,
+            role: headerRole || undefined,
+            domain: headerDomain || undefined,
+          };
+        }
+      } catch {
+        // Fallback to cookie check if headers are not available in current scope
+      }
+
+      const cookieStore = await cookies();
+      const sessionToken = cookieStore.get('session')?.value;
+      if (!sessionToken) return null;
+      return await this.verifyToken(sessionToken);
+    } catch {
+      return null;
+    }
   }
 }

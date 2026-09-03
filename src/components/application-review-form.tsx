@@ -101,6 +101,7 @@ interface ApplicationReviewFormProps {
 const processingStatuses = [
   'Received', 
   'Invited to Interview', 
+  'Interviewed',
   'Interview Done', 
   'Thank You For Attending'
 ];
@@ -165,7 +166,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
   const form = useForm<FormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
-      status: application.status ?? 'Received',
+      status: (application.status && application.status !== 'Received') ? application.status : 'Interviewed',
       isRecommended: application.isManualSelected ?? application.isRecommended ?? false,
       isManualSelected: application.isManualSelected ?? application.isRecommended ?? false,
       suitability: {
@@ -214,9 +215,11 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
     setIsSubmitting(true);
     
     try {
+      const finalStatus = (values.status === 'Received' || !values.status) ? 'Interviewed' : values.status;
       const payload = {
         id: application.firestoreId || application.id,
         ...values,
+        status: finalStatus,
         isManualSelected: values.isRecommended,
         manualRatings: values.ratings,
       };

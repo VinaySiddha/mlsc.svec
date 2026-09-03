@@ -27,6 +27,35 @@ export interface BugReport {
   createdAt: string;
 }
 
+import { AuthService } from '@/lib/services/auth-service';
+
+function formatUserIdentity(sessionUser: { username?: string; name?: string; email?: string; role?: string; domain?: string }) {
+  const panelMap: Record<string, string> = {
+    'gen_ai_panel': 'Generative AI Panel',
+    'ds_ml_panel': 'Data Science & ML Panel',
+    'azure_panel': 'Azure Cloud Panel',
+    'web_app_panel': 'Web & App Dev Panel',
+    'vinaysiddha': 'Vinay Siddha (Super Admin)',
+  };
+
+  let name = sessionUser.name || (sessionUser.username ? (panelMap[sessionUser.username] || sessionUser.username) : undefined);
+  if (!name && sessionUser.email) {
+    name = sessionUser.email.split('@')[0];
+  }
+  
+  let email = sessionUser.email;
+  if (!email && sessionUser.username) {
+    if (sessionUser.username === 'vinaysiddha') {
+      email = 'vinaysiddha.mlsc@gmail.com';
+    } else {
+      email = `${sessionUser.username}@mlsc.svec`;
+    }
+  }
+
+  const id = email || sessionUser.username || sessionUser.role || 'system';
+  return { name: name || 'Admin', email: email || '', id };
+}
+
 export async function logActivityAction(
   message: string,
   details?: string,
@@ -36,13 +65,34 @@ export async function logActivityAction(
   meta?: any
 ) {
   try {
+    let finalUserId = userId;
+    let finalUserName = userName;
+    let finalUserEmail = userEmail;
+
+    // Check if name is generic or placeholder
+    const isGenericName = !finalUserName || ['system', 'system admin', 'interviewer', 'interview admin', 'admin', 'anonymous'].some(g => finalUserName?.toLowerCase().includes(g));
+
+    if (isGenericName || !finalUserEmail) {
+      try {
+        const sessionUser = await AuthService.getSessionUser();
+        if (sessionUser) {
+          const resolved = formatUserIdentity(sessionUser);
+          if (!finalUserId || finalUserId === 'system') finalUserId = resolved.id;
+          if (isGenericName) finalUserName = resolved.name;
+          if (!finalUserEmail) finalUserEmail = resolved.email;
+        }
+      } catch (authError) {
+        console.warn('Could not retrieve session user for activity log:', authError);
+      }
+    }
+
     const logData = {
       type: 'activity',
       message,
       details: details || '',
-      userId: userId || 'system',
-      userName: userName || 'System',
-      userEmail: userEmail || '',
+      userId: finalUserId || 'system',
+      userName: finalUserName || 'System',
+      userEmail: finalUserEmail || '',
       timestamp: new Date().toISOString(),
       meta: meta || null,
     };
@@ -59,17 +109,40 @@ export async function logErrorAction(
   details?: string,
   userId?: string,
   userName?: string,
+  userEmailOrMeta?: string | any,
   meta?: any
 ) {
   try {
+    let finalUserId = userId;
+    let finalUserName = userName;
+    let finalUserEmail = typeof userEmailOrMeta === 'string' ? userEmailOrMeta : (userEmailOrMeta?.userEmail || userEmailOrMeta?.email || undefined);
+    let finalMeta = typeof userEmailOrMeta === 'object' && userEmailOrMeta !== null && !meta ? userEmailOrMeta : (meta || null);
+
+    const isGenericName = !finalUserName || ['system', 'system admin', 'interviewer', 'interview admin', 'admin', 'anonymous'].some(g => finalUserName?.toLowerCase().includes(g));
+
+    if (isGenericName || !finalUserEmail) {
+      try {
+        const sessionUser = await AuthService.getSessionUser();
+        if (sessionUser) {
+          const resolved = formatUserIdentity(sessionUser);
+          if (!finalUserId || finalUserId === 'system') finalUserId = resolved.id;
+          if (isGenericName) finalUserName = resolved.name;
+          if (!finalUserEmail) finalUserEmail = resolved.email;
+        }
+      } catch (authError) {
+        console.warn('Could not retrieve session user for error log:', authError);
+      }
+    }
+
     const logData = {
       type: 'error',
       message,
       details: details || '',
-      userId: userId || 'system',
-      userName: userName || 'System',
+      userId: finalUserId || 'system',
+      userName: finalUserName || 'System',
+      userEmail: finalUserEmail || '',
       timestamp: new Date().toISOString(),
-      meta: meta || null,
+      meta: finalMeta || null,
     };
     await addDoc(collection(db, 'systemLogs'), logData);
     return { success: true };

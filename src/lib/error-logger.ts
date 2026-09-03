@@ -8,22 +8,30 @@ import { logErrorAction } from '@/app/actions/log-actions';
  * @param error - The actual error object or details
  * @param componentName - Name of the component or page where the error occurred
  * @param email - Email of the active user (if authenticated)
+ * @param userName - Name/Username of the active user (optional)
  */
 export async function logClientError(
   message: string, 
   error: any, 
   componentName = 'Client Component', 
-  email = 'unknown'
+  email = 'unknown',
+  userName?: string
 ) {
   console.error(`[System Error Logged - ${componentName}]:`, error);
   try {
     const errorDetails = error?.stack || error?.message || String(error);
+    const validEmail = (email && email !== 'unknown' && email !== 'anonymous') ? email : undefined;
+    const validName = (userName && userName !== 'unknown' && userName !== 'anonymous') 
+      ? userName 
+      : (validEmail ? validEmail.split('@')[0] : undefined);
+
     await logErrorAction(
-      `[Client] ${message}`,
+      `[${componentName}] ${message}`,
       errorDetails,
-      undefined, // ID will be resolved from email context
-      componentName,
-      { email, userEmail: email }
+      validEmail,
+      validName,
+      validEmail,
+      { email: validEmail, component: componentName }
     );
   } catch (logErr) {
     console.error('Centralized error logging failed:', logErr);

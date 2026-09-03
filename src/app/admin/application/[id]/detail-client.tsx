@@ -131,7 +131,9 @@ const getStatusVariant = (status?: string) => {
       return 'destructive';
     case 'under processing':
     case 'interviewing':
+    case 'interviewed':
     case 'interview done':
+    case 'thank you for attending':
     case 'recommended':
       return 'secondary';
     default:

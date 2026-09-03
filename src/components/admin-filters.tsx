@@ -24,7 +24,7 @@ import {
   Zap,
   Layers
 } from 'lucide-react';
-import { bulkUpdateStatus, exportHiredToCsv, exportRegisteredExcelToCsv, getApplications } from '@/app/actions';
+import { bulkUpdateStatus, exportHiredToCsv, exportRegisteredExcelToCsv, getApplications, syncReviewedApplicationsAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { jsPDF } from 'jspdf';
@@ -84,6 +84,7 @@ export function AdminFilters({
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingRegisteredPdf, setIsDownloadingRegisteredPdf] = useState(false);
   const [isExportingExcel, setIsExportingExcel] = useState(false);
+  const [isSyncingReviewed, setIsSyncingReviewed] = useState(false);
   const [bulkUpdateTargetStatus, setBulkUpdateTargetStatus] = useState('');
   const { toast } = useToast();
 
@@ -606,6 +607,36 @@ export function AdminFilters({
     }
   };
 
+  const handleSyncReviewed = async () => {
+    setIsSyncingReviewed(true);
+    try {
+      const res = await syncReviewedApplicationsAction();
+      if ('error' in res && res.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Sync Failed',
+          description: String(res.error),
+        });
+      } else if ('updatedCount' in res) {
+        toast({
+          title: '✓ Reviewed Applications Synced',
+          description: `Synchronized ${res.updatedCount || 0} applications to Attended & Interviewed status.`,
+        });
+        startTransition(() => {
+          router.refresh();
+        });
+      }
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Sync Failed',
+        description: err.message || 'An error occurred during sync.',
+      });
+    } finally {
+      setIsSyncingReviewed(false);
+    }
+  };
+
   const resetFilters = () => {
     setSearch('');
     setSearchBy('all');
@@ -628,7 +659,7 @@ export function AdminFilters({
   ].filter(Boolean).length;
 
   const isSuperAdmin = userRole === 'super_admin';
-  const bulkUpdateStatuses = ['Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
+  const bulkUpdateStatuses = ['Interviewed', 'Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
   const showPdfButtonsForAdmin = userRole === 'admin' || userRole === 'super_admin';
   const showPdfButtonsForPanel = userRole === 'panel' || userRole === 'common_panel';
 
@@ -1108,6 +1139,19 @@ export function AdminFilters({
                 >
                   {isExporting ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : <FileDown className="mr-1.5 size-3.5" />}
                   Export Hired
+                </Button>
+
+                {/* Sync Reviewed Applications */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSyncReviewed} 
+                  disabled={isSyncingReviewed || isPending}
+                  title="Synchronize all reviewed candidates to Attended and Interviewed status"
+                  className="h-8 rounded-xl text-xs font-bold border-white/10 bg-white/5 hover:bg-emerald-500/20 hover:border-emerald-500/30 text-emerald-400 hover:text-emerald-300 transition-all"
+                >
+                  {isSyncingReviewed ? <Loader2 className="mr-1.5 size-3.5 animate-spin" /> : <RotateCcw className="mr-1.5 size-3.5" />}
+                  Sync Interviewed
                 </Button>
               </>
             )}

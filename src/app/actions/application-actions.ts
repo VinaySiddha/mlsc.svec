@@ -131,9 +131,7 @@ export async function saveApplicationReview(data: any) {
     // Log real-time system activity
     await logActivityAction(
       `Application Reviewed`,
-      `Application ID ${parsed.data.id} was reviewed by interviewer. Status updated.`,
-      undefined,
-      "Interviewer"
+      `Application ID ${parsed.data.id} was reviewed by interviewer. Status updated.`
     );
     return { success: true };
   } catch (error: any) {
@@ -145,14 +143,31 @@ export async function saveApplicationReview(data: any) {
     return { error: 'Failed to save review.' };
   }
 }
+
+export async function syncReviewedApplicationsAction() {
+  try {
+    const result = await ApplicationService.syncReviewedApplications();
+    await logActivityAction(
+      `Synced Reviewed Applications`,
+      `Synchronized ${result.updatedCount} reviewed applications to Attended & Interviewed status.`
+    );
+    return { success: true, ...result };
+  } catch (error: any) {
+    console.error('Error syncing reviewed applications:', error);
+    await logErrorAction(
+      `Sync Reviewed Applications Failed`,
+      `Error: ${error.message || error}`
+    );
+    return { error: error.message || 'Failed to sync reviewed applications.' };
+  }
+}
+
 export async function toggleRecommendation(id: string, isRecommended: boolean) {
   try {
     await ApplicationService.toggleRecommendation(id, isRecommended);
     await logActivityAction(
       `Candidate Recommendation Toggled`,
-      `Application ID ${id} was marked as recommended: ${isRecommended}`,
-      undefined,
-      "System Admin"
+      `Application ID ${id} was marked as recommended: ${isRecommended}`
     );
     return { success: true };
   } catch (error: any) {
@@ -170,9 +185,7 @@ export async function updateApplicantDetailsAction(id: string, data: any) {
     await ApplicationService.updateApplicantDetails(id, data);
     await logActivityAction(
       `Applicant Details Updated`,
-      `Application ID ${id} was updated with new details.`,
-      undefined,
-      "System Admin"
+      `Application ID ${id} was updated with new details.`
     );
     return { success: true };
   } catch (error: any) {
@@ -190,9 +203,7 @@ export async function deleteApplicationAction(id: string) {
     await ApplicationService.deleteApplication(id);
     await logActivityAction(
       `Application Deleted`,
-      `Application ID ${id} was permanently deleted from the database.`,
-      undefined,
-      "System Admin"
+      `Application ID ${id} was permanently deleted from the database.`
     );
     return { success: true };
   } catch (error: any) {
@@ -258,9 +269,7 @@ export async function bulkProcessList(ids: string[], newStatus: string) {
     }
     await logActivityAction(
       `Bulk Processed Recommended Candidates`,
-      `Updated ${updatedCount} candidates to status: ${newStatus}`,
-      undefined,
-      "System Admin"
+      `Updated ${updatedCount} candidates to status: ${newStatus}`
     );
     return { success: true, count: updatedCount };
   } catch (error: any) {

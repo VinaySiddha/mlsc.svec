@@ -525,10 +525,18 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                       {log.details}
                     </p>
                   )}
-                  {log.userName && (
-                    <p className="text-[9px] text-slate-400 dark:text-zinc-650 pl-3.5 font-bold uppercase">
-                      By: {log.userName} {log.userEmail ? `(${log.userEmail})` : ''}
-                    </p>
+                  {(log.userName || log.userEmail) && (
+                    <div className="flex items-center gap-1.5 pl-3.5 pt-0.5">
+                      <span className="text-[9px] font-bold text-zinc-500 uppercase">User:</span>
+                      <span className="text-[10px] font-semibold text-[#4285F4]">
+                        {log.userName || 'System'}
+                      </span>
+                      {log.userEmail && (
+                        <span className="text-[9px] text-zinc-500 font-mono">
+                          ({log.userEmail})
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
@@ -559,6 +567,19 @@ export function OperationsCenter({ mode }: OperationsCenterProps) {
                     <pre className="text-[10px] text-slate-400 dark:text-zinc-500 pl-3.5 font-mono bg-black/40 p-2.5 rounded-md overflow-x-auto mt-2 max-w-full">
                       <code>{err.details}</code>
                     </pre>
+                  )}
+                  {(err.userName || err.userEmail) && (
+                    <div className="flex items-center gap-1.5 pl-3.5 pt-1">
+                      <span className="text-[9px] font-bold text-red-400/70 uppercase">User:</span>
+                      <span className="text-[10px] font-semibold text-red-400">
+                        {err.userName || 'System'}
+                      </span>
+                      {err.userEmail && (
+                        <span className="text-[9px] text-red-400/60 font-mono">
+                          ({err.userEmail})
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">

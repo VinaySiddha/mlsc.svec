@@ -126,7 +126,7 @@ async function ApplicationsDashboard({
   }) as any;
 
   const filterData = {
-    statuses: ['Received', 'Invited to Interview', 'Interview Done', 'Thank You For Attending', 'Hired', 'Rejected'],
+    statuses: ['Received', 'Invited to Interview', 'Interviewed', 'Interview Done', 'Thank You For Attending', 'Hired', 'Rejected'],
     years: ["2nd", "3rd"],
     branches: ["AIML", "CAI", "CSE", "CST", "ECE", "Others"],
     domains: ['gen_ai', 'ds_ml', 'azure', 'web_app', 'event_management', 'public_relations', 'media_marketing', 'creativity']

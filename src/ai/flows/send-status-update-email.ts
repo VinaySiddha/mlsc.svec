@@ -13,7 +13,7 @@ const StatusUpdateEmailInputSchema = z.object({
     name: z.string().describe("The applicant's name."),
     email: z.string().email().describe("The applicant's email address."),
     status: z.string().describe('The new status of the application (e.g., "Hired", "Rejected", "Interviewing").'),
-    referenceId: z.string().describe("Unique Reference ID for the applicant."),
+    referenceId: z.string().optional().default('MLSC-SVEC').describe("Unique Reference ID for the applicant."),
 });
 export type StatusUpdateEmailInput = z.infer<typeof StatusUpdateEmailInputSchema>;
 
@@ -27,7 +27,18 @@ function getStatusConfig(status: string): { subject: string; headline: string; m
                 accent: '#34A853',
                 message: `We are thrilled to inform you that your application for the <strong>MLSC 4.0 Hiring Program</strong> has been successful, and you have been selected to join the team! You will receive a separate invitation email shortly with instructions on how to complete your onboarding process.`,
             };
+        case 'Interviewed':
+        case 'Interview Done':
+        case 'Thank You For Attending':
+            return {
+                subject: `✨ Thank You for Applying & Attending Your Interview — MLSC SVEC`,
+                headline: `Thank You for Interviewing with Us! ✨`,
+                eyebrow: '#MLSC4.0 · Interview & Application Update',
+                accent: '#4285F4',
+                message: `A big, heartfelt thank you for applying to the <strong>MLSC 4.0 Recruitment Drive</strong> and taking the time to attend your interview evaluation with our panel! We truly appreciate your enthusiasm, effort, and interest in joining the Microsoft Learn Student Chapter community.<br><br>Our panel leads and mentors are currently conducting final deliberations and reviewing all interview evaluations.<br><br><strong>What's Next?</strong><br>• <strong>If you are selected / hired:</strong> You will receive an official selection and onboarding email shortly with details on the next steps.<br>• <strong>If not selected this time:</strong> That will conclude your application process for this chapter. Please know that we are immensely grateful for the time, passion, and effort you dedicated to this process, and we encourage you to keep building, learning, and participating in our upcoming chapter events and workshops.<br><br>Thanks a lot for being part of this journey!`,
+            };
         case 'Interviewing':
+        case 'Invited to Interview':
             return {
                 subject: `📅 You're Invited for an Interview — MLSC 4.0`,
                 headline: `Interview Invitation 📅`,

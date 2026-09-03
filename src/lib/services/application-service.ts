@@ -262,7 +262,22 @@ export class ApplicationService {
 
     const targetChapter = params.chapter || '3.0';
     const allChapterApps = applicationsDocs.docs
-      .map(doc => ({ firestoreId: doc.id, ...doc.data() } as Application))
+      .map(doc => {
+        const data = doc.data();
+        const hasManualReview = !!(
+          (data.manualRatings && (data.manualRatings.overall > 0 || data.manualRatings.technical > 0 || data.manualRatings.communication > 0)) ||
+          (data.ratings && data.aiRatings && data.ratings.overall !== data.aiRatings.overall && data.ratings.overall > 0) ||
+          (data.status === 'Interviewed' || data.status === 'Interview Done' || data.status === 'Thank You For Attending')
+        );
+        const interviewAttended = hasManualReview ? true : !!data.interviewAttended;
+        const status = (hasManualReview && (data.status === 'Received' || !data.status)) ? 'Interviewed' : (data.status || 'Received');
+        return { 
+          firestoreId: doc.id, 
+          ...data,
+          interviewAttended,
+          status,
+        } as Application;
+      })
       .filter(app => {
         const appChapter = app.chapter || '3.0';
         return appChapter === targetChapter;
@@ -299,6 +314,33 @@ export class ApplicationService {
     }
 
     let applications = [...allChapterApps];
+
+    // Attendance filter (Attended / Present)
+    if (params.attendedOnly === 'true' || params.attendedOnly === true) {
+      applications = applications.filter(app => !!app.interviewAttended);
+    }
+
+    // Status filter
+    if (params.status && params.status !== 'all') {
+      applications = applications.filter(app => (app.status || 'Received') === params.status);
+    }
+
+    // Year of study filter
+    if (params.year && params.year !== 'all') {
+      applications = applications.filter(app => app.yearOfStudy === params.year);
+    }
+
+    // Branch filter
+    if (params.branch && params.branch !== 'all') {
+      applications = applications.filter(app => app.branch === params.branch);
+    }
+
+    // Domain filter
+    if (params.domain && params.domain !== 'all') {
+      const nonTechDomains = ['event_management', 'public_relations', 'media_marketing', 'creativity'];
+      const isNonTech = nonTechDomains.includes(params.domain);
+      applications = applications.filter(app => isNonTech ? app.nonTechnicalDomain === params.domain : app.technicalDomain === params.domain);
+    }
 
     // Flexible Search Filtering (Semi Search & Full Search)
     if (params.search && typeof params.search === 'string' && params.search.trim() !== '') {
@@ -443,8 +485,12 @@ export class ApplicationService {
     const docSnap = await ApplicationDb.getApplicationDoc(data.id);
     const existing = docSnap.exists() ? docSnap.data() : null;
 
+    // Automatic rule: human manual review automatically marks attended and changes status to 'Interviewed'
+    const finalStatus = (data.status === 'Received' || !data.status) ? 'Interviewed' : data.status;
+
     await ApplicationDb.updateApplicationDoc(data.id, {
-      status: data.status,
+      status: finalStatus,
+      interviewAttended: true, // Automatically set attended on manual review
       isRecommended: data.isRecommended,
       isManualSelected: data.isManualSelected !== undefined ? data.isManualSelected : data.isRecommended,
       suitability: data.suitability,
@@ -453,21 +499,37 @@ export class ApplicationService {
       remarks: data.remarks || '',
     });
 
-    // Send status update email in background whenever status changes
-    if (existing && existing.email && existing.status !== data.status) {
+    // Send status update email in background whenever status changes or upon manual review
+    if (existing && existing.email) {
       (async () => {
         try {
           await sendStatusUpdateEmail({
             name: existing.name,
             email: existing.email,
-            status: data.status,
-            referenceId: existing.id,
+            status: finalStatus,
+            referenceId: existing.id || existing.rollNo || data.id || 'MLSC-SVEC',
           });
         } catch (emailError) {
           console.error(`Failed to send status update email to ${existing.email}:`, emailError);
         }
       })();
     }
+  }
+
+  static async syncReviewedApplications() {
+    const { updatedCount, applicantsToEmail } = await ApplicationDb.syncReviewedApplications();
+
+    (async () => {
+      for (const applicant of applicantsToEmail) {
+        try {
+          await sendStatusUpdateEmail(applicant);
+        } catch (emailError) {
+          console.error(`Failed to send sync status update email to ${applicant.email}:`, emailError);
+        }
+      }
+    })();
+
+    return { updatedCount, emailCount: applicantsToEmail.length };
   }
 
   static async updateAttendance(firestoreId: string, attended: boolean) {
@@ -477,14 +539,13 @@ export class ApplicationService {
   }
 
   static async bulkUpdateStatus(filters: any, newStatus: string) {
-    const q = buildFilteredQuery(filters);
-    const querySnapshot = await ApplicationDb.getApplicationsDocs(q);
+    const { applications } = await this.getApplications({ ...filters, fetchAll: true });
 
-    if (querySnapshot.empty) {
+    if (!applications || applications.length === 0) {
       return { updatedCount: 0, sentEmailCount: 0 };
     }
 
-    const applicantsToEmail = await ApplicationDb.executeBulkStatusUpdate(querySnapshot, newStatus);
+    const applicantsToEmail = await ApplicationDb.executeBulkStatusUpdateForList(applications, newStatus);
 
     (async () => {
       let sentCount = 0;
@@ -498,7 +559,7 @@ export class ApplicationService {
       }
     })();
 
-    return { updatedCount: querySnapshot.size, sentEmailCount: applicantsToEmail.length };
+    return { updatedCount: applications.length, sentEmailCount: applicantsToEmail.length };
   }
 
   static async bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
@@ -562,7 +623,21 @@ export class ApplicationService {
 
     const allApplicationsSnapshot = await ApplicationDb.getApplicationsDocs(q);
     const applications = allApplicationsSnapshot.docs
-      .map(doc => doc.data())
+      .map(doc => {
+        const data = doc.data();
+        const hasManualReview = !!(
+          (data.manualRatings && (data.manualRatings.overall > 0 || data.manualRatings.technical > 0 || data.manualRatings.communication > 0)) ||
+          (data.ratings && data.aiRatings && data.ratings.overall !== data.aiRatings.overall && data.ratings.overall > 0) ||
+          (data.status === 'Interviewed' || data.status === 'Interview Done' || data.status === 'Thank You For Attending')
+        );
+        const interviewAttended = hasManualReview ? true : !!data.interviewAttended;
+        const status = (hasManualReview && (data.status === 'Received' || !data.status)) ? 'Interviewed' : (data.status || 'Received');
+        return {
+          ...data,
+          interviewAttended,
+          status,
+        } as Application;
+      })
       .filter(app => (app.chapter || '3.0') === chapter);
 
     const totalApplications = applications.length;
@@ -700,12 +775,26 @@ export class ApplicationService {
   }
 
   static async getInterviewAnalyticsData(chapter: string = '3.0') {
-    const q = buildFilteredQuery({ attendedOnly: true });
+    const q = buildFilteredQuery({});
 
     const allApplicationsSnapshot = await ApplicationDb.getApplicationsDocs(q);
     const applications = allApplicationsSnapshot.docs
-      .map(doc => doc.data())
-      .filter(app => (app.chapter || '3.0') === chapter);
+      .map(doc => {
+        const data = doc.data();
+        const hasManualReview = !!(
+          (data.manualRatings && (data.manualRatings.overall > 0 || data.manualRatings.technical > 0 || data.manualRatings.communication > 0)) ||
+          (data.ratings && data.aiRatings && data.ratings.overall !== data.aiRatings.overall && data.ratings.overall > 0) ||
+          (data.status === 'Interviewed' || data.status === 'Interview Done' || data.status === 'Thank You For Attending')
+        );
+        const interviewAttended = hasManualReview ? true : !!data.interviewAttended;
+        const status = (hasManualReview && (data.status === 'Received' || !data.status)) ? 'Interviewed' : (data.status || 'Received');
+        return {
+          ...data,
+          interviewAttended,
+          status,
+        } as Application;
+      })
+      .filter(app => (app.chapter || '3.0') === chapter && app.interviewAttended);
 
     const totalApplications = applications.length;
 

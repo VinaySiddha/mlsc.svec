@@ -28,30 +28,19 @@ export function buildFilteredQuery(params: {
   year?: string;
   branch?: string;
   domain?: string;
-  attendedOnly?: boolean;
+  attendedOnly?: boolean | string;
   sortByRecommended?: string;
 }) {
-  const { panelDomain, search, searchBy, status, year, branch, domain, attendedOnly, sortByRecommended } = params;
+  const { panelDomain } = params;
   let q: Query<DocumentData> = collection(db, 'applications');
   const constraints: QueryConstraint[] = [
     where("isArchived", "==", false)
   ];
 
-  const nonTechDomains = ['event_management', 'public_relations', 'media_marketing', 'creativity'];
-
-  if (domain && domain !== 'all') {
-    const isNonTech = nonTechDomains.includes(domain);
-    constraints.push(where(isNonTech ? 'nonTechnicalDomain' : 'technicalDomain', '==', domain));
-  }
-
-  if (status && status !== 'all') {
-    constraints.push(where('status', '==', status));
-  }
-  if (year) constraints.push(where('yearOfStudy', '==', year));
-  if (branch) constraints.push(where('branch', '==', branch));
-  if (attendedOnly) constraints.push(where('interviewAttended', '==', true));
-  if (sortByRecommended === 'true') {
-    constraints.push(where('isRecommended', '==', true));
+  if (panelDomain) {
+    const nonTechDomains = ['event_management', 'public_relations', 'media_marketing', 'creativity'];
+    const isNonTech = nonTechDomains.includes(panelDomain);
+    constraints.push(where(isNonTech ? 'nonTechnicalDomain' : 'technicalDomain', '==', panelDomain));
   }
 
   if (constraints.length > 0) {
@@ -215,12 +204,51 @@ export class ApplicationDb {
           name: data.name,
           email: data.email,
           status: newStatus,
-          referenceId: data.id,
+          referenceId: data.id || data.rollNo || documentSnapshot.id || 'MLSC-SVEC',
         });
       }
     });
 
     await batch.commit();
+    return applicantsToEmail;
+  }
+
+  static async executeBulkStatusUpdateForList(applications: any[], newStatus: string) {
+    let batch = writeBatch(db);
+    let operationCount = 0;
+    const applicantsToEmail: any[] = [];
+
+    const commitBatchIfNeeded = async () => {
+      if (operationCount >= 400) {
+        await batch.commit();
+        batch = writeBatch(db);
+        operationCount = 0;
+      }
+    };
+
+    for (const app of applications) {
+      if (app.status !== newStatus) {
+        const docId = app.firestoreId || app.id;
+        if (docId) {
+          const docRef = doc(db, 'applications', docId);
+          batch.update(docRef, { status: newStatus });
+          operationCount++;
+          await commitBatchIfNeeded();
+
+          applicantsToEmail.push({
+            name: app.name,
+            email: app.email,
+            status: newStatus,
+            referenceId: app.id || app.rollNo || app.firestoreId || 'MLSC-SVEC',
+          });
+        }
+      }
+    }
+
+    if (operationCount > 0) {
+      await batch.commit();
+    }
+
     return applicantsToEmail;
   }
 
@@ -483,4 +511,70 @@ export class ApplicationDb {
     }
     return cleanedCount;
   }
+
+  static async syncReviewedApplications(): Promise<{ updatedCount: number; applicantsToEmail: any[] }> {
+    const appsRef = collection(db, 'applications');
+    const snapshot = await getDocs(appsRef);
+    let updatedCount = 0;
+    let operationCount = 0;
+    let batch = writeBatch(db);
+    const applicantsToEmail: any[] = [];
+
+    const commitBatchIfNeeded = async () => {
+      if (operationCount >= 400) {
+        await batch.commit();
+        batch = writeBatch(db);
+        operationCount = 0;
+      }
+    };
+
+    for (const docSnap of snapshot.docs) {
+      const data = docSnap.data();
+      const hasManualReview = (
+        (data.manualRatings && (data.manualRatings.overall > 0 || data.manualRatings.technical > 0 || data.manualRatings.communication > 0)) ||
+        (data.ratings && data.aiRatings && data.ratings.overall !== data.aiRatings.overall && data.ratings.overall > 0) ||
+        (data.status === 'Interviewed' || data.status === 'Interview Done' || data.status === 'Thank You For Attending')
+      );
+
+      if (hasManualReview) {
+        const updates: Record<string, any> = {};
+        let needsUpdate = false;
+
+        if (!data.interviewAttended) {
+          updates.interviewAttended = true;
+          needsUpdate = true;
+        }
+
+        // Change status to Interviewed if still Received or empty
+        if (data.status === 'Received' || !data.status) {
+          updates.status = 'Interviewed';
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          batch.update(docSnap.ref, updates);
+          updatedCount++;
+          operationCount++;
+          await commitBatchIfNeeded();
+
+          const finalStatus = updates.status || data.status;
+          if (data.email) {
+            applicantsToEmail.push({
+              name: data.name,
+              email: data.email,
+              status: finalStatus,
+              referenceId: data.id || data.rollNo || docSnap.id || 'MLSC-SVEC',
+            });
+          }
+        }
+      }
+    }
+
+    if (operationCount > 0) {
+      await batch.commit();
+    }
+
+    return { updatedCount, applicantsToEmail };
+  }
 }
+
