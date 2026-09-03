@@ -499,37 +499,35 @@ export class ApplicationService {
       remarks: data.remarks || '',
     });
 
-    // Send status update email in background whenever status changes or upon manual review
+    // Send status update email whenever status changes or upon manual review
     if (existing && existing.email) {
-      (async () => {
-        try {
-          await sendStatusUpdateEmail({
-            name: existing.name,
-            email: existing.email,
-            status: finalStatus,
-            referenceId: existing.id || existing.rollNo || data.id || 'MLSC-SVEC',
-          });
-        } catch (emailError) {
-          console.error(`Failed to send status update email to ${existing.email}:`, emailError);
-        }
-      })();
+      try {
+        await sendStatusUpdateEmail({
+          name: existing.name || 'Applicant',
+          email: existing.email,
+          status: finalStatus,
+          referenceId: existing.id || existing.rollNo || data.id || 'MLSC-SVEC',
+        });
+      } catch (emailError) {
+        console.error(`Failed to send status update email to ${existing.email}:`, emailError);
+      }
     }
   }
 
   static async syncReviewedApplications() {
     const { updatedCount, applicantsToEmail } = await ApplicationDb.syncReviewedApplications();
 
-    (async () => {
-      for (const applicant of applicantsToEmail) {
-        try {
-          await sendStatusUpdateEmail(applicant);
-        } catch (emailError) {
-          console.error(`Failed to send sync status update email to ${applicant.email}:`, emailError);
-        }
+    let emailCount = 0;
+    for (const applicant of applicantsToEmail) {
+      try {
+        await sendStatusUpdateEmail(applicant);
+        emailCount++;
+      } catch (emailError) {
+        console.error(`Failed to send sync status update email to ${applicant.email}:`, emailError);
       }
-    })();
+    }
 
-    return { updatedCount, emailCount: applicantsToEmail.length };
+    return { updatedCount, emailCount };
   }
 
   static async updateAttendance(firestoreId: string, attended: boolean) {

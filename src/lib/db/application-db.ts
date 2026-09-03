@@ -519,6 +519,7 @@ export class ApplicationDb {
     let operationCount = 0;
     let batch = writeBatch(db);
     const applicantsToEmail: any[] = [];
+    const seenEmails = new Set<string>();
 
     const commitBatchIfNeeded = async () => {
       if (operationCount >= 400) {
@@ -530,13 +531,14 @@ export class ApplicationDb {
 
     for (const docSnap of snapshot.docs) {
       const data = docSnap.data();
-      const hasManualReview = (
+      const isMarkedOrReviewed = (
+        data.interviewAttended === true ||
         (data.manualRatings && (data.manualRatings.overall > 0 || data.manualRatings.technical > 0 || data.manualRatings.communication > 0)) ||
         (data.ratings && data.aiRatings && data.ratings.overall !== data.aiRatings.overall && data.ratings.overall > 0) ||
         (data.status === 'Interviewed' || data.status === 'Interview Done' || data.status === 'Thank You For Attending')
       );
 
-      if (hasManualReview) {
+      if (isMarkedOrReviewed) {
         const updates: Record<string, any> = {};
         let needsUpdate = false;
 
@@ -556,16 +558,18 @@ export class ApplicationDb {
           updatedCount++;
           operationCount++;
           await commitBatchIfNeeded();
+        }
 
-          const finalStatus = updates.status || data.status;
-          if (data.email) {
-            applicantsToEmail.push({
-              name: data.name,
-              email: data.email,
-              status: finalStatus,
-              referenceId: data.id || data.rollNo || docSnap.id || 'MLSC-SVEC',
-            });
-          }
+        const finalStatus = updates.status || data.status || 'Interviewed';
+        const applicantEmail = data.email ? data.email.trim().toLowerCase() : null;
+        if (applicantEmail && !seenEmails.has(applicantEmail)) {
+          seenEmails.add(applicantEmail);
+          applicantsToEmail.push({
+            name: data.name || 'Applicant',
+            email: data.email,
+            status: finalStatus,
+            referenceId: data.id || data.rollNo || docSnap.id || 'MLSC-SVEC',
+          });
         }
       }
     }

@@ -618,9 +618,10 @@ export function AdminFilters({
           description: String(res.error),
         });
       } else if ('updatedCount' in res) {
+        const emailMsg = res.emailCount ? ` Dispatched ${res.emailCount} notification emails.` : '';
         toast({
           title: '✓ Reviewed Applications Synced',
-          description: `Synchronized ${res.updatedCount || 0} applications to Attended & Interviewed status.`,
+          description: `Synchronized ${res.updatedCount || 0} applications.${emailMsg}`,
         });
         startTransition(() => {
           router.refresh();
