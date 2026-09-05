@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Award, Bot, Sparkles, Star, UserCheck } from "lucide-react";
+import { Award, Bot, Eye, Sparkles, Star, UserCheck } from "lucide-react";
 
 import { saveApplicationReview } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -137,7 +137,7 @@ const StarRating = ({ value, onChange, disabled = false }: { value: number; onCh
           key={star}
           className={cn(
             "h-7 w-7 transition-colors sm:h-6 sm:w-6",
-            disabled ? "text-muted-foreground/30" : "cursor-pointer",
+            disabled ? "text-muted-foreground/30 cursor-default" : "cursor-pointer",
             displayValue >= star ? "text-emerald-400 fill-emerald-400" : "text-muted-foreground/50",
             !disabled && displayValue >= star && "hover:text-emerald-300"
           )}
@@ -146,7 +146,7 @@ const StarRating = ({ value, onChange, disabled = false }: { value: number; onCh
           onMouseLeave={() => !disabled && setHoverValue(0)}
         />
       ))}
-      {!disabled && <span className="ml-2 text-sm font-medium text-foreground w-8 text-center">{value.toFixed(1)}</span>}
+      <span className="ml-2 text-sm font-medium text-foreground w-8 text-center">{value > 0 ? value.toFixed(1) : "—"}</span>
     </div>
   );
 };
@@ -258,6 +258,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
   };
 
   const isSuperAdmin = userRole === 'super_admin';
+  const isViewOnly = userRole === 'view_only';
 
   const aiRatings = isSuperAdmin ? (application.aiRatings || (
     !application.manualRatings && application.ratings ? application.ratings : undefined
@@ -274,12 +275,20 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                 Manual Interview Evaluation
               </CardTitle>
               <CardDescription className="text-xs text-white/50 mt-1">
-                {isSuperAdmin
+                {isViewOnly
+                  ? "Candidate interview scores and evaluation details (Read-Only Mode)."
+                  : isSuperAdmin
                   ? "Score the candidate during the interview. AI benchmark scores are displayed beside each category for reference."
                   : "Score the candidate during the interview based on live rubric criteria."}
               </CardDescription>
             </div>
           </div>
+          {isViewOnly && (
+            <div className="mt-4 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#4285F4]/10 border border-[#4285F4]/20 text-[#4285F4] text-xs font-semibold">
+              <Eye className="size-4 shrink-0" />
+              <span>View-Only Access: You have read-only permissions. Modifying evaluation scores, hiring statuses, or recommendation flags is disabled.</span>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -305,12 +314,14 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                               <button
                                 key={status}
                                 type="button"
-                                onClick={() => field.onChange(status)}
+                                disabled={isViewOnly}
+                                onClick={() => !isViewOnly && field.onChange(status)}
                                 className={cn(
                                   "px-3 py-2.5 rounded-xl border text-center font-bold text-[10px] uppercase tracking-wider transition-all duration-200",
                                   isSelected 
                                     ? activeClass 
-                                    : "bg-white/[0.02] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                    : "bg-white/[0.02] border-white/5 text-white/50 hover:bg-white/5 hover:text-white",
+                                  isViewOnly && "cursor-default"
                                 )}
                               >
                                 {status}
@@ -321,7 +332,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                       </FormControl>
                     </div>
 
-                    {userRole === 'admin' || userRole === 'super_admin' ? (
+                    {(userRole === 'admin' || userRole === 'super_admin') ? (
                       <div className="space-y-3 pt-4 border-t border-white/5">
                         <FormLabel className="text-[#34A853] text-xs font-bold uppercase tracking-wider">
                           Final Decision
@@ -338,12 +349,14 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                                 <button
                                   key={status}
                                   type="button"
-                                  onClick={() => field.onChange(status)}
+                                  disabled={isViewOnly}
+                                  onClick={() => !isViewOnly && field.onChange(status)}
                                   className={cn(
                                     "px-3 py-2.5 rounded-xl border text-center font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm",
                                     isSelected 
                                       ? activeClass 
-                                      : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                                      : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white",
+                                    isViewOnly && "cursor-default"
                                   )}
                                 >
                                   {status}
@@ -379,10 +392,12 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                               <button
                                 key={val}
                                 type="button"
-                                onClick={() => field.onChange(val)}
+                                disabled={isViewOnly}
+                                onClick={() => !isViewOnly && field.onChange(val)}
                                 className={cn(
                                   "px-4 py-2 rounded-xl border font-bold text-[10px] uppercase tracking-wider transition-all duration-200 capitalize",
-                                  isSelected ? activeClass : "bg-white/[0.02] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                  isSelected ? activeClass : "bg-white/[0.02] border-white/5 text-white/50 hover:bg-white/5 hover:text-white",
+                                  isViewOnly && "cursor-default"
                                 )}
                               >
                                 {val}
@@ -414,10 +429,12 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                               <button
                                 key={val}
                                 type="button"
-                                onClick={() => field.onChange(val)}
+                                disabled={isViewOnly}
+                                onClick={() => !isViewOnly && field.onChange(val)}
                                 className={cn(
                                   "px-4 py-2 rounded-xl border font-bold text-[10px] uppercase tracking-wider transition-all duration-200 capitalize",
-                                  isSelected ? activeClass : "bg-white/[0.02] border-white/5 text-white/50 hover:bg-white/5 hover:text-white"
+                                  isSelected ? activeClass : "bg-white/[0.02] border-white/5 text-white/50 hover:bg-white/5 hover:text-white",
+                                  isViewOnly && "cursor-default"
                                 )}
                               >
                                 {val}
@@ -468,7 +485,7 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                             )}
                           </div>
                           <FormControl>
-                            <StarRating value={field.value} onChange={(v) => field.onChange(parseFloat(v.toFixed(1)))} />
+                            <StarRating value={field.value} onChange={(v) => field.onChange(parseFloat(v.toFixed(1)))} disabled={isViewOnly} />
                           </FormControl>
                         </FormItem>
                       )}
@@ -505,9 +522,11 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                 render={({ field }) => (
                   <FormItem>
                     <div 
-                      onClick={() => field.onChange(!field.value)}
+                      onClick={() => !isViewOnly && field.onChange(!field.value)}
                       className={cn(
-                        "flex items-center justify-between rounded-2xl border-2 p-5 cursor-pointer transition-all duration-200 select-none",
+                        "flex items-center justify-between rounded-2xl border-2 p-5 transition-all duration-200 select-none",
+                        !isViewOnly && "cursor-pointer",
+                        isViewOnly && "cursor-default",
                         field.value 
                           ? "bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/10 border-yellow-400/80 shadow-[0_0_25px_rgba(250,204,21,0.25)] ring-1 ring-yellow-400/50" 
                           : "bg-white/[0.02] border-white/10 hover:border-yellow-500/40 hover:bg-yellow-500/[0.03]"
@@ -517,16 +536,17 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                         <div className="flex items-center gap-2">
                           <Star className={cn("size-5 transition-colors", field.value ? "text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : "text-white/40")} />
                           <FormLabel className={cn(
-                            "text-sm font-black uppercase tracking-wider cursor-pointer",
+                            "text-sm font-black uppercase tracking-wider",
+                            !isViewOnly && "cursor-pointer",
                             field.value ? "text-yellow-300" : "text-white/70"
                           )}>
                             {field.value ? "★ Candidate Manually Selected" : "☆ Manual Candidate Selection"}
                           </FormLabel>
                         </div>
                         <FormDescription className="text-xs text-white/60">
-                          {field.value 
-                            ? "Candidate is flagged as recommended for the final hiring round." 
-                            : "Click to select and recommend this candidate for hiring."}
+                          {isViewOnly 
+                            ? (field.value ? "Candidate is selected for the final hiring round." : "Candidate is not currently selected.")
+                            : (field.value ? "Candidate is flagged as recommended for the final hiring round." : "Click to select and recommend this candidate for hiring.")}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -535,10 +555,10 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                             "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-md",
                             field.value 
                               ? "bg-yellow-400 text-black shadow-yellow-500/30" 
-                              : "bg-white/10 text-white/60 border border-white/20 hover:text-white"
+                              : "bg-white/10 text-white/60 border border-white/20"
                           )}
                         >
-                          {field.value ? "★ Selected" : "Select"}
+                          {field.value ? "★ Selected" : "Not Selected"}
                         </div>
                       </FormControl>
                     </div>
@@ -558,8 +578,13 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                     <FormControl>
                       <InputGroup className="bg-white/5 border-white/10">
                         <InputGroupTextarea
-                          placeholder="Add your qualitative interview notes, performance summary, and hire rationale..."
-                          className="min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30"
+                          placeholder={isViewOnly ? "No interview remarks recorded." : "Add your qualitative interview notes, performance summary, and hire rationale..."}
+                          readOnly={isViewOnly}
+                          disabled={isViewOnly}
+                          className={cn(
+                            "min-h-24 text-sm text-white focus-visible:ring-0 placeholder:text-white/30",
+                            isViewOnly && "cursor-default opacity-80"
+                          )}
                           {...field}
                         />
                         <InputGroupAddon align="block-end" className="border-white/10 bg-white/5">
@@ -574,15 +599,17 @@ export function ApplicationReviewForm({ application, userRole }: ApplicationRevi
                 )}
               />
 
-              <SlideToConfirmButton
-                label="Slide to save review"
-                confirmedLabel="Saving review..."
-                onConfirm={form.handleSubmit(onSubmit)}
-                disabled={isSubmitting}
-                isConfirmed={isSubmitting}
-                autoResetDelay={0}
-                className="w-full max-w-none"
-              />
+              {!isViewOnly && (
+                <SlideToConfirmButton
+                  label="Slide to save review"
+                  confirmedLabel="Saving review..."
+                  onConfirm={form.handleSubmit(onSubmit)}
+                  disabled={isSubmitting}
+                  isConfirmed={isSubmitting}
+                  autoResetDelay={0}
+                  className="w-full max-w-none"
+                />
+              )}
             </form>
           </Form>
         </CardContent>

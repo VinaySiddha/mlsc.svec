@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic';
 export default async function AttendancePage() {
   const headersList = await headers();
   const userRole = headersList.get('X-User-Role');
-  const panelDomain = headersList.get('X-Panel-Domain') || undefined;
+  const rawDomain = headersList.get('X-Panel-Domain') || undefined;
+  const panelDomain = userRole === 'common_panel' || userRole === 'view_only' ? undefined : rawDomain;
 
   if (!userRole) {
     redirect('/login');

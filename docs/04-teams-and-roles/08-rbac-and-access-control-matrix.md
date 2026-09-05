@@ -26,7 +26,8 @@ graph TD
     EA --> CM["💬 COMMUNITY_MODERATOR (60)<br/>Discussions, Feed & Moderation"]
     CM --> CP["👥 COMMON_PANEL (35)<br/>Cross-Domain Interview Evaluations"]
     CP --> P["🔍 PANEL (30)<br/>Domain-Specific ATS Evaluations"]
-    P --> U["🎓 USER (10)<br/>Public Site, Badges & Hub"]
+    P --> VO["👁️ VIEW_ONLY (20)<br/>Read-Only Applicant & Attendance Observer"]
+    VO --> U["🎓 USER (10)<br/>Public Site, Badges & Hub"]
 ```
 
 | Role Identifier (`Role`) | Human Label | Hierarchy Weight | Primary Scope |
@@ -37,26 +38,29 @@ graph TD
 | **`community_moderator`** | Community Moderator | **`60`** | Moderation queue, community post reviews, comment moderation. |
 | **`common_panel`** | Cross-Domain Interview Panel | **`35`** | Reviewing and interviewing candidates across all domains. |
 | **`panel`** | Domain-Specific Support Panel | **`30`** | Reviewing assigned candidates in designated track (e.g., AI, Web, Cloud). |
+| **`view_only`** | View-Only Admin (Applications) | **`20`** | Read-only observation of candidate applications, rosters, and dossiers across domains without mutation privileges. |
 | **`user`** | Authenticated Member / Participant | **`10`** | Public portal, event registration, study hub, daily quizzes, profile badge. |
 
 ---
 
 ## 2. Granular Permissions Matrix
 
-| Feature / Subsystem | `super_admin` | `admin` | `event_admin` | `community_moderator` | `common_panel` | `panel` | `user` |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **User Role Management (`/admin/users`)** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Hiring Settings & Provisioning (`/admin/hiring-settings`)** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Financial Ledger & Payments (`/admin/payments`)** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **System Operations & Bug Tracker (`/admin/operations`)** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Event Creation & Management (`/admin/events`)** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **QR Attendance & Scanner (`/admin/attendance`)** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Community Post Moderation (`/admin/community`)** | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| **Candidate Review (All Domains)** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| **Candidate Review (Assigned Domain Only)** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
-| **Interview Rubric Scoring (`/admin/application/[id]`)** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
-| **Submit Community Post / Comment** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Event Registration & Digital ID Badge** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Feature / Subsystem | `super_admin` | `admin` | `event_admin` | `community_moderator` | `common_panel` | `panel` | `view_only` | `user` |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **User Role Management (`/admin/users`)** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Hiring Settings & Provisioning (`/admin/hiring-settings`)** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Financial Ledger & Payments (`/admin/payments`)** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **System Operations & Bug Tracker (`/admin/operations`)** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Event Creation & Management (`/admin/events`)** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **QR Attendance & Scanner (`/admin/attendance`)** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ (View Only) | ❌ |
+| **Community Post Moderation (`/admin/community`)** | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Candidate Review (All Domains)** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ (View Only) | ❌ |
+| **Candidate Review (Assigned Domain Only)** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ (All) | ❌ |
+| **Export Applications (PDF / Excel)** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| **Interview Rubric Scoring / Mutations** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| **Application Status / Attendance Mutations** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| **Submit Community Post / Comment** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Event Registration & Digital ID Badge** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 

@@ -278,41 +278,65 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                     )}
                   </TableCell>
 
-                  {/* ── HIGH VISIBILITY ATTENDANCE TOGGLE ── */}
+                  {/* ── ATTENDANCE INDICATOR / TOGGLE ── */}
                   <TableCell className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => handleAttendanceChange(app.firestoreId || app.id, !isAttended)}
-                      disabled={isAttendingLoading || !canEditAttendance}
-                      className={cn(
-                        "w-full max-w-[120px] mx-auto py-1.5 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm border",
-                        isAttended
-                          ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.25)]"
-                          : "bg-white/5 border-white/15 text-white/50 hover:border-emerald-500/40 hover:text-white hover:bg-emerald-500/10",
-                        isAttendingLoading && "opacity-60 cursor-wait"
-                      )}
-                      title={isAttended ? "Mark as absent" : "Mark as attended"}
-                    >
-                      {isAttendingLoading ? (
-                        <Loader2 className="size-3.5 animate-spin text-white/60" />
-                      ) : isAttended ? (
-                        <>
-                          <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
-                          <span>Attended</span>
-                        </>
-                      ) : (
-                        <>
-                          <Circle className="size-3.5 text-white/30 shrink-0" />
-                          <span>Mark Attended</span>
-                        </>
-                      )}
-                    </button>
+                    {!canEditAttendance ? (
+                      <div
+                        className={cn(
+                          "w-full max-w-[120px] mx-auto py-1.5 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border select-none cursor-default",
+                          isAttended
+                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+                            : "bg-white/5 border-white/10 text-white/40"
+                        )}
+                        title={isAttended ? "Candidate marked as attended" : "Candidate not attended (Read-only)"}
+                      >
+                        {isAttended ? (
+                          <>
+                            <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
+                            <span>Attended</span>
+                          </>
+                        ) : (
+                          <>
+                            <Circle className="size-3.5 text-white/30 shrink-0" />
+                            <span>Not Marked</span>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleAttendanceChange(app.firestoreId || app.id, !isAttended)}
+                        disabled={isAttendingLoading}
+                        className={cn(
+                          "w-full max-w-[120px] mx-auto py-1.5 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm border",
+                          isAttended
+                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.25)]"
+                            : "bg-white/5 border-white/15 text-white/50 hover:border-emerald-500/40 hover:text-white hover:bg-emerald-500/10",
+                          isAttendingLoading && "opacity-60 cursor-wait"
+                        )}
+                        title={isAttended ? "Mark as absent" : "Mark as attended"}
+                      >
+                        {isAttendingLoading ? (
+                          <Loader2 className="size-3.5 animate-spin text-white/60" />
+                        ) : isAttended ? (
+                          <>
+                            <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
+                            <span>Attended</span>
+                          </>
+                        ) : (
+                          <>
+                            <Circle className="size-3.5 text-white/30 shrink-0" />
+                            <span>Mark Attended</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </TableCell>
 
-                  {/* ── HIGH VISIBILITY MANUAL SELECTION TOGGLE & ACTION ── */}
+                  {/* ── MANUAL SELECTION TOGGLE & ACTIONS ── */}
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {canRecommend && (
+                      {canRecommend ? (
                         <button
                           type="button"
                           onClick={() => handleToggleRec(app.firestoreId || app.id, isManualSelected)}
@@ -333,6 +357,13 @@ export function ApplicationsTable({ applications, domainLabels, userRole }: Appl
                           )}
                           <span>{isManualSelected ? "★ Selected" : "☆ Select"}</span>
                         </button>
+                      ) : isManualSelected ? (
+                        <div className="py-1.5 px-3 rounded-xl text-xs font-black tracking-wide flex items-center gap-1.5 bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 select-none cursor-default">
+                          <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
+                          <span>★ Selected</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-white/30 italic px-2 py-1">View Only</span>
                       )}
                       
                       {canDelete && (

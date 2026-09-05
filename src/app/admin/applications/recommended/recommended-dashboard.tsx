@@ -63,18 +63,20 @@ export function RecommendedDashboard({ initialApplications, userRole }: Recommen
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end mb-4">
-        <Button onClick={handleBulkHire} disabled={isProcessing} className="bg-[#34A853] hover:bg-[#34A853]/90 text-white font-bold flex items-center gap-2">
-          {isProcessing ? (
-            <>
-              <IosLoader size="xs" color="text-white" />
-              <span>Processing...</span>
-            </>
-          ) : (
-            `Hire All ${applications.length} Candidates`
-          )}
-        </Button>
-      </div>
+      {userRole !== 'view_only' && (
+        <div className="flex justify-end mb-4">
+          <Button onClick={handleBulkHire} disabled={isProcessing} className="bg-[#34A853] hover:bg-[#34A853]/90 text-white font-bold flex items-center gap-2">
+            {isProcessing ? (
+              <>
+                <IosLoader size="xs" color="text-white" />
+                <span>Processing...</span>
+              </>
+            ) : (
+              `Hire All ${applications.length} Candidates`
+            )}
+          </Button>
+        </div>
+      )}
       
       <div className="border border-white/10 rounded-xl overflow-hidden bg-white/[0.01]">
         <Table>

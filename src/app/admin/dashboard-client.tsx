@@ -99,7 +99,9 @@ export function AdminDashboardClient({
   applications
 }: DashboardClientProps) {
   
-  const title = panelDomain 
+  const title = userRole === 'view_only'
+    ? `APPLICATIONS OBSERVER DASHBOARD — Chapter ${adminChapter}`
+    : panelDomain 
     ? `${domainLabels[panelDomain] || 'Panel'} Dashboard — Chapter ${adminChapter}` 
     : `SUPERADMIN CONTROL CENTER — Chapter ${adminChapter}`;
 
@@ -330,49 +332,71 @@ export function AdminDashboardClient({
           >
             <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              {(userRole === 'super_admin' || userRole === 'admin') && (
+              {userRole === 'view_only' ? (
                 <>
-                  <Link href="/admin/payments/ledger" className="flex items-center justify-between p-3.5 rounded-2xl border border-[#34A853]/20 bg-[#34A853]/5 hover:bg-[#34A853]/10 hover:border-[#34A853]/35 transition-all group">
+                  <Link href="/admin/applications" className="flex items-center justify-between p-3.5 rounded-2xl border border-[#4285F4]/20 bg-[#4285F4]/5 hover:bg-[#4285F4]/10 hover:border-[#4285F4]/35 transition-all group">
                     <div className="flex items-center gap-3">
-                      <Coins className="h-4 w-4 text-[#34A853]" />
-                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Payments Ledger</span>
+                      <FileText className="h-4 w-4 text-[#4285F4]" />
+                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">View Applications</span>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-[#4285F4] group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  </Link>
+
+                  <Link href="/admin/attendance" className="flex items-center justify-between p-3.5 rounded-2xl border border-[#34A853]/20 bg-[#34A853]/5 hover:bg-[#34A853]/10 hover:border-[#34A853]/35 transition-all group">
+                    <div className="flex items-center gap-3">
+                      <UserCheck className="h-4 w-4 text-[#34A853]" />
+                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Interview Attendance</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-[#34A853] group-hover:translate-x-0.5 transition-transform shrink-0" />
                   </Link>
+                </>
+              ) : (
+                <>
+                  {(userRole === 'super_admin' || userRole === 'admin') && (
+                    <>
+                      <Link href="/admin/payments/ledger" className="flex items-center justify-between p-3.5 rounded-2xl border border-[#34A853]/20 bg-[#34A853]/5 hover:bg-[#34A853]/10 hover:border-[#34A853]/35 transition-all group">
+                        <div className="flex items-center gap-3">
+                          <Coins className="h-4 w-4 text-[#34A853]" />
+                          <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Payments Ledger</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-[#34A853] group-hover:translate-x-0.5 transition-transform shrink-0" />
+                      </Link>
 
-                  <Link href="/admin/team/new" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
+                      <Link href="/admin/team/new" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
+                        <div className="flex items-center gap-3">
+                          <Users className="h-4 w-4 text-[#4285F4]" />
+                          <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Invite Member</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+                    </>
+                  )}
+
+                  <Link href="/admin/events/new" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
                     <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4 text-[#4285F4]" />
-                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Invite Member</span>
+                      <Calendar className="h-4 w-4 text-[#34A853]" />
+                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Create Event</span>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+
+                  <Link href="/admin/notifications" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
+                    <div className="flex items-center gap-3">
+                      <Megaphone className="h-4 w-4 text-[#FBBC05]" />
+                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Announcement</span>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+
+                  <Link href="/admin/hiring-settings" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
+                    <div className="flex items-center gap-3">
+                      <Settings className="h-4 w-4 text-[#EA4335]" />
+                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Hiring Settings</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </>
               )}
-
-              <Link href="/admin/events/new" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-[#34A853]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Create Event</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-
-              <Link href="/admin/notifications" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Megaphone className="h-4 w-4 text-[#FBBC05]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Announcement</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-
-              <Link href="/admin/hiring-settings" className="flex items-center justify-between p-3.5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Settings className="h-4 w-4 text-[#EA4335]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Hiring Settings</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
             </div>
           </motion.div>
 

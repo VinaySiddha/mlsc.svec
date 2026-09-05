@@ -53,7 +53,7 @@ export function AppSidebar({ userRole, username, userEmail, panelDomain, adminCh
   const canSeeEvents = EVENT_ACCESS_ROLES.includes(userRole);
   const canSeeContent = CONTENT_ACCESS_ROLES.includes(userRole);
 
-  const canSeeApplications = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'common_panel';
+  const canSeeApplications = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'common_panel' || userRole === 'view_only';
 
   // Main Platform Links — shown based on role
   const navMainItems = [

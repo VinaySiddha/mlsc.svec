@@ -10,6 +10,14 @@ import {
   reviewSchema,
 } from '@/schemas/application';
 import { logActivityAction, logErrorAction } from './log-actions';
+import { AuthService } from '@/lib/services/auth-service';
+
+async function assertCanMutate(actionName: string) {
+  const sessionUser = await AuthService.getSessionUser();
+  if (sessionUser?.role === 'view_only') {
+    throw new Error(`Unauthorized: View-only administrators cannot perform actions (${actionName}).`);
+  }
+}
 
 export async function submitApplication(formData: FormData) {
   const file = formData.get('resume') as File;
@@ -127,6 +135,7 @@ export async function saveApplicationReview(data: any) {
   }
 
   try {
+    await assertCanMutate('saveApplicationReview');
     await ApplicationService.saveApplicationReview(parsed.data);
     // Log real-time system activity
     await logActivityAction(
@@ -140,12 +149,13 @@ export async function saveApplicationReview(data: any) {
       `Application Review Failed`,
       `Failed to save review for App ID ${parsed.data.id}. Error: ${error.message || error}`
     );
-    return { error: 'Failed to save review.' };
+    return { error: error.message || 'Failed to save review.' };
   }
 }
 
 export async function syncReviewedApplicationsAction() {
   try {
+    await assertCanMutate('syncReviewedApplications');
     const result = await ApplicationService.syncReviewedApplications();
     await logActivityAction(
       `Synced Reviewed Applications`,
@@ -164,6 +174,7 @@ export async function syncReviewedApplicationsAction() {
 
 export async function toggleRecommendation(id: string, isRecommended: boolean) {
   try {
+    await assertCanMutate('toggleRecommendation');
     await ApplicationService.toggleRecommendation(id, isRecommended);
     await logActivityAction(
       `Candidate Recommendation Toggled`,
@@ -176,12 +187,13 @@ export async function toggleRecommendation(id: string, isRecommended: boolean) {
       `Recommendation Toggle Failed`,
       `Failed to toggle recommendation for App ID ${id}. Error: ${error.message || error}`
     );
-    return { error: 'Failed to toggle recommendation.' };
+    return { error: error.message || 'Failed to toggle recommendation.' };
   }
 }
 
 export async function updateApplicantDetailsAction(id: string, data: any) {
   try {
+    await assertCanMutate('updateApplicantDetails');
     await ApplicationService.updateApplicantDetails(id, data);
     await logActivityAction(
       `Applicant Details Updated`,
@@ -200,6 +212,7 @@ export async function updateApplicantDetailsAction(id: string, data: any) {
 
 export async function deleteApplicationAction(id: string) {
   try {
+    await assertCanMutate('deleteApplication');
     await ApplicationService.deleteApplication(id);
     await logActivityAction(
       `Application Deleted`,
@@ -219,6 +232,7 @@ export async function deleteApplicationAction(id: string) {
 
 export async function updateAttendance(firestoreId: string, attended: boolean) {
   try {
+    await assertCanMutate('updateAttendance');
     await ApplicationService.updateAttendance(firestoreId, attended);
     return { success: true };
   } catch (error: any) {
@@ -227,12 +241,13 @@ export async function updateAttendance(firestoreId: string, attended: boolean) {
       `Attendance Update Failed`,
       `Failed to update attendance status for application ID ${firestoreId}. Error: ${error.message || error}`
     );
-    return { error: 'Failed to update attendance status.' };
+    return { error: error.message || 'Failed to update attendance status.' };
   }
 }
 
 export async function bulkUpdateStatus(filters: any, newStatus: string) {
   try {
+    await assertCanMutate('bulkUpdateStatus');
     const result = await ApplicationService.bulkUpdateStatus(filters, newStatus);
     return { success: true, ...result };
   } catch (error: any) {
@@ -247,6 +262,7 @@ export async function bulkUpdateStatus(filters: any, newStatus: string) {
 
 export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
   try {
+    await assertCanMutate('bulkUpdateFromCsv');
     const updatedCount = await ApplicationService.bulkUpdateFromCsv(hiredCandidates);
     return { success: true, count: updatedCount };
   } catch (error: any) {
@@ -261,6 +277,7 @@ export async function bulkUpdateFromCsv(hiredCandidates: { rollNo: string }[]) {
 
 export async function bulkProcessList(ids: string[], newStatus: string) {
   try {
+    await assertCanMutate('bulkProcessList');
     const { ApplicationDb } = await import('@/lib/db/application-db');
     let updatedCount = 0;
     for (const id of ids) {
@@ -390,6 +407,7 @@ export async function getPanels() {
 
 export async function setDeadline(deadline: Date) {
   try {
+    await assertCanMutate('setDeadline');
     await ApplicationService.setDeadline(deadline);
     return { success: true };
   } catch (error: any) {
@@ -398,7 +416,7 @@ export async function setDeadline(deadline: Date) {
       `Set Deadline Failed`,
       `Failed to set recruitment application deadline to ${deadline.toISOString()}. Error: ${error.message || error}`
     );
-    return { error: 'Failed to set deadline.' };
+    return { error: error.message || 'Failed to set deadline.' };
   }
 }
 
@@ -433,6 +451,7 @@ export async function getHiringStatus() {
 
 export async function toggleHiringStatus(isOpen: boolean) {
   try {
+    await assertCanMutate('toggleHiringStatus');
     await ApplicationService.toggleHiringStatus(isOpen);
     return { success: true };
   } catch (error: any) {
@@ -441,12 +460,13 @@ export async function toggleHiringStatus(isOpen: boolean) {
       `Toggle Hiring Status Failed`,
       `Failed to toggle hiring status to ${isOpen ? 'Open' : 'Closed'}. Error: ${error.message || error}`
     );
-    return { error: 'Failed to change hiring status.' };
+    return { error: error.message || 'Failed to change hiring status.' };
   }
 }
 
 export async function finalizeHiringCycle() {
   try {
+    await assertCanMutate('finalizeHiringCycle');
     await ApplicationService.finalizeHiringCycle();
     return { success: true };
   } catch (error: any) {
@@ -480,6 +500,7 @@ export async function generateCandidateInsightsAction(input: {
 
 export async function cleanChapterApplicantsAction(chapter: string = '4.0') {
   try {
+    await assertCanMutate('cleanChapterApplicants');
     const cleanedCount = await ApplicationService.cleanChapterApplicants(chapter);
     return { success: true, cleanedCount };
   } catch (error: any) {

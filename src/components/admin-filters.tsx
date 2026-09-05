@@ -266,7 +266,7 @@ export function AdminFilters({
         fetchAll: true, 
       };
 
-      if ((userRole === 'admin' || userRole === 'super_admin') && currentFilters.domain === 'all') {
+      if ((userRole === 'admin' || userRole === 'super_admin' || userRole === 'common_panel' || userRole === 'view_only') && currentFilters.domain === 'all') {
         delete params.domain;
       }
       Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
@@ -347,7 +347,7 @@ export function AdminFilters({
         fetchAll: true, 
         attendedOnly 
       };
-      if (!attendedOnly && (userRole === 'admin' || userRole === 'super_admin') && !domain) {
+      if (!attendedOnly && (userRole === 'admin' || userRole === 'super_admin' || userRole === 'common_panel' || userRole === 'view_only') && !domain) {
         delete params.domain;
       }
 
@@ -662,7 +662,7 @@ export function AdminFilters({
   const isSuperAdmin = userRole === 'super_admin';
   const bulkUpdateStatuses = ['Interviewed', 'Interviewing', 'Hired', 'Rejected', 'Under Processing', 'Recommended'];
   const showPdfButtonsForAdmin = userRole === 'admin' || userRole === 'super_admin';
-  const showPdfButtonsForPanel = userRole === 'panel' || userRole === 'common_panel';
+  const showPdfButtonsForPanel = userRole === 'panel' || userRole === 'common_panel' || userRole === 'view_only';
 
   const safeCounts: FilterCounts = filterCounts || {
     total: totalApplications || 0,
@@ -935,7 +935,7 @@ export function AdminFilters({
           </Select>
 
           {/* Domain Dropdown */}
-          {(userRole === 'admin' || userRole === 'super_admin') ? (
+          {(userRole === 'admin' || userRole === 'super_admin' || userRole === 'common_panel' || userRole === 'view_only') ? (
             <Select 
               onValueChange={(value) => handleFilterChange('domain', value)} 
               value={currentFilters.domain || 'all'} 

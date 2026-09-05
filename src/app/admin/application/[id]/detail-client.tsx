@@ -195,7 +195,7 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
       : (application.status !== 'Received' ? application.ratings : null)
   );
   const isSuperAdmin = userRole === 'super_admin';
-  const canAccessAiCopilot = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'support' || userRole === 'support_panel';
+  const canAccessAiCopilot = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'support' || userRole === 'support_panel' || userRole === 'common_panel' || userRole === 'view_only';
   const humanScore = manualRatings?.overall ?? 0;
   const hasHumanScore = humanScore > 0;
   const isManualSelected = isRecommended;
@@ -411,20 +411,34 @@ export function ApplicationDetailClient({ application, userRole }: ApplicationDe
 
         {/* Action Buttons: Edit, Manual Select, Delete */}
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          {/* 1-Click High-Visibility Manual Select Toggle */}
-          <button
-            onClick={handleToggleRec}
-            disabled={isTogglingRec}
-            className={cn(
-              "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-md active:scale-95",
-              isManualSelected 
-                ? "bg-gradient-to-r from-amber-400 to-yellow-400 text-black shadow-[0_0_18px_rgba(250,204,21,0.4)] hover:brightness-110"
-                : "bg-yellow-500/10 border-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400"
-            )}
-          >
-            <Star className={cn("size-4", isManualSelected ? "fill-black text-black" : "text-yellow-400")} />
-            <span>{isTogglingRec ? "Saving..." : isManualSelected ? "★ Manually Selected" : "☆ Select Candidate"}</span>
-          </button>
+          {/* 1-Click High-Visibility Manual Select Toggle / Read-Only Badge */}
+          {userRole === 'view_only' ? (
+            <div
+              className={cn(
+                "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 border select-none cursor-default",
+                isManualSelected
+                  ? "bg-yellow-400/20 border-yellow-400/40 text-yellow-300 shadow-[0_0_15px_rgba(250,204,21,0.2)]"
+                  : "bg-white/5 border-white/10 text-white/40"
+              )}
+            >
+              <Star className={cn("size-4", isManualSelected ? "fill-yellow-400 text-yellow-400" : "text-white/30")} />
+              <span>{isManualSelected ? "★ Manually Selected" : "Not Selected"}</span>
+            </div>
+          ) : (
+            <button
+              onClick={handleToggleRec}
+              disabled={isTogglingRec}
+              className={cn(
+                "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-md active:scale-95",
+                isManualSelected 
+                  ? "bg-gradient-to-r from-amber-400 to-yellow-400 text-black shadow-[0_0_18px_rgba(250,204,21,0.4)] hover:brightness-110"
+                  : "bg-yellow-500/10 border-2 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400"
+              )}
+            >
+              <Star className={cn("size-4", isManualSelected ? "fill-black text-black" : "text-yellow-400")} />
+              <span>{isTogglingRec ? "Saving..." : isManualSelected ? "★ Manually Selected" : "☆ Select Candidate"}</span>
+            </button>
+          )}
 
           {(userRole === 'admin' || userRole === 'super_admin') && (
             <>

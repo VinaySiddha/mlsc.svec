@@ -16,7 +16,7 @@ export default async function ApplicationsPage({
   const headersList = await headers();
   const rawDomain = headersList.get('X-Panel-Domain') || undefined;
   const userRole = headersList.get('X-User-Role');
-  const panelDomain = userRole === 'common_panel' ? undefined : rawDomain;
+  const panelDomain = userRole === 'common_panel' || userRole === 'view_only' ? undefined : rawDomain;
 
   if (!userRole) {
     redirect('/login');

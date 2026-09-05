@@ -12,7 +12,7 @@ export default async function ApplicationsLayout({
   const headersList = await headers();
   const userRole = headersList.get('X-User-Role') || 'panel';
 
-  const isAuthorized = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'common_panel';
+  const isAuthorized = userRole === 'super_admin' || userRole === 'admin' || userRole === 'panel' || userRole === 'common_panel' || userRole === 'view_only';
 
   if (!isAuthorized) {
     return (

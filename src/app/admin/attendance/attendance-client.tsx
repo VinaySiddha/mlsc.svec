@@ -259,24 +259,41 @@ export function AttendanceClient({ initialApplications, userRole, panelDomain }:
                         </a>
                       </div>
 
-                      {/* Attendance Toggle Pill */}
-                      <button
-                        onClick={() => handleToggleAttendance(app.firestoreId, app.interviewAttended, app.name)}
-                        disabled={isCheckingIn}
-                        className={cn(
-                          "relative inline-flex h-9 items-center justify-center rounded-full px-5 text-xs font-black uppercase tracking-wider transition-all border shrink-0",
-                          app.interviewAttended 
-                            ? "bg-[#34A853]/10 border-[#34A853]/30 text-[#34A853] shadow-[0_0_12px_rgba(52,168,83,0.1)]" 
-                            : "bg-white/5 border-white/10 text-white/40 hover:text-white"
-                        )}
-                      >
-                        {isCheckingIn ? (
-                          <RefreshCw className="size-3.5 animate-spin mr-2" />
-                        ) : app.interviewAttended ? (
-                          <CheckCircle2 className="size-3.5 mr-1.5" />
-                        ) : null}
-                        {isCheckingIn ? "Updating" : app.interviewAttended ? "Present" : "Mark Present"}
-                      </button>
+                      {/* Attendance Toggle Pill / Read-Only Status */}
+                      {userRole === 'view_only' ? (
+                        <div
+                          className={cn(
+                            "relative inline-flex h-9 items-center justify-center rounded-full px-5 text-xs font-black uppercase tracking-wider border shrink-0 select-none cursor-default",
+                            app.interviewAttended 
+                              ? "bg-[#34A853]/10 border-[#34A853]/30 text-[#34A853]" 
+                              : "bg-white/5 border-white/10 text-white/40"
+                          )}
+                          title={app.interviewAttended ? "Present (View-Only)" : "Absent (View-Only)"}
+                        >
+                          {app.interviewAttended ? (
+                            <CheckCircle2 className="size-3.5 mr-1.5" />
+                          ) : null}
+                          {app.interviewAttended ? "Present" : "Absent"}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleToggleAttendance(app.firestoreId, app.interviewAttended, app.name)}
+                          disabled={isCheckingIn}
+                          className={cn(
+                            "relative inline-flex h-9 items-center justify-center rounded-full px-5 text-xs font-black uppercase tracking-wider transition-all border shrink-0",
+                            app.interviewAttended 
+                              ? "bg-[#34A853]/10 border-[#34A853]/30 text-[#34A853] shadow-[0_0_12px_rgba(52,168,83,0.1)]" 
+                              : "bg-white/5 border-white/10 text-white/40 hover:text-white"
+                          )}
+                        >
+                          {isCheckingIn ? (
+                            <RefreshCw className="size-3.5 animate-spin mr-2" />
+                          ) : app.interviewAttended ? (
+                            <CheckCircle2 className="size-3.5 mr-1.5" />
+                          ) : null}
+                          {isCheckingIn ? "Updating" : app.interviewAttended ? "Present" : "Mark Present"}
+                        </button>
+                      )}
 
                     </div>
                   </motion.div>
