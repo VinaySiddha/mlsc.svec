@@ -18,6 +18,7 @@ coverage/
 
 # Environment & config
 .env*
+!.env.example
 *.pem
 *.tsbuildinfo
 next-env.d.ts
