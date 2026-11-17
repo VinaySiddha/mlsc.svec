@@ -1,9 +1,9 @@
-
 'use server';
 
 import { db } from '@/lib/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { unstable_cache, revalidateTag } from 'next/cache';
+import { HomeRepository } from '@/lib/new-db/home-repo';
 
 export interface HeroImage {
   id: string;
@@ -42,9 +42,56 @@ export interface HomePageData {
   chapters: Chapter[];
 }
 
-// Cached query that fetches data from Firestore and caches it
+// Cached query that fetches data from DB and caches it
 const getCachedHomePageData = unstable_cache(
   async (): Promise<HomePageData> => {
+    // -------------------------------------------------------------
+    // Switch: New PostgreSQL Architecture
+    // -------------------------------------------------------------
+    if (process.env.DATA_PROVIDER === 'new') {
+      try {
+        const [heroes, ambassadorsRaw, gallery, chaptersRaw] = await Promise.all([
+          HomeRepository.getHeroItems(),
+          HomeRepository.getAmbassadors(),
+          HomeRepository.getGalleryItems(),
+          HomeRepository.getChapters(),
+        ]);
+
+        const heroImages: HeroImage[] = heroes.map((h: any) => ({
+          id: h.id,
+          url: h.background_image || '',
+        })).filter(h => !!h.url);
+
+        const ambassadors: Ambassador[] = ambassadorsRaw.map((a: any) => ({
+          id: a.id,
+          name: a.name,
+          description: a.college || a.role || '',
+          photoUrl: a.image_url || '',
+        }));
+
+        const galleryImages: GalleryImage[] = gallery.map((g: any) => ({
+          id: g.id,
+          url: g.image_url,
+          type: (g.category === 'milestones' ? 'milestones' : 'moments') as GalleryImage['type'],
+        }));
+
+        const chapters: Chapter[] = chaptersRaw.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          description: c.description || '',
+          cards: [],
+        }));
+
+        return { heroImages, ambassadors, galleryImages, chapters };
+      } catch (err) {
+        console.error('Failed to fetch home page data from new DB architecture:', err);
+        return { heroImages: [], ambassadors: [], galleryImages: [], chapters: [] };
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Fallback: Original Firebase Firestore
+    // -------------------------------------------------------------
     const results = await Promise.allSettled([
       getDocs(query(collection(db, 'home_hero'), orderBy('createdAt', 'desc'))),
       getDocs(query(collection(db, 'home_ambassadors'), orderBy('createdAt', 'desc'))),
@@ -114,4 +161,3 @@ export async function getHomePageData(): Promise<HomePageData> {
 export async function revalidateHomePageData() {
   revalidateTag('home-page-data', 'max');
 }
-
