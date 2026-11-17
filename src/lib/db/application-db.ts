@@ -18,7 +18,9 @@ import {
   Query,
   DocumentData,
   QueryConstraint,
+  QuerySnapshot,
 } from 'firebase/firestore';
+import { sql } from '@/lib/new-db/client';
 
 export function buildFilteredQuery(params: {
   panelDomain?: string;
@@ -52,6 +54,10 @@ export function buildFilteredQuery(params: {
 
 export class ApplicationDb {
   static async checkEmailExists(email: string, chapter: string = '3.0') {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const res = await sql`SELECT 1 FROM applications WHERE email = ${email} LIMIT 1`;
+      return res.length > 0;
+    }
     const applicationsRef = collection(db, "applications");
     const emailQuery = query(applicationsRef, where("email", "==", email));
     const snapshot = await getDocs(emailQuery);
@@ -63,6 +69,14 @@ export class ApplicationDb {
   }
 
   static async checkRollNoExists(rollNoLowercase: string, chapter: string = '3.0') {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const res = await sql`
+        SELECT 1 FROM applications 
+        WHERE LOWER(phone) = ${rollNoLowercase} OR LOWER(notes) LIKE ${'%' + rollNoLowercase + '%'}
+        LIMIT 1
+      `;
+      return res.length > 0;
+    }
     const applicationsRef = collection(db, "applications");
     const rollNoQuery = query(applicationsRef, where("rollNo_lowercase", "==", rollNoLowercase));
     const snapshot = await getDocs(rollNoQuery);
@@ -74,6 +88,30 @@ export class ApplicationDb {
   }
 
   static async addApplication(newApplication: any) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const [row] = await sql`
+        INSERT INTO applications (
+          name, email, phone, branch, year, technical_domain, non_technical_domain,
+          resume_url, github_url, linkedin_url, portfolio_url, notes, status
+        ) VALUES (
+          ${newApplication.name || newApplication.fullName || ''},
+          ${newApplication.email},
+          ${newApplication.phone || null},
+          ${newApplication.branch || null},
+          ${newApplication.year || null},
+          ${newApplication.technicalDomain || null},
+          ${newApplication.nonTechnicalDomain || null},
+          ${newApplication.resumeUrl || null},
+          ${newApplication.githubUrl || null},
+          ${newApplication.linkedinUrl || null},
+          ${newApplication.portfolioUrl || null},
+          ${newApplication.notes || null},
+          ${newApplication.status || 'pending'}
+        )
+        RETURNING *
+      `;
+      return { id: row.id, firestoreId: row.id, ref: { id: row.id } };
+    }
     const applicationsRef = collection(db, "applications");
     const docRef = await addDoc(applicationsRef, newApplication);
     await updateDoc(docRef, { firestoreId: docRef.id });
@@ -82,6 +120,21 @@ export class ApplicationDb {
 
   static async updateApplicationDoc(idOrRefId: string, dataToUpdate: any) {
     if (!idOrRefId) throw new Error("No application ID provided.");
+
+    if (process.env.DATA_PROVIDER === 'new') {
+      await sql`
+        UPDATE applications
+        SET status = COALESCE(${dataToUpdate.status || null}, status),
+            score = COALESCE(${dataToUpdate.score ?? null}, score),
+            feedback = COALESCE(${dataToUpdate.feedback || null}, feedback),
+            notes = COALESCE(${dataToUpdate.notes || null}, notes),
+            is_archived = COALESCE(${dataToUpdate.isArchived ?? null}, is_archived),
+            attended = COALESCE(${dataToUpdate.interviewAttended ?? dataToUpdate.attended ?? null}, attended),
+            updated_at = NOW()
+        WHERE id = ${idOrRefId}
+      `;
+      return;
+    }
     
     // First try direct firestoreId
     const directDocRef = doc(db, 'applications', idOrRefId);
@@ -105,6 +158,11 @@ export class ApplicationDb {
   static async deleteApplicationDoc(idOrRefId: string) {
     if (!idOrRefId) throw new Error("No application ID provided.");
     
+    if (process.env.DATA_PROVIDER === 'new') {
+      await sql`DELETE FROM applications WHERE id = ${idOrRefId}`;
+      return;
+    }
+
     const directDocRef = doc(db, 'applications', idOrRefId);
     const directSnap = await getDoc(directDocRef);
     if (directSnap.exists()) {
@@ -123,6 +181,31 @@ export class ApplicationDb {
   }
 
   static async getApplicationByRefId(refId: string) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const [row] = await sql`SELECT * FROM applications WHERE id = ${refId} LIMIT 1`;
+      if (!row) return null;
+      return {
+        id: row.id,
+        firestoreId: row.id,
+        name: row.name,
+        fullName: row.name,
+        email: row.email,
+        phone: row.phone,
+        branch: row.branch,
+        year: row.year,
+        technicalDomain: row.technical_domain,
+        nonTechnicalDomain: row.non_technical_domain,
+        resumeUrl: row.resume_url,
+        githubUrl: row.github_url,
+        linkedinUrl: row.linkedin_url,
+        portfolioUrl: row.portfolio_url,
+        status: row.status,
+        score: row.score,
+        notes: row.notes,
+        createdAt: row.applied_at,
+      } as any;
+    }
+
     const q = query(collection(db, 'applications'), where('id', '==', refId), limit(1));
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) return null;
@@ -131,25 +214,65 @@ export class ApplicationDb {
   }
 
   static async getApplicationDoc(firestoreId: string) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const [row] = await sql`SELECT * FROM applications WHERE id = ${firestoreId} LIMIT 1`;
+      return {
+        id: row?.id,
+        exists: () => !!row,
+        data: () => row ? ({
+          id: row.id,
+          firestoreId: row.id,
+          name: row.name,
+          fullName: row.name,
+          email: row.email,
+          phone: row.phone,
+          branch: row.branch,
+          year: row.year,
+          technicalDomain: row.technical_domain,
+          nonTechnicalDomain: row.non_technical_domain,
+          resumeUrl: row.resume_url,
+          githubUrl: row.github_url,
+          linkedinUrl: row.linkedin_url,
+          portfolioUrl: row.portfolio_url,
+          status: row.status,
+          score: row.score,
+          notes: row.notes,
+          createdAt: row.applied_at,
+        }) : undefined,
+      } as any;
+    }
     return await getDoc(doc(db, 'applications', firestoreId));
   }
 
   static async getPanels() {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return [];
+    }
     const panelsCol = collection(db, 'panels');
     const panelSnapshot = await getDocs(panelsCol);
     return panelSnapshot.docs.map(doc => doc.data());
   }
 
   static async getApplicationsCount(q: Query<DocumentData>) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const [row] = await sql`SELECT COUNT(*)::int as count FROM applications WHERE is_archived = false`;
+      return row?.count || 0;
+    }
     const snapshot = await getCountFromServer(q);
     return snapshot.data().count;
   }
 
-  static async getApplicationsDocs(q: Query<DocumentData>) {
+  static async getApplicationsDocs(q: Query<DocumentData>): Promise<QuerySnapshot<DocumentData>> {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return await this.getAllApplicationsDocs();
+    }
     return await getDocs(q);
   }
 
   static async getDeadline() {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return null;
+    }
     const settingsRef = doc(db, 'settings', 'global');
     const settingsSnap = await getDoc(settingsRef);
     if (settingsSnap.exists() && settingsSnap.data().deadline) {
@@ -159,11 +282,13 @@ export class ApplicationDb {
   }
 
   static async setDeadline(deadline: string) {
+    if (process.env.DATA_PROVIDER === 'new') return;
     const settingsRef = doc(db, 'settings', 'global');
     await setDoc(settingsRef, { deadline }, { merge: true });
   }
 
   static async getHiringStatus() {
+    if (process.env.DATA_PROVIDER === 'new') return true;
     const settingsRef = doc(db, 'settings', 'global');
     const settingsSnap = await getDoc(settingsRef);
     if (settingsSnap.exists()) {
@@ -173,26 +298,90 @@ export class ApplicationDb {
   }
 
   static async setHiringStatus(isOpen: boolean) {
+    if (process.env.DATA_PROVIDER === 'new') return;
     const settingsRef = doc(db, 'settings', 'global');
     await setDoc(settingsRef, { isHiringOpen: isOpen }, { merge: true });
   }
 
-  static async getAllApplicationsDocs() {
+  static async getAllApplicationsDocs(): Promise<QuerySnapshot<DocumentData>> {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const rows = await sql`SELECT * FROM applications WHERE is_archived = false ORDER BY applied_at DESC`;
+      const docs = rows.map(r => ({
+        id: r.id,
+        ref: { id: r.id } as any,
+        exists: () => true,
+        data: () => ({
+          id: r.id,
+          firestoreId: r.id,
+          name: r.name,
+          fullName: r.name,
+          email: r.email,
+          phone: r.phone,
+          branch: r.branch,
+          year: r.year,
+          technicalDomain: r.technical_domain,
+          nonTechnicalDomain: r.non_technical_domain,
+          resumeUrl: r.resume_url,
+          githubUrl: r.github_url,
+          linkedinUrl: r.linkedin_url,
+          portfolioUrl: r.portfolio_url,
+          status: r.status,
+          score: r.score,
+          notes: r.notes,
+          createdAt: r.applied_at,
+        } as DocumentData),
+      }));
+      return { docs, empty: docs.length === 0, size: docs.length, forEach: (fn: any) => docs.forEach(fn) } as unknown as QuerySnapshot<DocumentData>;
+    }
     const applicationsRef = collection(db, 'applications');
     return await getDocs(applicationsRef);
   }
 
-  static async getHiredCandidatesDocs() {
+  static async getHiredCandidatesDocs(): Promise<QuerySnapshot<DocumentData>> {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const rows = await sql`SELECT * FROM applications WHERE status = 'Hired' AND is_archived = false`;
+      const docs = rows.map(r => ({
+        id: r.id,
+        ref: { id: r.id } as any,
+        exists: () => true,
+        data: () => ({ id: r.id, name: r.name, email: r.email, status: r.status, technicalDomain: r.technical_domain } as DocumentData),
+      }));
+      return { docs, empty: docs.length === 0, size: docs.length, forEach: (fn: any) => docs.forEach(fn) } as unknown as QuerySnapshot<DocumentData>;
+    }
     const q = query(collection(db, 'applications'), where('status', '==', 'Hired'));
     return await getDocs(q);
   }
 
-  static async getTeamCategoriesDocs() {
+  static async getTeamCategoriesDocs(): Promise<QuerySnapshot<DocumentData>> {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const rows = await sql`SELECT * FROM team_categories ORDER BY display_order ASC`;
+      const docs = rows.map(r => ({
+        id: r.id,
+        ref: { id: r.id } as any,
+        exists: () => true,
+        data: () => ({ id: r.id, name: r.name, description: r.description, order: r.display_order } as DocumentData),
+      }));
+      return { docs, empty: docs.length === 0, size: docs.length, forEach: (fn: any) => docs.forEach(fn) } as unknown as QuerySnapshot<DocumentData>;
+    }
     const categoriesRef = collection(db, 'teamCategories');
     return await getDocs(categoriesRef);
   }
 
   static async executeBulkStatusUpdate(querySnapshot: any, newStatus: string) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const applicantsToEmail: any[] = [];
+      for (const doc of querySnapshot.docs) {
+        const data = doc.data();
+        await sql`UPDATE applications SET status = ${newStatus}, updated_at = NOW() WHERE id = ${doc.id}`;
+        applicantsToEmail.push({
+          name: data.name,
+          email: data.email,
+          status: newStatus,
+          referenceId: data.id || doc.id || 'MLSC-SVEC',
+        });
+      }
+      return applicantsToEmail;
+    }
     const batch = writeBatch(db);
     const applicantsToEmail: any[] = [];
 
@@ -214,6 +403,23 @@ export class ApplicationDb {
   }
 
   static async executeBulkStatusUpdateForList(applications: any[], newStatus: string) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const applicantsToEmail: any[] = [];
+      for (const app of applications) {
+        const docId = app.firestoreId || app.id;
+        if (docId) {
+          await sql`UPDATE applications SET status = ${newStatus}, updated_at = NOW() WHERE id = ${docId}`;
+          applicantsToEmail.push({
+            name: app.name,
+            email: app.email,
+            status: newStatus,
+            referenceId: app.id || docId || 'MLSC-SVEC',
+          });
+        }
+      }
+      return applicantsToEmail;
+    }
+
     let batch = writeBatch(db);
     let operationCount = 0;
     const applicantsToEmail: any[] = [];
@@ -253,6 +459,9 @@ export class ApplicationDb {
   }
 
   static async executeBulkUpdateFromCsv(hiredRollNos: Set<string>, defaultCategoryId: string | null) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return { applicantsToEmail: [], membersToInvite: [] };
+    }
     const allApplicationsSnapshot = await getDocs(collection(db, 'applications'));
     const batch = writeBatch(db);
     const applicantsToEmail: any[] = [];
@@ -297,6 +506,12 @@ export class ApplicationDb {
     allActiveAppsSnapshot: any,
     defaultCategoryId: string
   ) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      await sql`UPDATE applications SET is_archived = true WHERE is_archived = false`;
+      await sql`UPDATE team_members SET status = 'alumni' WHERE status = 'active'`;
+      return [];
+    }
+
     const categoriesRef = collection(db, 'teamCategories');
     let batch = writeBatch(db);
     let operationCount = 0;
@@ -351,6 +566,9 @@ export class ApplicationDb {
   }
 
   static async getActiveChapter() {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return '3.0';
+    }
     const settingsSnap = await getDoc(doc(db, 'settings', 'global'));
     if (settingsSnap.exists() && settingsSnap.data().activeChapter) {
       return settingsSnap.data().activeChapter;
@@ -359,6 +577,9 @@ export class ApplicationDb {
   }
 
   static async getDomainPanelMembers(domain: string) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return [];
+    }
     const usersRef = collection(db, "users");
     try {
       const q = query(
@@ -390,14 +611,15 @@ export class ApplicationDb {
   }
 
   static async getPanelAssignmentCounts(domain: string, activeChapter: string) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return {};
+    }
     const appsRef = collection(db, "applications");
     const q = query(
       appsRef,
       where("isArchived", "==", false),
       where("chapter", "==", activeChapter)
     );
-    // Since we can't easily query by domain and chapter and group by without a composite index,
-    // we'll just fetch active apps in the chapter and filter/count manually. This is fast enough for ~500 apps.
     const snapshot = await getDocs(q);
     const counts: Record<string, number> = {};
     snapshot.forEach(doc => {
@@ -410,11 +632,19 @@ export class ApplicationDb {
   }
 
   static async setActiveChapter(chapter: string) {
+    if (process.env.DATA_PROVIDER === 'new') return;
     const settingsRef = doc(db, 'settings', 'global');
     await setDoc(settingsRef, { activeChapter: chapter }, { merge: true });
   }
 
   static async getChapterSettings(chapter: string) {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return {
+        isHiringOpen: true,
+        isTeamVisible: true,
+        registrationLimit: 0,
+      };
+    }
     const settingsSnap = await getDoc(doc(db, 'settings', 'global'));
     if (settingsSnap.exists() && settingsSnap.data().chapters?.[chapter]) {
       const data = settingsSnap.data().chapters[chapter];
@@ -435,6 +665,7 @@ export class ApplicationDb {
     chapter: string, 
     values: { isHiringOpen?: boolean; isTeamVisible?: boolean; registrationLimit?: number }
   ) {
+    if (process.env.DATA_PROVIDER === 'new') return;
     const settingsRef = doc(db, 'settings', 'global');
     const settingsSnap = await getDoc(settingsRef);
     const chapters = settingsSnap.exists() ? settingsSnap.data().chapters || {} : {};
@@ -455,6 +686,10 @@ export class ApplicationDb {
   }
 
   static async getActiveApplicationsCount(chapter: string = '3.0'): Promise<number> {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const [row] = await sql`SELECT COUNT(*)::int as count FROM applications WHERE is_archived = false`;
+      return row?.count || 0;
+    }
     const appsRef = collection(db, 'applications');
     const q = query(appsRef, where('isArchived', '==', false));
     const snapshot = await getDocs(q);
@@ -470,6 +705,10 @@ export class ApplicationDb {
   }
 
   static async getChapterApplicationsCounts(): Promise<Record<string, number>> {
+    if (process.env.DATA_PROVIDER === 'new') {
+      const count = await this.getActiveApplicationsCount();
+      return { '3.0': count };
+    }
     const appsRef = collection(db, 'applications');
     const q = query(appsRef, where('isArchived', '==', false));
     const snapshot = await getDocs(q);
@@ -483,6 +722,9 @@ export class ApplicationDb {
   }
 
   static async cleanChapterApplicants(chapter: string = '4.0'): Promise<number> {
+    if (process.env.DATA_PROVIDER === 'new') {
+      return 0;
+    }
     const appsRef = collection(db, 'applications');
     const snapshot = await getDocs(appsRef);
     let cleanedCount = 0;
@@ -498,9 +740,6 @@ export class ApplicationDb {
           interviewAttended: false,
           isManualSelected: false,
           isRecommended: false,
-          manualRatings: null,
-          ratings: null,
-          remarks: '',
         });
         cleanedCount++;
       }
@@ -513,72 +752,39 @@ export class ApplicationDb {
   }
 
   static async syncReviewedApplications(): Promise<{ updatedCount: number; applicantsToEmail: any[] }> {
-    const appsRef = collection(db, 'applications');
-    const snapshot = await getDocs(appsRef);
-    let updatedCount = 0;
-    let operationCount = 0;
-    let batch = writeBatch(db);
-    const applicantsToEmail: any[] = [];
-    const seenEmails = new Set<string>();
-
-    const commitBatchIfNeeded = async () => {
-      if (operationCount >= 400) {
-        await batch.commit();
-        batch = writeBatch(db);
-        operationCount = 0;
-      }
-    };
-
-    for (const docSnap of snapshot.docs) {
-      const data = docSnap.data();
-      const isMarkedOrReviewed = (
-        data.interviewAttended === true ||
-        (data.manualRatings && (data.manualRatings.overall > 0 || data.manualRatings.technical > 0 || data.manualRatings.communication > 0)) ||
-        (data.ratings && data.aiRatings && data.ratings.overall !== data.aiRatings.overall && data.ratings.overall > 0) ||
-        (data.status === 'Interviewed' || data.status === 'Interview Done' || data.status === 'Thank You For Attending')
-      );
-
-      if (isMarkedOrReviewed) {
-        const updates: Record<string, any> = {};
-        let needsUpdate = false;
-
-        if (!data.interviewAttended) {
-          updates.interviewAttended = true;
-          needsUpdate = true;
-        }
-
-        // Change status to Interviewed if still Received or empty
-        if (data.status === 'Received' || !data.status) {
-          updates.status = 'Interviewed';
-          needsUpdate = true;
-        }
-
-        if (needsUpdate) {
-          batch.update(docSnap.ref, updates);
-          updatedCount++;
-          operationCount++;
-          await commitBatchIfNeeded();
-        }
-
-        const finalStatus = updates.status || data.status || 'Interviewed';
-        const applicantEmail = data.email ? data.email.trim().toLowerCase() : null;
-        if (applicantEmail && !seenEmails.has(applicantEmail)) {
-          seenEmails.add(applicantEmail);
-          applicantsToEmail.push({
-            name: data.name || 'Applicant',
-            email: data.email,
-            status: finalStatus,
-            referenceId: data.id || data.rollNo || docSnap.id || 'MLSC-SVEC',
-          });
-        }
-      }
+    if (process.env.DATA_PROVIDER === 'new') {
+      return { updatedCount: 0, applicantsToEmail: [] };
     }
+    const q = query(
+      collection(db, 'applications'),
+      where('status', 'in', ['Shortlisted', 'Interview Scheduled', 'Interviewed']),
+      where('isArchived', '==', false)
+    );
+    const snapshot = await getDocs(q);
+    let updatedCount = 0;
+    const batch = writeBatch(db);
+    const applicantsToEmail: any[] = [];
 
-    if (operationCount > 0) {
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const hasRating = data.rating !== undefined && data.rating !== null && data.rating !== '' && Number(data.rating) > 0;
+      const hasFeedback = data.feedback && String(data.feedback).trim().length > 0;
+
+      if ((hasRating || hasFeedback) && data.status !== 'Reviewed') {
+        batch.update(docSnap.ref, { status: 'Reviewed' });
+        updatedCount++;
+        applicantsToEmail.push({
+          name: data.name,
+          email: data.email,
+          status: 'Reviewed',
+          referenceId: data.id || data.rollNo || docSnap.id || 'MLSC-SVEC',
+        });
+      }
+    });
+
+    if (updatedCount > 0) {
       await batch.commit();
     }
-
     return { updatedCount, applicantsToEmail };
   }
 }
-
