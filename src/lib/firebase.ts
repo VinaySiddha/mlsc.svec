@@ -20,39 +20,52 @@ const firebaseConfig = {
   appId: cleanEnvVar(process.env.NEXT_PUBLIC_FIREBASE_APP_ID)
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase safely
+const app = !getApps().length
+  ? initializeApp(firebaseConfig.projectId ? firebaseConfig : { ...firebaseConfig, projectId: 'mlsc-placeholder' })
+  : getApp();
+
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Auth is initialized lazily to avoid build-time API key validation errors
+// Auth is initialized lazily and guarded to prevent crashes when Firebase keys are absent
 let _auth: Auth | null = null;
 const auth: Auth = new Proxy({} as Auth, {
   get(_target, prop) {
     if (!_auth) {
-      _auth = getAuth(app);
-      setPersistence(_auth, browserLocalPersistence);
+      if (!firebaseConfig.apiKey) {
+        return typeof prop === 'string' && prop.startsWith('on') ? () => () => {} : () => Promise.resolve();
+      }
+      try {
+        _auth = getAuth(app);
+        setPersistence(_auth, browserLocalPersistence);
+      } catch (err) {
+        console.warn("Firebase Auth initialization skipped:", err);
+        return () => Promise.resolve();
+      }
     }
-    const value = (_auth as any)[prop];
+    const value = (_auth as any)?.[prop];
     if (typeof value === 'function') {
       return value.bind(_auth);
     }
     return value;
   },
   set(_target, prop, value) {
-    if (!_auth) {
-      _auth = getAuth(app);
-      setPersistence(_auth, browserLocalPersistence);
+    if (!_auth && firebaseConfig.apiKey) {
+      try {
+        _auth = getAuth(app);
+        setPersistence(_auth, browserLocalPersistence);
+      } catch (err) {
+        console.warn("Firebase Auth set skipped:", err);
+      }
     }
-    (_auth as any)[prop] = value;
+    if (_auth) {
+      (_auth as any)[prop] = value;
+    }
     return true;
   },
   has(_target, prop) {
-    if (!_auth) {
-      _auth = getAuth(app);
-      setPersistence(_auth, browserLocalPersistence);
-    }
-    return prop in _auth;
+    return true;
   },
 });
 
